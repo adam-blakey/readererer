@@ -1,0 +1,12 @@
+@import "@tabler/core/dist/css/tabler.min.css";
+@import "@tabler/core/dist/css/tabler-flags.min.css";
+@import "@tabler/core/dist/css/tabler-payments.min.css";
+@import "@tabler/core/dist/css/tabler-vendors.min.css";
+@import "@tabler/core/dist/css/demo.min.css";
+@import "apexcharts/dist/apexcharts.css";
+@import "choices.js/public/assets/styles/choices.min.css";
+@import "flatpickr/dist/flatpickr.min.css";
+@import "jsvectormap/dist/jsvectormap.min.css";
+@import "litepicker/dist/css/litepicker.css";
+@import "nouislider/dist/nouislider.min.css";
+@import "tom-select/dist/css/tom-select.min.css";
