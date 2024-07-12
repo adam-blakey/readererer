@@ -12,5 +12,18 @@
         "postcss": "^8.4.39",
         "tailwindcss": "^3.4.4",
         "vite": "^5.0"
+    },
+    "dependencies": {
+        "@tabler/core": "^1.0.0-beta20",
+        "apexcharts": "^3.50.0",
+        "autosize": "^6.0.1",
+        "choices.js": "^10.2.0",
+        "countup.js": "^2.8.0",
+        "flatpickr": "^4.6.13",
+        "imask": "^6.6.3",
+        "jsvectormap": "^1.6.0",
+        "litepicker": "^2.0.12",
+        "nouislider": "^15.8.1",
+        "tom-select": "^2.3.1"
     }
 }

@@ -13,4 +13,8 @@ class Composer extends Model
     public function pieces(): belongstoMany {
         return $this->belongsToMany(Piece::class);
     }
+
+    public function full_name(): string {
+        return "{$this->first_name} {$this->last_name}";
+    }
 }
