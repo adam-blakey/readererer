@@ -18,6 +18,7 @@ class PieceFactory extends Factory
     public function definition(): array
     {
         return [
+            'catalogue_id' => $this->faker->numberBetween(1, 800),
             'name' => ucfirst($this->faker->word),
             'composer_id' => Composer::factory()
         ];

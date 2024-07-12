@@ -14,6 +14,7 @@ return new class extends Migration
     {
         Schema::create('pieces', function (Blueprint $table) {
             $table->id();
+            $table->integer('catalogue_id');
             $table->string('name');
             $table->foreignIdFor(Composer::class);
             $table->timestamps();
