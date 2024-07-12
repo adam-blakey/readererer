@@ -14,5 +14,10 @@
 @import url('https://rsms.me/inter/inter.css');
 
 :root {
-    --tblr-font-sans-serif: Inter, -apple-system, BlinkMacSystemFont, San Francisco, Segoe UI, Roboto, Helvetica Neue, sans-serif;
+    --tblr-font-sans-serif: Roboto, Helvetica Neue, sans-serif;
+    --tblr-navbar-brand-padding-y: 0.1rem;
+}
+
+.navbar-brand-image {
+    height:2.5rem;
 }
