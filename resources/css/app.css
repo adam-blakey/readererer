@@ -10,3 +10,9 @@
 @import "litepicker/dist/css/litepicker.css";
 @import "nouislider/dist/nouislider.min.css";
 @import "tom-select/dist/css/tom-select.min.css";
+
+@import url('https://rsms.me/inter/inter.css');
+
+:root {
+    --tblr-font-sans-serif: Inter, -apple-system, BlinkMacSystemFont, San Francisco, Segoe UI, Roboto, Helvetica Neue, sans-serif;
+}

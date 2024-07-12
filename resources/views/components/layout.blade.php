@@ -3,33 +3,34 @@
 @php
     if ($page_name == '') {
         $title = env('APP_NAME');
-    }
-    else {
+        $page_name = $title;
+    } else {
         $title = env('APP_NAME') . ' — ' . $page_name;
     }
 @endphp
 
 <!doctype html>
-<html lang="en" class="h-full bg-gray-100">
+<html lang="en">
+
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport"
-          content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
-    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <meta http-equiv="X-UA-Compatible" content="ie=edge" />
     <title>{{ $title }}</title>
     @vite(['resources/js/app.js', 'resources/css/app.css'])
 </head>
-<body class="h-full">
-    <div class="min-h-full">
-        <x-nav-menu />
 
-        <x-page-header :$page_name />
-
-        <main>
-            <div class="mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:px-8">
+<body>
+    <div class="page">
+        <x-nav-menu></x-nav-menu>
+        <div class="page-wrapper">
+            <x-page-header :$page_name />
+            <div class="page-body">
                 {{ $slot }}
             </div>
-        </main>
+            <x-footer />
+        </div>
     </div>
 </body>
+
 </html>
