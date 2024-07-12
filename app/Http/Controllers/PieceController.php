@@ -16,7 +16,8 @@ class PieceController extends Controller
         $pieces = Piece::latest()->with(['composer'])->get();
 
         return view('pieces.index', [
-            'pieces' => $pieces
+            'pieces' => $pieces,
+            'page_name' => 'Pieces'
         ]);
     }
 

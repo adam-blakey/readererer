@@ -18,4 +18,15 @@ class Piece extends Model
     public function parts(): HasMany {
         return $this->hasMany(Part::class);
     }
+
+    public function parts_string(): string {
+        $list_of_parts = "";
+        for ($i = 0; $i < $this->parts->count(); $i++) {
+            $list_of_parts .= $this->parts[$i]->name;
+            if ($i != $this->parts->count() - 1) {
+                $list_of_parts .= ", ";
+            }
+        }
+        return $list_of_parts;
+    }
 }
