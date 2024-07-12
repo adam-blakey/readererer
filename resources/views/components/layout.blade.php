@@ -1,4 +1,4 @@
-@props(['page_name' => ''])
+@props(['page_name' => '', 'pre_title' => ''])
 
 @php
     if ($page_name == '') {
@@ -25,7 +25,7 @@
     <div class="page">
         <x-nav-menu></x-nav-menu>
         <div class="page-wrapper">
-            <x-page-header :$page_name />
+            <x-page-header :$page_name :$pre_title />
             <div class="page-body">
                 {{ $slot }}
             </div>

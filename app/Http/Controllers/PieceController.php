@@ -17,7 +17,8 @@ class PieceController extends Controller
 
         return view('pieces.index', [
             'pieces' => $pieces,
-            'page_name' => 'Pieces'
+            'page_name' => 'Pieces',
+            'pre_title' => 'Overview'
         ]);
     }
 
@@ -50,7 +51,11 @@ class PieceController extends Controller
      */
     public function edit(Piece $piece)
     {
-        //
+        return view('pieces.edit', [
+            'piece' => $piece,
+            'page_name' => $piece->name . ' — ' . $piece->composer->full_name(),
+            'pre_title' => 'Edit Piece'
+        ]);
     }
 
     /**

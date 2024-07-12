@@ -6,6 +6,7 @@ use League\Flysystem\StorageAttributes;
 
 Route::get('/', [PieceController::class, 'index']);
 Route::get('/pieces',[PieceController::class, 'index']);
+Route::get('/pieces/{piece}/edit',[PieceController::class, 'edit']);
 
 Route::get('/test', function() {
     $client = new \Google\Client();
