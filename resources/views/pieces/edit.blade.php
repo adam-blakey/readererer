@@ -7,6 +7,7 @@
                 <x-card :header="$pre_title">
                     <form>
                         <x-forms.input type="text" name="name" title="Name" required="true" />
+                        <x-forms.composer-typeable-dropdown name="composer" title="Composer" required="true" />
                     </form>
                 </x-card>
             </div>

@@ -14,7 +14,16 @@ class Composer extends Model
         return $this->belongsToMany(Piece::class);
     }
 
-    public function full_name(): string {
-        return "{$this->first_name} {$this->last_name}";
+    public function full_name($reverse = false): string {
+        if ($reverse) {
+            return "{$this->last_name}, {$this->first_name}";
+        }
+        else {
+            return "{$this->first_name} {$this->last_name}";
+        }
+    }
+
+    public function initials(): string {
+        return "{$this->first_name[0]}{$this->last_name[0]}";
     }
 }

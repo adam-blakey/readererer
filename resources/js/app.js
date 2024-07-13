@@ -11,3 +11,5 @@ import "jsvectormap/dist/jsvectormap.min.js"
 import "litepicker/dist/js/main.js";
 import "nouislider/dist/nouislider.min.js";
 import "tom-select/dist/js/tom-select.complete.min.js";
+import TomSelect from 'tom-select';
+window.TomSelect = TomSelect;
