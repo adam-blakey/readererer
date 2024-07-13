@@ -13,6 +13,7 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
+        $this->call(PartSeeder::class);
         $this->call(PieceSeeder::class);
 
         User::factory()->create([

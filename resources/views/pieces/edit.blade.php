@@ -7,7 +7,8 @@
                 <x-card :header="$pre_title">
                     <form>
                         <x-forms.input type="text" name="name" title="Name" required="true" />
-                        <x-forms.composer-typeable-dropdown name="composer" title="Composer" required="true" />
+                        <x-forms.composer-typeable-dropdown name="composer" title="Composer" required="true" current_composer_id="{{ $piece->composer->id }}" />
+                        <x-forms.part-checkboxes name="parts" title="Parts" :$piece />
                     </form>
                 </x-card>
             </div>

@@ -22,3 +22,7 @@
 .navbar-brand-image {
     height:2.5rem;
 }
+
+.inline-list {
+    display: inline-block;
+}

@@ -1,5 +1,5 @@
 @php use App\Models\Composer; @endphp
-@props(['options', 'name', 'title', 'required' => false, ])
+@props(['options', 'name', 'title', 'current_composer_id', 'required' => false])
 
 @php
     $composers = Composer::all()->sortBy(['last_name', 'first_name']);
@@ -7,10 +7,10 @@
 
 <div class="mb-3">
     <label class="form-label {{ $required?'required':'' }}">{{ $title }}</label>
-    <select class="form-select" id="{{ $name }}" name="{{ $name }}" tabindex="-1" {{ $required?'required':'' }}>
+    <select class="form-select" id="{{ $name }}" name="{{ $name }}" {{ $required?'required':'' }}>
 
         @foreach($composers as $composer)
-            <option value="{{ $composer->id }}" data-custom-properties="<span class=&quot;avatar avatar-xs&quot;>{{ $composer->last_name[0] }}</span>">
+            <option value="{{ $composer->id }}" data-custom-properties="<span class=&quot;avatar avatar-xs&quot;>{{ $composer->last_name[0] }}</span>" {{ ($current_composer_id == $composer->id)?'selected':'' }}>
                 {{ $composer->full_name($reverse = true) }}
             </option>
         @endforeach
