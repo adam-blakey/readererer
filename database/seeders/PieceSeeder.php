@@ -14,7 +14,7 @@ class PieceSeeder extends Seeder
      */
     public function run(): void
     {
-        $pieces = Piece::factory(10)->create();
+        $pieces = Piece::factory(1)->create();
 
         $parts = [
             'Full Score',

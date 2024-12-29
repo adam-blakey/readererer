@@ -2,23 +2,18 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Ensemble;
-use App\Http\Requests\StoreEnsembleRequest;
-use App\Http\Requests\UpdateEnsembleRequest;
+use App\Models\EnsembleAdmin;
+use App\Http\Requests\StoreEnsembleAdminRequest;
+use App\Http\Requests\UpdateEnsembleAdminRequest;
 
-class EnsembleController extends Controller
+class EnsembleAdminController extends Controller
 {
     /**
      * Display a listing of the resource.
      */
     public function index()
     {
-        $ensembles = Ensemble::latest()->with(['admins'])->get();
-
-        return view('ensembles.index', [
-            'ensembles' => $ensembles,
-            'page_name' => 'Ensembles'
-        ]);
+        //
     }
 
     /**
@@ -32,7 +27,7 @@ class EnsembleController extends Controller
     /**
      * Store a newly created resource in storage.
      */
-    public function store(StoreEnsembleRequest $request)
+    public function store(StoreEnsembleAdminRequest $request)
     {
         //
     }
@@ -40,7 +35,7 @@ class EnsembleController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(Ensemble $ensemble)
+    public function show(EnsembleAdmin $ensembleAdmin)
     {
         //
     }
@@ -48,7 +43,7 @@ class EnsembleController extends Controller
     /**
      * Show the form for editing the specified resource.
      */
-    public function edit(Ensemble $ensemble)
+    public function edit(EnsembleAdmin $ensembleAdmin)
     {
         //
     }
@@ -56,7 +51,7 @@ class EnsembleController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(UpdateEnsembleRequest $request, Ensemble $ensemble)
+    public function update(UpdateEnsembleAdminRequest $request, EnsembleAdmin $ensembleAdmin)
     {
         //
     }
@@ -64,7 +59,7 @@ class EnsembleController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(Ensemble $ensemble)
+    public function destroy(EnsembleAdmin $ensembleAdmin)
     {
         //
     }

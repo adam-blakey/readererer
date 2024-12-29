@@ -2,13 +2,12 @@
 
 namespace Database\Factories;
 
-use App\Models\Composer;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
- * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Models\Piece>
+ * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Models\EnsembleAdmin>
  */
-class PieceFactory extends Factory
+class EnsembleAdminFactory extends Factory
 {
     /**
      * Define the model's default state.
@@ -18,8 +17,7 @@ class PieceFactory extends Factory
     public function definition(): array
     {
         return [
-            'name' => ucfirst($this->faker->word),
-            'composer_id' => Composer::factory()
+            //
         ];
     }
 }
