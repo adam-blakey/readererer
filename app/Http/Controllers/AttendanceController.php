@@ -13,7 +13,12 @@ class AttendanceController extends Controller
      */
     public function index()
     {
-        //
+        $attendances = Attendance::latest()->with(['user', 'edit_user', 'term_date'])->orderBy('updated_at')->get();
+
+        return view('attendances.index', [
+            'attendances' => $attendances,
+            'page_name' => 'Attendance updates'
+        ]);
     }
 
     /**

@@ -2,9 +2,9 @@
 
 namespace App\Enums;
 
-class AttendanceStatus
+enum AttendanceStatus: int
 {
-    const Unknown = null;
-    const NotAttending = 0;
-    const Attending = 1;
+    case Unknown = 0;
+    case NotAttending = 1;
+    case Attending = 2;
 }

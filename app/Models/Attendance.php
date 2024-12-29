@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasOne;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use App\Enums\AttendanceStatus;
 
 class Attendance extends Model
@@ -14,25 +15,24 @@ class Attendance extends Model
     protected $edit_datetime;
     protected $edit_ip;
 
-
-    public function user(): HasOne
+    public function user(): BelongsTo
     {
-        return $this->hasOne(User::class);
+        return $this->belongsTo(User::class);
     }
 
-    public function edit_user(): HasOne
+    public function edit_user(): BelongsTo
     {
-        return $this->hasOne(User::class);
+        return $this->belongsTo(User::class);
     }
 
-    public function term_date(): HasOne
+    public function term_date(): BelongsTo
     {
-        return $this->hasOne(TermDate::class);
+        return $this->belongsTo(TermDate::class);
     }
 
-    public function ensemble(): HasOne
+    public function ensemble(): BelongsTo
     {
-        return $this->hasOne(Ensemble::class);
+        return $this->belongsTo(Ensemble::class);
     }
 
     public function casts(): array

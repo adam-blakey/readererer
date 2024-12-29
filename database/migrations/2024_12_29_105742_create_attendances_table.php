@@ -3,6 +3,8 @@
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
+use App\Models\User;
+use App\Models\TermDate;
 
 return new class extends Migration
 {
@@ -14,6 +16,12 @@ return new class extends Migration
         Schema::create('attendances', function (Blueprint $table) {
             $table->id();
             $table->timestamps();
+            $table->foreignIdFor(User::class);
+            $table->foreignIdFor(User::class, 'edit_user_id');
+            $table->foreignIdFor(TermDate::class);
+            $table->integer('status')->nullable();
+            $table->ipAddress('edit_ip');
+            $table->unique(['user_id', 'term_date_id']);
         });
     }
 
