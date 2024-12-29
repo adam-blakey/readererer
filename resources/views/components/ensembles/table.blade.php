@@ -26,6 +26,7 @@
                             <a href="/users/{{ $admin->id }}"
                                 class="text-reset">{{ $admin->name }}</a>{{ $loop->last ? '' : ',' }}
                         @endforeach
+                    </td>
                     <td>
                         <a href="/ensembles/{{ $ensemble->id }}/edit">Edit</a>
                     </td>

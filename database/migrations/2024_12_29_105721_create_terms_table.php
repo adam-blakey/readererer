@@ -14,6 +14,9 @@ return new class extends Migration
         Schema::create('terms', function (Blueprint $table) {
             $table->id();
             $table->timestamps();
+            $table->string('name');
+            $table->string('slug');
+            $table->boolean('show')->default(true);
         });
     }
 

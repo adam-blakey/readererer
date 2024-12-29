@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Term;
+use App\Models\TermDate;
 use App\Http\Requests\StoreTermRequest;
 use App\Http\Requests\UpdateTermRequest;
 
@@ -13,7 +14,12 @@ class TermController extends Controller
      */
     public function index()
     {
-        //
+        $terms = Term::latest()->with(['term_dates'])->withCount('term_dates')->get();
+
+        return view('terms.index', [
+            'terms' => $terms,
+            'page_name' => 'Terms'
+        ]);
     }
 
     /**

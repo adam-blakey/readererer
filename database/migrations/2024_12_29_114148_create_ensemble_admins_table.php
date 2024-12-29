@@ -3,6 +3,8 @@
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
+use App\Models\Ensemble;
+use App\Models\User;
 
 return new class extends Migration
 {
@@ -13,8 +15,8 @@ return new class extends Migration
     {
         Schema::create('ensemble_admins', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('ensemble_id')->constrained()->onDelete('cascade');
-            $table->foreignId('admin_id')->constrained('users')->onDelete('cascade');
+            $table->foreignIdFor(Ensemble::class);
+            $table->foreignIdFor(User::class, 'admin_id');
             $table->unique(['ensemble_id', 'admin_id']);
         });
     }
