@@ -29,7 +29,6 @@ deploy_krystal_test:
     SERVER_PORT: "22"
     TEST_DOMAIN: "readererer.com"
   script:
-    - export
     - composer global require --prefer-dist laravel/envoy=~2.9.0 --no-interaction --prefer-dist --quiet
     # Add the private SSH key to the build environment
     - "which ssh-agent || ( apt-get update -y && apt-get install openssh-client -y )"
@@ -47,7 +46,7 @@ deploy_krystal_test:
     - envoy run deploy --branch=main --domain=$TEST_DOMAIN --unix_username=$UNIX_USERNAME --server_domain=$SERVER_DOMAIN --server_port=$SERVER_PORT --seed_database=1
   only:
     - main
-    - tags
+    - /^v.*$/
 
 deploy_krystal_demo:
   stage: deploy
@@ -63,7 +62,6 @@ deploy_krystal_demo:
     SERVER_PORT: "22"
     DEMO_DOMAIN: "readererer.com"
   script:
-    - export
     - composer global require --prefer-dist laravel/envoy=~2.9.0 --no-interaction --prefer-dist --quiet
     # Add the private SSH key to the build environment
     - "which ssh-agent || ( apt-get update -y && apt-get install openssh-client -y )"
@@ -80,6 +78,6 @@ deploy_krystal_demo:
     # Run Envoy
     - envoy run deploy --branch=main --domain=$DEMO_DOMAIN --unix_username=$UNIX_USERNAME --server_domain=$SERVER_DOMAIN --server_port=$SERVER_PORT --seed_database=0
   only:
-    - tags
+    - /^v.*$/
   except:
     - branches
