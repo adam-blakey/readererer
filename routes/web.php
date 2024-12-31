@@ -16,5 +16,6 @@ Route::get('/terms', [TermController::class, 'index']);
 
 Route::get('/attendance', [AttendanceController::class, 'index']);
 Route::get('/attendance/poll/{ensemble}/{term}', [AttendanceController::class, 'poll']);
+Route::get('/attendance/poll/{ensemble:slug}/{term:slug}', [AttendanceController::class, 'poll_slug']);
 
 Route::get('/users', [UserController::class, 'index']);

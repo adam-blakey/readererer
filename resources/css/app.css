@@ -22,11 +22,12 @@
     height: 2.5rem;
 }
 
-.poll-date-heading {
+.poll-date {
+    line-height: 1.6;
     font-weight: 500 !important;
 }
 
-.poll-date {
+.poll-date-date {
     line-height: 1;
     font-size: 2rem;
     font-weight: 700;

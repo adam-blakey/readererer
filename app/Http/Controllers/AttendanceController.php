@@ -49,6 +49,14 @@ class AttendanceController extends Controller
         ]);
     }
 
+    public function poll_slug(string $ensemble_slug, string $term_slug)
+    {
+        $ensemble = Ensemble::where('slug', $ensemble_slug)->first();
+        $term = Term::where('slug', $term_slug)->first();
+
+        return $this->poll($ensemble, $term);
+    }
+
     /**
      * Show the form for creating a new resource.
      */

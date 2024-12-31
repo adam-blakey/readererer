@@ -6,9 +6,9 @@
             <tr>
                 <th>Members</th>
                 @foreach ($term->term_dates as $term_date)
-                    <th class="text-center poll-date-heading">
+                    <th class="text-center poll-date">
                         {{ $term_date->start_datetime->format('M') }}<br />
-                        <span class="poll-date">{{ $term_date->start_datetime->format('j') }}</span><br />
+                        <span class="poll-date-date">{{ $term_date->start_datetime->format('j') }}</span><br />
                         {{ $term_date->start_datetime->format('D') }}<br />
                         {{ $term_date->start_datetime->format('G:i') }}<br />
                         {{ $term_date->end_datetime->format('G:i') }}<br />
