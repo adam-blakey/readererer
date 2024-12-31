@@ -7,6 +7,10 @@
         $tag = '-.-.-';
     }
 
+    if (substr($tag, 0, 1) === 'v') {
+        $tag = substr($tag, 1);
+    }
+
     $hash = trim(exec('git log --pretty="%h" -n1 HEAD'));
     $date = Carbon\Carbon::parse(trim(exec('git log -n1 --pretty=%ci HEAD')));
 
