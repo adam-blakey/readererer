@@ -28,8 +28,7 @@
     run_npm_install
     compiling_assets
     run_composer
-    optimize_installation
-    migrate_database
+    optimize_and_migrate
     artisan_up
     application_deployed
 @endstory
@@ -73,23 +72,18 @@
     composer install --no-interaction --no-dev --prefer-dist
 @endtask
 
-@task('optimize_installation')
-    {{ logMessage('✨  Optimizing installation...') }}
+@task('optimize_and_migrate')
+    {{ logMessage('✨  Optimizing installation and migrating database...') }}
     cd {{ $app_dir }}
     php artisan clear-compiled --env=production
     php artisan optimize --env=production
     php artisan config:cache
     php artisan route:cache
     php artisan event:cache
-    php artisan cache:clear
 
-    php artisan queue:restart
-@endtask
-
-@task('migrate_database')
-    {{ logMessage('🙈  Migrating database...') }}
-    cd {{ $app_dir }}
     php artisan migrate --force
+    php artisan cache:clear
+    php artisan queue:restart
 @endtask
 
 @task('artisan_up')
