@@ -29,6 +29,7 @@ deploy_krystal_test:
     SERVER_PORT: "22"
     TEST_DOMAIN: "readererer.com"
   script:
+    - export
     - composer global require --prefer-dist laravel/envoy=~2.9.0 --no-interaction --prefer-dist --quiet
     # Add the private SSH key to the build environment
     - "which ssh-agent || ( apt-get update -y && apt-get install openssh-client -y )"
@@ -62,6 +63,7 @@ deploy_krystal_demo:
     SERVER_PORT: "22"
     DEMO_DOMAIN: "readererer.com"
   script:
+    - export
     - composer global require --prefer-dist laravel/envoy=~2.9.0 --no-interaction --prefer-dist --quiet
     # Add the private SSH key to the build environment
     - "which ssh-agent || ( apt-get update -y && apt-get install openssh-client -y )"
