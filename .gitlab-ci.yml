@@ -26,7 +26,14 @@ deploy_krystal:
   cache:
     paths:
       - vendor/
+  variables:
+    SSH_PRIVATE_KEY: "SSH_PRIVATE_KEY_NOT_PROVIDED"
+    UNIX_USERNAME: "default"
+    SERVER_DOMAIN: "ssh.readererer.com"
+    SERVER_PORT: "22"
+    DOMAIN: "readererer.com"
   script:
+    - export
     - composer global require --prefer-dist laravel/envoy=~2.9.0 --no-interaction --prefer-dist --quiet
     # Add the private SSH key to the build environment
     - "which ssh-agent || ( apt-get update -y && apt-get install openssh-client -y )"
