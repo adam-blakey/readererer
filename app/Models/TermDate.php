@@ -1,0 +1,39 @@
+<?php
+
+namespace App\Models;
+
+use Illuminate\Support\Carbon;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasOne;
+
+class TermDate extends Model
+{
+    use HasFactory;
+
+    protected Carbon $start_datetime;
+    protected Carbon $end_datetime;
+    protected bool $is_concert;
+    protected bool $show;
+
+    public function term(): BelongsTo
+    {
+        return $this->BelongsTo(Term::class);
+    }
+
+    public function setup_group(): HasOne
+    {
+        return $this->hasOne(SetupGroup::class);
+    }
+
+    protected function casts(): array
+    {
+        return [
+            'start_datetime' => 'datetime',
+            'end_datetime' => 'datetime',
+            'is_concert' => 'boolean',
+            'show' => 'boolean',
+        ];
+    }
+}

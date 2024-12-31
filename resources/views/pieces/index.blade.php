@@ -5,9 +5,10 @@
         <x-card-row>
             <div class="col-md-12">
                 <x-card>
-                    <x-table :$pieces />
+                    <x-pieces.table :$pieces />
                 </x-card>
             </div>
         </x-card-row>
+        {{ $pieces->links() }}
     </div>
 </x-layout>

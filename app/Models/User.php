@@ -11,6 +11,18 @@ class User extends Authenticatable
 {
     use HasFactory, Notifiable;
 
+    protected $deleted_at;
+
+    public function attendances()
+    {
+        return $this->hasMany(Attendance::class);
+    }
+
+    public function ensembles()
+    {
+        return $this->belongsToMany(Ensemble::class, 'user_ensemble', 'user_id', 'ensemble_id');
+    }
+
     /**
      * The attributes that are mass assignable.
      *

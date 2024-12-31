@@ -1,0 +1,30 @@
+@props(['terms'])
+
+<div class="table-responsive">
+    <table class="table table-vcenter card-table">
+        <thead>
+            <tr>
+                <th>Term name</th>
+                <th>Slug</th>
+                <th>Visible</th>
+                <th>Date range</th>
+                <th class="w-1"></th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach ($terms as $term)
+                <tr>
+                    <td>{{ $term->name }}</td>
+                    <td>{{ $term->slug }}</td>
+                    <td>{{ $term->show ? 'Y' : 'N' }}</td>
+                    <td>
+                        {{ $term->term_dates_count }} date(s) ranging {{ $term->formatted_term_date_range() }}
+                    </td>
+                    <td>
+                        <a href="/ensembles/{{ $term->id }}/edit">Edit</a>
+                    </td>
+                </tr>
+            @endforeach
+        </tbody>
+    </table>
+</div>

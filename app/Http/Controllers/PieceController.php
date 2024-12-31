@@ -13,7 +13,7 @@ class PieceController extends Controller
      */
     public function index()
     {
-        $pieces = Piece::latest()->with(['composer'])->get();
+        $pieces = Piece::latest()->with(['composer'])->paginate(10);
 
         return view('pieces.index', [
             'pieces' => $pieces,
