@@ -19,7 +19,7 @@ return new class extends Migration
             $table->datetime('end_datetime');
             $table->foreignIdFor(Term::class);
             $table->boolean('is_concert')->default(false);
-            $table->boolean('show')->default(true);
+            $table->softDeletes();
         });
     }
 

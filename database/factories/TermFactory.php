@@ -20,7 +20,6 @@ class TermFactory extends Factory
         return [
             'name' => $this->faker->randomElement(['Spring', 'Summer', 'Autumn']).' '.$this->faker->year,
             'slug' => fn(array $attributes) => Str::slug($attributes['name']),
-            'show' => $this->faker->boolean,
         ];
     }
 }

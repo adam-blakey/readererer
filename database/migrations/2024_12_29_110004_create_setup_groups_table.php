@@ -14,6 +14,10 @@ return new class extends Migration
         Schema::create('setup_groups', function (Blueprint $table) {
             $table->id();
             $table->timestamps();
+            $table->string('name');
+            $table->integer('week')->default(0);
+            $table->string('color');
+            $table->softDeletes();
         });
     }
 

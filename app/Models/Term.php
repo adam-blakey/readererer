@@ -5,16 +5,17 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Carbon;
 
 class Term extends Model
 {
     use HasFactory;
+    use SoftDeletes;
 
     protected string $name;
     protected string $slug;
     protected string $image;
-    protected bool $show;
 
     public function term_dates(): HasMany
     {
