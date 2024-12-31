@@ -9,14 +9,20 @@
             </tr>
         </thead>
         <tbody>
-            @foreach ($users as $user)
+            @if ($users->isEmpty())
                 <tr>
-                    <td>{{ $user->name }}</td>
-                    <td>
-                        <a href="/users/{{ $user->id }}/edit">Edit</a>
-                    </td>
+                    <td colspan="5">No users found.</td>
                 </tr>
-            @endforeach
+            @else
+                @foreach ($users as $user)
+                    <tr>
+                        <td>{{ $user->name }}</td>
+                        <td>
+                            <a href="/users/{{ $user->id }}/edit">Edit</a>
+                        </td>
+                    </tr>
+                @endforeach
+            @endif
         </tbody>
     </table>
 </div>

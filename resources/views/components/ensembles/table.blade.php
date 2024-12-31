@@ -13,25 +13,32 @@
             </tr>
         </thead>
         <tbody>
-            @foreach ($ensembles as $ensemble)
+            @if ($ensembles->isEmpty())
                 <tr>
-                    <td>{{ $ensemble->name }}</td>
-                    <td>{{ $ensemble->slug }}</td>
-                    <td>
-                        <img src="{{ $ensemble->image }}" alt="{{ $ensemble->name }}" class="rounded" style="width: 50px;">
-                    </td>
-                    <td>{{ $ensemble->visible == 1 ? 'Y' : 'N' }}</td>
-                    <td>
-                        @foreach ($ensemble->admins as $admin)
-                            <a href="/users/{{ $admin->id }}"
-                                class="text-reset">{{ $admin->name }}</a>{{ $loop->last ? '' : ',' }}
-                        @endforeach
-                    </td>
-                    <td>
-                        <a href="/ensembles/{{ $ensemble->id }}/edit">Edit</a>
-                    </td>
+                    <td colspan="5">No ensembles found.</td>
                 </tr>
-            @endforeach
+            @else
+                @foreach ($ensembles as $ensemble)
+                    <tr>
+                        <td>{{ $ensemble->name }}</td>
+                        <td>{{ $ensemble->slug }}</td>
+                        <td>
+                            <img src="{{ $ensemble->image }}" alt="{{ $ensemble->name }}" class="rounded"
+                                style="width: 50px;">
+                        </td>
+                        <td>{{ $ensemble->visible == 1 ? 'Y' : 'N' }}</td>
+                        <td>
+                            @foreach ($ensemble->admins as $admin)
+                                <a href="/users/{{ $admin->id }}"
+                                    class="text-reset">{{ $admin->name }}</a>{{ $loop->last ? '' : ',' }}
+                            @endforeach
+                        </td>
+                        <td>
+                            <a href="/ensembles/{{ $ensemble->id }}/edit">Edit</a>
+                        </td>
+                    </tr>
+                @endforeach
+            @endif
         </tbody>
     </table>
 </div>
