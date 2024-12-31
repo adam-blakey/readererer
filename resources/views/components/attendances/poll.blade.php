@@ -26,12 +26,9 @@
                         <td class="w-1">
                             @php
                                 $attendance = $member->attendances->where('term_date_id', $term_date->id)->first();
+                                $attendance_value = $attendance->status ?? App\Enums\AttendanceStatus::Unknown;
                             @endphp
-                            @if ($attendance)
-                                {{ $attendance->status_text }}
-                            @else
-                                -
-                            @endif
+                            {{ $attendance_value }}
                         </td>
                     @endforeach
                 </tr>
