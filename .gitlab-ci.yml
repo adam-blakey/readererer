@@ -15,9 +15,7 @@ composer:
     paths:
       - vendor/
   only:
-    - tags
-  except:
-    - branches
+    - main
 
 deploy_krystal:
   stage: deploy
@@ -50,6 +48,4 @@ deploy_krystal:
     # Run Envoy
     - envoy run deploy --branch=main --domain=$DOMAIN --unix_username=$UNIX_USERNAME
   only:
-    - tags
-  except:
-    - branches
+    - main
