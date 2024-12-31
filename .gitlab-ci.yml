@@ -1,9 +1,8 @@
 image: lorisleiva/laravel-docker:8.2
 
 stages:
-  - build_test
-  - deploy_test
-  - deploy_demo
+  - build
+  - deploy
 
 build_test:
   stage: build
@@ -17,7 +16,7 @@ build_test:
       - vendor/
 
 deploy_krystal_test:
-  stage: deploy_test
+  stage: deploy
   dependencies:
     - built_test
   cache:
@@ -49,7 +48,7 @@ deploy_krystal_test:
     - main
 
 deploy_krystal_demo:
-  stage: deploy_demo
+  stage: deploy
   dependencies:
     - build_test
   cache:
