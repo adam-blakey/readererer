@@ -42,7 +42,10 @@ class EnsembleController extends Controller
      */
     public function show(Ensemble $ensemble)
     {
-        //
+        return view('ensembles.show', [
+            'ensemble' => $ensemble,
+            'page_name' => $ensemble->name
+        ]);
     }
 
     /**
@@ -50,7 +53,10 @@ class EnsembleController extends Controller
      */
     public function edit(Ensemble $ensemble)
     {
-        //
+        return view('ensembles.edit', [
+            'ensemble' => $ensemble,
+            'page_name' => 'Edit ' . $ensemble->name
+        ]);
     }
 
     /**

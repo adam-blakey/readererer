@@ -11,6 +11,8 @@ Route::get('/', [PieceController::class, 'index']);
 Route::get('/pieces',[PieceController::class, 'index']);
 
 Route::get('/ensembles',[EnsembleController::class, 'index']);
+Route::get('/ensembles/{ensemble}',[EnsembleController::class, 'show']);
+Route::get('/ensembles/{ensemble}/edit',[EnsembleController::class, 'edit']);
 
 Route::get('/terms', [TermController::class, 'index']);
 

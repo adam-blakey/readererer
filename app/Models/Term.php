@@ -22,14 +22,14 @@ class Term extends Model
         return $this->hasMany(TermDate::class);
     }
 
-    public function earliest_date(): Carbon
+    public function getEarliestDateAttribute(): Carbon
     {
         $earliest_termdate = $this->term_dates()->orderBy('start_datetime', 'asc')->firstOrFail();
 
         return $earliest_termdate->start_datetime;
     }
 
-    public function latest_date(): Carbon
+    public function getLatestDateAttribute(): Carbon
     {
         $latest_termdate = $this->term_dates()->orderBy('start_datetime', 'desc')->firstOrFail();
 
@@ -44,8 +44,8 @@ class Term extends Model
         }
         else
         {
-            $first = $this->earliest_date();
-            $last = $this->latest_date();
+            $first = $this->getEarliestDateAttribute();
+            $last = $this->getLatestDateAttribute();
 
             // Get human-readable length.
             $length = $first->diff($last)->months;
