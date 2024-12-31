@@ -29,6 +29,7 @@
     compiling_assets
     run_composer
     optimize_and_migrate
+    seed_database
     artisan_up
     application_deployed
 @endstory
