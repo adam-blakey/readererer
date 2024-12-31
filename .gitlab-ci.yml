@@ -31,7 +31,6 @@ deploy_krystal:
     SERVER_PORT: "22"
     DOMAIN: "readererer.com"
   script:
-    - export
     - composer global require --prefer-dist laravel/envoy=~2.9.0 --no-interaction --prefer-dist --quiet
     # Add the private SSH key to the build environment
     - "which ssh-agent || ( apt-get update -y && apt-get install openssh-client -y )"
@@ -46,6 +45,6 @@ deploy_krystal:
     - ssh -T $UNIX_USERNAME@$SERVER_DOMAIN -p $SERVER_PORT
     - ssh -T git@gitlab.com
     # Run Envoy
-    - envoy run deploy --branch=main --domain=$DOMAIN --unix_username=$UNIX_USERNAME
+    - envoy run deploy --branch=main --domain=$DOMAIN --unix_username=$UNIX_USERNAME --server_domain=$SERVER_DOMAIN --server_port=$SERVER_PORT
   only:
     - main
