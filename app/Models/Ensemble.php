@@ -21,4 +21,9 @@ class Ensemble extends Model
 
         return $this->belongsToMany(User::class, 'ensemble_admins', 'ensemble_id', 'admin_id');
     }
+
+    public function users(): BelongsToMany
+    {
+        return $this->belongsToMany(User::class, 'user_ensemble', 'ensemble_id', 'user_id');
+    }
 }

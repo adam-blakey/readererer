@@ -3,6 +3,9 @@
 namespace App\Http\Controllers;
 
 use App\Models\Attendance;
+use App\Models\User;
+use App\Models\Ensemble;
+use App\Models\Term;
 use App\Http\Requests\StoreAttendanceRequest;
 use App\Http\Requests\UpdateAttendanceRequest;
 
@@ -13,11 +16,36 @@ class AttendanceController extends Controller
      */
     public function index()
     {
-        $attendances = Attendance::latest()->with(['user', 'edit_user', 'term_date'])->orderBy('updated_at')->get();
+        $attendances = Attendance::latest()
+        ->with(['user', 'edit_user', 'term_date'])
+        ->orderBy('updated_at')
+        ->get();
 
         return view('attendances.index', [
             'attendances' => $attendances,
             'page_name' => 'Attendance updates'
+        ]);
+    }
+
+    /**
+     * Display the attendance poll.
+     */
+    public function poll(Ensemble $ensemble, Term $term)
+    {
+        $members = User::latest()
+        ->with('attendances')
+        ->with('ensembles')
+        ->get()
+        ->filter(function($user) use ($ensemble) { return $user->ensembles->contains($ensemble); })
+        ->sortBy('start_datetime')
+        ->values();
+
+        $page_name = $ensemble->name . ': ' . $term->name;
+
+        return view('attendances.poll', [
+            'members' => $members,
+            'term' => $term,
+            'page_name' => $page_name
         ]);
     }
 

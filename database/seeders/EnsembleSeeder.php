@@ -24,5 +24,15 @@ class EnsembleSeeder extends Seeder
                 $ensemble->admins()->attach(array_pop($admins));
             }
         });
+
+        $ensemble->each(function ($ensemble) {
+            $no_users = rand(1, 10);
+            $users = range(1, 10);
+            shuffle($users);
+
+            for ($i = 0; $i < $no_users; $i++) {
+                $ensemble->users()->attach(array_pop($users));
+            }
+        });
     }
 }

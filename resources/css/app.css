@@ -11,7 +11,7 @@
 @import "nouislider/dist/nouislider.min.css";
 @import "tom-select/dist/css/tom-select.min.css";
 
-@import url('https://rsms.me/inter/inter.css');
+@import url("https://rsms.me/inter/inter.css");
 
 :root {
     --tblr-font-sans-serif: Roboto, Helvetica Neue, sans-serif;
@@ -19,5 +19,15 @@
 }
 
 .navbar-brand-image {
-    height:2.5rem;
+    height: 2.5rem;
+}
+
+.poll-date-heading {
+    font-weight: 500 !important;
+}
+
+.poll-date {
+    line-height: 1;
+    font-size: 2rem;
+    font-weight: 700;
 }
