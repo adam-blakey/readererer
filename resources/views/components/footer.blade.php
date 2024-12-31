@@ -18,9 +18,7 @@
                         All rights reserved.
                     </li>
                     <li class="list-inline-item">
-                        <p class="link-secondary" rel="noopener">
-                            v{{ config('app.version') }}
-                        </p>
+                        <p>v{{ config('app.version') }}</p>
                     </li>
                 </ul>
             </div>
