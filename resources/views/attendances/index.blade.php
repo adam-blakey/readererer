@@ -9,5 +9,6 @@
                 </x-card>
             </div>
         </x-card-row>
+        {{ $attendances->links() }}
     </div>
 </x-layout>

@@ -13,7 +13,7 @@ class TermController extends Controller
      */
     public function index()
     {
-        $terms = Term::latest()->with(['term_dates'])->withCount('term_dates')->get();
+        $terms = Term::latest()->with(['term_dates'])->withCount('term_dates')->paginate(10);
 
         return view('terms.index', [
             'terms' => $terms,

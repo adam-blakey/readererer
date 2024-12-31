@@ -9,5 +9,6 @@
                 </x-card>
             </div>
         </x-card-row>
+        {{ $terms->links() }}
     </div>
 </x-layout>

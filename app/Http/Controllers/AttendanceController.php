@@ -19,7 +19,7 @@ class AttendanceController extends Controller
         $attendances = Attendance::latest()
         ->with(['user', 'edit_user', 'term_date'])
         ->orderBy('updated_at')
-        ->get();
+        ->paginate(10);
 
         return view('attendances.index', [
             'attendances' => $attendances,

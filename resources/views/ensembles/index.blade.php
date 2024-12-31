@@ -9,5 +9,6 @@
                 </x-card>
             </div>
         </x-card-row>
+        {{ $ensembles->links() }}
     </div>
 </x-layout>
