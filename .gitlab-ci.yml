@@ -46,6 +46,7 @@ deploy_krystal_test:
     - envoy run deploy --branch=main --domain=$TEST_DOMAIN --unix_username=$UNIX_USERNAME --server_domain=$SERVER_DOMAIN --server_port=$SERVER_PORT --seed_database=1
   only:
     - main
+    - tags
 
 deploy_krystal_demo:
   stage: deploy
