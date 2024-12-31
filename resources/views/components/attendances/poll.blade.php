@@ -28,7 +28,7 @@
                                 $attendance = $member->attendances->where('term_date_id', $term_date->id)->first();
                             @endphp
                             @if ($attendance)
-                                {{ $attendance->status }}
+                                {{ $attendance->status_text }}
                             @else
                                 -
                             @endif

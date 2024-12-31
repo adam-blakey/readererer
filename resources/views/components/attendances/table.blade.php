@@ -18,20 +18,7 @@
                     <td>{{ $attendance->edit_user->name }}</td>
                     <td>{{ $attendance->updated_at }}</td>
                     <td>{{ $attendance->term_date->start_datetime }}</td>
-                    <td>
-                        @switch($attendance->status)
-                            @case(App\Enums\AttendanceStatus::Attending)
-                                Attending
-                            @break
-
-                            @case(App\Enums\AttendanceStatus::NotAttending)
-                                Not attending
-                            @break
-
-                            @default
-                                Unknown
-                        @endswitch
-                    </td>
+                    <td>{{ $attendance->status_text }}</td>
                 </tr>
             @endforeach
         </tbody>
