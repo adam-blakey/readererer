@@ -1,11 +1,11 @@
 image: lorisleiva/laravel-docker:8.2
 
 stages:
-  - build
+  - build_test
   - deploy_test
   - deploy_demo
 
-composer:
+build_test:
   stage: build
   script:
     - composer install --no-interaction --prefer-dist
@@ -19,7 +19,7 @@ composer:
 deploy_krystal_test:
   stage: deploy_test
   dependencies:
-    - composer
+    - built_test
   cache:
     paths:
       - vendor/
@@ -44,14 +44,14 @@ deploy_krystal_test:
     - ssh -T $UNIX_USERNAME@$SERVER_DOMAIN -p $SERVER_PORT
     - ssh -T git@gitlab.com
     # Run Envoy
-    - envoy run deploy --branch=main --domain=$TEST_DOMAIN --unix_username=$UNIX_USERNAME --server_domain=$SERVER_DOMAIN --server_port=$SERVER_PORT
+    - envoy run deploy --branch=main --domain=$TEST_DOMAIN --unix_username=$UNIX_USERNAME --server_domain=$SERVER_DOMAIN --server_port=$SERVER_PORT --seed_database=1
   only:
     - main
 
 deploy_krystal_demo:
   stage: deploy_demo
   dependencies:
-    - composer
+    - build_test
   cache:
     paths:
       - vendor/
@@ -76,7 +76,7 @@ deploy_krystal_demo:
     - ssh -T $UNIX_USERNAME@$SERVER_DOMAIN -p $SERVER_PORT
     - ssh -T git@gitlab.com
     # Run Envoy
-    - envoy run deploy --branch=main --domain=$DEMO_DOMAIN --unix_username=$UNIX_USERNAME --server_domain=$SERVER_DOMAIN --server_port=$SERVER_PORT
+    - envoy run deploy --branch=main --domain=$DEMO_DOMAIN --unix_username=$UNIX_USERNAME --server_domain=$SERVER_DOMAIN --server_port=$SERVER_PORT --seed_database=0
   only:
     - tags
   except:

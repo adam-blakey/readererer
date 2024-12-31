@@ -1,4 +1,4 @@
-@servers(['test_server' => '-A ' . $unix_username . '@' . $server_domain . ' -p ' . $server_port])
+@servers(['server' => '-A ' . $unix_username . '@' . $server_domain . ' -p ' . $server_port])
 
 @setup
     /*
@@ -22,7 +22,7 @@
     function logMessage($message){return "echo '\033[32m" . $message . "\033[0m';\n";}
 @endsetup
 
-@story('deploy', ['on' => 'test_server'])
+@story('deploy', ['on' => 'server'])
     git_pull
     artisan_down
     run_npm_install
@@ -84,6 +84,14 @@
     php artisan migrate --force
     php artisan cache:clear
     php artisan queue:restart
+@endtask
+
+@task('seed_database')
+    {{ logMessage('🌱  Seeding database...') }}
+    cd {{ $app_dir }}
+    @if ($seed_database == 1)
+        php artisan db:seed --force
+    @endif
 @endtask
 
 @task('artisan_up')
