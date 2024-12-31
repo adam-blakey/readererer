@@ -3,8 +3,8 @@
         <div class="flex-row-reverse text-center row align-items-center">
             <div class="col-lg-auto ms-lg-auto">
                 <ul class="mb-0 list-inline list-inline-dots">
-                    <li class="list-inline-item"><a href="https://tabler.io" target="_blank" class="link-secondary">Made
-                            with Tabler</a>
+                    <li class="list-inline-item"><a href="https://tabler.io" target="_blank" class="link-secondary">Styled
+                            by Tabler</a>
                     </li>
                     <li class="list-inline-item"><a href="https://github.com/adam-blakey/readererer" target="_blank"
                             class="link-secondary" rel="noopener">Source code</a></li>
