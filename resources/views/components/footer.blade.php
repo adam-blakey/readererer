@@ -6,7 +6,7 @@
                     <li class="list-inline-item"><a href="https://tabler.io" target="_blank" class="link-secondary">Styled
                             by Tabler</a>
                     </li>
-                    <li class="list-inline-item"><a href="https://github.com/adam-blakey/readererer" target="_blank"
+                    <li class="list-inline-item"><a href="https://gitlab.com/adam.blakey/readererer" target="_blank"
                             class="link-secondary" rel="noopener">Source code</a></li>
                 </ul>
             </div>
@@ -18,9 +18,9 @@
                         All rights reserved.
                     </li>
                     <li class="list-inline-item">
-                        <a href="#" class="link-secondary" rel="noopener">
+                        <p class="link-secondary" rel="noopener">
                             v{{ config('app.version') }}
-                        </a>
+                        </p>
                     </li>
                 </ul>
             </div>
