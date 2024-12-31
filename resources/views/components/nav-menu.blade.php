@@ -229,7 +229,7 @@
                     @foreach ($nav_items as $nav_item)
                         <li
                             class="nav-item {{ Request::is($nav_item['path'] == '' ? '/' : $nav_item['path']) ? 'active' : '' }}">
-                            <a class="nav-link" href="./{{ $nav_item['path'] }}">
+                            <a class="nav-link" href="{{ url($nav_item['path']) }}">
                                 <span class="nav-link-icon d-md-none d-lg-inline-block">
                                     {!! $nav_item['icon'] !!}
                                 </span>
