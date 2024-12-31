@@ -2,7 +2,8 @@ image: lorisleiva/laravel-docker:8.2
 
 stages:
   - build
-  - deploy
+  - deploy_test
+  - deploy_demo
 
 composer:
   stage: build
@@ -14,11 +15,9 @@ composer:
   cache:
     paths:
       - vendor/
-  only:
-    - main
 
-deploy_krystal:
-  stage: deploy
+deploy_krystal_test:
+  stage: deploy_test
   dependencies:
     - composer
   cache:
@@ -29,7 +28,7 @@ deploy_krystal:
     UNIX_USERNAME: "default"
     SERVER_DOMAIN: "ssh.readererer.com"
     SERVER_PORT: "22"
-    DOMAIN: "readererer.com"
+    TEST_DOMAIN: "readererer.com"
   script:
     - composer global require --prefer-dist laravel/envoy=~2.9.0 --no-interaction --prefer-dist --quiet
     # Add the private SSH key to the build environment
@@ -45,6 +44,40 @@ deploy_krystal:
     - ssh -T $UNIX_USERNAME@$SERVER_DOMAIN -p $SERVER_PORT
     - ssh -T git@gitlab.com
     # Run Envoy
-    - envoy run deploy --branch=main --domain=$DOMAIN --unix_username=$UNIX_USERNAME --server_domain=$SERVER_DOMAIN --server_port=$SERVER_PORT
+    - envoy run deploy --branch=main --domain=$TEST_DOMAIN --unix_username=$UNIX_USERNAME --server_domain=$SERVER_DOMAIN --server_port=$SERVER_PORT
   only:
     - main
+
+deploy_krystal_demo:
+  stage: deploy_demo
+  dependencies:
+    - composer
+  cache:
+    paths:
+      - vendor/
+  variables:
+    SSH_PRIVATE_KEY: "SSH_PRIVATE_KEY_NOT_PROVIDED"
+    UNIX_USERNAME: "default"
+    SERVER_DOMAIN: "ssh.readererer.com"
+    SERVER_PORT: "22"
+    DEMO_DOMAIN: "readererer.com"
+  script:
+    - composer global require --prefer-dist laravel/envoy=~2.9.0 --no-interaction --prefer-dist --quiet
+    # Add the private SSH key to the build environment
+    - "which ssh-agent || ( apt-get update -y && apt-get install openssh-client -y )"
+    - eval $(ssh-agent -s)
+    - mkdir -p ~/.ssh
+    - chmod 700 ~/.ssh
+    - echo "$SSH_PRIVATE_KEY" > ~/.ssh/gitlab
+    - chmod 600 ~/.ssh/gitlab
+    - ssh-add ~/.ssh/gitlab
+    - '[[ -f /.dockerenv ]] && echo -e "Host *\n\tStrictHostKeyChecking no\n\n" > ~/.ssh/config'
+    # Temporary SSH test
+    - ssh -T $UNIX_USERNAME@$SERVER_DOMAIN -p $SERVER_PORT
+    - ssh -T git@gitlab.com
+    # Run Envoy
+    - envoy run deploy --branch=main --domain=$DEMO_DOMAIN --unix_username=$UNIX_USERNAME --server_domain=$SERVER_DOMAIN --server_port=$SERVER_PORT
+  only:
+    - tags
+  except:
+    - branches
