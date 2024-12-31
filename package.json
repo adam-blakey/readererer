@@ -24,6 +24,12 @@
         "jsvectormap": "^1.6.0",
         "litepicker": "^2.0.12",
         "nouislider": "^15.8.1",
-        "tom-select": "^2.3.1"
+        "tom-select": "^2.3.1",
+        "autoprefixer": "^10.4.19",
+        "axios": "^1.6.4",
+        "laravel-vite-plugin": "^1.0",
+        "postcss": "^8.4.39",
+        "tailwindcss": "^3.4.4",
+        "vite": "^5.0"
     }
 }
