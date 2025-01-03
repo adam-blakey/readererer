@@ -17,6 +17,7 @@ return new class extends Migration
             $table->string('name');
             $table->foreignIdFor(Composer::class);
             $table->timestamps();
+            $table->softDeletes();
         });
     }
 

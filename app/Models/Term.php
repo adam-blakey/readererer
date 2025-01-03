@@ -5,30 +5,31 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Carbon;
 
 class Term extends Model
 {
     use HasFactory;
+    use SoftDeletes;
 
     protected string $name;
     protected string $slug;
     protected string $image;
-    protected bool $show;
 
     public function term_dates(): HasMany
     {
         return $this->hasMany(TermDate::class);
     }
 
-    public function earliest_date(): Carbon
+    public function getEarliestDateAttribute(): Carbon
     {
         $earliest_termdate = $this->term_dates()->orderBy('start_datetime', 'asc')->firstOrFail();
 
         return $earliest_termdate->start_datetime;
     }
 
-    public function latest_date(): Carbon
+    public function getLatestDateAttribute(): Carbon
     {
         $latest_termdate = $this->term_dates()->orderBy('start_datetime', 'desc')->firstOrFail();
 
@@ -43,8 +44,8 @@ class Term extends Model
         }
         else
         {
-            $first = $this->earliest_date();
-            $last = $this->latest_date();
+            $first = $this->getEarliestDateAttribute();
+            $last = $this->getLatestDateAttribute();
 
             // Get human-readable length.
             $length = $first->diff($last)->months;

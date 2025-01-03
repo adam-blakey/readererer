@@ -41,16 +41,4 @@ class Attendance extends Model
             'status' => AttendanceStatus::class,
         ];
     }
-
-    public function getStatusTextAttribute(): string
-    {
-        switch ($this->status) {
-            case AttendanceStatus::NotAttending:
-                return 'Not Attending';
-            case AttendanceStatus::Attending:
-                return 'Attending';
-            default:
-                return 'Unknown';
-        }
-    }
 }
