@@ -22,7 +22,7 @@
 						<p class="card-text">{{ $ensemble->image }}</p>
 						<p class="mb-0 card-subtitle">Active polls</p>
 						@foreach ($terms as $term)
-							<p class="my-0 card-text"><a href="{{ url('attendance/poll/' . $ensemble->slug . '/' . $term->slug) }}">{{ $term->name }}</a></p>
+							<p class="my-0 card-text"><a href="{{ route('attendance.poll_slug', ['ensemble' => $ensemble->slug, 'term' => $term->slug]) }}">{{ $term->name }}</a></p>
 						@endforeach
 					</x-card-body>
 				</x-card>

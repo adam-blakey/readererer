@@ -6,7 +6,7 @@
 			<div class="col-md-12">
 				<div class="container py-4 container-tight">
 					<div class="mb-4 text-center">
-						<a class="navbar-brand navbar-brand-autodark" href="{{ url('/') }}">
+						<a class="navbar-brand navbar-brand-autodark" href="{{ route('home') }}">
 							<img src="{{ Vite::asset('resources/images/readererer-long-logo.svg') }}">
 						</a>
 					</div>
@@ -25,7 +25,7 @@
 									<label class="form-label" for="password">
 										{{ __('Password') }}
 										<span class="form-label-description">
-											<a href="{{ url('forgot-password') }}">{{ __('I forgot password') }}</a>
+											<a href="{{ route('password.request') }}">{{ __('I forgot password') }}</a>
 										</span>
 									</label>
 									<div class="input-group input-group-flat">

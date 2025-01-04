@@ -19,7 +19,7 @@
 			@else
 				@foreach ($terms as $term)
 					<tr>
-						<td><a href="{{ url('terms/' . $term->id) }}">{{ $term->name }}</a></td>
+						<td><a href="{{ route('terms.show', ['term' => $term]) }}">{{ $term->name }}</a></td>
 						<td>{{ $term->slug }}</td>
 						<td>{{ $term->show ? 'Y' : 'N' }}</td>
 						<td>

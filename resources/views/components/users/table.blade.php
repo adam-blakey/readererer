@@ -16,8 +16,8 @@
 			@else
 				@foreach ($users as $user)
 					<tr>
-						<td><a href="{{ url('users/' . $user->id) }}">{{ $user->name }}</a></td>
-						<td><a href="/users/{{ $user->id }}/edit">Edit</a></td>
+						<td><a href="{{ route('users.show', ['user' => $user]) }}">{{ $user->name }}</a></td>
+						<td><a href="{{ route('users.edit', ['user' => $user]) }}">Edit</a></td>
 					</tr>
 				@endforeach
 			@endif

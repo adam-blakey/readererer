@@ -3,32 +3,32 @@
 	    [
 	        'title' => 'Home',
 	        'icon' => 'home',
-	        'path' => '',
+	        'route' => 'home',
 	    ],
 	    [
 	        'title' => 'Pieces',
 	        'icon' => 'file-description',
-	        'path' => 'pieces',
+	        'route' => 'pieces',
 	    ],
 	    [
 	        'title' => 'Ensembles',
 	        'icon' => 'music',
-	        'path' => 'ensembles',
+	        'route' => 'ensembles',
 	    ],
 	    [
 	        'title' => 'Terms',
 	        'icon' => 'calendar-month',
-	        'path' => 'terms',
+	        'route' => 'terms',
 	    ],
 	    [
 	        'title' => 'Attendance updates',
 	        'icon' => 'square-check',
-	        'path' => 'attendance',
+	        'route' => 'attendance',
 	    ],
 	    [
 	        'title' => 'Users',
 	        'icon' => 'user',
-	        'path' => 'users',
+	        'route' => 'users',
 	    ],
 	];
 @endphp
@@ -210,8 +210,8 @@
 				<ul class="navbar-nav">
 					@foreach ($nav_items as $nav_item)
 						<li
-							class="nav-item {{ Request::is($nav_item['path'] == '' ? '/' : $nav_item['path']) ? 'active' : '' }}">
-							<a class="nav-link" href="{{ url($nav_item['path']) }}">
+							class="nav-item {{ Request::is($nav_item['route']) ? 'active' : '' }}">
+							<a class="nav-link" href="{{ route($nav_item['route']) }}">
 								<span class="nav-link-icon d-md-none d-lg-inline-block">
 									<x-icon icon="{{ $nav_item['icon'] }}" />
 								</span>
