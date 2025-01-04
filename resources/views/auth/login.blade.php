@@ -35,6 +35,7 @@
 												<x-icon icon="eye" />
 											</a>
 										</span>
+										<x-forms.input-error :messages="$errors->get('password')" />
 									</div>
 								</div>
 								<div class="mb-2">
@@ -44,7 +45,10 @@
 									</label>
 								</div>
 								<div class="form-footer">
-									<button class="btn btn-primary w-100" type="submit">{{ __('Login') }}</button>
+									<button class="btn btn-primary w-100" type="submit">
+										<x-icon icon="login" />
+										{{ __('Login') }}
+									</button>
 								</div>
 							</form>
 						</div>
