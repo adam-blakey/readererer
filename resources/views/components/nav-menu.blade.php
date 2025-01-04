@@ -181,11 +181,8 @@
 			<div class="nav-item dropdown">
 				@auth
 					<a aria-label="Open user menu" class="p-0 nav-link d-flex lh-1 text-reset" data-bs-toggle="dropdown" href="#">
-						<span class="avatar avatar-sm" style="background-image: url(./static/avatars/000m.jpg)"></span>
-						<div class="d-none d-xl-block ps-2">
-							<div>{{ Auth::user()->name }}</div>
-							<div class="mt-1 small text-muted">UI Designer</div>
-						</div>
+						<x-avatar :user="Auth::user()" size="sm" />
+						<x-name-and-role :user="Auth::user()" />
 					</a>
 					<div class="dropdown-menu dropdown-menu-end dropdown-menu-arrow">
 						<a class="dropdown-item" href="#">Status</a>

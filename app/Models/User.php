@@ -13,6 +13,7 @@ class User extends Authenticatable
     use HasFactory, Notifiable, SoftDeletes;
 
     protected $deleted_at;
+    protected $avatar;
 
     public function attendances()
     {
@@ -56,5 +57,15 @@ class User extends Authenticatable
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
         ];
+    }
+
+    public function getInitialsAttribute(): string
+    {
+        $name = explode(' ', $this->name);
+        $initials = '';
+        foreach ($name as $n) {
+            $initials .= $n[0];
+        }
+        return $initials;
     }
 }

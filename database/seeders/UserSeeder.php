@@ -19,6 +19,7 @@ class UserSeeder extends Seeder
             'name' => 'Test',
             'email' => 'test@example.com',
             'password' => bcrypt('password'),
+            'avatar' => 'https://adam.blakey.family/wp-content/uploads/sites/4/2022/02/Adam-cutaway-4.png.webp'
         ]);
     }
 }
