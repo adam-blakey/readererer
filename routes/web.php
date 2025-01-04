@@ -8,6 +8,7 @@ use App\Http\Controllers\UserController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', [PieceController::class, 'index']);
+Route::get('/dashboard',[PieceController::class, 'index'])->name('dashboard');
 Route::get('/pieces',[PieceController::class, 'index']);
 
 Route::middleware('auth')->group(function () {
