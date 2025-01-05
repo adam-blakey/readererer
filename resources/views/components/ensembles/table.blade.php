@@ -20,7 +20,7 @@
 			@else
 				@foreach ($ensembles as $ensemble)
 					<tr>
-						<td><a href="{{ url('ensembles/' . $ensemble->id) }}">{{ $ensemble->name }}</a></td>
+						<td><a href="{{ route('ensembles.show', ['ensemble' => $ensemble]) }}">{{ $ensemble->name }}</a></td>
 						<td>{{ $ensemble->slug }}</td>
 						<td>
 							<img alt="{{ $ensemble->name }}" class="rounded" src="{{ $ensemble->image }}" style="width: 50px;">

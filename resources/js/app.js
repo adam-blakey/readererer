@@ -1,4 +1,5 @@
 import './bootstrap';
+import './toggle-password-visibility';
 import "@tabler/core/dist/js/tabler.min.js";
 import "@tabler/core/dist/js/demo-theme.min.js";
 import "apexcharts/dist/apexcharts.min.js";

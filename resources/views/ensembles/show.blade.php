@@ -17,7 +17,7 @@
 				</div>
 				<div class="col-auto ms-auto">
 					<div class="btn-list">
-						<a aria-label="Button" class="btn" href="{{ url('ensembles/' . $ensemble->id . '/edit') }}">
+						<a aria-label="Button" class="btn" href="{{ route('ensembles.edit', ['ensemble' => $ensemble]) }}">
 							<!-- Download SVG icon from http://tabler-icons.io/i/message -->
 							<svg class="icon icon-tabler icons-tabler-outline icon-tabler-pencil" fill="none" height="24" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" stroke="currentColor" viewBox="0 0 24 24" width="24" xmlns="http://www.w3.org/2000/svg">
 								<path d="M0 0h24v24H0z" fill="none" stroke="none" />

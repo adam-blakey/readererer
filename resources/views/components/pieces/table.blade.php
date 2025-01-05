@@ -18,8 +18,8 @@
 			@else
 				@foreach ($pieces as $piece)
 					<tr>
-						<td><a href="{{ url('pieces/' . $piece->id) }}">{{ $piece->name }}</td>
-						<td><a href="/composers/{{ $piece->composer->id }}">{{ $piece->composer->full_name() }}</a></td>
+						<td><a href="{{ route('pieces.show', ['piece' => $piece]) }}">{{ $piece->name }}</td>
+						<td><a href="{{ route('composers.show', ['composer' => $piece->composer]) }}">{{ $piece->composer->full_name() }}</a></td>
 						<td class="text-secondary">{{ $piece->parts_string() }}</td>
 						<td>
 							<a href="/pieces/{{ $piece->id }}/edit">Edit</a>

@@ -1,4 +1,4 @@
-@props(['page_name' => '', 'show_page_header' => true])
+@props(['page_name' => '', 'show_page_header' => true, 'show_nav_menu' => true])
 
 @php
 	if ($page_name == '') {
@@ -23,7 +23,9 @@
 
 <body>
 	<div class="page">
-		<x-nav-menu></x-nav-menu>
+		@if ($show_nav_menu)
+			<x-nav-menu />
+		@endif
 		<div class="page-wrapper">
 			@if ($show_page_header)
 				<x-page-header :$page_name />
