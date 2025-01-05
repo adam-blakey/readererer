@@ -5,47 +5,68 @@ use App\Http\Controllers\EnsembleController;
 use App\Http\Controllers\TermController;
 use App\Http\Controllers\AttendanceController;
 use App\Http\Controllers\UserController;
+use App\Http\Controllers\ComposerController;
 use Illuminate\Support\Facades\Route;
+use App\Models\Piece;
+use App\Models\Composer;
+use App\Models\Ensemble;
+use App\Models\Term;
+use App\Models\Attendance;
+use App\Models\User;
 
 Route::get('/', [PieceController::class, 'index'])
     ->name('home');
-Route::get('/dashboard',[PieceController::class, 'index'])
+Route::get('/dashboard', [PieceController::class, 'index'])
     ->name('dashboard');
 
-Route::get('/pieces',[PieceController::class, 'index'])
-    ->name('pieces');
-Route::get('/pieces/{piece}',[PieceController::class, 'show'])
-    ->name('pieces.show');
+Route::get('/pieces', [PieceController::class, 'index'])
+    ->name('pieces')
+    ->can('viewAny', Piece::class);
+Route::get('/pieces/{piece}', [PieceController::class, 'show'])
+    ->name('pieces.show')
+    ->can('view', 'piece');
 
-Route::get('/composers',[PieceController::class, 'index'])
-    ->name('composers');
-Route::get('/composers/{composer}',[PieceController::class, 'show'])
-    ->name('composers.show');
+Route::get('/composers', [ComposerController::class, 'index'])
+    ->name('composers')
+    ->can('viewAny', Composer::class);
+Route::get('/composers/{composer}', [ComposerController::class, 'show'])
+    ->name('composers.show')
+    ->can('view', 'composer');
 
 Route::middleware('auth')->group(function () {
-    Route::get('/ensembles',[EnsembleController::class, 'index'])
-        ->name('ensembles');
-    Route::get('/ensembles/{ensemble}',[EnsembleController::class, 'show'])
-        ->name('ensembles.show');
-    Route::get('/ensembles/{ensemble}/edit',[EnsembleController::class, 'edit'])
-        ->name('ensembles.edit');
+    Route::get('/ensembles', [EnsembleController::class, 'index'])
+        ->name('ensembles')
+        ->can('viewAny', Ensemble::class);
+    Route::get('/ensembles/{ensemble}', [EnsembleController::class, 'show'])
+        ->name('ensembles.show')
+        ->can('view', 'ensemble');
+    Route::get('/ensembles/{ensemble}/edit', [EnsembleController::class, 'edit'])
+        ->name('ensembles.edit')
+        ->can('update', 'ensemble');
 });
 
 Route::get('/terms', [TermController::class, 'index'])
-    ->name('terms');
+    ->name('terms')
+    ->can('viewAny', Term::class);
 Route::get('/terms/{term}', [TermController::class, 'show'])
-    ->name('terms.show');
+    ->name('terms.show')
+    ->can('view', 'term');
 
 Route::get('/attendance', [AttendanceController::class, 'index'])
-    ->name('attendance');
+    ->name('attendance')
+    ->can('viewAny', Attendance::class);
 Route::get('/attendance/poll/{ensemble}/{term}', [AttendanceController::class, 'poll'])
-    ->name('attendance.poll');
+    ->name('attendance.poll')
+    ->can('view', 'attendance');
 Route::get('/attendance/poll/{ensemble:slug}/{term:slug}', [AttendanceController::class, 'poll_slug'])
-    ->name('attendance.poll_slug');
+    ->name('attendance.poll_slug')
+    ->can('view_poll', 'attendance');
 
 Route::get('/users', [UserController::class, 'index'])
-    ->name('users');
+    ->name('users')
+    ->can('viewAny', User::class);
 Route::get('/users/{id}', [UserController::class, 'edit'])
-    ->name('users.edit');
+    ->name('users.edit')
+    ->can('update', 'user');
 
 require __DIR__.'/auth.php';
