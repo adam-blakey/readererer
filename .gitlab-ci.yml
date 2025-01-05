@@ -45,7 +45,7 @@ deploy_krystal_test:
     # Run Envoy
     - envoy run deploy --branch=develop --domain=$TEST_DOMAIN --unix_username=$UNIX_USERNAME --server_domain=$SERVER_DOMAIN --server_port=$SERVER_PORT --seed_database=1
   only:
-    - main
+    - develop
     - /^v.*$/
   except:
     - branches
