@@ -47,6 +47,8 @@ deploy_krystal_test:
   only:
     - main
     - /^v.*$/
+  except:
+    - branches
 
 deploy_krystal_demo:
   stage: deploy
