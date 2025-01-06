@@ -7,6 +7,7 @@ use Illuminate\Pagination\Paginator;
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Notifications\Messages\MailMessage;
 use App\Models\User;
+use Illuminate\Support\Facades\Gate;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -38,6 +39,10 @@ class AppServiceProvider extends ServiceProvider
                 ->action(__('Reset password'), $url)
                 ->line(__('If you did not request a password reset, then please ignore this message.'))
                 ->salutation(__('Regards,') . "\r\n\r\n" . config('app.name') . " Team");
+        });
+
+        Gate::define('view.dashboard', function (User $user) {
+            return true;
         });
     }
 }

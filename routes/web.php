@@ -6,6 +6,7 @@ use App\Http\Controllers\TermController;
 use App\Http\Controllers\AttendanceController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\ComposerController;
+use App\Http\Controllers\DashboardController;
 use Illuminate\Support\Facades\Route;
 use App\Models\Piece;
 use App\Models\Composer;
@@ -14,10 +15,11 @@ use App\Models\Term;
 use App\Models\Attendance;
 use App\Models\User;
 
-Route::get('/', [PieceController::class, 'index'])
+Route::view('/', 'home', ['page_name' => config('app.name')])
     ->name('home');
-Route::get('/dashboard', [PieceController::class, 'index'])
-    ->name('dashboard');
+Route::get('/dashboard', [DashboardController::class, 'index'])
+    ->name('dashboard')
+    ->can('view.dashboard');
 
 Route::get('/pieces', [PieceController::class, 'index'])
     ->name('pieces')
@@ -65,8 +67,11 @@ Route::get('/attendance/poll/{ensemble:slug}/{term:slug}', [AttendanceController
 Route::get('/users', [UserController::class, 'index'])
     ->name('users')
     ->can('viewAny', User::class);
-Route::get('/users/{id}', [UserController::class, 'edit'])
+Route::get('/users/{user}/edit', [UserController::class, 'edit'])
     ->name('users.edit')
     ->can('update', 'user');
+Route::get('/users/{user}', [UserController::class, 'show'])
+    ->name('users.show')
+    ->can('view', 'user');
 
 require __DIR__.'/auth.php';
