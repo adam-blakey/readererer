@@ -19,4 +19,12 @@ class UserController extends Controller
             'page_name' => 'Users'
         ]);
     }
+
+    public function show(User $user)
+    {
+        return view('users.show', [
+            'user' => $user,
+            'page_name' => $user->name
+        ]);
+    }
 }

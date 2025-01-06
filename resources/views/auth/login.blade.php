@@ -6,7 +6,7 @@
 			<div class="col-md-12">
 				<div class="container py-4 container-tight">
 					<div class="mb-4 text-center">
-						<a class="navbar-brand navbar-brand-autodark" href="{{ route('home') }}">
+						<a class="autodark" href="{{ route('home') }}">
 							<img src="{{ Vite::asset('resources/images/readererer-long-logo.svg') }}">
 						</a>
 					</div>
