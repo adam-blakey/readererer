@@ -43,7 +43,7 @@ deploy_krystal_test:
     - ssh -T $UNIX_USERNAME@$SERVER_DOMAIN -p $SERVER_PORT
     - ssh -T git@gitlab.com
     # Run Envoy
-    - envoy run deploy --branch=main --domain=$TEST_DOMAIN --unix_username=$UNIX_USERNAME --server_domain=$SERVER_DOMAIN --server_port=$SERVER_PORT --seed_database=1
+    - envoy run deploy --branch=develop --domain=$TEST_DOMAIN --unix_username=$UNIX_USERNAME --server_domain=$SERVER_DOMAIN --server_port=$SERVER_PORT --seed_database=1
   only:
     - develop
 
