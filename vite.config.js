@@ -14,12 +14,7 @@ export default defineConfig({
                 'resources/images/readererer-square-logo.svg'
             ],
             refresh: true,
-            optimizeDeps: {
-                exclude: [
-                    "resources/js/toggle-password-visibility.js",
-                    "resources/js/three-state-checkbox.js"
-                ],
-            }
         }),
     ],
+    preserveEntrySignatures: "strict",
 });
