@@ -5,4 +5,3 @@
 @endphp
 
 <button class="form-check-input" onclick="switchThreeStateCheckbox(this, '{{ $input_id }}')" type="button">{{ $status }}</button>
-<input id="{{ $input_id }}" name="{{ $input_id }}" type="hidden" value="{{ $status }}" />

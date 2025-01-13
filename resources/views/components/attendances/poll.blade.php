@@ -1,7 +1,5 @@
 @props(['members', 'term', 'ensemble'])
 
-<script src="{{ Vite::asset('resources/js/three-state-checkbox.js') }}"></script>
-
 <div class="table-responsive">
 	<form action="{{ route('attendance.poll-store', ['ensemble' => $ensemble, 'term' => $term]) }}" method="POST">
 		@csrf

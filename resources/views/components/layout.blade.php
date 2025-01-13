@@ -19,6 +19,8 @@
 	<title>{{ $title }}</title>
 	<link href="{{ Vite::asset('resources/images/favicon.png') }}" rel="shortcut icon">
 	@vite(['resources/js/app.js', 'resources/css/app.css'])
+	<script src="{{ Vite::asset('resources/js/toggle-password-visibility.js') }}" defer></script>
+	<script src="{{ Vite::asset('resources/js/three-state-checkbox.js') }}" defer></script>
 </head>
 
 <body>

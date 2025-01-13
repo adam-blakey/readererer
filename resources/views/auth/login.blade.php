@@ -1,7 +1,5 @@
 @props(['page_name'])
 
-<script src="{{ Vite::asset('resources/js/toggle-password-visibility.js') }}"></script>
-
 <x-layout :$page_name :show_nav_menu="false" :show_page_header="false">
 	<div class="container-xl">
 		<x-card-row>
