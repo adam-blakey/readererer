@@ -5,9 +5,15 @@ export default {
         "./resources/**/*.js",
         "./resources/**/*.vue",
     ],
-  theme: {
-    extend: {},
-  },
-  plugins: [],
+    theme: {
+        extend: {},
+    },
+    plugins: [],
+    optimizeDeps: {
+        exclude: [
+            "resources/js/toggle-password-visibility.js",
+            "resources/js/three-state-checkbox.js"
+        ],
+    }
 }
 
