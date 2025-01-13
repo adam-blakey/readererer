@@ -57,12 +57,14 @@ Route::get('/terms/{term}', [TermController::class, 'show'])
 Route::get('/attendance', [AttendanceController::class, 'index'])
     ->name('attendance')
     ->can('viewAny', Attendance::class);
-Route::get('/attendance/poll/{ensemble}/{term}', [AttendanceController::class, 'poll'])
+Route::get('/attendance/poll/{ensemble:slug}/{term:slug}', [AttendanceController::class, 'poll'])
+    ->withoutScopedBindings()
     ->name('attendance.poll')
-    ->can('view', 'attendance');
-Route::get('/attendance/poll/{ensemble:slug}/{term:slug}', [AttendanceController::class, 'poll_slug'])
-    ->name('attendance.poll_slug')
-    ->can('view_poll', 'attendance');
+    ->can('poll', Attendance::class);
+Route::post('/attendance/poll/{ensemble:slug}/{term:slug}', [AttendanceController::class, 'poll_store'])
+    ->withoutScopedBindings()
+    ->name('attendance.poll-store')
+    ->can('create', Attendance::class);
 
 Route::get('/users', [UserController::class, 'index'])
     ->name('users')

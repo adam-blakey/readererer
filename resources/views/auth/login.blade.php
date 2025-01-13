@@ -1,5 +1,7 @@
 @props(['page_name'])
 
+<script src="{{ Vite::asset('resources/js/toggle-password-visibility.js') }}"></script>
+
 <x-layout :$page_name :show_nav_menu="false" :show_page_header="false">
 	<div class="container-xl">
 		<x-card-row>
@@ -31,8 +33,11 @@
 									<div class="input-group input-group-flat">
 										<input autocomplete="current-password" class="form-control" id="password" name="password" placeholder="Your password" required type="password">
 										<span class="input-group-text">
-											<a aria-label="Show password" class="link-secondary" data-bs-original-title="Show password" data-bs-toggle="tooltip" href="#" onclick="togglePasswordVisibility('password')">
+											<a aria-label="Show password" class="cursor-pointer link-secondary" data-bs-original-title="Show password" data-bs-toggle="tooltip" id="toggle-password-show" onclick="togglePasswordVisibility('password', 'toggle-password-show', 'toggle-password-hide')">
 												<x-icon icon="eye" />
+											</a>
+											<a aria-label="Hide password" class="hidden cursor-pointer link-secondary" data-bs-original-title="Hide password" data-bs-toggle="tooltip" id="toggle-password-hide" onclick="togglePasswordVisibility('password', 'toggle-password-show', 'toggle-password-hide')">
+												<x-icon icon="eye-closed" />
 											</a>
 										</span>
 										<x-forms.input-error :messages="$errors->get('password')" />
