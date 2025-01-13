@@ -59,10 +59,10 @@ Route::get('/attendance', [AttendanceController::class, 'index'])
     ->can('viewAny', Attendance::class);
 Route::get('/attendance/poll/{ensemble}/{term}', [AttendanceController::class, 'poll'])
     ->name('attendance.poll')
-    ->can('view', 'attendance');
+    ->can('poll', Attendance::class);
 Route::get('/attendance/poll/{ensemble:slug}/{term:slug}', [AttendanceController::class, 'poll_slug'])
     ->name('attendance.poll_slug')
-    ->can('view_poll', 'attendance');
+    ->can('poll', Attendance::class);
 
 Route::get('/users', [UserController::class, 'index'])
     ->name('users')

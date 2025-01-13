@@ -36,9 +36,13 @@ class AttendancePolicy
     /**
      * Determine whether the user can interact with polls.
      */
-    public function poll(User $user, Attendance $attendance)
+    public function poll(User $user)
     {
-        return Response::allow();
+        if ($user->role >= UserRole::Admin) {
+            return Response::allow();
+        }
+
+        return Response::deny();
     }
 
     /**
