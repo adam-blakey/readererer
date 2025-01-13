@@ -9,11 +9,5 @@ export default {
         extend: {},
     },
     plugins: [],
-    optimizeDeps: {
-        exclude: [
-            "resources/js/toggle-password-visibility.js",
-            "resources/js/three-state-checkbox.js"
-        ],
-    }
 }
 
