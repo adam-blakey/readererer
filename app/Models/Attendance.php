@@ -41,4 +41,9 @@ class Attendance extends Model
             'status' => AttendanceStatus::class,
         ];
     }
+
+    public function getNameAttribute(): string
+    {
+        return $this->ensemble->name . ': ' . $this->term_date->term->name;
+    }
 }

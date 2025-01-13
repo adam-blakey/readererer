@@ -8,6 +8,7 @@
 				<th>Editing user</th>
 				<th>Updated at</th>
 				<th>Term date</th>
+				<th>Poll</th>
 				<th>Status</th>
 			</tr>
 		</thead>
@@ -23,6 +24,7 @@
 						<td><a href="{{ route('users.show', ['user' => $attendance->edit_user]) }}">{{ $attendance->edit_user->name }}</a></td>
 						<td>{{ $attendance->updated_at }}</td>
 						<td>{{ $attendance->term_date->start_datetime }}</td>
+						<td><a href="{{ route('attendance.poll', ['ensemble' => $attendance->ensemble, 'term' => $attendance->term_date->term]) }}">{{ $attendance->name }}</a></td>
 						<td>{{ $attendance->status_text }}</td>
 					</tr>
 				@endforeach
