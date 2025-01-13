@@ -4,7 +4,7 @@
 	$terms = App\Models\Term::all()->sortBy('earliest_date');
 @endphp
 
-<x-layout :$page_name>
+<x-layout :$page_name page_subname="Edit ensemble">
 	<div class="container-xl">
 		<div class="row row-cards">
 			<div class="col-12">

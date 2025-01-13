@@ -1,6 +1,6 @@
 @props(['page_name'])
 
-<x-layout :$page_name>
+<x-layout :$page_name page_subname="Dashboard">
 	<div class="container-xl">
 		<x-card-row>
 			<div class="col-md-12">

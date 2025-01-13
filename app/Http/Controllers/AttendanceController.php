@@ -8,6 +8,7 @@ use App\Models\Ensemble;
 use App\Models\Term;
 use App\Http\Requests\StoreAttendanceRequest;
 use App\Http\Requests\UpdateAttendanceRequest;
+use Illuminate\Http\Request;
 
 class AttendanceController extends Controller
 {
@@ -45,16 +46,14 @@ class AttendanceController extends Controller
         return view('attendances.poll', [
             'members' => $members,
             'term' => $term,
-            'page_name' => $page_name
+            'page_name' => $page_name,
+            'ensemble' => $ensemble
         ]);
     }
 
-    public function poll_slug(string $ensemble_slug, string $term_slug)
+    public function poll_store(Ensemble $ensemble, Term $term, Request $request)
     {
-        $ensemble = Ensemble::where('slug', $ensemble_slug)->first();
-        $term = Term::where('slug', $term_slug)->first();
-
-        return $this->poll($ensemble, $term);
+        dd($request);
     }
 
     /**
