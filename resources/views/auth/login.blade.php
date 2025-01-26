@@ -1,7 +1,7 @@
 @props(['page_name'])
 
 @push('scripts')
-	<script src="{{ Vite::asset('resources/js/toggle-password-visibility.js') }}"></script>
+	<script src="/js/toggle-password-visibility.js"></script>
 @endpush
 
 <x-layout :$page_name :show_nav_menu="false" :show_page_header="false">

@@ -1,7 +1,7 @@
 @props(['members', 'term', 'ensemble'])
 
 @push('scripts')
-	<script src="{{ Vite::asset('resources/js/three-state-checkbox.js') }}"></script>
+	<script src="/js/three-state-checkbox.js"></script>
 @endpush
 
 <div class="table-responsive">
