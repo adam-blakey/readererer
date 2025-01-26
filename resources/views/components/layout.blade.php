@@ -2,10 +2,10 @@
 
 @php
 	if ($page_name == '') {
-	    $title = env('APP_NAME');
+	    $title = config('app.name');
 	    $page_name = $title;
 	} else {
-	    $title = env('APP_NAME') . ' — ' . $page_name;
+	    $title = config('app.name') . ' — ' . $page_name;
 	}
 @endphp
 
