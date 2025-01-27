@@ -1,26 +1,26 @@
 function switchThreeStateCheckbox(buttonField, inputFieldId) {
-    var inputField = document.getElementById(inputFieldId);
-
     if (buttonField == null) {
         console.error('buttonField is required.');
         return;
     }
 
-    // N.B.: This is how we keep track of fields that have changed.
-    var value = Number(buttonField.value.replace('m', ''));
-    value = (value + 1) % 3;
-    value += 'm';
-
+    var inputField = document.getElementById(inputFieldId);
     if (inputField == null) {
         inputField = document.createElement("input");
         inputField.type = 'hidden';
         inputField.id = inputFieldId;
         inputField.name = inputFieldId;
+        inputField.value = 0; // TODO
 
         buttonField.parentNode.appendChild(inputField);
     }
 
-    buttonField.value = value;
-    buttonField.innerHTML = value;
-    inputField.value = value;
+    var classes = ['three-state-checkbox-unknown', 'three-state-checkbox-not-attending', 'three-state-checkbox-attending'];
+    buttonField.classList.remove(classes[0], classes[1], classes[2]);
+
+    var value = Number(inputField.value.replace('m', ''));
+    value = (value + 1) % 3;
+
+    buttonField.classList.add(classes[value]);
+    inputField.value = value + 'm';
 }

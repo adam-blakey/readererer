@@ -4,4 +4,4 @@
 	$input_id = 'status-e' . $ensemble_id . 't' . $term_date_id . 'm' . $member_id;
 @endphp
 
-<button class="form-check-input" onclick="switchThreeStateCheckbox(this, '{{ $input_id }}')" type="button">{{ $status }}</button>
+<button class="form-check-input three-state-checkbox three-state-checkbox-unknown" onclick="switchThreeStateCheckbox(this, '{{ $input_id }}')" type="button"></button>
