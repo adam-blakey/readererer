@@ -35,7 +35,7 @@
 						@foreach ($term->term_dates as $term_date)
 							<td class="w-1">
 								@php
-									$attendance = $member->attendances->where('term_date_id', $term_date->id)->first();
+									$attendance = $member->attendances->where('term_date_id', $term_date->id)->sortByDesc('created_at')->first();
 									$attendance_value = $attendance->status ?? App\Enums\AttendanceStatus::Unknown;
 								@endphp
 								<x-forms.input-three-state-checkbox :$assume_attending :ensemble_id="$ensemble->id" :member_id="$member->id" :status="$attendance_value" :term_date_id="$term_date->id" />

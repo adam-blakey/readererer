@@ -12,8 +12,15 @@ class Attendance extends Model
 {
     use HasFactory;
 
-    protected $edit_datetime;
     protected $edit_ip;
+    protected $fillable = [
+        'user_id',
+        'term_date_id',
+        'ensemble_id',
+        'status',
+        'edit_user_id',
+        'edit_ip',
+    ];
 
     public function user(): BelongsTo
     {

@@ -9,6 +9,7 @@ use App\Models\Term;
 use App\Http\Requests\StoreAttendanceRequest;
 use App\Http\Requests\UpdateAttendanceRequest;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 
 class AttendanceController extends Controller
 {
@@ -19,7 +20,7 @@ class AttendanceController extends Controller
     {
         $attendances = Attendance::latest()
         ->with(['user', 'edit_user', 'term_date'])
-        ->orderBy('updated_at')
+        ->orderBy('created_at', 'DESC')
         ->paginate(10);
 
         return view('attendances.index', [
@@ -53,7 +54,33 @@ class AttendanceController extends Controller
 
     public function poll_store(Ensemble $ensemble, Term $term, Request $request)
     {
-        dd($request);
+        $request_ip = $request->ip();
+
+        $request->collect()->each(function($parameter_value, $parameter_key) use ($request_ip) {
+            if ($parameter_key == '_token') {
+                return;
+            }
+
+            assert(substr($parameter_key, 0, 7) == 'status-');
+
+            $data = preg_split('/(e|t|m)/', explode('-', $parameter_key)[1], -1, PREG_SPLIT_NO_EMPTY);
+
+            assert(count($data) == 3);
+            $ensemble_id = $data[0];
+            $term_date_id = $data[1];
+            $member_id = $data[2];
+
+            Attendance::create([
+                'user_id' => $member_id,
+                'term_date_id' => $term_date_id,
+                'ensemble_id' => $ensemble_id,
+                'status' => $parameter_value,
+                'edit_user_id' => Auth::user()->id,
+                'edit_ip' => $request_ip
+            ]);
+        });
+
+        return redirect()->route('attendance.poll', ['ensemble' => $ensemble, 'term' => $term]);
     }
 
     /**
