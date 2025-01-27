@@ -26,9 +26,10 @@ function switchThreeStateCheckbox(buttonField, inputFieldId) {
     var value = Number(inputField.value);
     value = (value + 1) % 3;
 
-    // If we assume attending, then we advance from unknown to attending.
+    // If we assume attending or we don't allow changing to unknown, then we advance from unknown to attending.
     var assumeAttending = buttonField.getAttribute('data-assume-attending');
-    if (assumeAttending && value == 0) {
+    var allowChangeToUnknown = buttonField.getAttribute('data-allow-change-to-unknown');
+    if ((assumeAttending || !allowChangeToUnknown) && value == 0) {
         value += 1;
     }
 

@@ -6,6 +6,7 @@
 
 @php
 	$assume_attending = config('app.readererer_assume_attending');
+	$allow_change_to_unknown = config('app.readererer_allow_change_to_unknown');
 @endphp
 
 <div class="table-responsive">
@@ -38,7 +39,7 @@
 									$attendance = $member->attendances->where('term_date_id', $term_date->id)->sortByDesc('created_at')->first();
 									$attendance_value = $attendance->status ?? App\Enums\AttendanceStatus::Unknown;
 								@endphp
-								<x-forms.input-three-state-checkbox :$assume_attending :member_id="$member->id" :status="$attendance_value" :term_date_id="$term_date->id" />
+								<x-forms.input-three-state-checkbox :$allow_change_to_unknown :$assume_attending :member_id="$member->id" :status="$attendance_value" :term_date_id="$term_date->id" />
 							</td>
 						@endforeach
 					</tr>
