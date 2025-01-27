@@ -4,6 +4,10 @@
 	<script src="/js/three-state-checkbox.js"></script>
 @endpush
 
+@php
+	$assume_attending = config('app.readererer_assume_attending');
+@endphp
+
 <div class="table-responsive">
 	<form action="{{ route('attendance.poll-store', ['ensemble' => $ensemble, 'term' => $term]) }}" method="POST">
 		@csrf
@@ -34,7 +38,7 @@
 									$attendance = $member->attendances->where('term_date_id', $term_date->id)->first();
 									$attendance_value = $attendance->status ?? App\Enums\AttendanceStatus::Unknown;
 								@endphp
-								<x-forms.input-three-state-checkbox :assume_attending="true" :ensemble_id="$ensemble->id" :member_id="$member->id" :status="$attendance_value" :term_date_id="$term_date->id" />
+								<x-forms.input-three-state-checkbox :$assume_attending :ensemble_id="$ensemble->id" :member_id="$member->id" :status="$attendance_value" :term_date_id="$term_date->id" />
 							</td>
 						@endforeach
 					</tr>

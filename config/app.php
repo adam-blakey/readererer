@@ -135,4 +135,15 @@ return [
         'store' => env('APP_MAINTENANCE_STORE', 'database'),
     ],
 
+    /*
+    |--------------------------------------------------------------------------
+    | Readererer Settings
+    |--------------------------------------------------------------------------
+    |
+    | These configuration options determine the settings used by the app.
+    |
+    */
+
+    'readererer_assume_attending' => env('READERERER_ASSUME_ATTENDING', false),
+
 ];
