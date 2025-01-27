@@ -21,6 +21,7 @@ class TermDateFactory extends Factory
         return [
             'start_datetime' => Carbon::parse($this->faker->dateTimeBetween('-1 year', '+1 year')),
             'end_datetime' => fn (array $attributes) => Carbon::parse($this->faker->dateTimeBetween($attributes['start_datetime']->add(new DateInterval('PT1H')), $attributes['start_datetime']->add(new DateInterval('PT3H')))),
+            'is_concert' => $this->faker->boolean,
         ];
     }
 }

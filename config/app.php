@@ -145,5 +145,6 @@ return [
     */
 
     'readererer_assume_attending' => env('READERERER_ASSUME_ATTENDING', false),
+    'readererer_allow_change_to_unknown' => env('READERERER_ALLOW_CHANGE_TO_UNKNOWN', false),
 
 ];

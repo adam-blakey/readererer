@@ -6,6 +6,7 @@
 
 @php
 	$assume_attending = config('app.readererer_assume_attending');
+	$allow_change_to_unknown = config('app.readererer_allow_change_to_unknown');
 @endphp
 
 <div class="table-responsive">
@@ -16,7 +17,7 @@
 				<tr>
 					<th>Members</th>
 					@foreach ($term->term_dates as $term_date)
-						<th class="text-center poll-date">
+						<th class="text-center poll-date {{ $term_date->is_concert ? 'bg-primary text-bg-primary' : '' }}">
 							{{ $term_date->start_datetime->format('M') }}<br />
 							<span class="poll-date-date">{{ $term_date->start_datetime->format('j') }}</span><br />
 							{{ $term_date->start_datetime->format('D') }}<br />
@@ -33,12 +34,12 @@
 							{{ $member->name }}
 						</td>
 						@foreach ($term->term_dates as $term_date)
-							<td class="w-1">
+							<td class="w-1 {{ $term_date->is_concert ? 'bg-primary-subtle' : '' }}">
 								@php
-									$attendance = $member->attendances->where('term_date_id', $term_date->id)->first();
+									$attendance = $member->attendances->where('term_date_id', $term_date->id)->sortByDesc('created_at')->first();
 									$attendance_value = $attendance->status ?? App\Enums\AttendanceStatus::Unknown;
 								@endphp
-								<x-forms.input-three-state-checkbox :$assume_attending :ensemble_id="$ensemble->id" :member_id="$member->id" :status="$attendance_value" :term_date_id="$term_date->id" />
+								<x-forms.input-three-state-checkbox :$allow_change_to_unknown :$assume_attending :member_id="$member->id" :status="$attendance_value" :term_date_id="$term_date->id" />
 							</td>
 						@endforeach
 					</tr>
