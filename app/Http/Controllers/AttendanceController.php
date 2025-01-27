@@ -56,24 +56,23 @@ class AttendanceController extends Controller
     {
         $request_ip = $request->ip();
 
-        $request->collect()->each(function($parameter_value, $parameter_key) use ($request_ip) {
+        $request->collect()->each(function($parameter_value, $parameter_key) use ($request_ip, $ensemble) {
             if ($parameter_key == '_token') {
                 return;
             }
 
             assert(substr($parameter_key, 0, 7) == 'status-');
 
-            $data = preg_split('/(e|t|m)/', explode('-', $parameter_key)[1], -1, PREG_SPLIT_NO_EMPTY);
+            $data = preg_split('/(t|m)/', explode('-', $parameter_key)[1], -1, PREG_SPLIT_NO_EMPTY);
 
-            assert(count($data) == 3);
-            $ensemble_id = $data[0];
-            $term_date_id = $data[1];
-            $member_id = $data[2];
+            assert(count($data) == 2);
+            $term_date_id = $data[0];
+            $member_id = $data[1];
 
             Attendance::create([
                 'user_id' => $member_id,
                 'term_date_id' => $term_date_id,
-                'ensemble_id' => $ensemble_id,
+                'ensemble_id' => $ensemble->id,
                 'status' => $parameter_value,
                 'edit_user_id' => Auth::user()->id,
                 'edit_ip' => $request_ip
