@@ -70,4 +70,20 @@ class User extends Authenticatable
         }
         return $initials;
     }
+
+    public function getRoleDescriptionAttribute(): string
+    {
+        switch ($this->role) {
+            case UserRole::Admin:
+                return 'Admin';
+            case UserRole::Moderator:
+                return 'Moderator';
+            case UserRole::Member:
+                return 'Member';
+            case UserRole::Guest:
+                return 'Guest';
+            default:
+                return 'Unknown';
+        }
+    }
 }
