@@ -11,7 +11,7 @@ use Illuminate\Support\Facades\URL;
 class Icon extends Component
 {
     public string $name;
-    private static string $icon_base_path = 'build/icons';
+    private static string $icon_base_path = 'build/icons/outline';
 
     /**
      * Create a new component instance.
@@ -26,7 +26,12 @@ class Icon extends Component
      */
     public function render(): View|Closure|string
     {
-        $icon_path = public_path(self::$icon_base_path . "/{$this->name}.svg");
+        if (config('app.env') === 'production') {
+            $icon_path = public_path(self::$icon_base_path . "/outline/{$this->name}.svg");
+        }
+        else {
+            $icon_path = public_path(self::$icon_base_path . "/{$this->name}.svg");
+        }
 
         if (!File::exists($icon_path)) {
             return '';
