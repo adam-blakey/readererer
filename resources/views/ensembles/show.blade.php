@@ -60,7 +60,7 @@
 								<div class="card-body">
 									<div class="card-title">Basic info</div>
 									<div class="mb-2">
-										<x-icon icon="user" />
+										<x-icon name="user" />
 										Admins:
 										@foreach ($ensemble->admins as $admin)
 											<a href="#">{{ $admin->name }}</a>{{ $loop->last ? '' : ',' }}

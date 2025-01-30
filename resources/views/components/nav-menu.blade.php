@@ -193,7 +193,7 @@
 			<div class="nav-item dropdown">
 				@guest
 					<a class="px-0 nav-link" data-bs-placement="bottom" data-bs-toggle="tooltip" href="{{ route('login') }}" title="Login">
-						<x-icon icon="login" />
+						<x-icon name="login" />
 					</a>
 				@endguest
 				@auth
@@ -231,7 +231,7 @@
 							<li class="nav-item {{ Request::is($nav_item['route']) ? 'active' : '' }}">
 								<a class="nav-link" href="{{ route($nav_item['route']) }}">
 									<span class="nav-link-icon d-md-none d-lg-inline-block">
-										<x-icon icon="{{ $nav_item['icon'] }}" />
+										<x-icon name="{{ $nav_item['icon'] }}" />
 									</span>
 									<span class="nav-link-title">
 										{{ $nav_item['title'] }}

@@ -20,7 +20,7 @@
 				</div>
 				<div class="form-footer">
 					<button class="btn btn-primary w-100" type="submit">
-						<x-icon icon="mail" />
+						<x-icon name="mail" />
 						Send me new password
 					</button>
 				</div>

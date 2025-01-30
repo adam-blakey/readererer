@@ -36,10 +36,10 @@
 										<input autocomplete="current-password" class="form-control" id="password" name="password" placeholder="Your password" required type="password">
 										<span class="input-group-text">
 											<a aria-label="Show password" class="cursor-pointer link-secondary" data-bs-original-title="Show password" data-bs-toggle="tooltip" id="toggle-password-show" onclick="togglePasswordVisibility('password', 'toggle-password-show', 'toggle-password-hide')">
-												<x-icon icon="eye" />
+												<x-icon name="eye" />
 											</a>
 											<a aria-label="Hide password" class="hidden cursor-pointer link-secondary" data-bs-original-title="Hide password" data-bs-toggle="tooltip" id="toggle-password-hide" onclick="togglePasswordVisibility('password', 'toggle-password-show', 'toggle-password-hide')">
-												<x-icon icon="eye-closed" />
+												<x-icon name="eye-closed" />
 											</a>
 										</span>
 										<x-forms.input-error :messages="$errors->get('password')" />
@@ -53,7 +53,7 @@
 								</div>
 								<div class="form-footer">
 									<button class="btn btn-primary w-100" type="submit">
-										<x-icon icon="login" />
+										<x-icon name="login" />
 										{{ __('Login') }}
 									</button>
 								</div>
@@ -64,7 +64,7 @@
 							<div class="row">
 								<div class="col">
 									<a class="btn w-100" href="#">
-										<x-icon icon="google" />
+										<x-icon name="google" />
 										Login with Google
 									</a>
 								</div>
