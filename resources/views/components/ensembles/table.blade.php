@@ -25,7 +25,7 @@
 						<td>
 							<img alt="{{ $ensemble->name }}" class="rounded" src="{{ $ensemble->image }}" style="width: 50px;">
 						</td>
-						<td>{{ $ensemble->visible == 1 ? 'Y' : 'N' }}</td>
+						<td>{{ $ensemble->show ? 'Y' : 'N' }}</td>
 						<td>
 							@foreach ($ensemble->admins as $admin)
 								<a href="/users/{{ $admin->id }}">{{ $admin->name }}</a>{{ $loop->last ? '' : ',' }}
