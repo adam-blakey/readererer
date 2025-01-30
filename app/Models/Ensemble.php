@@ -21,6 +21,7 @@ class Ensemble extends Model
     private array $sortables = [
         'name',
         'slug',
+        'show',
         'created_at',
         'updated_at',
     ];

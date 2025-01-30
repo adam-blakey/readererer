@@ -4,10 +4,10 @@
 	<table class="table table-vcenter card-table">
 		<thead>
 			<tr>
-				<th><x-larasort-link display_name="Ensemble name" name="name" /></th>
+				<th><x-larasort-link display_name="ensemble name" name="name" /></th>
 				<th><x-larasort-link name="slug" /></th>
 				<th>Image</th>
-				<th>Visible</th>
+				<th><x-larasort-link display_name="visible" name="show" /></th>
 				<th>Admins</th>
 				<th class="w-1"></th>
 			</tr>
