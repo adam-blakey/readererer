@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "c7f1ac1b0da821ffd7a56c1f6b7e1fae",
+    "content-hash": "54ae58fd44705d37757da2bad5322a00",
     "packages": [
         {
             "name": "brick/math",
@@ -3175,6 +3175,70 @@
                 }
             ],
             "time": "2024-04-27T21:32:50+00:00"
+        },
+        {
+            "name": "s-damian/larasort",
+            "version": "v1.0.17",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/s-damian/larasort.git",
+                "reference": "fc2ee9648493f3baf64f341ea54cbd9bdec638ef"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/s-damian/larasort/zipball/fc2ee9648493f3baf64f341ea54cbd9bdec638ef",
+                "reference": "fc2ee9648493f3baf64f341ea54cbd9bdec638ef",
+                "shasum": ""
+            },
+            "require": {
+                "php": "^8.0"
+            },
+            "require-dev": {
+                "laravel/framework": "^8.0 || ^9.0 || ^10.0 || ^11.0",
+                "laravel/pint": "^1.0",
+                "orchestra/testbench": "^6",
+                "phpstan/phpstan": "^1.11",
+                "phpunit/phpunit": "9.5.*"
+            },
+            "type": "library",
+            "extra": {
+                "laravel": {
+                    "providers": [
+                        "SDamian\\Larasort\\LarasortServiceProvider"
+                    ]
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "SDamian\\Larasort\\": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Stephen Damian",
+                    "email": "contact@damian-freelance.fr",
+                    "homepage": "https://github.com/s-damian"
+                }
+            ],
+            "description": "Column sortable for Laravel",
+            "keywords": [
+                "larasort",
+                "laravel",
+                "orderby",
+                "php",
+                "sortable"
+            ],
+            "support": {
+                "docs": "https://github.com/s-damian/larasort/blob/main/README.md",
+                "email": "contact@damian-freelance.fr",
+                "issues": "https://github.com/s-damian/larasort/issues",
+                "source": "https://github.com/s-damian/larasort"
+            },
+            "time": "2024-10-13T09:23:57+00:00"
         },
         {
             "name": "symfony/clock",
