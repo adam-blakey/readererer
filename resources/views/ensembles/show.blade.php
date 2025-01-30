@@ -58,12 +58,19 @@
 						<div class="col-12">
 							<div class="card">
 								<div class="card-body">
-									<div class="card-title">Basic info</div>
+									<div class="card-title">Member info</div>
 									<div class="mb-2">
-										<x-icon name="user" />
-										Admins:
+										<x-icon name="user-cog" />
+										Admins ({{ $ensemble->admins->count() }}):
 										@foreach ($ensemble->admins as $admin)
-											<a href="#">{{ $admin->name }}</a>{{ $loop->last ? '' : ',' }}
+											<x-user-entry :user="$admin" />
+										@endforeach
+									</div>
+									<div class="mb-2">
+										<x-icon name="users" />
+										Members ({{ $ensemble->users->count() }}):
+										@foreach ($ensemble->users as $user)
+											<x-user-entry :user="$user" />
 										@endforeach
 									</div>
 								</div>

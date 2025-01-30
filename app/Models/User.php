@@ -34,7 +34,8 @@ class User extends Authenticatable
      * @var array<int, string>
      */
     protected $fillable = [
-        'name',
+        'first_name',
+        'last_name',
         'email',
         'password',
     ];
@@ -66,12 +67,7 @@ class User extends Authenticatable
 
     public function getInitialsAttribute(): string
     {
-        $name = explode(' ', $this->name);
-        $initials = '';
-        foreach ($name as $n) {
-            $initials .= $n[0];
-        }
-        return $initials;
+        return $this->first_name[0] . $this->last_name[0];
     }
 
     public function getRoleDescriptionAttribute(): string
@@ -103,5 +99,10 @@ class User extends Authenticatable
     public function getEmergencyContactDetailsAttribute(): string
     {
         return $this->emergency_contact_name . ', ' . $this->emergency_contact_number . ', ' . $this->emergency_contact_relationship . ', ' . $this->emergency_contact_address_line1 . ', ' . $this->emergency_contact_address_line2 . ', ' . $this->emergency_contact_address_city . ', ' . $this->emergency_contact_address_post_code;
+    }
+
+    public function getNameAttribute(): string
+    {
+        return $this->first_name . ' ' . $this->last_name;
     }
 }

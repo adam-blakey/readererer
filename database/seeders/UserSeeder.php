@@ -17,7 +17,8 @@ class UserSeeder extends Seeder
         $users = User::factory(10)->create();
 
         $users[] = User::create([
-            'name' => 'Test Admin',
+            'first_name' => 'Test',
+            'last_name' => 'Admin',
             'email' => 'test-admin@example.com',
             'password' => bcrypt('password'),
             'avatar' => 'https://adam.blakey.family/wp-content/uploads/sites/4/2022/02/Adam-cutaway-4.png.webp',
@@ -25,7 +26,8 @@ class UserSeeder extends Seeder
         ]);
 
         $users[] = User::create([
-            'name' => 'Test Member',
+            'first_name' => 'Test',
+            'last_name' => 'Member',
             'email' => 'test-member@example.com',
             'password' => bcrypt('password'),
             'avatar' => 'https://adam.blakey.family/wp-content/uploads/sites/4/2022/02/Adam-cutaway-4.png.webp',

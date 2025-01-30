@@ -20,11 +20,11 @@ class Ensemble extends Model
     {
         //return $this->hasManyThrough(User::class, EnsembleAdmin::class, 'ensemble_id', 'ensemble_admin_id');
 
-        return $this->belongsToMany(User::class, 'ensemble_admins', 'ensemble_id', 'admin_id');
+        return $this->belongsToMany(User::class, 'ensemble_admins', 'ensemble_id', 'admin_id')->orderBy('first_name');
     }
 
     public function users(): BelongsToMany
     {
-        return $this->belongsToMany(User::class, 'user_ensemble', 'ensemble_id', 'user_id');
+        return $this->belongsToMany(User::class, 'user_ensemble', 'ensemble_id', 'user_id')->orderBy('first_name');
     }
 }
