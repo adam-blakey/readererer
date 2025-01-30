@@ -8,6 +8,8 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use App\Enums\UserRole;
+use Carbon\Carbon;
+use Illuminate\Support\Carbon as SupportCarbon;
 
 class User extends Authenticatable
 {
@@ -32,7 +34,8 @@ class User extends Authenticatable
      * @var array<int, string>
      */
     protected $fillable = [
-        'name',
+        'first_name',
+        'last_name',
         'email',
         'password',
     ];
@@ -58,16 +61,48 @@ class User extends Authenticatable
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
             'role' => UserRole::class,
+            'date_of_birth' => 'date',
         ];
     }
 
     public function getInitialsAttribute(): string
     {
-        $name = explode(' ', $this->name);
-        $initials = '';
-        foreach ($name as $n) {
-            $initials .= $n[0];
+        return $this->first_name[0] . $this->last_name[0];
+    }
+
+    public function getRoleDescriptionAttribute(): string
+    {
+        switch ($this->role) {
+            case UserRole::Admin:
+                return 'Admin';
+            case UserRole::Moderator:
+                return 'Moderator';
+            case UserRole::Member:
+                return 'Member';
+            case UserRole::Guest:
+                return 'Guest';
+            default:
+                return 'Unknown';
         }
-        return $initials;
+    }
+
+    public function getFullAddressAttribute(): string
+    {
+        return $this->address_line1 . ', ' . $this->address_line2 . ', ' . $this->address_city . ', ' . $this->address_post_code;
+    }
+
+    public function getIsOver18Attribute(): bool
+    {
+        return $this->date_of_birth->diffInYears(SupportCarbon::now()) >= 18;
+    }
+
+    public function getEmergencyContactDetailsAttribute(): string
+    {
+        return $this->emergency_contact_name . ', ' . $this->emergency_contact_number . ', ' . $this->emergency_contact_relationship . ', ' . $this->emergency_contact_address_line1 . ', ' . $this->emergency_contact_address_line2 . ', ' . $this->emergency_contact_address_city . ', ' . $this->emergency_contact_address_post_code;
+    }
+
+    public function getNameAttribute(): string
+    {
+        return $this->first_name . ' ' . $this->last_name;
     }
 }

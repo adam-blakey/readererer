@@ -4,10 +4,10 @@
 	<table class="table table-vcenter card-table">
 		<thead>
 			<tr>
-				<th>Ensemble name</th>
-				<th>Slug</th>
+				<th><x-larasort-link display_name="ensemble name" name="name" /></th>
+				<th><x-larasort-link name="slug" /></th>
 				<th>Image</th>
-				<th>Visible</th>
+				<th><x-larasort-link display_name="visible" name="show" /></th>
 				<th>Admins</th>
 				<th class="w-1"></th>
 			</tr>
@@ -25,7 +25,7 @@
 						<td>
 							<img alt="{{ $ensemble->name }}" class="rounded" src="{{ $ensemble->image }}" style="width: 50px;">
 						</td>
-						<td>{{ $ensemble->visible == 1 ? 'Y' : 'N' }}</td>
+						<td>{{ $ensemble->show ? 'Y' : 'N' }}</td>
 						<td>
 							@foreach ($ensemble->admins as $admin)
 								<a href="/users/{{ $admin->id }}">{{ $admin->name }}</a>{{ $loop->last ? '' : ',' }}

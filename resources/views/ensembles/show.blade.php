@@ -38,7 +38,7 @@
 				<div class="col">
 					<div class="mb-3 card">
 						<div class="card-header">
-							<h2 class="mb-0 card-heading">Next rehearsal or concert</h2>
+							<h2 class="mb-0 card-heading">Upcoming rehearsals and concerts</h2>
 						</div>
 						<div class="card-body">
 
@@ -46,7 +46,7 @@
 					</div>
 					<div class="mb-3 card">
 						<div class="card-header">
-							<h2 class="mb-0 card-heading">Current pieces</h2>
+							<h2 class="mb-0 card-heading">Setlists</h2>
 						</div>
 						<div class="card-body">
 
@@ -58,12 +58,19 @@
 						<div class="col-12">
 							<div class="card">
 								<div class="card-body">
-									<div class="card-title">Basic info</div>
+									<div class="card-title">Member info</div>
 									<div class="mb-2">
-										<x-icon name="user" />
-										Admins:
+										<x-icon name="user-cog" />
+										Admins ({{ $ensemble->admins->count() }}):
 										@foreach ($ensemble->admins as $admin)
-											<a href="#">{{ $admin->name }}</a>{{ $loop->last ? '' : ',' }}
+											<x-user-entry :user="$admin" />
+										@endforeach
+									</div>
+									<div class="mb-2">
+										<x-icon name="users" />
+										Members ({{ $ensemble->users->count() }}):
+										@foreach ($ensemble->users as $user)
+											<x-user-entry :user="$user" />
 										@endforeach
 									</div>
 								</div>

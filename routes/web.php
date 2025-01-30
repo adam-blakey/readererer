@@ -45,6 +45,9 @@ Route::middleware('auth')->group(function () {
     Route::get('/ensembles/{ensemble}/edit', [EnsembleController::class, 'edit'])
         ->name('ensembles.edit')
         ->can('update', 'ensemble');
+    Route::put('/ensembles/{ensemble}/update', [EnsembleController::class, 'update'])
+        ->name('ensembles.update')
+        ->can('update', 'ensemble');
 });
 
 Route::get('/terms', [TermController::class, 'index'])
