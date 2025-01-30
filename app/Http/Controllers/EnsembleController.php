@@ -13,7 +13,7 @@ class EnsembleController extends Controller
      */
     public function index()
     {
-        $ensembles = Ensemble::latest()->with(['admins'])->paginate(10);
+        $ensembles = Ensemble::latest()->with(['admins'])->autosort()->paginate(10);
 
         return view('ensembles.index', [
             'ensembles' => $ensembles,

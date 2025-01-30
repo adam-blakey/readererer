@@ -6,15 +6,24 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use SDamian\Larasort\AutoSortable;
 
 class Ensemble extends Model
 {
     use HasFactory;
     use SoftDeletes;
+    use AutoSortable;
 
     protected $name;
     protected $slug;
     protected $image;
+
+    private array $sortables = [
+        'name',
+        'slug',
+        'created_at',
+        'updated_at',
+    ];
 
     public function admins(): BelongsToMany
     {

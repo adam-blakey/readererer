@@ -4,8 +4,8 @@
 	<table class="table table-vcenter card-table">
 		<thead>
 			<tr>
-				<th>Ensemble name</th>
-				<th>Slug</th>
+				<th><x-larasort-link display_name="Ensemble name" name="name" /></th>
+				<th><x-larasort-link name="slug" /></th>
 				<th>Image</th>
 				<th>Visible</th>
 				<th>Admins</th>
