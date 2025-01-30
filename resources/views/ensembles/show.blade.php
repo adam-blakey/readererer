@@ -38,7 +38,7 @@
 				<div class="col">
 					<div class="mb-3 card">
 						<div class="card-header">
-							<h2 class="mb-0 card-heading">Next rehearsal or concert</h2>
+							<h2 class="mb-0 card-heading">Upcoming rehearsals and concerts</h2>
 						</div>
 						<div class="card-body">
 
@@ -46,7 +46,7 @@
 					</div>
 					<div class="mb-3 card">
 						<div class="card-header">
-							<h2 class="mb-0 card-heading">Current pieces</h2>
+							<h2 class="mb-0 card-heading">Setlists</h2>
 						</div>
 						<div class="card-body">
 

@@ -8,6 +8,7 @@ use Illuminate\Support\ServiceProvider;
 use Illuminate\Notifications\Messages\MailMessage;
 use App\Models\User;
 use Illuminate\Support\Facades\Gate;
+use Illuminate\Database\Eloquent\Model;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -45,5 +46,7 @@ class AppServiceProvider extends ServiceProvider
         Gate::define('view.dashboard', function (User $user) {
             return true;
         });
+
+        Model::preventSilentlyDiscardingAttributes(config('app.env') == 'local');
     }
 }

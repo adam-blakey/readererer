@@ -56,27 +56,33 @@
 									<div class="card-title">Personal details</div>
 									<div class="mb-2">
 										<x-icon name="user" />
-										Name
+										Name:
+										<strong>{{ $user->name }}</strong>
 									</div>
 									<div class="mb-2">
 										<x-icon name="mail" />
-										Email
+										Email:
+										<strong>{{ $user->email }}</strong>
 									</div>
 									<div class="mb-2">
 										<x-icon name="phone" />
-										Phone number
+										Phone number:
+										<strong>{{ $user->phone_number }}</strong>
 									</div>
 									<div class="mb-2">
 										<x-icon name="pin" />
-										Address
+										Address:
+										<strong>{{ $user->full_address }}</strong>
 									</div>
 									<div class="mb-2">
 										<x-icon name="building-hospital" />
-										Emergency contact
+										Emergency contact details:
+										<strong>{{ $user->emergency_contact_details }}</strong>
 									</div>
 									<div class="mb-2">
 										<x-icon name="glass" />
-										Over 18?
+										Over 18:
+										<strong>{{ $user->is_over_18 ? 'Yes' : 'No' }}</strong>
 									</div>
 								</div>
 							</div>
@@ -90,11 +96,13 @@
 									<div class="card-title">Additional info</div>
 									<div class="mb-2">
 										<x-icon name="camera" />
-										Photograph permssion?
+										Photograph permssion:
+										<strong>{{ $user->has_photo_permission ? 'Yes' : 'No' }}</strong>
 									</div>
 									<div class="mb-2">
 										<x-icon name="gift" />
-										Gift aid subs?
+										Gift aid subs:
+										<strong>{{ $user->is_gift_aiding_subs ? 'Yes' : 'No' }}</strong>
 									</div>
 								</div>
 							</div>
