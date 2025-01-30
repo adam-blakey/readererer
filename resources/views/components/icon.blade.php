@@ -117,5 +117,29 @@
 		</svg>
 	@break
 
+	@case('pencil')
+		<svg class="icon icon-tabler icons-tabler-outline icon-tabler-pencil" fill="none" height="24" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" stroke="currentColor" viewBox="0 0 24 24" width="24" xmlns="http://www.w3.org/2000/svg">
+			<path d="M0 0h24v24H0z" fill="none" stroke="none" />
+			<path d="M4 20h4l10.5 -10.5a2.828 2.828 0 1 0 -4 -4l-10.5 10.5v4" />
+			<path d="M13.5 6.5l4 4" />
+		</svg>
+	@break
+
+	@case('user')
+		<svg class="icon icon-tabler icons-tabler-outline icon-tabler-user" fill="none" height="24" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" stroke="currentColor" viewBox="0 0 24 24" width="24" xmlns="http://www.w3.org/2000/svg">
+			<path d="M0 0h24v24H0z" fill="none" stroke="none" />
+			<path d="M8 7a4 4 0 1 0 8 0a4 4 0 0 0 -8 0" />
+			<path d="M6 21v-2a4 4 0 0 1 4 -4h4a4 4 0 0 1 4 4v2" />
+		</svg>
+	@break
+
+	@case('mail')
+		<svg class="icon icon-tabler icons-tabler-outline icon-tabler-mail" fill="none" height="24" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" stroke="currentColor" viewBox="0 0 24 24" width="24" xmlns="http://www.w3.org/2000/svg">
+			<path d="M0 0h24v24H0z" fill="none" stroke="none" />
+			<path d="M3 7a2 2 0 0 1 2 -2h14a2 2 0 0 1 2 2v10a2 2 0 0 1 -2 2h-14a2 2 0 0 1 -2 -2v-10z" />
+			<path d="M3 7l9 6l9 -6" />
+		</svg>
+	@break
+
 	@default
 @endswitch

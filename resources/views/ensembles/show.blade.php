@@ -60,11 +60,7 @@
 								<div class="card-body">
 									<div class="card-title">Basic info</div>
 									<div class="mb-2">
-										<svg class="icon icon-tabler icons-tabler-outline icon-tabler-user me-2 text-secondary" fill="none" height="24" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" stroke="currentColor" viewBox="0 0 24 24" width="24" xmlns="http://www.w3.org/2000/svg">
-											<path d="M0 0h24v24H0z" fill="none" stroke="none" />
-											<path d="M8 7a4 4 0 1 0 8 0a4 4 0 0 0 -8 0" />
-											<path d="M6 21v-2a4 4 0 0 1 4 -4h4a4 4 0 0 1 4 4v2" />
-										</svg>
+										<x-icon icon="user" />
 										Admins:
 										@foreach ($ensemble->admins as $admin)
 											<a href="#">{{ $admin->name }}</a>{{ $loop->last ? '' : ',' }}
