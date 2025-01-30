@@ -6,22 +6,18 @@ use Closure;
 use Illuminate\Contracts\View\View;
 use Illuminate\View\Component;
 use Illuminate\Support\Facades\File;
+use Illuminate\Support\Facades\URL;
 
 class Icon extends Component
 {
     public string $name;
-    private static array $icons;
-    private static string $icon_base_path = 'node_modules/@tabler/icons';
+    private static string $icon_base_path = 'build/icons';
 
     /**
      * Create a new component instance.
      */
     public function __construct(string $name)
     {
-        if (!isset(self::$icons)) {
-            self::$icons = json_decode(File::get(base_path(self::$icon_base_path . '/tags.json')), true);
-        }
-
         $this->name = $name;
     }
 
@@ -30,11 +26,7 @@ class Icon extends Component
      */
     public function render(): View|Closure|string
     {
-        if (!isset(self::$icons[$this->name])) {
-            return '';
-        }
-
-        $icon_path = base_path(self::$icon_base_path . "/icons/{$this->name}.svg");
+        $icon_path = public_path(self::$icon_base_path . "/{$this->name}.svg");
 
         if (!File::exists($icon_path)) {
             return '';
