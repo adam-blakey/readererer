@@ -33,9 +33,9 @@ class Icon extends Component
             $icon_path = public_path(self::$icon_base_path . "/{$this->name}.svg");
         }
 
-        if (!File::exists($icon_path)) {
-            return '';
-        }
+        // if (!File::exists($icon_path)) {
+        //     return '';
+        // }
 
         return File::get($icon_path);
     }
