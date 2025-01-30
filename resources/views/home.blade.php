@@ -22,12 +22,12 @@
 							<li><strong>Term management:</strong> Organize your rehearsals and performances by term.</li>
 						</ul>
 						@guest
-							<a class="btn btn-primary" href="{{ route('login') }}"><x-icon icon="login" /> Log in</a>
+							<a class="btn btn-primary" href="{{ route('login') }}"><x-icon name="login" /> Log in</a>
 						@endguest
 						@auth
 							<form action="{{ route('logout') }}" method="POST">
 								@csrf
-								<button class="btn btn-primary" type="submit"><x-icon icon="logout" /> Log out</button>
+								<button class="btn btn-primary" type="submit"><x-icon name="logout" /> Log out</button>
 							</form>
 						@endauth
 					</x-card-body>

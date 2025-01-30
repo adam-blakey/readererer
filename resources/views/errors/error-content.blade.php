@@ -10,7 +10,7 @@
 					</p>
 					<div class="empty-action">
 						<a class="btn btn-primary" href="@yield('button-route')">
-							<x-icon icon="{{ app()->view->getSections()['button-icon'] }}" />
+							<x-name icon="{{ app()->view->getSections()['button-icon'] }}" />
 							@yield('button-text', __('Login'))
 						</a>
 					</div>
