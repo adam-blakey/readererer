@@ -18,7 +18,7 @@
 				<div class="col-auto ms-auto">
 					<div class="btn-list">
 						<a aria-label="Button" class="btn" href="{{ route('users.edit', ['user' => $user]) }}">
-							<x-icon icon="pencil" />
+							<x-icon name="pencil" />
 							Edit
 						</a>
 					</div>
@@ -55,23 +55,27 @@
 								<div class="card-body">
 									<div class="card-title">Personal details</div>
 									<div class="mb-2">
-										<x-icon icon="user" />
+										<x-icon name="user" />
 										Name
 									</div>
 									<div class="mb-2">
-										<x-icon icon="mail" />
+										<x-icon name="mail" />
 										Email
 									</div>
 									<div class="mb-2">
+										<x-icon name="phone" />
 										Phone number
 									</div>
 									<div class="mb-2">
+										<x-icon name="pin" />
 										Address
 									</div>
 									<div class="mb-2">
+										<x-icon name="building-hospital" />
 										Emergency contact
 									</div>
 									<div class="mb-2">
+										<x-icon name="glass" />
 										Over 18?
 									</div>
 								</div>
@@ -83,12 +87,14 @@
 						<div class="col-12">
 							<div class="card">
 								<div class="card-body">
-									<div class="card-title">Group info</div>
+									<div class="card-title">Additional info</div>
 									<div class="mb-2">
+										<x-icon name="camera" />
 										Photograph permssion?
 									</div>
 									<div class="mb-2">
-										Gift aid subs
+										<x-icon name="gift" />
+										Gift aid subs?
 									</div>
 								</div>
 							</div>
