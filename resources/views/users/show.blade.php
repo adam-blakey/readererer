@@ -38,7 +38,7 @@
 						<div class="card-body">
 							@foreach ($user->ensembles as $ensemble)
 								<p>
-									{{ $ensemble->name }}: <strong>{{ $instrumentFamilies[$ensemble->pivot->instrument_family_id]->name ?? '[none]' }} {{ $ensemble->pivot->seat_row == null ? '' : '(' . $ensemble->pivot->seat_row . ')' }}</strong>
+									{{ $ensemble->name }}: <strong>{{ $instrumentFamilies[$ensemble->pivot->instrument_family_id]->name ?? '[none]' }} {{ ($ensemble->pivot->seat_column == null or $ensemble->pivot->seat_row == null) ? '' : '(' . $ensemble->pivot->seat_column . $ensemble->pivot->seat_row . ')' }}</strong>
 								</p>
 							@endforeach
 						</div>
