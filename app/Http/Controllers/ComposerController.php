@@ -13,7 +13,12 @@ class ComposerController extends Controller
      */
     public function index()
     {
-        //
+        $composers = Composer::latest()->autosort()->paginate(10);
+
+        return view('composers.index', [
+            'composers' => $composers,
+            'page_name' => 'Composers'
+        ]);
     }
 
     /**

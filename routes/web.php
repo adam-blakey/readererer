@@ -46,6 +46,9 @@ Route::get('/setlists', [SetlistController::class, 'index'])
 Route::get('/composers/{composer}', [ComposerController::class, 'show'])
     ->name('composers.show')
     ->can('view', 'composer');
+Route::get('/composers/{composer}/edit', [ComposerController::class, 'edit'])
+    ->name('composers.edit')
+    ->can('update', 'composer');
 
 Route::middleware('auth')->group(function () {
     Route::get('/ensembles', [EnsembleController::class, 'index'])
@@ -68,6 +71,9 @@ Route::get('/terms', [TermController::class, 'index'])
 Route::get('/terms/{term}', [TermController::class, 'show'])
     ->name('terms.show')
     ->can('view', 'term');
+Route::get('/terms/{term}/edit', [TermController::class, 'edit'])
+    ->name('terms.edit')
+    ->can('update', 'term');
 
 Route::get('/attendance', [AttendanceController::class, 'index'])
     ->name('attendance')

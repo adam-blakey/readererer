@@ -25,7 +25,7 @@
 
 						<th>
 							@if (in_array($attribute, $sortables))
-								<x-larasort-link name="{{ $clean_attribute }}" />
+								<x-larasort-link display_name="{{ $clean_attribute }}" name="{{ $attribute }}" />
 							@else
 								{{ $clean_attribute }}
 							@endif
@@ -43,6 +43,8 @@
 							<td>
 								@if ($attribute === 'name')
 									<x-clickable-model :model="$entity" />
+								@elseif ($attribute === 'image')
+									<x-clickable-model-image :model="$entity" />
 								@elseif (array_key_exists($attribute, $casts))
 									@switch($casts[$attribute])
 										@case('boolean')
@@ -65,7 +67,7 @@
 										@endif
 										{{ $loop->last ? '' : ',' }}
 									@endforeach
-								@elseif (class_exists(get_class($entity->$attribute)))
+								@elseif (gettype($entity->$attribute) == 'object' and class_exists(get_class($entity->$attribute)))
 									<x-clickable-model :model="$entity->$attribute" />
 								@else
 									{{ $entity->$attribute }}

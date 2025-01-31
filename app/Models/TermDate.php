@@ -37,4 +37,9 @@ class TermDate extends Model
             'show' => 'boolean',
         ];
     }
+
+    public function getNameAttribute(): string
+    {
+        return $this->start_datetime->format('Y-m-d H:i') . ' - ' . $this->end_datetime->format('Y-m-d H:i');
+    }
 }

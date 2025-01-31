@@ -19,6 +19,7 @@ class Ensemble extends Model
     protected $image;
 
     protected $visible = [
+        'image',
         'name',
         'slug',
         'show',
