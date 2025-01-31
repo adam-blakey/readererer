@@ -17,11 +17,15 @@
 			<thead>
 				<tr>
 					@foreach ($attributes as $attribute)
+						@php
+							$clean_attribute = clean_attribute_name($attribute);
+						@endphp
+
 						<th>
 							@if (in_array($attribute, $sortables))
-								<x-larasort-link name="{{ $attribute }}" />
+								<x-larasort-link name="{{ $clean_attribute }}" />
 							@else
-								{{ $attribute }}
+								{{ $clean_attribute }}
 							@endif
 						</th>
 					@endforeach

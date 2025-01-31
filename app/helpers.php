@@ -16,3 +16,11 @@ function get_class_name_from_model($model)
 
     return $class_name;
 }
+
+function clean_attribute_name($dirty_attribute)
+{
+    $clean_attribute = str_replace('_', ' ', $dirty_attribute);
+    $clean_attribute = ucfirst($clean_attribute);
+
+    return $clean_attribute;
+}
