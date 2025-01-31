@@ -18,6 +18,15 @@ class Ensemble extends Model
     protected $slug;
     protected $image;
 
+    protected $visible = [
+        'id',
+        'name',
+        'slug',
+        'show',
+        'created_at',
+        'updated_at',
+    ];
+
     private array $sortables = [
         'name',
         'slug',
