@@ -25,15 +25,24 @@ class Ensemble extends Model
         'show',
         'created_at',
         'updated_at',
+        'admins',
     ];
 
-    private array $sortables = [
+    public array $sortables = [
+        'id',
         'name',
         'slug',
         'show',
         'created_at',
         'updated_at',
     ];
+
+    public function casts(): array
+    {
+        return [
+            'show' => 'boolean',
+        ];
+    }
 
     public function admins(): BelongsToMany
     {

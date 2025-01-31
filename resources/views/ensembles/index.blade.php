@@ -5,7 +5,7 @@
 		<x-card-row>
 			<div class="col-md-12">
 				<x-card>
-					<x-table :entities=$ensembles entities_name="ensembles" />
+					<x-table :entities=$ensembles />
 				</x-card>
 			</div>
 		</x-card-row>

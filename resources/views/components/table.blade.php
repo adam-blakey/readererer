@@ -1,18 +1,26 @@
-@props(['entities', 'entities_name'])
+@props(['entities'])
 
 <div class="table-responsive">
 	@if ($entities->isEmpty())
-		<p class="p-5">No {{ $entities_name }} found.</p>
+		<p class="p-5">No results found.</p>
 	@else
 		@php
 			$attributes = $entities->first()->getVisible();
+			$sortables = $entities->first()->sortables;
+			$casts = $entities->first()->casts();
 		@endphp
 
 		<table class="table table-vcenter card-table">
 			<thead>
 				<tr>
 					@foreach ($attributes as $attribute)
-						<th><x-larasort-link name="{{ $attribute }}" /></th>
+						<th>
+							@if (in_array($attribute, $sortables))
+								<x-larasort-link name="{{ $attribute }}" />
+							@else
+								{{ $attribute }}
+							@endif
+						</th>
 					@endforeach
 				</tr>
 			</thead>
@@ -20,7 +28,24 @@
 				@foreach ($entities as $entity)
 					<tr>
 						@foreach ($attributes as $attribute)
-							<td>{{ $entity->$attribute }}</td>
+							<td>
+								@if ($entity->$attribute instanceof Illuminate\Support\Collection)
+									{{ $entity->$attribute->implode('name', ', ') }}
+								@else
+									@if (array_key_exists($attribute, $casts))
+										@switch($casts[$attribute])
+											@case('boolean')
+												{{ $entity->$attribute ? 'Y' : 'N' }}
+											@break
+
+											@default
+												{{ $entity->$attribute }}
+										@endswitch
+									@else
+										{{ $entity->$attribute }}
+									@endif
+								@endif
+							</td>
 						@endforeach
 					</tr>
 				@endforeach
