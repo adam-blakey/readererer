@@ -38,7 +38,11 @@
 											$route_name = $class_name . 's.show';
 										@endphp
 
-										<a href="{{ route($route_name, [$class_name => $item]) }}">{{ $item->name }}</a>{{ $loop->last ? '' : ',' }}
+										@if (Route::has($route_name))
+											<a href="{{ route($route_name, [$class_name => $item]) }}">{{ $item->name }}</a>{{ $loop->last ? '' : ',' }}
+										@else
+											{{ $item->name }}{{ $loop->last ? '' : ',' }}
+										@endif
 									@endforeach
 								@else
 									@if (array_key_exists($attribute, $casts))

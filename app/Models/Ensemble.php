@@ -19,7 +19,6 @@ class Ensemble extends Model
     protected $image;
 
     protected $visible = [
-        'id',
         'name',
         'slug',
         'show',
@@ -29,7 +28,6 @@ class Ensemble extends Model
     ];
 
     public array $sortables = [
-        'id',
         'name',
         'slug',
         'show',
