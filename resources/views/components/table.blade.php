@@ -30,7 +30,16 @@
 						@foreach ($attributes as $attribute)
 							<td>
 								@if ($entity->$attribute instanceof Illuminate\Support\Collection)
-									{{ $entity->$attribute->implode('name', ', ') }}
+									@foreach ($entity->$attribute as $item)
+										@php
+											$class_path = get_class($item);
+											$class_split = explode('\\', $class_path);
+											$class_name = strtolower(end($class_split));
+											$route_name = $class_name . 's.show';
+										@endphp
+
+										<a href="{{ route($route_name, [$class_name => $item]) }}">{{ $item->name }}</a>{{ $loop->last ? '' : ',' }}
+									@endforeach
 								@else
 									@if (array_key_exists($attribute, $casts))
 										@switch($casts[$attribute])
