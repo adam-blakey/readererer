@@ -8,6 +8,9 @@
 			$attributes = $entities->first()->getVisible();
 			$sortables = $entities->first()->sortables;
 			$casts = $entities->first()->casts();
+
+			$edit_route_name = get_route_name_from_model($entities->first(), 'edit');
+			$class_name = get_class_name_from_model($entities->first());
 		@endphp
 
 		<table class="table table-vcenter card-table">
@@ -22,6 +25,9 @@
 							@endif
 						</th>
 					@endforeach
+					@if (Auth::user()?->can('viewAny', App\Models\Attendance::class))
+						<th>Edit</th>
+					@endif
 				</tr>
 			</thead>
 			<tbody>
@@ -29,20 +35,11 @@
 					<tr>
 						@foreach ($attributes as $attribute)
 							<td>
-								@if ($entity->$attribute instanceof Illuminate\Support\Collection)
+								@if ($attribute === 'name')
+									<x-clickable-model :model="$entity" />
+								@elseif ($entity->$attribute instanceof Illuminate\Support\Collection)
 									@foreach ($entity->$attribute as $item)
-										@php
-											$class_path = get_class($item);
-											$class_split = explode('\\', $class_path);
-											$class_name = strtolower(end($class_split));
-											$route_name = $class_name . 's.show';
-										@endphp
-
-										@if (Route::has($route_name))
-											<a href="{{ route($route_name, [$class_name => $item]) }}">{{ $item->name }}</a>{{ $loop->last ? '' : ',' }}
-										@else
-											{{ $item->name }}{{ $loop->last ? '' : ',' }}
-										@endif
+										<x-clickable-model :model="$item" />{{ $loop->last ? '' : ',' }}
 									@endforeach
 								@else
 									@if (array_key_exists($attribute, $casts))
@@ -64,6 +61,9 @@
 								@endif
 							</td>
 						@endforeach
+						@if (Auth::user()?->can('viewAny', App\Models\Attendance::class))
+							<td><a href="{{ route($edit_route_name, [$class_name => $entity]) }}">Edit</a></td>
+						@endif
 					</tr>
 				@endforeach
 			</tbody>
