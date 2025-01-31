@@ -27,6 +27,9 @@ Route::get('/pieces', [PieceController::class, 'index'])
 Route::get('/pieces/{piece}', [PieceController::class, 'show'])
     ->name('pieces.show')
     ->can('view', 'piece');
+Route::get('/pieces/{piece}/edit', [PieceController::class, 'edit'])
+    ->name('pieces.edit')
+    ->can('update', 'piece');
 
 Route::get('/composers', [ComposerController::class, 'index'])
     ->name('composers')
