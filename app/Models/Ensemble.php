@@ -23,9 +23,9 @@ class Ensemble extends Model
         'name',
         'slug',
         'show',
+        'admins',
         'created_at',
         'updated_at',
-        'admins',
     ];
 
     public array $sortables = [
@@ -41,6 +41,8 @@ class Ensemble extends Model
     {
         return [
             'show' => 'boolean',
+            'created_at' => 'datetime',
+            'updated_at' => 'datetime',
         ];
     }
 

@@ -38,6 +38,10 @@
 												{{ $entity->$attribute ? 'Y' : 'N' }}
 											@break
 
+											@case('datetime')
+												{{ $entity->$attribute->diffForHumans() }}
+											@break
+
 											@default
 												{{ $entity->$attribute }}
 										@endswitch
