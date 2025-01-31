@@ -15,7 +15,7 @@ return new class extends Migration
     {
         Schema::table('user_ensemble', function (Blueprint $table) {
             $table->foreignIdFor(InstrumentFamily::class);
-            $table->integer('seat_column')->nullable();
+            $table->char('seat_column')->nullable();
             $table->integer('seat_row')->nullable();
         });
     }

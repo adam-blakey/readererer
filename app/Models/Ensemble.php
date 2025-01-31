@@ -35,6 +35,10 @@ class Ensemble extends Model
 
     public function users(): BelongsToMany
     {
-        return $this->belongsToMany(User::class, 'user_ensemble', 'ensemble_id', 'user_id')->orderBy('first_name');
+        return $this->belongsToMany(User::class, 'user_ensemble')
+            ->withPivot('instrument_family_id')
+            ->withPivot('seat_column')
+            ->withPivot('seat_row')
+            ->orderBy('first_name');
     }
 }

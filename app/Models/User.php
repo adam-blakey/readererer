@@ -25,7 +25,10 @@ class User extends Authenticatable
 
     public function ensembles()
     {
-        return $this->belongsToMany(Ensemble::class, 'user_ensemble', 'user_id', 'ensemble_id');
+        return $this->belongsToMany(Ensemble::class, 'user_ensemble')
+            ->withPivot('instrument_family_id')
+            ->withPivot('seat_column')
+            ->withPivot('seat_row');
     }
 
     /**

@@ -2,7 +2,6 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
 use App\Models\User;
 
 class UserController extends Controller
@@ -22,8 +21,15 @@ class UserController extends Controller
 
     public function show(User $user)
     {
+        $user->load(['ensembles']);
+
+        $instrumentFamilies = \App\Models\InstrumentFamily::whereIn(
+            'id', $user->ensembles->pluck('pivot.instrument_family_id')->unique()
+        )->get()->keyBy('id');
+
         return view('users.show', [
             'user' => $user,
+            'instrumentFamilies' => $instrumentFamilies,
             'page_name' => $user->name
         ]);
     }

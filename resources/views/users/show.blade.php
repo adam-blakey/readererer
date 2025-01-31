@@ -1,4 +1,4 @@
-@props(['user', 'page_name'])
+@props(['user', 'instrument_families', 'page_name'])
 
 @php
 	$terms = App\Models\Term::all()->sortBy('earliest_date');
@@ -37,7 +37,9 @@
 						</div>
 						<div class="card-body">
 							@foreach ($user->ensembles as $ensemble)
-								<h3>{{ $ensemble->name }}</h3>
+								<p>
+									{{ $ensemble->name }}: <strong>{{ $instrumentFamilies[$ensemble->pivot->instrument_family_id]->name ?? '[none]' }} {{ $ensemble->pivot->seat_row == null ? '' : '(' . $ensemble->pivot->seat_row . ')' }}</strong>
+								</p>
 							@endforeach
 						</div>
 					</div>
