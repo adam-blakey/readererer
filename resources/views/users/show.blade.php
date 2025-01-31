@@ -1,4 +1,4 @@
-@props(['user', 'page_name'])
+@props(['user', 'instrument_families', 'page_name'])
 
 @php
 	$terms = App\Models\Term::all()->sortBy('earliest_date');
@@ -30,21 +30,17 @@
 	<div class="page-body">
 		<div class="container-xl">
 			<div class="row g-3">
-				<div class="col">
+				<div class="col-lg-4">
 					<div class="mb-3 card">
 						<div class="card-header">
-							<h2 class="mb-0 card-heading">Nottingham Symphonic Wind Orchestra</h2>
+							<h2 class="mb-0 card-heading">Ensembles ({{ $user->ensembles->count() }})</h2>
 						</div>
 						<div class="card-body">
-
-						</div>
-					</div>
-					<div class="mb-3 card">
-						<div class="card-header">
-							<h2 class="mb-0 card-heading">Nottingham Wind Ensemble</h2>
-						</div>
-						<div class="card-body">
-
+							@foreach ($user->ensembles as $ensemble)
+								<p>
+									<a href="{{ route('ensembles.show', ['ensemble' => $ensemble]) }}">{{ $ensemble->name }}</a>: <strong>{{ $instrumentFamilies[$ensemble->pivot->instrument_family_id]->name ?? '[none]' }} {{ ($ensemble->pivot->seat_column == null or $ensemble->pivot->seat_row == null) ? '' : '(' . $ensemble->pivot->seat_column . $ensemble->pivot->seat_row . ')' }}</strong>
+								</p>
+							@endforeach
 						</div>
 					</div>
 				</div>
@@ -52,8 +48,10 @@
 					<div class="row row-cards">
 						<div class="col-12">
 							<div class="card">
+								<div class="card-header">
+									<h2 class="mb-0 card-heading">Personal details</h2>
+								</div>
 								<div class="card-body">
-									<div class="card-title">Personal details</div>
 									<div class="mb-2">
 										<x-icon name="user" />
 										Name:
@@ -88,12 +86,15 @@
 							</div>
 						</div>
 					</div>
-
-					<div class="mt-0 row row-cards">
+				</div>
+				<div class="col-lg-4">
+					<div class="row row-cards">
 						<div class="col-12">
 							<div class="card">
+								<div class="card-header">
+									<h2 class="mb-0 card-heading">Additional info</h2>
+								</div>
 								<div class="card-body">
-									<div class="card-title">Additional info</div>
 									<div class="mb-2">
 										<x-icon name="camera" />
 										Photograph permssion:

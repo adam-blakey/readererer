@@ -7,6 +7,7 @@ use App\Http\Controllers\AttendanceController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\ComposerController;
 use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\SetlistController;
 use Illuminate\Support\Facades\Route;
 use App\Models\Piece;
 use App\Models\Composer;
@@ -14,6 +15,7 @@ use App\Models\Ensemble;
 use App\Models\Term;
 use App\Models\Attendance;
 use App\Models\User;
+use App\Models\Setlist;
 
 Route::view('/', 'home', ['page_name' => config('app.name')])
     ->name('home');
@@ -27,10 +29,20 @@ Route::get('/pieces', [PieceController::class, 'index'])
 Route::get('/pieces/{piece}', [PieceController::class, 'show'])
     ->name('pieces.show')
     ->can('view', 'piece');
+Route::get('/pieces/{piece}/edit', [PieceController::class, 'edit'])
+    ->name('pieces.edit')
+    ->can('update', 'piece');
 
 Route::get('/composers', [ComposerController::class, 'index'])
     ->name('composers')
     ->can('viewAny', Composer::class);
+Route::get('/composers/{composer}', [ComposerController::class, 'show'])
+    ->name('composers.show')
+    ->can('view', 'composer');
+
+Route::get('/setlists', [SetlistController::class, 'index'])
+    ->name('setlists')
+    ->can('viewAny', Setlist::class);
 Route::get('/composers/{composer}', [ComposerController::class, 'show'])
     ->name('composers.show')
     ->can('view', 'composer');

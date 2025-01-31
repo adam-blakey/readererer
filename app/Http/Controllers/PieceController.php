@@ -42,7 +42,10 @@ class PieceController extends Controller
      */
     public function show(Piece $piece)
     {
-        //
+        return view('pieces.show', [
+            'piece' => $piece,
+            'page_name' => $piece->title
+        ]);
     }
 
     /**
