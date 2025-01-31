@@ -43,27 +43,32 @@
 							<td>
 								@if ($attribute === 'name')
 									<x-clickable-model :model="$entity" />
+								@elseif (array_key_exists($attribute, $casts))
+									@switch($casts[$attribute])
+										@case('boolean')
+											{{ $entity->$attribute ? 'Y' : 'N' }}
+										@break
+
+										@case('datetime')
+											{{ $entity->$attribute->diffForHumans() }}
+										@break
+
+										@default
+											{{ $entity->$attribute }}
+									@endswitch
 								@elseif ($entity->$attribute instanceof Illuminate\Support\Collection)
 									@foreach ($entity->$attribute as $item)
-										<x-clickable-model :model="$item" />{{ $loop->last ? '' : ',' }}
+										@if (class_exists(get_class($item)))
+											<x-clickable-model :model="$item" />
+										@else
+											{{ $item }}
+										@endif
+										{{ $loop->last ? '' : ',' }}
 									@endforeach
+								@elseif (class_exists(get_class($entity->$attribute)))
+									<x-clickable-model :model="$entity->$attribute" />
 								@else
-									@if (array_key_exists($attribute, $casts))
-										@switch($casts[$attribute])
-											@case('boolean')
-												{{ $entity->$attribute ? 'Y' : 'N' }}
-											@break
-
-											@case('datetime')
-												{{ $entity->$attribute->diffForHumans() }}
-											@break
-
-											@default
-												{{ $entity->$attribute }}
-										@endswitch
-									@else
-										{{ $entity->$attribute }}
-									@endif
+									{{ $entity->$attribute }}
 								@endif
 							</td>
 						@endforeach
