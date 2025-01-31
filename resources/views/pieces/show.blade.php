@@ -46,7 +46,9 @@
 							<h2 class="mb-0 card-heading">Setlists</h2>
 						</div>
 						<div class="card-body">
-
+							@foreach ($piece->setlists as $setlist)
+								{{ $setlist->name }}
+							@endforeach
 						</div>
 					</div>
 				</div>

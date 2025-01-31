@@ -13,6 +13,12 @@
 	        'auth' => Auth::user()?->can('viewAny', App\Models\Attendance::class),
 	    ],
 	    [
+	        'title' => 'Composers',
+	        'icon' => 'old',
+	        'route' => 'composers',
+	        'auth' => Auth::user()?->can('viewAny', App\Models\Composer::class),
+	    ],
+	    [
 	        'title' => 'Ensembles',
 	        'icon' => 'music',
 	        'route' => 'ensembles',
@@ -23,6 +29,12 @@
 	        'icon' => 'file-description',
 	        'route' => 'pieces',
 	        'auth' => Auth::user()?->can('viewAny', App\Models\Piece::class),
+	    ],
+	    [
+	        'title' => 'Setlists',
+	        'icon' => 'list-numbers',
+	        'route' => 'setlists',
+	        'auth' => Auth::user()?->can('viewAny', App\Models\Setlist::class),
 	    ],
 	    [
 	        'title' => 'Terms',

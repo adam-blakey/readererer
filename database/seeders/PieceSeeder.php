@@ -15,7 +15,7 @@ class PieceSeeder extends Seeder
      */
     public function run(): void
     {
-        $pieces = Piece::factory(1)->create();
+        $pieces = Piece::factory(10)->create();
 
         $conductor = InstrumentFamily::where('name', 'Conductor')->first()->id;
         $clarinets = InstrumentFamily::where('name', 'Bb Clarinets')->first()->id;
