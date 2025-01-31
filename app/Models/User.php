@@ -88,17 +88,69 @@ class User extends Authenticatable
 
     public function getFullAddressAttribute(): string
     {
-        return $this->address_line1 . ', ' . $this->address_line2 . ', ' . $this->address_city . ', ' . $this->address_post_code;
+        $address = [];
+
+        if ($this->address_line1) {
+            $address[] = $this->address_line1;
+        }
+
+        if ($this->address_line2) {
+            $address[] = $this->address_line2;
+        }
+
+        if ($this->address_city) {
+            $address[] = $this->address_city;
+        }
+
+        if ($this->address_post_code) {
+            $address[] = $this->address_post_code;
+        }
+
+        return implode(', ', $address);
     }
 
     public function getIsOver18Attribute(): bool
     {
+        if ($this->date_of_birth === null) {
+            return false;
+        }
+
         return $this->date_of_birth->diffInYears(SupportCarbon::now()) >= 18;
     }
 
     public function getEmergencyContactDetailsAttribute(): string
     {
-        return $this->emergency_contact_name . ', ' . $this->emergency_contact_number . ', ' . $this->emergency_contact_relationship . ', ' . $this->emergency_contact_address_line1 . ', ' . $this->emergency_contact_address_line2 . ', ' . $this->emergency_contact_address_city . ', ' . $this->emergency_contact_address_post_code;
+        $contact_details = [];
+
+        if ($this->emergency_contact_name) {
+            $contact_details[] = $this->emergency_contact_name;
+        }
+
+        if ($this->emergency_contact_number) {
+            $contact_details[] = $this->emergency_contact_number;
+        }
+
+        if ($this->emergency_contact_relationship) {
+            $contact_details[] = $this->emergency_contact_relationship;
+        }
+
+        if ($this->emergency_contact_address_line1) {
+            $contact_details[] = $this->emergency_contact_address_line1;
+        }
+
+        if ($this->emergency_contact_address_line2) {
+            $contact_details[] = $this->emergency_contact_address_line2;
+        }
+
+        if ($this->emergency_contact_address_city) {
+            $contact_details[] = $this->emergency_contact_address_city;
+        }
+
+        if ($this->emergency_contact_address_post_code) {
+            $contact_details[] = $this->emergency_contact_address_post_code;
+        }
+
+        return implode(', ', $contact_details);
     }
 
     public function getNameAttribute(): string

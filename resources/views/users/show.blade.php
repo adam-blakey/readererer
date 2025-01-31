@@ -30,21 +30,15 @@
 	<div class="page-body">
 		<div class="container-xl">
 			<div class="row g-3">
-				<div class="col">
+				<div class="col-lg-4">
 					<div class="mb-3 card">
 						<div class="card-header">
-							<h2 class="mb-0 card-heading">Nottingham Symphonic Wind Orchestra</h2>
+							<h2 class="mb-0 card-heading">Ensembles ({{ $user->ensembles->count() }})</h2>
 						</div>
 						<div class="card-body">
-
-						</div>
-					</div>
-					<div class="mb-3 card">
-						<div class="card-header">
-							<h2 class="mb-0 card-heading">Nottingham Wind Ensemble</h2>
-						</div>
-						<div class="card-body">
-
+							@foreach ($user->ensembles as $ensemble)
+								<h3>{{ $ensemble->name }}</h3>
+							@endforeach
 						</div>
 					</div>
 				</div>
@@ -88,8 +82,9 @@
 							</div>
 						</div>
 					</div>
-
-					<div class="mt-0 row row-cards">
+				</div>
+				<div class="col-lg-4">
+					<div class="row row-cards">
 						<div class="col-12">
 							<div class="card">
 								<div class="card-body">
