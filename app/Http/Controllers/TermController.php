@@ -15,9 +15,10 @@ class TermController extends Controller
     {
         $terms = Term::whereNull('deleted_at')->with(['term_dates'])->withCount('term_dates')->autosort()->paginate(10);
 
-        return view('terms.index', [
-            'terms' => $terms,
-            'page_name' => 'Terms'
+        return view('auto-entities.index', [
+            'entities' => $terms,
+            'page_name' => 'Terms',
+            'page_subname' => 'Terms overview'
         ]);
     }
 

@@ -1,14 +1,14 @@
-@props(['users', 'page_name'])
+@props(['entities', 'page_name', 'page_subname'])
 
-<x-layout :$page_name page_subname="Users overview">
+<x-layout :$page_name :$page_subname>
 	<div class="container-xl">
 		<x-card-row>
 			<div class="col-md-12">
 				<x-card>
-					<x-table :entities=$users />
+					<x-table :$entities />
 				</x-card>
 			</div>
 		</x-card-row>
-		{{ $users->links() }}
+		{{ $entities->links() }}
 	</div>
 </x-layout>

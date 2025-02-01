@@ -15,9 +15,10 @@ class PieceController extends Controller
     {
         $pieces = Piece::whereNull('deleted_at')->with(['composer'])->autosort()->paginate(10);
 
-        return view('pieces.index', [
-            'pieces' => $pieces,
-            'page_name' => 'Pieces'
+        return view('auto-entities.index', [
+            'entities' => $pieces,
+            'page_name' => 'Pieces',
+            'page_subname' => 'Pieces overview'
         ]);
     }
 

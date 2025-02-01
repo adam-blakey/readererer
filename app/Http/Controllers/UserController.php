@@ -13,9 +13,10 @@ class UserController extends Controller
     {
         $users = User::whereNull('deleted_at')->autosort()->paginate(10);
 
-        return view('users.index', [
-            'users' => $users,
-            'page_name' => 'Users'
+        return view('auto-entities.index', [
+            'entities' => $users,
+            'page_name' => 'Users',
+            'page_subname' => 'Users overview'
         ]);
     }
 

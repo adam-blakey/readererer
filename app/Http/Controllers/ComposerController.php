@@ -15,9 +15,10 @@ class ComposerController extends Controller
     {
         $composers = Composer::whereNull('deleted_at')->autosort()->paginate(10);
 
-        return view('composers.index', [
-            'composers' => $composers,
-            'page_name' => 'Composers'
+        return view('auto-entities.index', [
+            'entities' => $composers,
+            'page_name' => 'Composers',
+            'page_subname' => 'Composers overview'
         ]);
     }
 
