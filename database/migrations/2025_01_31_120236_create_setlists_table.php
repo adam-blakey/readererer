@@ -17,6 +17,7 @@ return new class extends Migration
             $table->id();
             $table->string('name');
             $table->timestamps();
+            $table->softDeletes();
         });
 
         Schema::create('setlist_piece', function (Blueprint $table) {
@@ -24,6 +25,7 @@ return new class extends Migration
             $table->foreignIdFor(Setlist::class);
             $table->foreignIdFor(Piece::class);
             $table->timestamps();
+            $table->softDeletes();
         });
     }
 

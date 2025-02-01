@@ -43,12 +43,12 @@ Route::get('/composers/{composer}', [ComposerController::class, 'show'])
 Route::get('/setlists', [SetlistController::class, 'index'])
     ->name('setlists')
     ->can('viewAny', Setlist::class);
-Route::get('/composers/{composer}', [ComposerController::class, 'show'])
-    ->name('composers.show')
-    ->can('view', 'composer');
-Route::get('/composers/{composer}/edit', [ComposerController::class, 'edit'])
-    ->name('composers.edit')
-    ->can('update', 'composer');
+Route::get('/setlists/{setlist}', [SetlistController::class, 'show'])
+    ->name('setlists.show')
+    ->can('view', 'setlist');
+Route::get('/setlists/{setlist}/edit', [SetlistController::class, 'edit'])
+    ->name('setlists.edit')
+    ->can('update', 'setlist');
 
 Route::middleware('auth')->group(function () {
     Route::get('/ensembles', [EnsembleController::class, 'index'])
