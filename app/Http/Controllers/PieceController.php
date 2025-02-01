@@ -13,7 +13,7 @@ class PieceController extends Controller
      */
     public function index()
     {
-        $pieces = Piece::latest()->with(['composer'])->autosort()->paginate(10);
+        $pieces = Piece::whereNull('deleted_at')->with(['composer'])->autosort()->paginate(10);
 
         return view('pieces.index', [
             'pieces' => $pieces,

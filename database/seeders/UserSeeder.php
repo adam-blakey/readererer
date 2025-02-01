@@ -21,7 +21,7 @@ class UserSeeder extends Seeder
             'last_name' => 'Admin',
             'email' => 'test-admin@example.com',
             'password' => bcrypt('password'),
-            'avatar' => 'https://adam.blakey.family/wp-content/uploads/sites/4/2022/02/Adam-cutaway-4.png.webp',
+            'image' => 'https://adam.blakey.family/wp-content/uploads/sites/4/2022/02/Adam-cutaway-4.png.webp',
             'role' => UserRole::Admin,
         ]);
 
@@ -30,7 +30,7 @@ class UserSeeder extends Seeder
             'last_name' => 'Member',
             'email' => 'test-member@example.com',
             'password' => bcrypt('password'),
-            'avatar' => 'https://adam.blakey.family/wp-content/uploads/sites/4/2022/02/Adam-cutaway-4.png.webp',
+            'image' => 'https://adam.blakey.family/wp-content/uploads/sites/4/2022/02/Adam-cutaway-4.png.webp',
             'role' => UserRole::Member,
         ]);
     }

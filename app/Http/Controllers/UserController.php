@@ -11,7 +11,7 @@ class UserController extends Controller
      */
     public function index()
     {
-        $users = User::latest()->paginate(10);
+        $users = User::whereNull('deleted_at')->autosort()->paginate(10);
 
         return view('users.index', [
             'users' => $users,

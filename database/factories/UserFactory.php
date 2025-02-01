@@ -45,6 +45,7 @@ class UserFactory extends Factory
             'date_of_birth' => $this->faker->date(),
             'has_photo_permission' => $this->faker->boolean(),
             'is_gift_aiding_subs' => $this->faker->boolean(),
+            'image' => $this->faker->imageUrl(),
         ];
     }
 

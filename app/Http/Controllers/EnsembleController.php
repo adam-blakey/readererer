@@ -13,7 +13,7 @@ class EnsembleController extends Controller
      */
     public function index()
     {
-        $ensembles = Ensemble::latest()->with(['admins'])->autosort()->paginate(10);
+        $ensembles = Ensemble::whereNull('deleted_at')->with(['admins'])->autosort()->paginate(10);
 
         return view('ensembles.index', [
             'ensembles' => $ensembles,
