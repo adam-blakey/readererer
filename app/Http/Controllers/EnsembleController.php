@@ -8,6 +8,11 @@ use App\Http\Requests\UpdateEnsembleRequest;
 
 class EnsembleController extends Controller
 {
+    public function __construct()
+    {
+        $this->authorizeResource(Ensemble::class);
+    }
+
     /**
      * Display a listing of the resource.
      */
