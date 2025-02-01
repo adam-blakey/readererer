@@ -53,4 +53,22 @@ class Attendance extends Model
     {
         return $this->ensemble->name . ': ' . $this->term_date->term->name;
     }
+
+    public function getStatusTextAttribute(): string
+    {
+        $assume_attending = config('app.readererer_assume_attending');
+
+        $display_status = ($assume_attending and $this->status == AttendanceStatus::Unknown) ? AttendanceStatus::Attending : $this->status;
+
+        switch ($display_status) {
+            case AttendanceStatus::Attending:
+                return 'Attending';
+
+            case AttendanceStatus::NotAttending:
+                return 'Not attending';
+
+            case AttendanceStatus::Unknown:
+                return 'Unknown';
+        }
+    }
 }

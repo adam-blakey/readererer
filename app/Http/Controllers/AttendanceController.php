@@ -18,8 +18,7 @@ class AttendanceController extends Controller
      */
     public function index()
     {
-        $attendances = Attendance::whereNull('deleted_at')
-        ->with(['user', 'edit_user', 'term_date'])
+        $attendances = Attendance::with(['user', 'edit_user', 'term_date'])
         ->orderBy('created_at', 'DESC')
         ->paginate(10);
 
