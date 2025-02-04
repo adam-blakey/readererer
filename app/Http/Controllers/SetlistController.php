@@ -13,7 +13,13 @@ class SetlistController extends Controller
      */
     public function index()
     {
-        //
+        $setlists = Setlist::whereNull('deleted_at')->autosort()->paginate(10);
+
+        return view('auto-entities.index', [
+            'entities' => $setlists,
+            'page_name' => 'Setlists',
+            'page_subname' => 'Setlist overview'
+        ]);
     }
 
     /**

@@ -10,8 +10,8 @@
 	}
 @endphp
 
-@if ($user->avatar)
-	<span class="{{ $classes }}" style="background-image: url({{ $user->avatar }})"></span>
+@if ($user->image)
+	<span class="{{ $classes }}" style="background-image: url({{ $user->image }})"></span>
 @else
 	<span class="{{ $classes }}">{{ $user->initials }}</span>
 @endif

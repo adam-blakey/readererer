@@ -23,54 +23,8 @@ Route::get('/dashboard', [DashboardController::class, 'index'])
     ->name('dashboard')
     ->can('view.dashboard');
 
-Route::get('/pieces', [PieceController::class, 'index'])
-    ->name('pieces')
-    ->can('viewAny', Piece::class);
-Route::get('/pieces/{piece}', [PieceController::class, 'show'])
-    ->name('pieces.show')
-    ->can('view', 'piece');
-Route::get('/pieces/{piece}/edit', [PieceController::class, 'edit'])
-    ->name('pieces.edit')
-    ->can('update', 'piece');
-
-Route::get('/composers', [ComposerController::class, 'index'])
-    ->name('composers')
-    ->can('viewAny', Composer::class);
-Route::get('/composers/{composer}', [ComposerController::class, 'show'])
-    ->name('composers.show')
-    ->can('view', 'composer');
-
-Route::get('/setlists', [SetlistController::class, 'index'])
-    ->name('setlists')
-    ->can('viewAny', Setlist::class);
-Route::get('/composers/{composer}', [ComposerController::class, 'show'])
-    ->name('composers.show')
-    ->can('view', 'composer');
-
-Route::middleware('auth')->group(function () {
-    Route::get('/ensembles', [EnsembleController::class, 'index'])
-        ->name('ensembles')
-        ->can('viewAny', Ensemble::class);
-    Route::get('/ensembles/{ensemble}', [EnsembleController::class, 'show'])
-        ->name('ensembles.show')
-        ->can('view', 'ensemble');
-    Route::get('/ensembles/{ensemble}/edit', [EnsembleController::class, 'edit'])
-        ->name('ensembles.edit')
-        ->can('update', 'ensemble');
-    Route::put('/ensembles/{ensemble}/update', [EnsembleController::class, 'update'])
-        ->name('ensembles.update')
-        ->can('update', 'ensemble');
-});
-
-Route::get('/terms', [TermController::class, 'index'])
-    ->name('terms')
-    ->can('viewAny', Term::class);
-Route::get('/terms/{term}', [TermController::class, 'show'])
-    ->name('terms.show')
-    ->can('view', 'term');
-
 Route::get('/attendance', [AttendanceController::class, 'index'])
-    ->name('attendance')
+    ->name('attendance.index')
     ->can('viewAny', Attendance::class);
 Route::get('/attendance/poll/{ensemble:slug}/{term:slug}', [AttendanceController::class, 'poll'])
     ->withoutScopedBindings()
@@ -81,14 +35,11 @@ Route::post('/attendance/poll/{ensemble:slug}/{term:slug}', [AttendanceControlle
     ->name('attendance.poll-store')
     ->can('create', Attendance::class);
 
-Route::get('/users', [UserController::class, 'index'])
-    ->name('users')
-    ->can('viewAny', User::class);
-Route::get('/users/{user}/edit', [UserController::class, 'edit'])
-    ->name('users.edit')
-    ->can('update', 'user');
-Route::get('/users/{user}', [UserController::class, 'show'])
-    ->name('users.show')
-    ->can('view', 'user');
+Route::resource('composers', ComposerController::class)->middleware('auth');;
+Route::resource('ensembles', EnsembleController::class)->middleware('auth');
+Route::resource('pieces', PieceController::class)->middleware('auth');;
+Route::resource('setlists', SetlistController::class)->middleware('auth');;
+Route::resource('terms', TermController::class)->middleware('auth');;
+Route::resource('users', UserController::class)->middleware('auth');;
 
 require __DIR__.'/auth.php';

@@ -10,13 +10,35 @@ use Illuminate\Notifications\Notifiable;
 use App\Enums\UserRole;
 use Carbon\Carbon;
 use Illuminate\Support\Carbon as SupportCarbon;
+use SDamian\Larasort\AutoSortable;
 
 class User extends Authenticatable
 {
-    use HasFactory, Notifiable, SoftDeletes;
+    use HasFactory, Notifiable, SoftDeletes, AutoSortable;
 
     protected $deleted_at;
-    protected $avatar;
+    protected $image;
+
+    protected $visible = [
+        'image',
+        'name',
+        'first_name',
+        'last_name',
+        'email',
+        'role',
+        'is_over_18',
+        'created_at',
+        'updated_at',
+    ];
+
+    public array $sortables = [
+        'first_name',
+        'last_name',
+        'email',
+        'role',
+        'created_at',
+        'updated_at',
+    ];
 
     public function attendances()
     {
@@ -58,13 +80,16 @@ class User extends Authenticatable
      *
      * @return array<string, string>
      */
-    protected function casts(): array
+    public function casts(): array
     {
         return [
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
             'role' => UserRole::class,
             'date_of_birth' => 'date',
+            'created_at' => 'datetime',
+            'updated_at' => 'datetime',
+            'is_over_18' => 'boolean',
         ];
     }
 

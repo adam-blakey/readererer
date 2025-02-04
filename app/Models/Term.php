@@ -7,15 +7,43 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Carbon;
+use SDamian\Larasort\AutoSortable;
 
 class Term extends Model
 {
     use HasFactory;
     use SoftDeletes;
+    use AutoSortable;
 
     protected string $name;
     protected string $slug;
     protected string $image;
+
+    protected $visible = [
+        'name',
+        'slug',
+        'earliest_date',
+        'latest_date',
+        'created_at',
+        'updated_at',
+    ];
+
+    public array $sortables = [
+        'name',
+        'slug',
+        'created_at',
+        'updated_at',
+    ];
+
+    public function casts(): array
+    {
+        return [
+            'created_at' => 'datetime',
+            'updated_at' => 'datetime',
+            'earliest_date' => 'datetime',
+            'latest_date' => 'datetime',
+        ];
+    }
 
     public function term_dates(): HasMany
     {
@@ -36,7 +64,7 @@ class Term extends Model
         return $latest_termdate->end_datetime;
     }
 
-    public function formatted_term_date_range(): string
+    public function getFormattedTermDateRangeAttribute(): string
     {
         if ($this->term_dates_count === 0)
         {

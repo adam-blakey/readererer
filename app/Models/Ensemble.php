@@ -18,13 +18,32 @@ class Ensemble extends Model
     protected $slug;
     protected $image;
 
-    private array $sortables = [
+    protected $visible = [
+        'image',
+        'name',
+        'slug',
+        'show',
+        'admins',
+        'created_at',
+        'updated_at',
+    ];
+
+    public array $sortables = [
         'name',
         'slug',
         'show',
         'created_at',
         'updated_at',
     ];
+
+    public function casts(): array
+    {
+        return [
+            'show' => 'boolean',
+            'created_at' => 'datetime',
+            'updated_at' => 'datetime',
+        ];
+    }
 
     public function admins(): BelongsToMany
     {

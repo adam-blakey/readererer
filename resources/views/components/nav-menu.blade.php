@@ -9,43 +9,43 @@
 	    [
 	        'title' => 'Attendance updates',
 	        'icon' => 'square-check',
-	        'route' => 'attendance',
+	        'route' => 'attendance.index',
 	        'auth' => Auth::user()?->can('viewAny', App\Models\Attendance::class),
 	    ],
 	    [
 	        'title' => 'Composers',
 	        'icon' => 'old',
-	        'route' => 'composers',
+	        'route' => 'composers.index',
 	        'auth' => Auth::user()?->can('viewAny', App\Models\Composer::class),
 	    ],
 	    [
 	        'title' => 'Ensembles',
 	        'icon' => 'music',
-	        'route' => 'ensembles',
+	        'route' => 'ensembles.index',
 	        'auth' => Auth::user()?->can('viewAny', App\Models\Ensemble::class),
 	    ],
 	    [
 	        'title' => 'Pieces',
 	        'icon' => 'file-description',
-	        'route' => 'pieces',
+	        'route' => 'pieces.index',
 	        'auth' => Auth::user()?->can('viewAny', App\Models\Piece::class),
 	    ],
 	    [
 	        'title' => 'Setlists',
 	        'icon' => 'list-numbers',
-	        'route' => 'setlists',
+	        'route' => 'setlists.index',
 	        'auth' => Auth::user()?->can('viewAny', App\Models\Setlist::class),
 	    ],
 	    [
 	        'title' => 'Terms',
 	        'icon' => 'calendar-month',
-	        'route' => 'terms',
+	        'route' => 'terms.index',
 	        'auth' => Auth::user()?->can('viewAny', App\Models\Term::class),
 	    ],
 	    [
 	        'title' => 'Users',
 	        'icon' => 'user',
-	        'route' => 'users',
+	        'route' => 'users.index',
 	        'auth' => Auth::user()?->can('viewAny', App\Models\User::class),
 	    ],
 	];
@@ -240,7 +240,7 @@
 								@continue
 							@endif
 
-							<li class="nav-item {{ Request::is($nav_item['route']) ? 'active' : '' }}">
+							<li class="nav-item {{ Request::routeIs($nav_item['route']) ? 'active' : '' }}">
 								<a class="nav-link" href="{{ route($nav_item['route']) }}">
 									<span class="nav-link-icon d-md-none d-lg-inline-block">
 										<x-icon name="{{ $nav_item['icon'] }}" />

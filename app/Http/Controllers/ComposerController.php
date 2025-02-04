@@ -13,7 +13,13 @@ class ComposerController extends Controller
      */
     public function index()
     {
-        //
+        $composers = Composer::whereNull('deleted_at')->autosort()->paginate(10);
+
+        return view('auto-entities.index', [
+            'entities' => $composers,
+            'page_name' => 'Composers',
+            'page_subname' => 'Composers overview'
+        ]);
     }
 
     /**

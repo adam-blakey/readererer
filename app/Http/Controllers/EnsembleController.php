@@ -8,16 +8,22 @@ use App\Http\Requests\UpdateEnsembleRequest;
 
 class EnsembleController extends Controller
 {
+    public function __construct()
+    {
+        $this->authorizeResource(Ensemble::class);
+    }
+
     /**
      * Display a listing of the resource.
      */
     public function index()
     {
-        $ensembles = Ensemble::latest()->with(['admins'])->autosort()->paginate(10);
+        $ensembles = Ensemble::whereNull('deleted_at')->with(['admins'])->autosort()->paginate(10);
 
-        return view('ensembles.index', [
-            'ensembles' => $ensembles,
-            'page_name' => 'Ensembles'
+        return view('auto-entities.index', [
+            'entities' => $ensembles,
+            'page_name' => 'Ensembles',
+            'page_subname' => 'Ensemble overview'
         ]);
     }
 
