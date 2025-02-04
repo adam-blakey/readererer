@@ -38,7 +38,6 @@ class AttendanceController extends Controller
         ->with('ensembles')
         ->get()
         ->filter(function($user) use ($ensemble) { return $user->ensembles->contains($ensemble); })
-        ->sortBy('start_datetime')
         ->values();
 
         $page_name = $ensemble->name . ': ' . $term->name;

@@ -185,4 +185,14 @@ class User extends Authenticatable
     {
         return $this->first_name . ' ' . $this->last_name;
     }
+
+    public function getFirstNameInitialAttribute(): string
+    {
+        return $this->first_name[0];
+    }
+
+    public function getLastNameInitialAttribute(): string
+    {
+        return $this->last_name[0];
+    }
 }
