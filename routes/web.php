@@ -20,7 +20,7 @@ use App\Models\Setlist;
 Route::view('/', 'home', ['page_name' => config('app.name')])
     ->name('home');
 Route::get('/dashboard', [DashboardController::class, 'index'])
-    ->name('dashboard.index')
+    ->name('dashboard')
     ->can('view.dashboard');
 
 Route::get('/attendance', [AttendanceController::class, 'index'])

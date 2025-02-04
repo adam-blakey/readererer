@@ -3,7 +3,7 @@
 	    [
 	        'title' => 'Dashboard',
 	        'icon' => 'dashboard',
-	        'route' => 'dashboard.index',
+	        'route' => 'dashboard',
 	        'auth' => Gate::inspect('view.dashboard')->allowed(),
 	    ],
 	    [
