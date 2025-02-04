@@ -31,7 +31,7 @@ class AttendanceController extends Controller
     /**
      * Display the attendance poll.
      */
-    public function poll(Ensemble $ensemble, Term $term)
+    public function poll(Ensemble $ensemble, Term $term, Request $request)
     {
         $members = User::latest()
         ->with('attendances')
@@ -46,7 +46,8 @@ class AttendanceController extends Controller
             'members' => $members,
             'term' => $term,
             'page_name' => $page_name,
-            'ensemble' => $ensemble
+            'ensemble' => $ensemble,
+            'sortby' => $request->query('sortby') ?? 'first_name',
         ]);
     }
 

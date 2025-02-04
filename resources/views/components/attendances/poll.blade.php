@@ -1,4 +1,4 @@
-@props(['members', 'term', 'ensemble', 'sortby' => null])
+@props(['members', 'term', 'ensemble', 'sortby'])
 
 @push('scripts')
 	<script src="/js/three-state-checkbox.js"></script>
@@ -20,7 +20,7 @@
 	        break;
 	    case 'instrument_family':
 	        $members = $members->sortBy(function ($member) use ($ensemble) {
-	            return $member->ensembles->where('id', $ensemble->id)->first()->pivot->instrument_family_id;
+	            return App\Models\InstrumentFamily::find($member->ensembles->where('id', $ensemble->id)->first()->pivot->instrument_family_id)->name;
 	        });
 	        $sort_attribute = 'instrument_family';
 	        break;
@@ -39,22 +39,21 @@
 	<form action="{{ route('attendance.poll-store', ['ensemble' => $ensemble, 'term' => $term]) }}" method="POST">
 		@csrf
 		<table class="table table-vcenter card-table text-nowrap datatable">
-			<thead>
-				<x-attendances.heading :$term_dates :show_year="$spans_multiple_years" />
-			</thead>
 			<tbody>
 				@php
-					$prev_sort_value = $members->first()->$sort_attribute;
+					$prev_sort_value = null;
 				@endphp
 				@foreach ($members as $member)
 					@php
 						$sort_value = $member->$sort_attribute;
 					@endphp
 
-					@if ($repeating_headings and $sort_value != $prev_sort_value)
+					@if ($repeating_headings and $sort_value != $prev_sort_value or $loop->first)
 						<thead>
 							<x-attendances.heading :$term_dates :show_year="$spans_multiple_years" />
 						</thead>
+					@endif
+					@if ($repeating_headings and $sort_value != $prev_sort_value)
 						<tr>
 							<td>
 								@if ($sort_attribute == 'instrument_family')
