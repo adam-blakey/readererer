@@ -8,14 +8,14 @@
     */
     $root = $unix_username;
     $repository = 'git@gitlab.com:adam.blakey/readererer.git';
-    $venv = '/home/'.$unix_username.'/nodevenv/public_html/'.$domain.'/20/bin/activate';
+    $venv = '/home/'.$unix_username.'/nodevenv/domains/'.$domain.'/20/bin/activate';
 
     /*
     |--------------------------------------------------------------------------
     | Fixed
     |--------------------------------------------------------------------------
     */
-    $app_dir = '/home/' . $root . '/public_html/' . $domain ;
+    $app_dir = '/home/' . $root . '/domains/' . $domain ;
     $resources_dir = '/resources/' . $domain .'/';
     $keep = 4;
 
