@@ -36,14 +36,33 @@
 		<div class="container-xl">
 			<div class="row g-3">
 				<div class="col">
-					<div class="mb-3 card">
-						<div class="card-header">
-							<h2 class="mb-0 card-heading">Upcoming rehearsals and concerts</h2>
-						</div>
-						<div class="card-body">
-
-						</div>
-					</div>
+                    <div class="mb-3 card">
+                        <div class="card-header">
+                            <h2 class="mb-0 card-heading">Active polls</h2>
+                        </div>
+                        <div class="card-body">
+                            @if($upcomingTerms->count() == 0)
+                                Nothing upcoming.
+                            @else
+                                @foreach($upcomingTerms as $term)
+                                    <x-poll-entry :ensemble="$ensemble" :term="$term" />
+                                @endforeach
+                            @endif
+                        </div>
+                    </div>
+                    <div class="mb-3 card">
+                        <div class="card-header">
+                            <h2 class="mb-0 card-heading">Upcoming rehearsals and concerts</h2>
+                        </div>
+                        <div class="card-body">
+                            <div class="card-title">Next rehearsal</div>
+                            <x-rehearsal-entry :term_date="$nextRehearsal" />
+                        </div>
+                        <div class="card-body">
+                            <div class="card-title">Next concert</div>
+                            <x-rehearsal-entry :term_date="$nextConcert" />
+                        </div>
+                    </div>
 					<div class="mb-3 card">
 						<div class="card-header">
 							<h2 class="mb-0 card-heading">Setlists</h2>
