@@ -16,7 +16,12 @@ class TermDate extends Model
 
     protected Carbon $start_datetime;
     protected Carbon $end_datetime;
-    protected bool $is_concert;
+
+    protected $fillable = [
+        'start_datetime',
+        'end_datetime',
+        'is_concert',
+    ];
 
     public function term(): BelongsTo
     {
@@ -34,7 +39,6 @@ class TermDate extends Model
             'start_datetime' => 'datetime',
             'end_datetime' => 'datetime',
             'is_concert' => 'boolean',
-            'show' => 'boolean',
         ];
     }
 

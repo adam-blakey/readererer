@@ -35,11 +35,11 @@ Route::post('/attendance/poll/{ensemble:slug}/{term:slug}', [AttendanceControlle
     ->name('attendance.poll-store')
     ->can('create', Attendance::class);
 
-Route::resource('composers', ComposerController::class)->middleware('auth');;
+Route::resource('composers', ComposerController::class)->middleware('auth');
 Route::resource('ensembles', EnsembleController::class)->middleware('auth');
-Route::resource('pieces', PieceController::class)->middleware('auth');;
-Route::resource('setlists', SetlistController::class)->middleware('auth');;
-Route::resource('terms', TermController::class)->middleware('auth');;
-Route::resource('users', UserController::class)->middleware('auth');;
+Route::resource('pieces', PieceController::class)->middleware('auth');
+Route::resource('setlists', SetlistController::class)->middleware('auth');
+Route::resource('terms', TermController::class)->middleware('auth');
+Route::resource('users', UserController::class)->middleware('auth');
 
 require __DIR__.'/auth.php';

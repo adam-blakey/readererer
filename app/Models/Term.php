@@ -35,6 +35,12 @@ class Term extends Model
         'updated_at',
     ];
 
+    protected $fillable = [
+        'name',
+        'slug',
+        'term_dates'
+    ];
+
     public function casts(): array
     {
         return [
