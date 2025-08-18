@@ -90,14 +90,14 @@
                                                         @if (!empty($date['id']))
                                                             <input type="hidden" name="term_dates[{{ $i }}][id]" value="{{ $date['id'] }}">
                                                         @endif
-                                                        <div class="col-md-5">
+                                                        <div class="col-md-4">
                                                             <label class="form-label">Start</label>
                                                             @error('term_dates.' . $i . '.start_datetime')
                                                                 <x-forms.input-error :messages="$message" />
                                                             @enderror
                                                             <input class="form-control @error('term_dates.' . $i . '.start_datetime') is-invalid @enderror" name="term_dates[{{ $i }}][start_datetime]" type="datetime-local" value="{{ $date['start_datetime'] ?? '' }}" data-initial="{{ $initialStart }}" required>
                                                         </div>
-                                                        <div class="col-md-5">
+                                                        <div class="col-md-4">
                                                             <label class="form-label">End</label>
                                                             @error('term_dates.' . $i . '.end_datetime')
                                                                 <x-forms.input-error :messages="$message" />
@@ -114,7 +114,10 @@
                                                             </select>
                                                         </div>
                                                         <div class="col-md-2">
-                                                            <button class="btn btn-outline-danger w-100 remove-term-date" type="button">Remove</button>
+                                                            <div class="btn-list w-100 d-flex">
+                                                                <button class="btn btn-outline-secondary duplicate-term-date" type="button">Duplicate</button>
+                                                                <button class="btn btn-outline-danger remove-term-date" type="button">Remove</button>
+                                                            </div>
                                                         </div>
                                                     </div>
                                                 @endforeach
@@ -175,22 +178,25 @@
 				row.className = 'row g-2 align-items-end term-date-row';
 				row.setAttribute('data-index', i);
 				row.innerHTML = `
-					<div class="col-md-5">
+					<div class="col-md-4">
 						<label class="form-label">Start</label>
 						<input class="form-control border-2 border-solid border-info" name="term_dates[${i}][start_datetime]" type="datetime-local" data-initial="">
 					</div>
-					<div class="col-md-5">
+					<div class="col-md-4">
 						<label class="form-label">End</label>
 						<input class="form-control border-2 border-solid border-info" name="term_dates[${i}][end_datetime]" type="datetime-local" data-initial="">
 					</div>
 					<div class="col-md-2">
 						<label class="form-label">Concert</label>
-                            <select class="form-select border-2 border-solid border-info" name="term_dates[${i}][ensemble_id]" data-initial="">
+							<select class="form-select border-2 border-solid border-info" name="term_dates[${i}][ensemble_id]" data-initial="">
 							${ensembleOptions}
 						</select>
 					</div>
 					<div class="col-md-2">
-						<button class="btn btn-outline-danger w-100 remove-term-date" type="button">Remove</button>
+						<div class="btn-list w-100 d-flex">
+							<button class="btn btn-outline-secondary duplicate-term-date" type="button">Duplicate</button>
+							<button class="btn btn-outline-danger remove-term-date" type="button">Remove</button>
+						</div>
 					</div>
 				`;
 				return row;
@@ -205,15 +211,50 @@
 				});
 			}
 
+			function bindDuplicateButtons(scope=document) {
+				scope.querySelectorAll('.duplicate-term-date').forEach(btn => {
+					btn.addEventListener('click', function () {
+						const srcRow = this.closest('.term-date-row');
+						if (!srcRow) return;
+						const i = nextIndex();
+						const clone = srcRow.cloneNode(true);
+						clone.setAttribute('data-index', i);
+						// Update names and prepare fields
+						clone.querySelectorAll('input, select, textarea').forEach(el => {
+							if (el.name) {
+								el.name = el.name.replace(/term_dates\[\d+\]/, `term_dates[${i}]`);
+							}
+							// Remove hidden id field or neutralize it
+							if (el.type === 'hidden' && /\[id\]$/.test(el.name || '')) {
+								el.remove();
+								return;
+							}
+							// Mark as changed relative to empty initial
+							el.setAttribute('data-initial', '');
+							el.classList.add('border-2','border-solid','border-info');
+						});
+						// Ensure no duplicate hidden id remains
+						clone.querySelectorAll('input[type="hidden"]').forEach(h => { if (/\[id\]$/.test(h.name || '')) h.remove(); });
+						// Insert after the source row
+						srcRow.insertAdjacentElement('afterend', clone);
+						bindRemoveButtons(clone);
+						bindDuplicateButtons(clone);
+						clone.querySelectorAll('[data-initial]').forEach(attachChangeWatcher);
+					});
+				});
+			}
+
 			addBtn?.addEventListener('click', function () {
 				const i = nextIndex();
 				const row = makeRow(i);
 				list.appendChild(row);
 				bindRemoveButtons(row);
+				bindDuplicateButtons(row);
 				row.querySelectorAll('[data-initial]').forEach(attachChangeWatcher);
 			});
 
 			bindRemoveButtons();
+			bindDuplicateButtons();
 		});
 	</script>
 </x-layout>
