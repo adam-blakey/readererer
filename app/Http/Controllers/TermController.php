@@ -43,7 +43,12 @@ class TermController extends Controller
      */
     public function show(Term $term)
     {
-        //
+        $term->load('term_dates');
+
+        return view('terms.show', [
+            'term' => $term,
+            'page_name' => $term->name,
+        ]);
     }
 
     /**
@@ -97,7 +102,7 @@ class TermController extends Controller
         $term->fill($attributes);
         $term->save();
 
-        return redirect()->route('terms.edit', $term);
+        return redirect()->route('terms.show', $term);
     }
 
     /**

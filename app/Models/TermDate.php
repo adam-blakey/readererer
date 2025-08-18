@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Support\Carbon;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -13,9 +14,6 @@ class TermDate extends Model
 {
     use HasFactory;
     use SoftDeletes;
-
-    protected Carbon $start_datetime;
-    protected Carbon $end_datetime;
 
     protected $fillable = [
         'start_datetime',
@@ -44,6 +42,10 @@ class TermDate extends Model
 
     public function getNameAttribute(): string
     {
-        return $this->start_datetime->format('Y-m-d H:i') . ' - ' . $this->end_datetime->format('Y-m-d H:i');
+        if ($this->start_datetime->isSameDay($this->end_datetime))
+        {
+            return $this->start_datetime->format('l, jS F Y') . '  ' . $this->start_datetime->format('H:i') . '-' . $this->end_datetime->format('H:i');
+        }
+        return $this->start_datetime->format('l, jS F Y H:i') . ' - ' . $this->end_datetime->format('l, jS F Y H:i');
     }
 }
