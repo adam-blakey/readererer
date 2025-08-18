@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Enums\UserRole;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
@@ -58,6 +59,7 @@ class Ensemble extends Model
             ->withPivot('instrument_family_id')
             ->withPivot('seat_column')
             ->withPivot('seat_row')
+            ->where('role', '!=', UserRole::Ensemble)
             ->orderBy('first_name');
     }
 }

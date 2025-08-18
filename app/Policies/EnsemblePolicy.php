@@ -14,7 +14,11 @@ class EnsemblePolicy
      */
     public function viewAny(User $user)
     {
-        return null;
+        if ($user->role >= UserRole::Admin) {
+            return Response::allow();
+        }
+
+        return Response::deny();
     }
 
     /**

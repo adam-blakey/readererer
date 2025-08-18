@@ -18,7 +18,7 @@ class EnsembleSeeder extends Seeder
     {
         $instrument_families = InstrumentFamily::all();
 
-        $ensemble = Ensemble::factory(10)->create();
+        $ensemble = Ensemble::factory(4)->create();
 
         $ensemble->each(function ($ensemble) {
             $no_admins = rand(1, 3);

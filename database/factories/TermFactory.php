@@ -18,7 +18,7 @@ class TermFactory extends Factory
     public function definition(): array
     {
         return [
-            'name' => $this->faker->randomElement(['Spring', 'Summer', 'Autumn']).' '.$this->faker->year,
+            'name' => $this->faker->randomElement(['Spring', 'Summer', 'Autumn']).' '.$this->faker->randomElement(['2023', '2024', '2025']),
             'slug' => fn(array $attributes) => Str::slug($attributes['name']),
         ];
     }
