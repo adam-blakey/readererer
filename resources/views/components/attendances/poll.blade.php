@@ -50,7 +50,7 @@
 
 					@if ($repeating_headings and $sort_value != $prev_sort_value or $loop->first)
 						<thead>
-							<x-attendances.heading :$term_dates :show_year="$spans_multiple_years" />
+                            <x-attendances.heading :$term_dates :show_year="$spans_multiple_years" :ensemble="$ensemble" />
 						</thead>
 					@endif
 					@if ($repeating_headings and $sort_value != $prev_sort_value)
@@ -63,7 +63,7 @@
 								@endif
 							</td>
 							@foreach ($term_dates as $term_date)
-								<td class="w-1 {{ $term_date->is_concert ? 'bg-primary-subtle' : '' }}"></td>
+                                <td class="w-1 {{ ((int)($term_date->concert_ensemble_id) === (int)($ensemble->id)) ? 'bg-primary-subtle' : '' }}"></td>
 							@endforeach
 						</tr>
 					@endif
@@ -73,7 +73,7 @@
 							<x-user-entry :add_route="false" :secondary_info="App\Models\InstrumentFamily::find($member->ensembles->where('id', $ensemble->id)->first()->pivot->instrument_family_id)->name" :user="$member" />
 						</td>
 						@foreach ($term_dates as $term_date)
-							<td class="w-1 {{ $term_date->is_concert ? 'bg-primary-subtle' : '' }}">
+                            <td class="w-1 {{ ((int)($term_date->concert_ensemble_id) === (int)($ensemble->id)) ? 'bg-primary-subtle' : '' }}">
 								@php
 									$attendance = $member->attendances->where('term_date_id', $term_date->id)->sortByDesc('created_at')->first();
 									$attendance_value = $attendance->status ?? App\Enums\AttendanceStatus::Unknown;

@@ -31,6 +31,7 @@ class UpdateTermRequest extends FormRequest
             'term_dates.*.id' => 'nullable|integer',
             'term_dates.*.start_datetime' => 'required|date',
             'term_dates.*.end_datetime' => 'required|date',
+            'term_dates.*.ensemble_id' => 'nullable|integer|exists:ensembles,id',
         ];
     }
 }

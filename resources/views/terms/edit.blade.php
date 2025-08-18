@@ -53,8 +53,14 @@
 										</div>
                                         <hr />
 										<div class="mb-3">
-											<label class="card-title">Term dates</label>
-											<div id="term-dates-list">
+    							<label class="card-title">Term dates</label>
+                                                    <script type="text/template" id="ensemble-options-template">
+                                                        <option value="">Not a concert</option>
+                                                        @foreach(($ensembles ?? collect()) as $ens)
+                                                            <option value="{{ $ens->id }}">{{ $ens->name }}</option>
+                                                        @endforeach
+                                                    </script>
+    							<div id="term-dates-list">
                                                 @php
                                                     $existingDates = $term->term_dates?->sortBy('start_datetime') ?? collect();
                                                     $prefillDates = collect(old('term_dates'));
@@ -64,6 +70,7 @@
                                                                 'id' => $d->id,
                                                                 'start_datetime' => optional($d->start_datetime)->format('Y-m-d\TH:i'),
                                                                 'end_datetime' => optional($d->end_datetime)->format('Y-m-d\TH:i'),
+                                                                'concert_ensemble_id' => $d->concert_ensemble_id,
                                                             ];
                                                         });
                                                     }
@@ -77,6 +84,7 @@
                                                             $initialStart = optional($orig?->start_datetime)->format('Y-m-d\TH:i');
                                                             $initialEnd = optional($orig?->end_datetime)->format('Y-m-d\TH:i');
                                                         }
+                                                        $selectedEnsemble = $date['ensemble_id'] ?? ($orig->concert_ensemble_id ?? null);
                                                     @endphp
                                                     <div class="row g-2 align-items-end term-date-row mb-2" data-index="{{ $i }}">
                                                         @if (!empty($date['id']))
@@ -95,6 +103,15 @@
                                                                 <x-forms.input-error :messages="$message" />
                                                             @enderror
                                                             <input class="form-control @error('term_dates.' . $i . '.end_datetime') is-invalid @enderror" name="term_dates[{{ $i }}][end_datetime]" type="datetime-local" value="{{ $date['end_datetime'] ?? '' }}" data-initial="{{ $initialEnd }}" required>
+                                                        </div>
+                                                        <div class="col-md-2">
+                                                            <label class="form-label">Concert</label>
+                                                            <select class="form-select" name="term_dates[{{ $i }}][ensemble_id]" data-initial="{{ $orig->concert_ensemble_id ?? '' }}">
+                                                                <option value="" {{ empty($selectedEnsemble) ? 'selected' : '' }}>Not a concert</option>
+                                                                @foreach(($ensembles ?? collect()) as $ens)
+                                                                    <option value="{{ $ens->id }}" {{ (int)$selectedEnsemble === (int)$ens->id ? 'selected' : '' }}>{{ $ens->name }}</option>
+                                                                @endforeach
+                                                            </select>
                                                         </div>
                                                         <div class="col-md-2">
                                                             <button class="btn btn-outline-danger w-100 remove-term-date" type="button">Remove</button>
@@ -121,6 +138,8 @@
 			const form = document.getElementById('term-edit-form');
 			const list = document.getElementById('term-dates-list');
 			const addBtn = document.getElementById('add-term-date');
+            const optionsTpl = document.getElementById('ensemble-options-template');
+            const ensembleOptions = optionsTpl ? (optionsTpl.textContent || '').trim() : '<option value="">Not a concert</option>';
 
 			function attachChangeWatcher(input) {
 				if (!input) return;
@@ -163,6 +182,12 @@
 					<div class="col-md-5">
 						<label class="form-label">End</label>
 						<input class="form-control border-2 border-solid border-info" name="term_dates[${i}][end_datetime]" type="datetime-local" data-initial="">
+					</div>
+					<div class="col-md-2">
+						<label class="form-label">Concert</label>
+                            <select class="form-select border-2 border-solid border-info" name="term_dates[${i}][ensemble_id]" data-initial="">
+							${ensembleOptions}
+						</select>
 					</div>
 					<div class="col-md-2">
 						<button class="btn btn-outline-danger w-100 remove-term-date" type="button">Remove</button>

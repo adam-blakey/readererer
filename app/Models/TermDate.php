@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Casts\Attribute;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Support\Carbon;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -18,7 +19,7 @@ class TermDate extends Model
     protected $fillable = [
         'start_datetime',
         'end_datetime',
-        'is_concert',
+        'concert_ensemble_id',
     ];
 
     public function term(): BelongsTo
@@ -31,12 +32,17 @@ class TermDate extends Model
         return $this->hasOne(SetupGroup::class);
     }
 
+    public function concert_ensemble(): BelongsTo
+    {
+        return $this->belongsTo(Ensemble::class, 'concert_ensemble_id');
+    }
+
     protected function casts(): array
     {
         return [
             'start_datetime' => 'datetime',
             'end_datetime' => 'datetime',
-            'is_concert' => 'boolean',
+            'concert_ensemble_id' => 'integer',
         ];
     }
 

@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Term;
 use App\Http\Requests\StoreTermRequest;
 use App\Http\Requests\UpdateTermRequest;
+use App\Models\Ensemble;
 
 class TermController extends Controller
 {
@@ -57,9 +58,11 @@ class TermController extends Controller
     public function edit(Term $term)
     {
         $term->load('term_dates');
+        $ensembles = Ensemble::whereNull('deleted_at')->orderBy('name')->get();
         return view('terms.edit', [
             'term' => $term,
             'page_name' => 'Edit term',
+            'ensembles' => $ensembles,
         ]);
     }
 
@@ -87,7 +90,7 @@ class TermController extends Controller
             $payload = [
                 'start_datetime' => $term_date['start_datetime'] ?? null,
                 'end_datetime'   => $term_date['end_datetime'] ?? null,
-                'is_concert'     => $term_date['is_concert'] ?? false,
+                'ensemble_id'    => $term_date['ensemble_id'] ?? null,
             ];
 
             if (!empty($term_date['id'])) {

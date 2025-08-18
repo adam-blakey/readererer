@@ -51,11 +51,11 @@
 								@foreach($term->term_dates->sortBy('start_datetime') as $td)
 									<div class="mb-2">
 										{{ $td->name }}
-										@if($td->is_concert)
-											<span class="badge bg-green text-green-fg ms-2">Concert</span>
-										@else
-											<span class="badge bg-gray text-muted ms-2">Rehearsal</span>
-										@endif
+                                        @if($td->concert_ensemble_id)
+                                            <span class="badge bg-green text-green-fg ms-2">Concert @if($td->concert_ensemble) ({{ $td->concert_ensemble->name }}) @endif</span>
+                                        @else
+                                            <span class="badge bg-gray text-muted ms-2">Rehearsal</span>
+                                        @endif
 									</div>
 								@endforeach
 							@endif
