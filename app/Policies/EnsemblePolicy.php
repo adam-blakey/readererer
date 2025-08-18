@@ -14,11 +14,7 @@ class EnsemblePolicy
      */
     public function viewAny(User $user)
     {
-        if ($user->role >= UserRole::Admin) {
-            return Response::allow();
-        }
-
-        return Response::deny();
+        return null;
     }
 
     /**
@@ -26,7 +22,11 @@ class EnsemblePolicy
      */
     public function view(User $user, Ensemble $ensemble)
     {
+        // Admins always allowed; otherwise allow users tied to this ensemble (including Ensemble role users).
         if ($user->role >= UserRole::Admin) {
+            return Response::allow();
+        }
+        if ($user->role >= UserRole::Ensemble && $user->ensembles->contains($ensemble)) {
             return Response::allow();
         }
 

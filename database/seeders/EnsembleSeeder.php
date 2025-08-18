@@ -2,6 +2,8 @@
 
 namespace Database\Seeders;
 
+use App\Enums\UserRole;
+use App\Models\User;
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 use App\Models\Ensemble;
@@ -36,6 +38,18 @@ class EnsembleSeeder extends Seeder
             for ($i = 0; $i < $no_users; $i++) {
                 $ensemble->users()->attach(array_pop($users), ['instrument_family_id' => $instrument_families->random()->id, 'seat_column' => chr(rand(1, 10)+65), 'seat_row' => rand(1, 10)]);
             }
+        });
+
+        $ensemble->each(function ($ensemble) {
+            $ensemble_user = User::create([
+                'first_name' => $ensemble->name,
+                'last_name' => 'Ensemble',
+                'email' => $ensemble->slug . '@example.com',
+                'password' => bcrypt('password'),
+                'role' => UserRole::Ensemble,
+            ]);
+
+            $ensemble_user->ensembles()->attach($ensemble);
         });
     }
 }

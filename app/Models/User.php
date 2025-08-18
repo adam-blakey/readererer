@@ -107,6 +107,8 @@ class User extends Authenticatable
                 return 'Moderator';
             case UserRole::Member:
                 return 'Member';
+            case UserRole::Ensemble:
+                return 'Ensemble';
             case UserRole::Guest:
                 return 'Guest';
             default:

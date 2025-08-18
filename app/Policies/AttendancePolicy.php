@@ -38,7 +38,7 @@ class AttendancePolicy
      */
     public function poll(User $user)
     {
-        if ($user->role >= UserRole::Admin) {
+        if ($user->role >= UserRole::Moderator) {
             return Response::allow();
         }
 
@@ -50,7 +50,7 @@ class AttendancePolicy
      */
     public function create(User $user)
     {
-        if ($user->role >= UserRole::Admin) {
+        if ($user->role >= UserRole::Ensemble) {
             return Response::allow();
         }
 

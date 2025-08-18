@@ -33,11 +33,14 @@ class AttendanceController extends Controller
      */
     public function poll(Ensemble $ensemble, Term $term, Request $request)
     {
+        // Ensure the current user is allowed to view this ensemble (restrict ensemble users to their own ensemble)
+        $this->authorize('view', $ensemble);
+
         $members = User::latest()
         ->with('attendances')
         ->with('ensembles')
         ->get()
-        ->filter(function($user) use ($ensemble) { return $user->ensembles->contains($ensemble); })
+        ->filter(function($user) use ($ensemble) { return $user->ensembles->contains($ensemble) && $user->ensembles->where('id', $ensemble->id)->first()->pivot->instrument_family_id != null; })
         ->values();
 
         $page_name = $ensemble->name . ': ' . $term->name;
@@ -53,6 +56,9 @@ class AttendanceController extends Controller
 
     public function poll_store(Ensemble $ensemble, Term $term, Request $request)
     {
+        // Ensure the current user is allowed to view this ensemble (restrict ensemble users to their own ensemble)
+        $this->authorize('view', $ensemble);
+
         $request_ip = $request->ip();
 
         $request->collect()->each(function($parameter_value, $parameter_key) use ($request_ip, $ensemble) {
