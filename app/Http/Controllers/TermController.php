@@ -63,10 +63,7 @@ class TermController extends Controller
      */
     public function update(UpdateTermRequest $request, Term $term)
     {
-        $attributes = $request->validate([
-            'name' => 'required|string|max:255',
-            'slug' => 'required|string|max:255',
-        ]);
+        $attributes = $request->safe()->only(['name', 'slug']);
 
         $request_term_dates = collect($request->input('term_dates', []));
 

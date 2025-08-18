@@ -23,7 +23,14 @@ class UpdateTermRequest extends FormRequest
     public function rules(): array
     {
         return [
-            //
+            'name' => 'required|string|max:255',
+            'slug' => 'required|string|max:255',
+
+            // Term dates must not be null; validate each provided row
+            'term_dates' => 'array',
+            'term_dates.*.id' => 'nullable|integer',
+            'term_dates.*.start_datetime' => 'required|date',
+            'term_dates.*.end_datetime' => 'required|date',
         ];
     }
 }
