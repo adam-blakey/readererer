@@ -24,6 +24,7 @@ class User extends Authenticatable
         'name',
         'first_name',
         'last_name',
+        'username',
         'email',
         'role',
         'is_over_18',
@@ -34,6 +35,7 @@ class User extends Authenticatable
     public array $sortables = [
         'first_name',
         'last_name',
+        'username',
         'email',
         'role',
         'created_at',
@@ -61,8 +63,11 @@ class User extends Authenticatable
     protected $fillable = [
         'first_name',
         'last_name',
+        'username',
         'email',
         'password',
+        'image',
+        'role',
     ];
 
     /**

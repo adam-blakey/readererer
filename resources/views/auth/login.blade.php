@@ -21,9 +21,9 @@
 								@csrf
 
 								<div class="mb-3">
-									<label class="form-label" for="email">{{ __('Email address') }}</label>
-									<input autocomplete="username" class="form-control" id="email" name="email" placeholder="your@email.com" required type="email" value="{{ old('email') }}">
-									<x-forms.input-error :messages="$errors->get('email')" />
+									<label class="form-label" for="username">{{ __('Username') }}</label>
+									<input autocomplete="username" class="form-control" id="username" name="username" placeholder="Your username" required type="text" value="{{ old('username') }}">
+									<x-forms.input-error :messages="$errors->get('username')" />
 								</div>
 								<div class="mb-2">
 									<label class="form-label" for="password">

@@ -44,7 +44,7 @@ class EnsembleSeeder extends Seeder
             $ensemble_user = User::create([
                 'first_name' => $ensemble->name,
                 'last_name' => 'Ensemble',
-                'email' => $ensemble->slug . '@example.com',
+                'username' => $ensemble->slug,
                 'password' => bcrypt('password'),
                 'role' => UserRole::Ensemble,
             ]);
