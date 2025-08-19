@@ -53,7 +53,7 @@ class Term extends Model
 
     public function term_dates(): HasMany
     {
-        return $this->hasMany(TermDate::class);
+        return $this->hasMany(TermDate::class)->orderBy('start_datetime');
     }
 
     public function getEarliestDateAttribute(): Carbon

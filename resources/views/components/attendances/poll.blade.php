@@ -1,3 +1,4 @@
+@php use App\Models\TermDate; @endphp
 @props(['members', 'term', 'ensemble', 'sortby'])
 
 @push('scripts')
@@ -10,10 +11,6 @@
 	$repeating_headings = config('app.readererer_repeating_headings');
 
 	switch ($sortby) {
-	    case 'first_name':
-	        $members = $members->sortBy('first_name');
-	        $sort_attribute = 'first_name_initial';
-	        break;
 	    case 'last_name':
 	        $members = $members->sortBy('last_name');
 	        $sort_attribute = 'last_name_initial';
@@ -24,13 +21,25 @@
 	        });
 	        $sort_attribute = 'instrument_family';
 	        break;
-	    default:
+	    default: // Defaults to first_name.
 	        $members = $members->sortBy('first_name');
 	        $sort_attribute = 'first_name_initial';
 	        break;
 	}
 
-	$term_dates = $term->term_dates->sortBy('start_datetime');
+//	$term_dates = $term
+//        ->term_dates
+//        ->whereNull('concert_ensemble_id')
+////        ->orWhere('concert_ensemble_id', $ensemble->id)
+//        ->sortBy('start_datetime');
+
+    $term_dates = $term
+        ->term_dates
+        ->filter(function(TermDate $td) use ($ensemble) {
+            return
+                $td->concert_ensemble_id == null ||
+                $td->concert_ensemble_id == $ensemble->id;
+        });
 
 	$spans_multiple_years = $term->earliest_date->year != $term->latest_date->year;
 @endphp

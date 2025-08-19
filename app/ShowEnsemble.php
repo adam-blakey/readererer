@@ -12,8 +12,8 @@ trait ShowEnsemble
     {
         $upcoming_terms = Term::where('latest_date', '>', Carbon::now())
             ->with('term_dates')
-            ->orderBy('latest_date')
             ->get();
+        $upcoming_terms = $upcoming_terms->sortBy('latest_date');
 
         $next_rehearsal = $upcoming_terms
             ->flatMap(fn ($term) => $term->term_dates)
