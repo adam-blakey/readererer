@@ -13,6 +13,7 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
+        $this->call(SetupGroupSeeder::class);
         $this->call(UserSeeder::class);
         $this->call(InstrumentFamilySeeder::class);
         $this->call(EnsembleSeeder::class);

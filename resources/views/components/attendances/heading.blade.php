@@ -15,6 +15,9 @@
 			{{ $term_date->start_datetime->format('D') }}<br />
 			{{ $term_date->start_datetime->format('G:i') }}<br />
 			{{ $term_date->end_datetime->format('G:i') }}<br />
+            @if ($term_date->setup_group != null)
+                <x-setup-group-badge :setup_group="$term_date->setup_group" />
+            @endif
 		</th>
 	@endforeach
 </tr>

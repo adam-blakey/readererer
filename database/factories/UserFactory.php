@@ -2,6 +2,7 @@
 
 namespace Database\Factories;
 
+use App\Models\SetupGroup;
 use Illuminate\Database\Eloquent\Factories\Factory;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Str;
@@ -23,6 +24,8 @@ class UserFactory extends Factory
      */
     public function definition(): array
     {
+        $setupGroup = SetupGroup::inRandomOrder()->first();
+
         return [
             'first_name' => $this->faker->firstName(),
             'last_name' => $this->faker->lastName(),
@@ -47,6 +50,7 @@ class UserFactory extends Factory
             'has_photo_permission' => $this->faker->boolean(),
             'is_gift_aiding_subs' => $this->faker->boolean(),
             'image' => $this->faker->imageUrl(),
+            'setup_group_id' => $setupGroup ? $setupGroup->id : null,
         ];
     }
 

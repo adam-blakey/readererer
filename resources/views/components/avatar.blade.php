@@ -1,4 +1,4 @@
-@props(['user', 'size' => null])
+@props(['user', 'size' => null, 'show_setup_group' => false])
 
 @php
 	$classes = 'avatar';
@@ -11,7 +11,16 @@
 @endphp
 
 @if ($user->image)
-	<span class="{{ $classes }}" style="background-image: url({{ $user->image }})"></span>
+	<span class="{{ $classes }}" style="background-image: url({{ $user->image }})">
+        @if ($show_setup_group && $user->setup_group != null)
+            <x-setup-group-badge :setup_group="$user->setup_group" />
+        @endif
+    </span>
 @else
-	<span class="{{ $classes }}">{{ $user->initials }}</span>
+	<span class="{{ $classes }}">
+        {{ $user->initials }}
+        @if ($show_setup_group && $user->setup_group != null)
+            <x-setup-group-badge :setup_group="$user->setup_group" />
+        @endif
+    </span>
 @endif

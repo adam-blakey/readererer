@@ -27,9 +27,9 @@ class TermDate extends Model
         return $this->BelongsTo(Term::class);
     }
 
-    public function setup_group(): HasOne
+    public function setup_group()
     {
-        return $this->hasOne(SetupGroup::class);
+        return $this->belongsTo(SetupGroup::class);
     }
 
     public function concert_ensemble(): BelongsTo

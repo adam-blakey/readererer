@@ -55,6 +55,11 @@ class User extends Authenticatable
             ->withPivot('seat_row');
     }
 
+    public function setup_group()
+    {
+        return $this->belongsTo(SetupGroup::class);
+    }
+
     /**
      * The attributes that are mass assignable.
      *

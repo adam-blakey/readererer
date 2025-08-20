@@ -2,6 +2,8 @@
 
 namespace Database\Seeders;
 
+use App\Models\SetupGroup;
+use App\Models\User;
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 
@@ -12,6 +14,22 @@ class SetupGroupSeeder extends Seeder
      */
     public function run(): void
     {
-        //
+        $colors = ['blue', 'red', 'green', 'yellow'];
+        for ($i = 1; $i <= 4; $i++)
+        {
+            $setupGroup = SetupGroup::factory()->create([
+                'name' => $i,
+                'week' => $i,
+                'color' => $colors[$i-1],
+            ]);
+
+            $setupGroup
+                ->vanDrivers()
+                ->attach(User::inRandomOrder()
+                    ->limit(2)
+                    ->pluck('id')
+                    ->toArray()
+                );
+        }
     }
 }

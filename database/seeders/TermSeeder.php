@@ -4,6 +4,7 @@ namespace Database\Seeders;
 
 use App\Models\Ensemble;
 use App\Models\Setlist;
+use App\Models\SetupGroup;
 use Carbon\CarbonInterface;
 use Illuminate\Database\Seeder;
 use App\Models\Term;
@@ -55,13 +56,19 @@ class TermSeeder extends Seeder
             $firstSunday->minute(0);
             $firstSunday->second(0);
 
+            $setupGroups = SetupGroup::all();
+            $setupGroupsCount = $setupGroups->count();
+
+            $i = 0;
             for ($d = $firstSunday->copy(); $d->month <= $month_end && $d->year == $year; $d->addWeek()) {
                 $term->term_dates()->create([
                     'start_datetime' => $d->copy()->addHours(9.5),
                     'end_datetime' => $d->copy()->addHours(12.5),
                     'concert_ensemble_id' => null,
                     'setlist_id' => $setlist->id,
+                    'setup_group_id' => ($setupGroupsCount == 0) ? null : $setupGroups[$i % $setupGroupsCount]->id,
                 ]);
+                $i++;
             }
 
             Ensemble::all()->each(function ($ensemble) use ($term, $year, $month_start, $month_end, $setlist) {
