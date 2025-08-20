@@ -2,7 +2,7 @@
 
 @if($term_date == null)
     <div class="d-none d-xl-block ps-2">
-        <div>Nothing found.</div>
+        <div class="text-muted">Nothing found.</div>
     </div>
 @else
     <div class="d-none d-xl-block ps-2">
