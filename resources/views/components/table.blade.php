@@ -11,8 +11,6 @@
 
 			$edit_route_name = get_route_name_from_model($entities->first(), 'edit');
 			$class_name = get_class_name_from_model($entities->first());
-
-			$show_edit_heading = Auth::user()?->can('update', $entities->first());
 		@endphp
 
 		<table class="table table-vcenter card-table">
@@ -31,9 +29,7 @@
 							@endif
 						</th>
 					@endforeach
-					@if ($show_edit_heading)
-						<th>Edit</th>
-					@endif
+                    <th>Edit</th>
 				</tr>
 			</thead>
 			<tbody>
@@ -74,13 +70,7 @@
 								@endif
 							</td>
 						@endforeach
-						@if ($show_edit_heading)
-							@if (Auth::user()?->can('update', $entity))
-								<td><a href="{{ route($edit_route_name, [$class_name => $entity]) }}">Edit</a></td>
-							@else
-								<td>—</td>
-							@endif
-						@endif
+                        <td><x-a :route="$edit_route_name" :model="$entity">Edit</x-a></td>
 					</tr>
 				@endforeach
 			</tbody>

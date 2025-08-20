@@ -6,7 +6,7 @@
 @endphp
 
 @if (Route::has($route_name))
-	<a href="{{ route($route_name, [$class_name => $model]) }}"><img alt="{{ $model->name }} image" class="rounded" src="{{ $model->image }}" style="width: 50px;"></a>
+	<x-a :route="$route_name" :model="$model"><img alt="{{ $model->name }} image" class="rounded" src="{{ $model->image }}" style="width: 50px;"></x-a>
 @else
 	<img alt="{{ $model->name }} image" class="rounded" src="{{ $model->image }}" style="width: 50px;">
 @endif

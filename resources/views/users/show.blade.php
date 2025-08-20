@@ -17,10 +17,10 @@
 				</div>
 				<div class="col-auto ms-auto">
 					<div class="btn-list">
-						<a aria-label="Button" class="btn" href="{{ route('users.edit', ['user' => $user]) }}">
+						<x-a aria-label="Button" class="btn" :route="'users.edit'" :user="$user">
 							<x-icon name="pencil" />
 							Edit
-						</a>
+						</x-a>
 					</div>
 				</div>
 			</div>
@@ -37,9 +37,9 @@
 						</div>
 						<div class="card-body">
 							@foreach ($user->ensembles as $ensemble)
-								<p>
-									<a href="{{ route('ensembles.show', ['ensemble' => $ensemble]) }}">{{ $ensemble->name }}</a>: <strong>{{ $instrumentFamilies[$ensemble->pivot->instrument_family_id]->name ?? '[none]' }} {{ ($ensemble->pivot->seat_column == null or $ensemble->pivot->seat_row == null) ? '' : '(' . $ensemble->pivot->seat_column . $ensemble->pivot->seat_row . ')' }}</strong>
-								</p>
+ 							<p>
+ 								<x-a :route="'ensembles.show'" :ensemble="$ensemble">{{ $ensemble->name }}</x-a>: <strong>{{ $instrumentFamilies[$ensemble->pivot->instrument_family_id]->name ?? '[none]' }} {{ ($ensemble->pivot->seat_column == null or $ensemble->pivot->seat_row == null) ? '' : '(' . $ensemble->pivot->seat_column . $ensemble->pivot->seat_row . ')' }}</strong>
+ 							</p>
 							@endforeach
 						</div>
 					</div>

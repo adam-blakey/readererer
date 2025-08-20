@@ -27,7 +27,7 @@
 			</div>
 		</form>
 		<div class="mt-3 text-center text-secondary">
-			Forget it, <a href="{{ route('login') }}">send me back</a> to the sign in screen.
+			Forget it, <x-a :route="'login'">send me back</x-a> to the sign in screen.
 		</div>
 	</div>
 </x-layout>

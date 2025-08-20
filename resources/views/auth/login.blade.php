@@ -10,9 +10,9 @@
 			<div class="col-md-12">
 				<div class="container py-4 container-tight">
 					<div class="mb-4 text-center">
-						<a class="autodark" href="{{ route('home') }}">
+						<x-a class="autodark" :route="'home'">
 							<img src="{{ Vite::asset('resources/images/readererer-long-logo.svg') }}">
-						</a>
+						</x-a>
 					</div>
 					<div class="card card-md">
 						<div class="card-body">
@@ -29,7 +29,7 @@
 									<label class="form-label" for="password">
 										{{ __('Password') }}
 										<span class="form-label-description">
-											<a href="{{ route('password.request') }}">{{ __('I forgot password') }}</a>
+ 										<x-a :route="'password.request'">{{ __('I forgot password') }}</x-a>
 										</span>
 									</label>
 									<div class="input-group input-group-flat">

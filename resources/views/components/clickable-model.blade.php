@@ -6,7 +6,7 @@
 @endphp
 
 @if (Route::has($route_name))
-	<a href="{{ route($route_name, [$class_name => $model]) }}">{{ $model->name }}</a>
+	<x-a :route="$route_name" :model="$model">{{ $model->name }}</x-a>
 @else
 	{{ $model->name }}
 @endif

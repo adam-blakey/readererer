@@ -67,11 +67,11 @@
 				<span class="navbar-toggler-icon"></span>
 			</button>
 		@endif
-		<h1 class="navbar-brand navbar-brand-autodark d-none-navbar-horizontal pe-0 pe-md-3">
-			<a href="{{ route('home') }}">
-				<img class="navbar-brand-image" src="{{ Vite::asset('resources/images/readererer-long-logo.svg') }}">
-			</a>
-		</h1>
+			<h1 class="navbar-brand navbar-brand-autodark d-none-navbar-horizontal pe-0 pe-md-3">
+				<x-a :route="'home'">
+					<img class="navbar-brand-image" src="{{ Vite::asset('resources/images/readererer-long-logo.svg') }}">
+				</x-a>
+			</h1>
 		<div class="flex-row navbar-nav order-md-last">
 			<div class="d-none d-md-flex">
 				<a class="px-0 nav-link hide-theme-dark" data-bs-placement="bottom" data-bs-toggle="tooltip" href="?theme=dark" title="Enable dark mode">
