@@ -14,7 +14,7 @@ class UserPolicy
      */
     public function viewAny(User $user)
     {
-        if ($user->role >= UserRole::Admin) {
+        if ($user->role->value >= UserRole::Member->value) {
             return Response::allow();
         }
 
