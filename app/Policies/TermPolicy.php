@@ -14,7 +14,7 @@ class TermPolicy
      */
     public function viewAny(User $user)
     {
-        if ($user->role->value >= UserRole::Member->value) {
+        if ($user->role->value >= UserRole::Moderator->value) {
             return Response::allow();
         }
 
@@ -26,7 +26,7 @@ class TermPolicy
      */
     public function view(User $user, Term $term)
     {
-        if ($user->role >= UserRole::Admin) {
+        if ($user->role->value >= UserRole::Moderator->value) {
             return Response::allow();
         }
 
@@ -38,7 +38,7 @@ class TermPolicy
      */
     public function create(User $user)
     {
-        if ($user->role >= UserRole::Admin) {
+        if ($user->role->value >= UserRole::Moderator->value) {
             return Response::allow();
         }
 
@@ -50,7 +50,7 @@ class TermPolicy
      */
     public function update(User $user, Term $term)
     {
-        if ($user->role >= UserRole::Admin) {
+        if ($user->role->value >= UserRole::Moderator->value) {
             return Response::allow();
         }
 
@@ -62,7 +62,7 @@ class TermPolicy
      */
     public function delete(User $user, Term $term)
     {
-        if ($user->role >= UserRole::Admin) {
+        if ($user->role->value >= UserRole::Admin->value) {
             return Response::allow();
         }
 
@@ -74,7 +74,7 @@ class TermPolicy
      */
     public function restore(User $user, Term $term)
     {
-        if ($user->role >= UserRole::Admin) {
+        if ($user->role->value >= UserRole::Admin->value) {
             return Response::allow();
         }
 
@@ -86,7 +86,7 @@ class TermPolicy
      */
     public function forceDelete(User $user, Term $term)
     {
-        if ($user->role >= UserRole::Admin) {
+        if ($user->role->value >= UserRole::Admin->value) {
             return Response::allow();
         }
 

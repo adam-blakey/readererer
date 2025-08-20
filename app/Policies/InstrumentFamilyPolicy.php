@@ -13,7 +13,7 @@ class InstrumentFamilyPolicy
      */
     public function viewAny(User $user): bool
     {
-        //
+        return false;
     }
 
     /**
@@ -21,7 +21,7 @@ class InstrumentFamilyPolicy
      */
     public function view(User $user, InstrumentFamily $instrumentFamily): bool
     {
-        //
+        return false;
     }
 
     /**
@@ -29,7 +29,7 @@ class InstrumentFamilyPolicy
      */
     public function create(User $user): bool
     {
-        //
+        return false;
     }
 
     /**
@@ -37,7 +37,7 @@ class InstrumentFamilyPolicy
      */
     public function update(User $user, InstrumentFamily $instrumentFamily): bool
     {
-        //
+        return false;
     }
 
     /**
@@ -45,7 +45,7 @@ class InstrumentFamilyPolicy
      */
     public function delete(User $user, InstrumentFamily $instrumentFamily): bool
     {
-        //
+        return false;
     }
 
     /**
@@ -53,7 +53,7 @@ class InstrumentFamilyPolicy
      */
     public function restore(User $user, InstrumentFamily $instrumentFamily): bool
     {
-        //
+        return false;
     }
 
     /**
@@ -61,6 +61,6 @@ class InstrumentFamilyPolicy
      */
     public function forceDelete(User $user, InstrumentFamily $instrumentFamily): bool
     {
-        //
+        return false;
     }
 }

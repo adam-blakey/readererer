@@ -2,6 +2,7 @@
 
 namespace Database\Seeders;
 
+use App\Models\Ensemble;
 use App\Models\SetupGroup;
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
@@ -26,24 +27,20 @@ class UserSeeder extends Seeder
             }
         });
 
-        $users[] = User::create([
-            'first_name' => 'Test',
-            'last_name' => 'Admin',
-            'username' => 'admin',
-            'email' => 'test-admin@example.com',
-            'password' => bcrypt('password'),
-            'image' => 'https://adam.blakey.family/wp-content/uploads/sites/4/2022/02/Adam-cutaway-4.png.webp',
-            'role' => UserRole::Admin,
-        ]);
-
-        $users[] = User::create([
-            'first_name' => 'Test',
-            'last_name' => 'Member',
-            'username' => 'member',
-            'email' => 'test-member@example.com',
-            'password' => bcrypt('password'),
-            'image' => 'https://adam.blakey.family/wp-content/uploads/sites/4/2022/02/Adam-cutaway-4.png.webp',
-            'role' => UserRole::Member,
-        ]);
+        // Create a user for each type of user role.
+        $roleNames = ['Guest', 'Ensemble', 'Member', 'Moderator', 'Admin'];
+        $i = 0;
+        foreach (UserRole::cases() as $role) {
+            $user = User::factory()->create([
+                'role' => $role,
+                'image' => 'https://adam.blakey.family/wp-content/uploads/sites/4/2022/02/Adam-cutaway-4.png.webp',
+                'username' => strtolower($roleNames[$i]),
+                'email' => $roleNames[$i] . '@example.com',
+                'password' => bcrypt('password'),
+                'first_name' => $roleNames[$i],
+                'last_name' => 'User',
+            ]);
+            $i++;
+        }
     }
 }

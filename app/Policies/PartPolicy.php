@@ -14,7 +14,7 @@ class PartPolicy
      */
     public function viewAny(User $user)
     {
-        if ($user->role >= UserRole::Admin) {
+        if ($user->role->value->value >= UserRole->value::Admin->value) {
             return Response::allow();
         }
 
@@ -26,7 +26,7 @@ class PartPolicy
      */
     public function view(User $user, Part $parts)
     {
-        if ($user->role >= UserRole::Admin) {
+        if ($user->role->value >= UserRole::Admin->value) {
             return Response::allow();
         }
 
@@ -38,7 +38,7 @@ class PartPolicy
      */
     public function create(User $user)
     {
-        if ($user->role >= UserRole::Admin) {
+        if ($user->role->value >= UserRole::Admin->value) {
             return Response::allow();
         }
 
@@ -50,7 +50,7 @@ class PartPolicy
      */
     public function update(User $user, Part $parts)
     {
-        if ($user->role >= UserRole::Admin) {
+        if ($user->role->value >= UserRole::Admin->value) {
             return Response::allow();
         }
 
@@ -62,7 +62,7 @@ class PartPolicy
      */
     public function delete(User $user, Part $parts)
     {
-        if ($user->role >= UserRole::Admin) {
+        if ($user->role->value >= UserRole::Admin->value) {
             return Response::allow();
         }
 
@@ -74,7 +74,7 @@ class PartPolicy
      */
     public function restore(User $user, Part $parts)
     {
-        if ($user->role >= UserRole::Admin) {
+        if ($user->role->value >= UserRole::Admin->value) {
             return Response::allow();
         }
 
@@ -86,7 +86,7 @@ class PartPolicy
      */
     public function forceDelete(User $user, Part $parts)
     {
-        if ($user->role >= UserRole::Admin) {
+        if ($user->role->value >= UserRole::Admin->value) {
             return Response::allow();
         }
 

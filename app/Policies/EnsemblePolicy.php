@@ -27,10 +27,10 @@ class EnsemblePolicy
     public function view(User $user, Ensemble $ensemble)
     {
         // Admins always allowed; otherwise allow users tied to this ensemble (including Ensemble role users).
-        if ($user->role >= UserRole::Admin) {
+        if ($user->role->value >= UserRole::Moderator->value) {
             return Response::allow();
         }
-        if ($user->role >= UserRole::Ensemble && $user->ensembles->contains($ensemble)) {
+        if ($user->role->value >= UserRole::Ensemble->value && $user->ensembles->contains($ensemble)) {
             return Response::allow();
         }
 
@@ -42,7 +42,7 @@ class EnsemblePolicy
      */
     public function create(User $user)
     {
-        if ($user->role >= UserRole::Admin) {
+        if ($user->role->value >= UserRole::Admin->value) {
             return Response::allow();
         }
 
@@ -54,7 +54,7 @@ class EnsemblePolicy
      */
     public function update(User $user, Ensemble $ensemble)
     {
-        if ($user->role >= UserRole::Admin) {
+        if ($user->role->value >= UserRole::Admin->value) {
             return Response::allow();
         }
 
@@ -66,7 +66,7 @@ class EnsemblePolicy
      */
     public function delete(User $user, Ensemble $ensemble)
     {
-        if ($user->role >= UserRole::Admin) {
+        if ($user->role->value >= UserRole::Admin->value) {
             return Response::allow();
         }
 
@@ -78,7 +78,7 @@ class EnsemblePolicy
      */
     public function restore(User $user, Ensemble $ensemble)
     {
-        if ($user->role >= UserRole::Admin) {
+        if ($user->role->value >= UserRole::Admin->value) {
             return Response::allow();
         }
 
@@ -90,7 +90,7 @@ class EnsemblePolicy
      */
     public function forceDelete(User $user, Ensemble $ensemble)
     {
-        if ($user->role >= UserRole::Admin) {
+        if ($user->role->value >= UserRole::Admin->value) {
             return Response::allow();
         }
 

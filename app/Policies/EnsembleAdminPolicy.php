@@ -14,7 +14,7 @@ class EnsembleAdminPolicy
      */
     public function viewAny(User $user)
     {
-        if ($user->role >= UserRole::Admin) {
+        if ($user->role->value >= UserRole::Moderator->value) {
             return Response::allow();
         }
 
@@ -26,7 +26,8 @@ class EnsembleAdminPolicy
      */
     public function view(User $user, EnsembleAdmin $ensembleAdmin)
     {
-        if ($user->role >= UserRole::Admin) {
+        // TODO: Further restrict access to only members of the ensemble.
+        if ($user->role->value >= UserRole::Member->value) {
             return Response::allow();
         }
 
@@ -38,7 +39,7 @@ class EnsembleAdminPolicy
      */
     public function create(User $user)
     {
-        if ($user->role >= UserRole::Admin) {
+        if ($user->role->value >= UserRole::Admin->value) {
             return Response::allow();
         }
 
@@ -50,7 +51,7 @@ class EnsembleAdminPolicy
      */
     public function update(User $user, EnsembleAdmin $ensembleAdmin)
     {
-        if ($user->role >= UserRole::Admin) {
+        if ($user->role->value >= UserRole::Admin->value) {
             return Response::allow();
         }
 
@@ -62,7 +63,7 @@ class EnsembleAdminPolicy
      */
     public function delete(User $user, EnsembleAdmin $ensembleAdmin)
     {
-        if ($user->role >= UserRole::Admin) {
+        if ($user->role->value >= UserRole::Admin->value) {
             return Response::allow();
         }
 
@@ -74,7 +75,7 @@ class EnsembleAdminPolicy
      */
     public function restore(User $user, EnsembleAdmin $ensembleAdmin)
     {
-        if ($user->role >= UserRole::Admin) {
+        if ($user->role->value >= UserRole::Admin->value) {
             return Response::allow();
         }
 
@@ -86,7 +87,7 @@ class EnsembleAdminPolicy
      */
     public function forceDelete(User $user, EnsembleAdmin $ensembleAdmin)
     {
-        if ($user->role >= UserRole::Admin) {
+        if ($user->role->value >= UserRole::Admin->value) {
             return Response::allow();
         }
 

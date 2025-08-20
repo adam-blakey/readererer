@@ -14,7 +14,7 @@ class UserEnsemblePolicy
      */
     public function viewAny(User $user)
     {
-        if ($user->role >= UserRole::Admin) {
+        if ($user->role->value >= UserRole::Moderator->value) {
             return Response::allow();
         }
 
@@ -26,7 +26,7 @@ class UserEnsemblePolicy
      */
     public function view(User $user, UserEnsemble $userEnsemble)
     {
-        if ($user->role >= UserRole::Admin) {
+        if ($user->role->value >= UserRole::Moderator->value) {
             return Response::allow();
         }
 
@@ -38,7 +38,7 @@ class UserEnsemblePolicy
      */
     public function create(User $user)
     {
-        if ($user->role >= UserRole::Admin) {
+        if ($user->role->value >= UserRole::Moderator->value) {
             return Response::allow();
         }
 
@@ -50,7 +50,7 @@ class UserEnsemblePolicy
      */
     public function update(User $user, UserEnsemble $userEnsemble)
     {
-        if ($user->role >= UserRole::Admin) {
+        if ($user->role->value >= UserRole::Moderator->value) {
             return Response::allow();
         }
 
