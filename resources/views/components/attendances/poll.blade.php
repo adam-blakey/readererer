@@ -95,8 +95,10 @@
                                     {
                                         $setup_group = null;
                                     }
+
+                                    $is_van_driver = !($term_date->inferred_van_driver == null) && $term_date->inferred_van_driver->id == $member->id;
 								@endphp
-								<x-forms.input-three-state-checkbox :$allow_change_to_unknown :$assume_attending :member_id="$member->id" :status="$attendance_value" :term_date_id="$term_date->id" :$setup_group />
+								<x-forms.input-three-state-checkbox :$allow_change_to_unknown :$assume_attending :member_id="$member->id" :status="$attendance_value" :term_date_id="$term_date->id" :$setup_group :$is_van_driver />
 							</td>
 						@endforeach
 					</tr>

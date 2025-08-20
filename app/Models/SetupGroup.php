@@ -22,8 +22,10 @@ class SetupGroup extends Model
         'color',
     ];
 
-    public function vanDrivers(): BelongsToMany
+    public function van_drivers(): BelongsToMany
     {
-        return $this->belongsToMany(User::class, 'setup_group_van_driver', 'setup_group_id', 'user_id')->orderBy('first_name');
+        return $this
+            ->belongsToMany(User::class, 'setup_group_van_driver', 'setup_group_id', 'user_id')
+            ->orderBy('sort');
     }
 }

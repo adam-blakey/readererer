@@ -56,6 +56,14 @@
                                         @else
                                             <span class="badge bg-gray text-muted ms-2">Rehearsal</span>
                                         @endif
+                                        @if ($td->setup_group != null)
+                                            <x-setup-group-badge :setup_group="$td->setup_group" />
+                                        @endif
+                                        @if($td->inferred_van_driver == null)
+                                            <span class="badge bg-red text-red-fg ms-2">No van driver!</span>
+                                        @else
+                                            <span class="badge bg-info text-info-fg ms-2">Van: {{ ($td->inferred_van_driver == null) ? 'None' : $td->inferred_van_driver->name }}</span>
+                                        @endif
 									</div>
 								@endforeach
 							@endif

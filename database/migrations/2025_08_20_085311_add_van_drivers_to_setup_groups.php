@@ -15,6 +15,7 @@ return new class extends Migration
             $table->id();
             $table->foreignIdFor(\App\Models\SetupGroup::class);
             $table->foreignIdFor(\App\Models\User::class);
+            $table->integer('sort')->default(0);
         });
     }
 

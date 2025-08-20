@@ -13,7 +13,7 @@ return new class extends Migration
     {
         Schema::table('term_dates', function (Blueprint $table) {
             $table->foreignIdFor(\App\Models\SetupGroup::class)->nullable();
-            $table->foreignIdFor(\App\Models\User::class, 'van_driver')->nullable();
+            $table->foreignIdFor(\App\Models\User::class, 'van_driver_id')->nullable();
         });
     }
 
@@ -23,7 +23,7 @@ return new class extends Migration
     public function down(): void
     {
         Schema::table('term_dates', function (Blueprint $table) {
-            $table->dropForeign(['setup_group_id', 'van_driver']);
+            $table->dropForeign(['setup_group_id', 'van_driver_id']);
         });
     }
 };

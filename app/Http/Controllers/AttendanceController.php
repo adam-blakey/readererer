@@ -39,6 +39,7 @@ class AttendanceController extends Controller
         $members = User::latest()
         ->with('attendances')
         ->with('ensembles')
+        ->with('setup_group')
         ->get()
         ->filter(function($user) use ($ensemble) { return $user->ensembles->contains($ensemble) && $user->ensembles->where('id', $ensemble->id)->first()->pivot->instrument_family_id != null; })
         ->values();

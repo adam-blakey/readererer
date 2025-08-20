@@ -44,7 +44,7 @@ class TermController extends Controller
      */
     public function show(Term $term)
     {
-        $term->load('term_dates');
+        $term->load('term_dates')->with('van_driver');
 
         return view('terms.show', [
             'term' => $term,
@@ -89,8 +89,8 @@ class TermController extends Controller
         $request_term_dates->each(function ($term_date) use ($term) {
             $payload = [
                 'start_datetime' => $term_date['start_datetime'] ?? null,
-                'end_datetime'   => $term_date['end_datetime'] ?? null,
-                'ensemble_id'    => $term_date['ensemble_id'] ?? null,
+                'end_datetime' => $term_date['end_datetime'] ?? null,
+                'concert_ensemble_id' => $term_date['ensemble_id'] ?? null,
             ];
 
             if (!empty($term_date['id'])) {

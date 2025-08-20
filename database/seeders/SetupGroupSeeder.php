@@ -22,14 +22,6 @@ class SetupGroupSeeder extends Seeder
                 'week' => $i,
                 'color' => $colors[$i-1],
             ]);
-
-            $setupGroup
-                ->vanDrivers()
-                ->attach(User::inRandomOrder()
-                    ->limit(2)
-                    ->pluck('id')
-                    ->toArray()
-                );
         }
     }
 }

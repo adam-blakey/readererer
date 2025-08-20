@@ -2,6 +2,7 @@
 
 namespace Database\Seeders;
 
+use App\Models\SetupGroup;
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 use App\Models\User;
@@ -15,6 +16,15 @@ class UserSeeder extends Seeder
     public function run(): void
     {
         $users = User::factory(10)->create();
+
+        $setup_groups = SetupGroup::all();
+        $setup_groups->each(function ($setup_group) use ($users) {
+            $no_drivers = rand(1, 3);
+            $drivers = $users->random($no_drivers);
+            for ($i = 0; $i < $no_drivers; $i++) {
+                $setup_group->van_drivers()->attach($drivers[$i], ['sort' => $i+1]);
+            }
+        });
 
         $users[] = User::create([
             'first_name' => 'Test',

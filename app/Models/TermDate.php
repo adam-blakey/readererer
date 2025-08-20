@@ -27,9 +27,34 @@ class TermDate extends Model
         return $this->BelongsTo(Term::class);
     }
 
-    public function setup_group()
+    public function setup_group(): BelongsTo
     {
         return $this->belongsTo(SetupGroup::class);
+    }
+
+    public function van_driver(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'van_driver_id', 'id');
+    }
+
+    public function getInferredVanDriverAttribute()
+    {
+        if ($this->van_driver != null)
+        {
+            return $this->van_driver;
+        }
+
+        if ($this->setup_group == null)
+        {
+            return null;
+        }
+
+        $previousCount = TermDate::where('setup_group_id', $this->setup_group_id)
+            ->where('start_datetime', '<', $this->start_datetime)
+            ->count();
+        $vanDriversCount = $this->setup_group->van_drivers->count();
+
+        return $this->setup_group->van_drivers->get($previousCount % $vanDriversCount);
     }
 
     public function concert_ensemble(): BelongsTo
