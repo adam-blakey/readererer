@@ -39,7 +39,9 @@
 					<x-card-body>
 						<div class="card-title">Your next concerts</div>
 						@if($nextConcerts->count() === 0)
-							<div class="text-muted">Nothing found.</div>
+                            <div class="d-none d-xl-block ps-2">
+                                <div class="text-muted">Nothing found.</div>
+                            </div>
 						@else
 							@foreach($nextConcerts as $concert)
 								<div class="d-flex align-items-center justify-content-between py-1">
