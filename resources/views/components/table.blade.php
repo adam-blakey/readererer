@@ -65,6 +65,17 @@
 									@endforeach
 								@elseif (gettype($entity->$attribute) == 'object' and class_exists(get_class($entity->$attribute)))
 									<x-clickable-model :model="$entity->$attribute" />
+                                @elseif (str_contains($attribute, 'color'))
+                                    <div class="row align-items-center">
+                                        <div class="col-auto">
+                                            <div class="avatar bg-{{ $entity->$attribute }} text-{{ $entity->$attribute }}-fg"></div>
+                                        </div>
+                                        <div class="col">
+                                            {{ ucfirst($entity->$attribute) }}<br>
+                                            <code>#ffffff</code> <!-- TODO: Get actual hex code -->
+                                        </div>
+                                    </div>
+
 								@else
 									{{ $entity->$attribute }}
 								@endif
