@@ -3,6 +3,7 @@
 namespace Database\Factories;
 
 use Illuminate\Database\Eloquent\Factories\Factory;
+use Illuminate\Support\Carbon;
 use Illuminate\Support\Str;
 
 /**
@@ -17,8 +18,9 @@ class TermFactory extends Factory
      */
     public function definition(): array
     {
+        $currentYear = Carbon::now()->year;
         return [
-            'name' => $this->faker->randomElement(['Spring', 'Summer', 'Autumn']).' '.$this->faker->randomElement(['2023', '2024', '2025']),
+            'name' => $this->faker->randomElement(['Spring', 'Summer', 'Autumn']).' '.$this->faker->randomElement([$currentYear-1, $currentYear, $currentYear+1]),
             'slug' => fn(array $attributes) => Str::slug($attributes['name']),
         ];
     }

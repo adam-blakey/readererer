@@ -63,14 +63,6 @@
                             <x-rehearsal-entry :term_date="$nextConcert" />
                         </div>
                     </div>
-					<div class="mb-3 card">
-						<div class="card-header">
-							<h2 class="mb-0 card-heading">Setlists</h2>
-						</div>
-						<div class="card-body">
-
-						</div>
-					</div>
 				</div>
 				<div class="col-lg-4">
 					<div class="row row-cards">

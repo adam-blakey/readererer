@@ -6,7 +6,7 @@
 		@php
 			$highlight = $ensemble ? ((int)($term_date->concert_ensemble_id) === (int)($ensemble->id)) : ($term_date->concert_ensemble_id !== null);
 		@endphp
-		<th class="text-center poll-date {{ $highlight ? 'bg-primary text-bg-primary' : '' }}">
+		<th class="text-center poll-date align-text-top {{ $highlight ? 'bg-primary text-bg-primary' : '' }}">
 			{{ $term_date->start_datetime->format('M') }}<br />
 			<span class="poll-date-date">{{ $term_date->start_datetime->format('j') }}</span><br />
 			@if ($show_year)
