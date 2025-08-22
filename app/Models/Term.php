@@ -58,33 +58,51 @@ class Term extends Model
 
     public function getEarliestDateAttribute(): Carbon
     {
-        $earliest_termdate = $this->term_dates()->orderBy('start_datetime', 'asc')->firstOrFail();
+        $earliest_termdate = $this
+            ->term_dates()
+            ->orderBy('start_datetime', 'asc')
+            ->firstOrFail();
 
         return $earliest_termdate->start_datetime;
     }
 
     public function getLatestDateAttribute(): Carbon
     {
-        $latest_termdate = $this->term_dates()->orderBy('start_datetime', 'desc')->firstOrFail();
+        $number_of_termdates = $this->term_dates()->count();
+        $latest_termdate = $this
+            ->term_dates()
+            ->orderBy('start_datetime', 'desc')
+            ->skip($number_of_termdates - 1)
+            ->firstOrFail();
 
-        return $latest_termdate->end_datetime;
+        return $latest_termdate->start_datetime;
     }
 
     public function getFormattedTermDateRangeAttribute(): string
     {
-        if ($this->term_dates_count === 0)
+        if ($this->term_dates->count() === 0)
         {
             return '–';
         }
         else
         {
-            $first = $this->getEarliestDateAttribute();
-            $last = $this->getLatestDateAttribute();
+            $first = $this->earliestDate;
+            $last = $this->latestDate;
 
             // Get human-readable length.
-            $length = $first->diff($last)->months;
+            $months = $first->diff($last)->months;
 
-            return 'about ' . $length . ' months, ' . $first->format('Y-m-d') . ' to ' . $last->format('Y-m-d');
+            if ($months == 0)
+            {
+                if ($first->diff($last)->day == 0)
+                {
+                    return $first->format('Y-m-d');
+                }
+
+                return 'less than a month, ' . $first->format('Y-m-d') . ' to ' . $last->format('Y-m-d');
+            }
+
+            return 'about ' . $months . ' months, ' . $first->format('Y-m-d') . ' to ' . $last->format('Y-m-d');
         }
     }
 }

@@ -36,7 +36,7 @@
 						</div>
 						<div class="card-body">
 							<div class="mb-2"><strong>Slug:</strong> {{ $term->slug }}</div>
-							<div class="mb-2"><strong>Range:</strong> {{ $term->FormattedTermDateRange }}</div>
+							<div class="mb-2"><strong>Range:</strong> {{ $term->formattedTermDateRange }}</div>
 						</div>
 					</div>
 
