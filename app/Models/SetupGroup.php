@@ -6,15 +6,42 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use SDamian\Larasort\AutoSortable;
 
 class SetupGroup extends Model
 {
     use HasFactory;
     use SoftDeletes;
+    use AutoSortable;
 
     protected $name;
     protected $week;
     protected $color;
+
+    protected $visible = [
+        'name',
+        'week',
+        'color',
+        'van_drivers',
+        'created_at',
+        'updated_at',
+    ];
+
+    public array $sortables = [
+        'name',
+        'week',
+        'color',
+        'created_at',
+        'updated_at',
+    ];
+
+    public function casts(): array
+    {
+        return [
+            'created_at' => 'datetime',
+            'updated_at' => 'datetime',
+        ];
+    }
 
     protected $fillable = [
         'name',

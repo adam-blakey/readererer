@@ -11,7 +11,7 @@ class StoreSetupGroupRequest extends FormRequest
      */
     public function authorize(): bool
     {
-        return false;
+        return true;
     }
 
     /**
@@ -22,7 +22,9 @@ class StoreSetupGroupRequest extends FormRequest
     public function rules(): array
     {
         return [
-            //
+            'name' => ['required', 'string', 'max:255'],
+            'week' => ['nullable', 'integer', 'min:0', 'max:10'],
+            'color' => ['required', 'string', 'max:50'],
         ];
     }
 }

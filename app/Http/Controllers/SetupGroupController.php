@@ -13,7 +13,13 @@ class SetupGroupController extends Controller
      */
     public function index()
     {
-        //
+        $setupGroups = SetupGroup::whereNull('deleted_at')->autosort()->paginate(10);
+
+        return view('auto-entities.index', [
+            'entities' => $setupGroups,
+            'page_name' => 'Setup groups',
+            'page_subname' => 'Setup groups overview',
+        ]);
     }
 
     /**
@@ -45,7 +51,9 @@ class SetupGroupController extends Controller
      */
     public function edit(SetupGroup $setupGroup)
     {
-        //
+        return view('setup-groups.edit', [
+            'setup_group' => $setupGroup,
+        ]);
     }
 
     /**

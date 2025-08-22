@@ -43,6 +43,12 @@
 	        'auth' => Auth::user()?->can('viewAny', App\Models\Term::class),
 	    ],
 	    [
+	        'title' => 'Setup groups',
+	        'icon' => 'users',
+	        'route' => 'setupgroups.index',
+	        'auth' => Auth::user()?->can('viewAny', App\Models\SetupGroup::class),
+	    ],
+	    [
 	        'title' => 'Users',
 	        'icon' => 'user',
 	        'route' => 'users.index',

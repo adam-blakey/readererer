@@ -8,6 +8,7 @@ use App\Http\Controllers\UserController;
 use App\Http\Controllers\ComposerController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\SetlistController;
+use App\Http\Controllers\SetupGroupController;
 use Illuminate\Support\Facades\Route;
 use App\Models\Piece;
 use App\Models\Composer;
@@ -41,5 +42,6 @@ Route::resource('pieces', PieceController::class)->middleware('auth');
 Route::resource('setlists', SetlistController::class)->middleware('auth');
 Route::resource('terms', TermController::class)->middleware('auth');
 Route::resource('users', UserController::class)->middleware('auth');
+Route::resource('setupgroups', SetupGroupController::class)->middleware('auth');
 
 require __DIR__.'/auth.php';
