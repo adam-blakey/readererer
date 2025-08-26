@@ -45,7 +45,20 @@
     foreach ($paramNames as $p) {
         if (!array_key_exists($p, $inferredParams)) { $canBuild = false; break; }
     }
-    $url = $href ?? ($route && $canBuild ? route($route, $inferredParams) : null);
+    if ($href != null) {
+        $url = $href;
+    }
+    else if ($route && $canBuild) {
+        try {
+            $url = route($route, $inferredParams);
+        }
+        catch (Exception) {
+            $url = null;
+        }
+    }
+    else {
+        $url = null;
+    }
 
     // Infer authorization ability and subject from route name
     $allowed = true;
