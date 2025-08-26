@@ -13,7 +13,13 @@ class PieceController extends Controller
      */
     public function index()
     {
-        $pieces = Piece::whereNull('deleted_at')->with(['composer'])->autosort()->paginate(10);
+        $query = Piece::query();
+        if (request('with_trashed')) {
+            $query = $query->withTrashed();
+        } else {
+            $query = $query->whereNull('deleted_at');
+        }
+        $pieces = $query->with(['composer'])->autosort()->paginate(10)->appends(request()->only('with_trashed'));
 
         return view('auto-entities.index', [
             'entities' => $pieces,
@@ -70,6 +76,26 @@ class PieceController extends Controller
      */
     public function destroy(Piece $piece)
     {
-        //
+        $piece->delete();
+        return redirect()->back()->with('status', 'Record deleted.');
+    }
+
+    public function purgeTrashed()
+    {
+        Piece::onlyTrashed()->get()->each(function ($model) {
+            $model->forceDelete();
+        });
+        return redirect()->back()->with('status', 'All soft-deleted records permanently removed.');
+    }
+
+    public function restore(int $id)
+    {
+        $entity = Piece::withTrashed()->findOrFail($id)->restore();
+
+        // Not sure why this is necessary...
+        $entity->deleted_at = null;
+        $entity->save();
+
+        return redirect()->back()->with('status', 'Restored.');
     }
 }

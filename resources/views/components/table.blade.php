@@ -10,6 +10,8 @@
 			$casts = $entities->first()->casts();
 
 			$edit_route_name = get_route_name_from_model($entities->first(), 'edit');
+            $destroy_route_name = get_route_name_from_model($entities->first(), 'destroy');
+            $restore_route_name = get_route_name_from_model($entities->first(), 'restore');
 			$class_name = get_class_name_from_model($entities->first());
 		@endphp
 
@@ -29,7 +31,8 @@
 							@endif
 						</th>
 					@endforeach
-                    <th>Edit</th>
+					<th>Edit</th>
+                    <th>Archive</th>
 				</tr>
 			</thead>
 			<tbody>
@@ -72,7 +75,7 @@
                                         </div>
                                         <div class="col">
                                             {{ ucfirst($entity->$attribute) }}<br>
-                                            <code>#ffffff</code> <!-- TODO: Get actual hex code -->
+                                            <code>#rrggbb</code> <!-- TODO: Get actual hex code -->
                                         </div>
                                     </div>
 
@@ -80,9 +83,24 @@
 									{{ $entity->$attribute }}
 								@endif
 							</td>
-						@endforeach
-                        <td><x-a :route="$edit_route_name" :model="$entity">Edit</x-a></td>
-					</tr>
+ 					@endforeach
+					<td><x-a :route="$edit_route_name" :model="$entity">Edit</x-a></td>
+                    <td>
+                        @if ($entity->deleted_at != null)
+                            <form method="POST" action="{{ route($restore_route_name, $entity) }}" onsubmit="return confirm('Are you sure you want to unarchive this record?');">
+                                @csrf
+                                @method('PATCH')
+                                <button type="submit" class="btn btn-outline-success btn-sm">Unarchive</button>
+                            </form>
+                        @else
+                            <form method="POST" action="{{ route($destroy_route_name, $entity) }}" onsubmit="return confirm('Are you sure you want to archive this record?');">
+                                @csrf
+                                @method('DELETE')
+                                <button type="submit" class="btn btn-outline-danger btn-sm">Archive</button>
+                            </form>
+                        @endif
+                    </td>
+				</tr>
 				@endforeach
 			</tbody>
 		</table>

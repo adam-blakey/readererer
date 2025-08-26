@@ -21,7 +21,13 @@ class EnsembleController extends Controller
      */
     public function index()
     {
-        $ensembles = Ensemble::whereNull('deleted_at')->with(['admins'])->autosort()->paginate(10);
+        $query = Ensemble::query();
+        if (request('with_trashed')) {
+            $query = $query->withTrashed();
+        } else {
+            $query = $query->whereNull('deleted_at');
+        }
+        $ensembles = $query->with(['admins'])->autosort()->paginate(10)->appends(request()->only('with_trashed'));
 
         return view('auto-entities.index', [
             'entities' => $ensembles,
@@ -72,6 +78,27 @@ class EnsembleController extends Controller
      */
     public function destroy(Ensemble $ensemble)
     {
-        //
+        $ensemble->delete();
+        return redirect()->back()->with('status', 'Record deleted.');
+    }
+
+    public function purgeTrashed()
+    {
+        Ensemble::onlyTrashed()->get()->each(function ($model) {
+            $model->forceDelete();
+        });
+        return redirect()->back()->with('status', 'All soft-deleted records permanently removed.');
+    }
+
+    public function restore(int $id)
+    {
+        $entity = Ensemble::withTrashed()->findOrFail($id);
+        $entity->restore();
+
+        // Not sure why this is necessary...
+        $entity->deleted_at = null;
+        $entity->save();
+
+        return redirect()->back()->with('status', 'Restored.');
     }
 }

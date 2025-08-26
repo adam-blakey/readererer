@@ -14,7 +14,13 @@ class TermController extends Controller
      */
     public function index()
     {
-        $terms = Term::whereNull('deleted_at')->with(['term_dates'])->withCount('term_dates')->autosort()->paginate(10);
+        $query = Term::query();
+        if (request('with_trashed')) {
+            $query = $query->withTrashed();
+        } else {
+            $query = $query->whereNull('deleted_at');
+        }
+        $terms = $query->with(['term_dates'])->withCount('term_dates')->autosort()->paginate(10)->appends(request()->only('with_trashed'));
 
         return view('auto-entities.index', [
             'entities' => $terms,
@@ -113,6 +119,27 @@ class TermController extends Controller
      */
     public function destroy(Term $term)
     {
-        //
+        $term->delete();
+        return redirect()->back()->with('status', 'Record deleted.');
+    }
+
+    public function purgeTrashed()
+    {
+        Term::onlyTrashed()->get()->each(function ($model) {
+            $model->forceDelete();
+        });
+        return redirect()->back()->with('status', 'All soft-deleted records permanently removed.');
+    }
+
+    public function restore(int $id)
+    {
+        $entity = Term::withTrashed()->findOrFail($id);
+        $entity->restore();
+
+        // Not sure why this is necessary...
+        $entity->deleted_at = null;
+        $entity->save();
+
+        return redirect()->back()->with('status', 'Restored.');
     }
 }

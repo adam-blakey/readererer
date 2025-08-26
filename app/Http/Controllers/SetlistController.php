@@ -13,7 +13,13 @@ class SetlistController extends Controller
      */
     public function index()
     {
-        $setlists = Setlist::whereNull('deleted_at')->autosort()->paginate(10);
+        $query = Setlist::query();
+        if (request('with_trashed')) {
+            $query = $query->withTrashed();
+        } else {
+            $query = $query->whereNull('deleted_at');
+        }
+        $setlists = $query->autosort()->paginate(10)->appends(request()->only('with_trashed'));
 
         return view('auto-entities.index', [
             'entities' => $setlists,
@@ -67,6 +73,27 @@ class SetlistController extends Controller
      */
     public function destroy(Setlist $setlist)
     {
-        //
+        $setlist->delete();
+        return redirect()->back()->with('status', 'Record deleted.');
+    }
+
+    public function purgeTrashed()
+    {
+        Setlist::onlyTrashed()->get()->each(function ($model) {
+            $model->forceDelete();
+        });
+        return redirect()->back()->with('status', 'All soft-deleted records permanently removed.');
+    }
+
+    public function restore(int $id)
+    {
+        $entity = Setlist::withTrashed()->findOrFail($id);
+        $entity->restore();
+
+        // Not sure why this is necessary...
+        $entity->deleted_at = null;
+        $entity->save();
+
+        return redirect()->back()->with('status', 'Restored.');
     }
 }

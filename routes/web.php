@@ -37,11 +37,18 @@ Route::post('/attendance/poll/{ensemble:slug}/{term:slug}', [AttendanceControlle
     ->can('create', Attendance::class);
 
 Route::resource('composers', ComposerController::class)->middleware('auth');
+Route::patch('/composers/{composer}/restore', [ComposerController::class, 'restore'])->name('composers.restore')->middleware('auth');
 Route::resource('ensembles', EnsembleController::class)->middleware('auth');
+Route::patch('/ensembles/{ensemble}/restore', [EnsembleController::class, 'restore'])->name('ensembles.restore')->middleware('auth');
 Route::resource('pieces', PieceController::class)->middleware('auth');
+Route::patch('/pieces/{piece}/restore', [PieceController::class, 'restore'])->name('pieces.restore')->middleware('auth');
 Route::resource('setlists', SetlistController::class)->middleware('auth');
+Route::patch('/setlists/{setlist}/restore', [SetlistController::class, 'restore'])->name('setlists.restore')->middleware('auth');
 Route::resource('terms', TermController::class)->middleware('auth');
+Route::patch('/terms/{term}/restore', [TermController::class, 'restore'])->name('terms.restore')->middleware('auth');
 Route::resource('users', UserController::class)->middleware('auth');
+Route::patch('/users/{user}/restore', [UserController::class, 'restore'])->name('users.restore')->middleware('auth');
 Route::resource('setupgroups', SetupGroupController::class)->middleware('auth');
+Route::patch('/setupgroups/{setupgroup}/restore', [SetupGroupController::class, 'restore'])->name('setupgroups.restore')->middleware('auth');
 
 require __DIR__.'/auth.php';

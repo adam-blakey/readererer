@@ -11,7 +11,13 @@ class UserController extends Controller
      */
     public function index()
     {
-        $users = User::whereNull('deleted_at')->autosort()->paginate(10);
+        $query = User::query();
+        if (request('with_trashed')) {
+            $query = $query->withTrashed();
+        } else {
+            $query = $query->whereNull('deleted_at');
+        }
+        $users = $query->autosort()->paginate(10)->appends(request()->only('with_trashed'));
 
         return view('auto-entities.index', [
             'entities' => $users,
@@ -33,5 +39,22 @@ class UserController extends Controller
             'instrumentFamilies' => $instrumentFamilies,
             'page_name' => $user->name
         ]);
+    }
+    public function destroy(User $user)
+    {
+        $user->delete();
+        return redirect()->back()->with('status', 'Record deleted.');
+    }
+
+    public function restore(int $userId)
+    {
+        $user = User::withTrashed()->findOrFail($userId);
+        $user->restore();
+
+        // Not sure why this is necessary...
+        $user->deleted_at = null;
+        $user->save();
+
+        return redirect()->back()->with('status', 'User restored.');
     }
 }
