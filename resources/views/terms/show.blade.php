@@ -32,41 +32,80 @@
 				<div class="col">
 					<div class="mb-3 card">
 						<div class="card-header">
-							<h2 class="mb-0 card-heading">Term details</h2>
-						</div>
-						<div class="card-body">
-							<div class="mb-2"><strong>Slug:</strong> {{ $term->slug }}</div>
-							<div class="mb-2"><strong>Range:</strong> {{ $term->formattedTermDateRange }}</div>
-						</div>
-					</div>
-
-					<div class="mb-3 card">
-						<div class="card-header">
 							<h2 class="mb-0 card-heading">All dates</h2>
 						</div>
 						<div class="card-body">
-							@if(($term->term_dates?->count() ?? 0) === 0)
-								Nothing scheduled.
-							@else
-								@foreach($term->term_dates->sortBy('start_datetime') as $td)
-									<div class="mb-2">
-										{{ $td->name }}
-                                        @if($td->concert_ensemble_id)
-                                            <span class="badge bg-green text-green-fg ms-2">Concert @if($td->concert_ensemble) ({{ $td->concert_ensemble->name }}) @endif</span>
-                                        @else
-                                            <span class="badge bg-gray text-muted ms-2">Rehearsal</span>
-                                        @endif
-                                        @if ($td->setup_group != null)
-                                            <x-setup-group-badge :setup_group="$td->setup_group" />
-                                        @endif
-                                        @if($td->inferred_van_driver == null)
-                                            <span class="badge bg-red text-red-fg ms-2">No van driver!</span>
-                                        @else
-                                            <span class="badge bg-info text-info-fg ms-2">Van: {{ ($td->inferred_van_driver == null) ? 'None' : $td->inferred_van_driver->name }}</span>
-                                        @endif
-									</div>
-								@endforeach
-							@endif
+                            @if(($term->term_dates?->count() ?? 0) === 0)
+                                Nothing scheduled.
+                            @else
+                                <div class="accordion" id="term-date-accordion">
+                                    @foreach($term->term_dates->sortBy('start_datetime') as $td)
+                                        <div class="accordion-item">
+                                            <div class="accordion-header">
+                                                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapse-{{ $td->id }}-default" aria-expanded="false">
+                                                    @if($td->start_datetime->isPast())
+                                                        <strike>{{ $td->name }}</strike>
+                                                    @else
+                                                        {{ $td->name }}
+                                                    @endif
+                                                    @if($td->concert_ensemble_id)
+                                                        <span class="badge bg-green text-green-fg ms-2">Concert @if($td->concert_ensemble) ({{ $td->concert_ensemble->name }}) @endif</span>
+                                                    @else
+                                                        <span class="badge bg-gray text-muted mx-2">Rehearsal</span>
+                                                    @endif
+                                                    @if ($td->setup_group != null)
+                                                        <x-setup-group-badge :setup_group="$td->setup_group" />
+                                                    @endif
+                                                    @if($td->inferred_van_driver == null)
+                                                        <span class="badge bg-red text-red-fg ms-2">No van driver!</span>
+                                                    @else
+                                                        <span class="badge bg-info text-info-fg ms-2">Van: {{ ($td->inferred_van_driver == null) ? 'None' : $td->inferred_van_driver->name }}</span>
+                                                    @endif
+                                                </button>
+                                            </div>
+                                            <div id="collapse-{{ $td->id }}-default" class="accordion-collapse collapse" data-bs-parent="#term-date-accordion">
+                                                <div class="accordion-body">
+                                                    <div class="mb-2">
+                                                        <div>
+                                                            <x-icon name="user-edit" /><strong>Attending: </strong> 0
+                                                        </div>
+                                                        <div>
+                                                            <x-icon name="user-off" /><strong>Absent: </strong> 0
+                                                        </div>
+                                                        <div>
+                                                            <x-icon name="mail" /><strong>Email history: </strong>
+                                                            <div class="mx-2">
+                                                                <div><x-icon name="check" /> Setup reminder to Group B: about 2 days ago</div>
+                                                                <div><x-icon name="alert-square" />Failed setup reminder to Ensemble A: about 1 day ago</div>
+                                                                <div><x-icon name="check" />Setup reminder to Ensemble A: 34 minutes ago</div>
+                                                                <div><x-icon name="check" />Setup reminder to Group B: 34 minutes ago</div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+
+                                                    <!-- TODO: Obviously these need to work. -->
+                                                    <div class="btn-list">
+                                                        <a class="btn bg-green text-green-fg">
+                                                            <x-icon name="send" />
+                                                            Resend setup reminder
+                                                            <div class="badge bg-white text-white-fg ms-2">sent Thu 8:00</div>
+                                                        </a>
+                                                        <a class="btn bg-info text-info-fg">
+                                                            <x-icon name="send" />
+                                                            Send van reminder now
+                                                            <div class="badge bg-white text-white-fg ms-2">scheduled Fri 19:00</div>
+                                                        </a>
+                                                        <a class="btn bg-red text-red-fg">
+                                                            <x-icon name="armchair" />
+                                                            View seating plan
+                                                        </a>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    @endforeach
+                                </div>
+                            @endif
 						</div>
 					</div>
 				</div>
@@ -74,10 +113,14 @@
 					<div class="row row-cards">
 						<div class="col-12">
 							<div class="card">
+                                <div class="card-header">
+                                    <h2 class="mb-0 card-heading">Term details</h2>
+                                </div>
 								<div class="card-body">
-									<div class="card-title">Details</div>
-									<div class="mb-2">Created {{ $term->created_at?->diffForHumans() }}</div>
-									<div class="mb-2">Updated {{ $term->updated_at?->diffForHumans() }}</div>
+									<div class="mb-2"><strong>Created:</strong> {{ $term->created_at?->diffForHumans() }}</div>
+									<div class="mb-2"><strong>Updated:</strong> {{ $term->updated_at?->diffForHumans() }}</div>
+                                    <div class="mb-2"><strong>Slug:</strong> {{ $term->slug }}</div>
+                                    <div class="mb-2"><strong>Range:</strong> {{ $term->formattedTermDateRange }}</div>
 								</div>
 							</div>
 						</div>
