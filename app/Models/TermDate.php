@@ -54,6 +54,10 @@ class TermDate extends Model
             ->count();
         $vanDriversCount = $this->setup_group->van_drivers->count();
 
+        if ($vanDriversCount == 0) {
+            return null;
+        }
+
         return $this->setup_group->van_drivers->get($previousCount % $vanDriversCount);
     }
 

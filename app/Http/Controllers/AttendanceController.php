@@ -19,8 +19,11 @@ class AttendanceController extends Controller
     public function index()
     {
         $attendances = Attendance::with(['user', 'edit_user', 'term_date'])
-        ->orderBy('created_at', 'DESC')
-        ->paginate(10);
+            ->whereRelation('user', 'deleted_at', null)
+            ->whereRelation('edit_user', 'deleted_at', null)
+            ->whereRelation('term_date', 'deleted_at', null)
+            ->orderBy('created_at', 'DESC')
+            ->paginate(10);
 
         return view('attendances.index', [
             'attendances' => $attendances,

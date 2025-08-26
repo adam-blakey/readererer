@@ -58,14 +58,18 @@
 											{{ $entity->$attribute }}
 									@endswitch
 								@elseif ($entity->$attribute instanceof Illuminate\Support\Collection)
-									@foreach ($entity->$attribute as $item)
-										@if (class_exists(get_class($item)))
-											<x-clickable-model :model="$item" />
-										@else
-											{{ $item }}
-										@endif
-										{{ $loop->last ? '' : ',' }}
-									@endforeach
+                                    @if ($entity->$attribute->count() == 0)
+                                        -
+                                    @else
+                                        @foreach ($entity->$attribute as $item)
+                                            @if (class_exists(get_class($item)))
+                                                <x-clickable-model :model="$item" />
+                                            @else
+                                                {{ $item }}
+                                            @endif
+                                            {{ $loop->last ? '' : ',' }}
+                                        @endforeach
+                                    @endif
 								@elseif (gettype($entity->$attribute) == 'object' and class_exists(get_class($entity->$attribute)))
 									<x-clickable-model :model="$entity->$attribute" />
                                 @elseif (str_contains($attribute, 'color'))
