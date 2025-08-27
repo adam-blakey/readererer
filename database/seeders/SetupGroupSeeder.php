@@ -14,7 +14,7 @@ class SetupGroupSeeder extends Seeder
      */
     public function run(): void
     {
-        $colors = ['blue', 'red', 'green', 'yellow'];
+        $colors = ['purple', 'yellow', 'azure', 'teal'];
         for ($i = 1; $i <= 4; $i++)
         {
             $setupGroup = SetupGroup::factory()->create([

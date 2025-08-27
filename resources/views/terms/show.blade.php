@@ -85,19 +85,19 @@
 
                                                     <!-- TODO: Obviously these need to work. -->
                                                     <div class="btn-list">
-                                                        <a class="btn bg-green text-green-fg">
-                                                            <x-icon name="send" />
-                                                            Resend setup reminder
-                                                            <div class="badge bg-white text-white-fg ms-2">sent Thu 8:00</div>
+                                                        <a class="btn bg-orange text-orange-fg">
+                                                            <x-icon name="list-check" />
+                                                            Send attendance list now
+                                                            <div class="badge bg-white text-white-fg ms-2">scheduled Sun 8:00</div>
                                                         </a>
-                                                        <a class="btn bg-info text-info-fg">
-                                                            <x-icon name="send" />
-                                                            Send van reminder now
-                                                            <div class="badge bg-white text-white-fg ms-2">scheduled Fri 19:00</div>
-                                                        </a>
-                                                        <a class="btn bg-red text-red-fg">
+                                                        <a class="btn bg-orange text-orange-fg">
                                                             <x-icon name="armchair" />
                                                             View seating plan
+                                                        </a>
+                                                        <a class="btn bg-info text-info-fg">
+                                                            <x-icon name="bell-ringing" />
+                                                            Resend setup reminder
+                                                            <div class="badge bg-white text-white-fg ms-2">sent Thu 8:00</div>
                                                         </a>
                                                     </div>
                                                 </div>
