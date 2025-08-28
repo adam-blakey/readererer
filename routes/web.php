@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\PieceController;
 use App\Http\Controllers\EnsembleController;
+use App\Http\Controllers\SeatingPlanPdfController;
 use App\Http\Controllers\TermController;
 use App\Http\Controllers\AttendanceController;
 use App\Http\Controllers\UserController;
@@ -50,5 +51,7 @@ Route::resource('users', UserController::class)->middleware('auth');
 Route::patch('/users/{user}/restore', [UserController::class, 'restore'])->name('users.restore')->middleware('auth');
 Route::resource('setupgroups', SetupGroupController::class)->middleware('auth');
 Route::patch('/setupgroups/{setupgroup}/restore', [SetupGroupController::class, 'restore'])->name('setupgroups.restore')->middleware('auth');
+
+Route::get('/seating-plan/{ensemble:slug}/{termdate:id}', [SeatingPlanPdfController::class, 'show'])->name('seating-plan.show');
 
 require __DIR__.'/auth.php';
