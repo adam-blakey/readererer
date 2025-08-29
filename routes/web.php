@@ -52,6 +52,6 @@ Route::patch('/users/{user}/restore', [UserController::class, 'restore'])->name(
 Route::resource('setupgroups', SetupGroupController::class)->middleware('auth');
 Route::patch('/setupgroups/{setupgroup}/restore', [SetupGroupController::class, 'restore'])->name('setupgroups.restore')->middleware('auth');
 
-Route::get('/seating-plan/{ensemble:slug}/{termdate:id}', [SeatingPlanPdfController::class, 'show'])->name('seating-plan.show');
+Route::get('/seating-plan/{ensemble:slug}/{termDate:id}', [SeatingPlanPdfController::class, 'show'])->name('seating-plan.show')->withoutScopedBindings();
 
 require __DIR__.'/auth.php';

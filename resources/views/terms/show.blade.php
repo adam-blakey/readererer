@@ -90,10 +90,11 @@
                                                             Send attendance list now
                                                             <div class="badge bg-white text-white-fg ms-2">scheduled Sun 8:00</div>
                                                         </a>
-                                                        <a class="btn bg-orange text-orange-fg">
+                                                        <!-- TODO: This currently just gets for the first ensemble. -->
+                                                        <x-a class="btn bg-orange text-orange-fg" href="{{ route('seating-plan.show', ['ensemble' => \App\Models\Ensemble::first(), 'termDate' => $td]) }}" target="_blank">
                                                             <x-icon name="armchair" />
                                                             View seating plan
-                                                        </a>
+                                                        </x-a>
                                                         <a class="btn bg-info text-info-fg disabled">
                                                             <x-icon name="bell-ringing" />
                                                             Resend setup reminder

@@ -36,7 +36,7 @@ class EnsembleSeeder extends Seeder
             shuffle($users);
 
             for ($i = 0; $i < $no_users; $i++) {
-                $ensemble->users()->attach(array_pop($users), ['instrument_family_id' => $instrument_families->random()->id, 'seat_column' => chr(rand(1, 10)+65), 'seat_row' => rand(1, 10)]);
+                $ensemble->users()->attach(array_pop($users), ['instrument_family_id' => $instrument_families->random()->id, 'seat_row' => chr(rand(1, 5)+65), 'seat_column' => rand(1, 10)]);
             }
         });
 
