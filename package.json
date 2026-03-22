@@ -14,7 +14,7 @@
         "vite": "^5.0"
     },
     "dependencies": {
-        "@tabler/core": "^1.0.0-beta20",
+        "@tabler/core": "^1.4.0",
         "apexcharts": "^3.50.0",
         "autoprefixer": "^10.4.19",
         "autosize": "^6.0.1",
