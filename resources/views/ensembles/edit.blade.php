@@ -56,11 +56,18 @@
 				</div>
 				<div class="col-lg-6">
 					<div class="mb-3 card">
-						<div class="card-header">
-							<h2 class="mb-0 card-heading">Edit members</h2>
-						</div>
+                        <div class="card-header">
+                            <h2 class="mb-0 card-heading">Edit members ({{ count($ensemble->users) }})</h2>
+                            <div class="card-actions">
+                                <a href="#" class="btn btn-primary btn-3" data-bs-toggle="modal" data-bs-target="#modal-add-user-ensemble">
+                                    Add user
+                                </a>
+                            </div>
+                        </div>
 						<div class="card-body">
-
+                            @foreach($ensemble->users as $user)
+                                <x-user-entry :user="$user" :remove_from_ensemble="$ensemble" :secondary_info="$user->membership($ensemble)" />
+                            @endforeach
 						</div>
 					</div>
 				</div>
@@ -68,3 +75,5 @@
 		</div>
 	</div>
 </x-layout>
+
+<x-modals.add-user-ensemble :ensemble="$ensemble" />

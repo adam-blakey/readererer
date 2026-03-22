@@ -207,4 +207,29 @@ class User extends Authenticatable
     {
         return $this->last_name[0];
     }
+
+    public function membership($ensemble): string {
+        $pivot = $this->ensembles->firstWhere('id', $ensemble->id)->pivot;
+        if (!$pivot) {
+            return "Not a member";
+        }
+
+        // TODO: Obvs this is terrible.
+        $instrument_family = InstrumentFamily::where('id', $pivot->instrument_family_id)->first();
+        $instrument_name = ($instrument_family) ? $instrument_family->name : '';
+
+        $seat_name = $pivot->seat_row . $pivot->seat_column;
+
+        if (!$instrument_name && !$seat_name) {
+            return "No membership information";
+        }
+        elseif ($instrument_name && !$seat_name) {
+            return $instrument_name;
+        }
+        elseif (!$instrument_name && $seat_name) {
+            return $seat_name;
+        }
+
+        return $seat_name . " in " . $instrument_name;
+    }
 }

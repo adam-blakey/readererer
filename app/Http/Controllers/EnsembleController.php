@@ -6,6 +6,8 @@ use App\Models\Ensemble;
 use App\Http\Requests\StoreEnsembleRequest;
 use App\Http\Requests\UpdateEnsembleRequest;
 use App\Models\Term;
+use App\Models\User;
+use App\Models\UserEnsemble;
 use App\ShowEnsemble;
 use Illuminate\Support\Carbon;
 
@@ -100,5 +102,34 @@ class EnsembleController extends Controller
         $entity->save();
 
         return redirect()->back()->with('status', 'Restored.');
+    }
+
+    public function add_user(Ensemble $ensemble)
+    {
+        $validated = request()->validate([
+            'user_id' => 'required|exists:users,id',
+            'instrument_family_id' => 'required|exists:instrument_families,id',
+            'seat_row' => 'nullable|string|max:10',
+            'seat_column' => 'nullable|string|max:10',
+        ]);
+
+        $ensemble->users()->attach($validated['user_id'], [
+            'instrument_family_id' => $validated['instrument_family_id'],
+            'seat_row' => $validated['seat_row'],
+            'seat_column' => $validated['seat_column'],
+        ]);
+
+        return redirect()->back()->with('status', 'User added to ensemble.');
+    }
+
+    public function remove_user(Ensemble $ensemble, User $user)
+    {
+        $pivot = UserEnsemble::where('user_id', $user->id)
+            ->where('ensemble_id', $ensemble->id)
+            ->firstOrFail();
+
+        $pivot->delete();
+
+        return redirect()->back()->with('status', 'User removed from ensemble.');
     }
 }

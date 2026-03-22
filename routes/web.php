@@ -41,6 +41,8 @@ Route::resource('composers', ComposerController::class)->middleware('auth');
 Route::patch('/composers/{composer}/restore', [ComposerController::class, 'restore'])->name('composers.restore')->middleware('auth');
 Route::resource('ensembles', EnsembleController::class)->middleware('auth');
 Route::patch('/ensembles/{ensemble}/restore', [EnsembleController::class, 'restore'])->name('ensembles.restore')->middleware('auth');
+Route::post('/ensembles/{ensemble}/add_user', [EnsembleController::class, 'add_user'])->name('ensembles.add_user')->middleware('auth');
+Route::post('/ensembles/{ensemble}/remove_user/{user}', [EnsembleController::class, 'remove_user'])->name('ensembles.remove_user')->middleware('auth');
 Route::resource('pieces', PieceController::class)->middleware('auth');
 Route::patch('/pieces/{piece}/restore', [PieceController::class, 'restore'])->name('pieces.restore')->middleware('auth');
 Route::resource('setlists', SetlistController::class)->middleware('auth');
