@@ -5,9 +5,13 @@ namespace App\Http\Controllers;
 use App\Http\Requests\StoreSetlistRequest;
 use App\Http\Requests\UpdateSetlistRequest;
 use App\Models\Setlist;
-
 class SetlistController extends Controller
 {
+    public function __construct()
+    {
+        $this->authorizeResource(Setlist::class);
+    }
+
     /**
      * Display a listing of the resource.
      */

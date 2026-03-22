@@ -14,10 +14,6 @@ class PiecePolicy
      */
     public function viewAny(User $user)
     {
-        if ($user->role->value >= UserRole::Admin->value) {
-            return Response::allow();
-        }
-
         return Response::deny();
     }
 
@@ -26,10 +22,6 @@ class PiecePolicy
      */
     public function view(User $user, Piece $piece)
     {
-        if ($user->role->value >= UserRole::Admin->value) {
-            return Response::allow();
-        }
-
         return Response::deny();
     }
 
@@ -50,10 +42,6 @@ class PiecePolicy
      */
     public function update(User $user, Piece $piece)
     {
-        if ($user->role->value >= UserRole::Admin->value) {
-            return Response::allow();
-        }
-
         return Response::deny();
     }
 
@@ -62,10 +50,6 @@ class PiecePolicy
      */
     public function delete(User $user, Piece $piece)
     {
-        if ($user->role->value >= UserRole::Admin->value) {
-            return Response::allow();
-        }
-
         return Response::deny();
     }
 
@@ -74,10 +58,6 @@ class PiecePolicy
      */
     public function restore(User $user, Piece $piece)
     {
-        if ($user->role->value >= UserRole::Admin->value) {
-            return Response::allow();
-        }
-
         return Response::deny();
     }
 
@@ -86,10 +66,6 @@ class PiecePolicy
      */
     public function forceDelete(User $user, Piece $piece)
     {
-        if ($user->role->value >= UserRole::Admin->value) {
-            return Response::allow();
-        }
-
         return Response::deny();
     }
 }

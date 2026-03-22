@@ -8,6 +8,11 @@ use App\Http\Requests\UpdatePieceRequest;
 
 class PieceController extends Controller
 {
+    public function __construct()
+    {
+        $this->authorizeResource(Piece::class);
+    }
+
     /**
      * Display a listing of the resource.
      */

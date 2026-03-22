@@ -14,10 +14,6 @@ class ComposerPolicy
      */
     public function viewAny(User $user)
     {
-        if ($user->role->value >= UserRole::Admin->value) {
-            return Response::allow();
-        }
-
         return Response::deny();
     }
 
@@ -26,10 +22,6 @@ class ComposerPolicy
      */
     public function view(User $user, Composer $composer)
     {
-        if ($user->role->value >= UserRole::Admin->value) {
-            return Response::allow();
-        }
-
         return Response::deny();
     }
 
@@ -38,10 +30,6 @@ class ComposerPolicy
      */
     public function create(User $user)
     {
-        if ($user->role->value >= UserRole::Admin->value) {
-            return Response::allow();
-        }
-
         return Response::deny();
     }
 
@@ -50,10 +38,6 @@ class ComposerPolicy
      */
     public function update(User $user, Composer $composer)
     {
-        if ($user->role->value >= UserRole::Admin->value) {
-            return Response::allow();
-        }
-
         return Response::deny();
     }
 
@@ -62,10 +46,6 @@ class ComposerPolicy
      */
     public function delete(User $user, Composer $composer)
     {
-        if ($user->role->value >= UserRole::Admin->value) {
-            return Response::allow();
-        }
-
         return Response::deny();
     }
 
@@ -74,10 +54,6 @@ class ComposerPolicy
      */
     public function restore(User $user, Composer $composer)
     {
-        if ($user->role->value >= UserRole::Admin->value) {
-            return Response::allow();
-        }
-
         return Response::deny();
     }
 
@@ -86,10 +62,6 @@ class ComposerPolicy
      */
     public function forceDelete(User $user, Composer $composer)
     {
-        if ($user->role->value >= UserRole::Admin->value) {
-            return Response::allow();
-        }
-
         return Response::deny();
     }
 }

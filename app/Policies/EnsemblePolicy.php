@@ -96,4 +96,22 @@ class EnsemblePolicy
 
         return Response::deny();
     }
+
+    public function addUser(Ensemble $ensemble, User $user)
+    {
+        if ($user->role->value >= UserRole::Admin->value) {
+            return Response::allow();
+        }
+
+        return Response::deny();
+    }
+
+    public function removeUser(Ensemble $ensemble, User $user)
+    {
+        if ($user->role->value >= UserRole::Admin->value) {
+            return Response::allow();
+        }
+
+        return Response::deny();
+    }
 }

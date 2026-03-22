@@ -14,10 +14,6 @@ class SetlistPolicy
      */
     public function viewAny(User $user)
     {
-        if ($user->role->value >= UserRole::Admin->value) {
-            return Response::allow();
-        }
-
         return Response::deny();
     }
 
@@ -26,10 +22,6 @@ class SetlistPolicy
      */
     public function view(User $user, Setlist $setlist)
     {
-        if ($user->role->value >= UserRole::Admin->value) {
-            return Response::allow();
-        }
-
         return Response::deny();
     }
 
@@ -38,10 +30,6 @@ class SetlistPolicy
      */
     public function create(User $user)
     {
-        if ($user->role->value >= UserRole::Admin->value) {
-            return Response::allow();
-        }
-
         return Response::deny();
     }
 
@@ -50,10 +38,6 @@ class SetlistPolicy
      */
     public function update(User $user, Setlist $setlist)
     {
-        if ($user->role->value >= UserRole::Admin->value) {
-            return Response::allow();
-        }
-
         return Response::deny();
     }
 
@@ -74,10 +58,6 @@ class SetlistPolicy
      */
     public function restore(User $user, Setlist $setlist)
     {
-        if ($user->role->value >= UserRole::Admin->value) {
-            return Response::allow();
-        }
-
         return Response::deny();
     }
 
@@ -86,10 +66,6 @@ class SetlistPolicy
      */
     public function forceDelete(User $user, Setlist $setlist)
     {
-        if ($user->role->value >= UserRole::Admin->value) {
-            return Response::allow();
-        }
-
         return Response::deny();
     }
 }

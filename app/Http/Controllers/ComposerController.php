@@ -8,6 +8,11 @@ use App\Http\Requests\UpdateComposerRequest;
 
 class ComposerController extends Controller
 {
+    public function __construct()
+    {
+        $this->authorizeResource(Composer::class);
+    }
+
     /**
      * Display a listing of the resource.
      */
