@@ -13,11 +13,12 @@
 		<div class="mt-1 small text-muted">{{ $secondary_info }}</div>
 	</div>
     @if ($remove_from_ensemble != null)
-        <!-- TODO: Obvs style nice with button flush on the right -->
-        <form method="POST" action="{{ route('ensembles.remove_user', [$remove_from_ensemble, $user]) }}" onsubmit="return confirm('Are you sure you want to archive this record?');">
-            @csrf
-            @method('POST')
-            <button type="submit" class="btn btn-outline-danger btn-sm">Remove</button>
-        </form>
+        <div class="ms-auto align-self-center">
+            <form method="POST" action="{{ route('ensembles.remove_user', [$remove_from_ensemble, $user]) }}" onsubmit="return confirm('Are you sure you want to archive this record?');" onclick="event.stopPropagation()">
+                @csrf
+                @method('POST')
+                <button type="submit" class="btn btn-outline-danger btn-sm">Remove</button>
+            </form>
+        </div>
     @endif
 </a>
