@@ -1,8 +1,4 @@
-@props([
-    'href' => null,   // Direct URL (string)
-    'route' => null,  // Route name (string)
-    // 'params' and 'can' are intentionally omitted; they are inferred automatically.
-])
+@props(['href' => null, 'route' => null, 'tabindex' => null])
 
 @php
     use Illuminate\Support\Facades\Gate;
@@ -102,9 +98,9 @@
 @endphp
 
 @if ($url && $allowed)
-    <a href="{{ $url }}" {{ $attributes->merge(['class' => $baseClasses]) }}>{{ $slot }}</a>
+    <a href="{{ $url }}" {{ $attributes->merge(['class' => $baseClasses]) }} tabindex="{{ $tabindex }}">{{ $slot }}</a>
 @elseif ($url && !$allowed)
-    <span aria-disabled="true" {{ $attributes->merge(['class' => $disabledClasses]) }}>{{ $slot }}</span>
+    <span aria-disabled="true" {{ $attributes->merge(['class' => $disabledClasses]) }} tabindex="{{ $tabindex }}">{{ $slot }}</span>
 @else
-    <span {{ $attributes->merge(['class' => $baseClasses]) }}>{{ $slot }}</span>
+    <span {{ $attributes->merge(['class' => $baseClasses]) }} tabindex="{{ $tabindex }}">{{ $slot }}</span>
 @endif

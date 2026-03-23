@@ -29,7 +29,7 @@
 									<label class="form-label" for="password">
 										{{ __('Password') }}
 										<span class="form-label-description">
- 										<x-a :route="'password.request'">{{ __('I forgot password') }}</x-a>
+ 										<x-a :route="'password.request'" tabindex="9999">{{ __('I forgot password') }}</x-a>
 										</span>
 									</label>
 									<div class="input-group input-group-flat">
