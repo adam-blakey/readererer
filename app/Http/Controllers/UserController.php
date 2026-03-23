@@ -31,9 +31,12 @@ class UserController extends Controller
 
     public function create(): View
     {
+        $fields = get_create_fields(new User);
+
         return view('auto-entities.create', [
             'page_name' => 'Users',
-            'page_subname' => 'Create new user'
+            'page_subname' => 'Create new user',
+            'fields' => $fields
         ]);
     }
 

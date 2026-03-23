@@ -1,4 +1,4 @@
-@props(['page_name', 'page_subname'])
+@props(['fields', 'page_name', 'page_subname'])
 
 <x-layout :$page_name :$page_subname>
     <div class="container-xl">
@@ -12,6 +12,20 @@
                     </div>
                     <div class="card-body">
                         <form class="space-y">
+                            @foreach($fields as $field)
+                                <!-- TODO: row stuff based upon a counter <div class="row"> -->
+                                <!-- TODO: switch upon different field types -->
+                                <div class="col-md-6">
+                                    <label @class(['col-3', 'col-form-label', 'required' => $field['required']])>{{ $field['label'] }}</label>
+                                    <div class="input-icon">
+                                        <span class="input-icon-addon">
+                                            <x-icon :name="$field['icon']" />
+                                        </span>
+                                        <input name="{{ $field['name'] }}" type="text" @class(['form-control', 'required' => $field['required']]) placeholder="{{ $field['label'] }}" @required($field['required'])>
+                                    </div>
+                                </div>
+                            @endforeach
+
                             <div>
                                 <div class="input-icon">
 		                            <span class="input-icon-addon">
