@@ -3,6 +3,9 @@
 namespace App\Http\Controllers;
 
 use App\Models\User;
+use Illuminate\Http\RedirectResponse;
+use Illuminate\Http\Request;
+use Illuminate\View\View;
 
 class UserController extends Controller
 {
@@ -23,6 +26,21 @@ class UserController extends Controller
             'entities' => $users,
             'page_name' => 'Users',
             'page_subname' => 'Users overview'
+        ]);
+    }
+
+    public function create(): View
+    {
+        return view('auto-entities.create', [
+            'page_name' => 'Users',
+            'page_subname' => 'Create new user'
+        ]);
+    }
+
+    public function store(Request $request): RedirectResponse
+    {
+        $request->validate([
+            // TODO: lots of details
         ]);
     }
 

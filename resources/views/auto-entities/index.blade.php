@@ -13,6 +13,12 @@
                                 <span class="form-check-label">Show archived</span>
                             </label>
                         </form>
+                        <!-- TODO: align right and fix weird alignment -->
+                        <div class="card-actions">
+                            <x-a :route="'users.create'" class="btn btn-primary">
+                                Add user
+                            </x-a>
+                        </div>
                     </div>
 					<x-table :$entities />
 				</x-card>
