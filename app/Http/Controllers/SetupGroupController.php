@@ -3,8 +3,10 @@
 namespace App\Http\Controllers;
 
 use App\Models\SetupGroup;
-use App\Http\Requests\StoreSetupGroupRequest;
 use App\Http\Requests\UpdateSetupGroupRequest;
+use Illuminate\Http\RedirectResponse;
+use Illuminate\Http\Request;
+use Illuminate\View\View;
 
 class SetupGroupController extends Controller
 {
@@ -25,23 +27,69 @@ class SetupGroupController extends Controller
             'entities' => $setupGroups,
             'page_name' => 'Setup groups',
             'page_subname' => 'Setup groups overview',
+            'create_entity' => [
+                'route' => 'setupgroups.create',
+                'name' => 'setup group'
+            ]
         ]);
     }
 
     /**
      * Show the form for creating a new resource.
      */
-    public function create()
+    public function create(): View
     {
-        //
+        //$fields = get_create_fields(new User);
+        $fields = [
+            [
+                "name" => "name",
+                "label" => "Name",
+                "type" => "text",
+                "required" => true,
+                "icon" => "pencil",
+                "width" => 12
+            ],
+            [
+                "name" => "week",
+                "label" => "Week",
+                "type" => "text",
+                "required" => true,
+                "icon" => "pencil",
+                "width" => 6
+            ],
+            [
+                "name" => "color",
+                "label" => "Color",
+                "type" => "text",
+                "required" => true,
+                "icon" => "pencil",
+                "width" => 6
+            ]
+        ];
+
+        return view('auto-entities.create', [
+            'page_name' => 'Setup groups',
+            'page_subname' => 'Create new setup group',
+            'fields' => $fields,
+            'create_route' => route('setupgroups.store')
+        ]);
     }
 
     /**
      * Store a newly created resource in storage.
      */
-    public function store(StoreSetupGroupRequest $request)
+    public function store(Request $request): RedirectResponse
     {
-        //
+        // TODO: better validation; maybe automatic somehow?
+        $attributes = $request->validate([
+            'name' => 'required',
+            'week' => 'required',
+            'color' => 'required',
+        ]);
+
+        $setup_group = SetupGroup::create($attributes);
+
+        return to_route('setupgroups.show', $setup_group);
     }
 
     /**

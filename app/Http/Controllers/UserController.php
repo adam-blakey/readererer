@@ -28,7 +28,11 @@ class UserController extends Controller
         return view('auto-entities.index', [
             'entities' => $users,
             'page_name' => 'Users',
-            'page_subname' => 'Users overview'
+            'page_subname' => 'Users overview',
+            'create_entity' => [
+                'route' => 'users.create',
+                'name' => 'user'
+            ]
         ]);
     }
 
@@ -75,7 +79,8 @@ class UserController extends Controller
         return view('auto-entities.create', [
             'page_name' => 'Users',
             'page_subname' => 'Create new user',
-            'fields' => $fields
+            'fields' => $fields,
+            'create_route' => route('users.store')
         ]);
     }
 

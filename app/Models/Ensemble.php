@@ -37,6 +37,11 @@ class Ensemble extends Model
         'updated_at',
     ];
 
+    protected $fillable = [
+        'name',
+        'slug'
+    ];
+
     public function casts(): array
     {
         return [

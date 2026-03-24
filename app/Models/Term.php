@@ -19,9 +19,12 @@ class Term extends Model
     protected string $slug;
     protected string $image;
 
+    // TODO: ideally we'd shorten some of these to friendly names when in tables.
     protected $visible = [
         'name',
         'slug',
+        'number_of_rehearsals',
+        'number_of_concerts',
         'earliest_date',
         'latest_date',
         'created_at',
@@ -56,26 +59,41 @@ class Term extends Model
         return $this->hasMany(TermDate::class)->orderBy('start_datetime');
     }
 
-    public function getEarliestDateAttribute(): Carbon
+    public function getNumberOfRehearsalsAttribute(): int
+    {
+        return $this->term_dates()->whereNull('concert_ensemble_id')->count();
+    }
+
+    public function getNumberOfConcertsAttribute(): int
+    {
+        return $this->term_dates()->whereNotNull('concert_ensemble_id')->count();
+    }
+
+    public function getNumberOfTermDatesAttribute(): int
+    {
+        return $this->term_dates()->count();
+    }
+
+    public function getEarliestDateAttribute(): ?Carbon
     {
         $earliest_termdate = $this
             ->term_dates()
             ->orderBy('start_datetime', 'asc')
-            ->firstOrFail();
+            ->first();
 
-        return $earliest_termdate->start_datetime;
+        return $earliest_termdate?->start_datetime;
     }
 
-    public function getLatestDateAttribute(): Carbon
+    public function getLatestDateAttribute(): ?Carbon
     {
         $number_of_termdates = $this->term_dates()->count();
         $latest_termdate = $this
             ->term_dates()
             ->orderBy('start_datetime', 'desc')
             ->skip($number_of_termdates - 1)
-            ->firstOrFail();
+            ->first();
 
-        return $latest_termdate->start_datetime;
+        return $latest_termdate?->start_datetime;
     }
 
     public function getFormattedTermDateRangeAttribute(): string

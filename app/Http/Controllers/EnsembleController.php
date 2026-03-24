@@ -3,13 +3,14 @@
 namespace App\Http\Controllers;
 
 use App\Models\Ensemble;
-use App\Http\Requests\StoreEnsembleRequest;
 use App\Http\Requests\UpdateEnsembleRequest;
-use App\Models\Term;
 use App\Models\User;
 use App\Models\UserEnsemble;
 use App\ShowEnsemble;
-use Illuminate\Support\Carbon;
+use Illuminate\Http\RedirectResponse;
+use Illuminate\Http\Request;
+use Illuminate\Support\Str;
+use Illuminate\View\View;
 
 class EnsembleController extends Controller
 {
@@ -34,24 +35,54 @@ class EnsembleController extends Controller
         return view('auto-entities.index', [
             'entities' => $ensembles,
             'page_name' => 'Ensembles',
-            'page_subname' => 'Ensemble overview'
+            'page_subname' => 'Ensemble overview',
+            'create_entity' => [
+                'route' => 'ensembles.create',
+                'name' => 'ensemble'
+            ]
         ]);
     }
 
     /**
      * Show the form for creating a new resource.
      */
-    public function create()
+    public function create(): View
     {
-        //
+        //$fields = get_create_fields(new User);
+        $fields = [
+            [
+                "name" => "name",
+                "label" => "Name",
+                "type" => "text",
+                "required" => true,
+                "icon" => "pencil",
+                "width" => 12
+            ]
+        ];
+
+        return view('auto-entities.create', [
+            'page_name' => 'Ensembles',
+            'page_subname' => 'Create new ensemble',
+            'fields' => $fields,
+            'create_route' => route('ensembles.store')
+        ]);
     }
 
     /**
      * Store a newly created resource in storage.
      */
-    public function store(StoreEnsembleRequest $request)
+    public function store(Request $request): RedirectResponse
     {
-        //
+        // TODO: better validation; maybe automatic somehow?
+        $attributes = $request->validate([
+            'name' => 'required',
+        ]);
+
+        $attributes['slug'] = Str::slug($attributes['name'], '_');
+
+        $ensemble = Ensemble::create($attributes);
+
+        return to_route('ensembles.show', $ensemble);
     }
 
     use ShowEnsemble;

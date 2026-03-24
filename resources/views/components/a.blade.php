@@ -64,8 +64,10 @@
 
         // Special-case mappings
         if ($route === 'attendance.poll') {
-            $ability = 'view';
-            $subject = $inferredParams['ensemble'] ?? null;
+            ;
+        }
+        elseif (Str::startsWith($route, 'setupgroup')) {
+            ;
         } elseif (Str::endsWith($route, '.index')) {
             $ability = 'viewAny';
             $resource = Str::beforeLast($route, '.index');
@@ -91,7 +93,7 @@
         if ($ability && $subject) {
             $allowed = Gate::allows($ability, $subject);
         } else {
-            // If we couldn't infer, default to allowed to avoid over-restricting
+            // If we couldn't infer, default to allowed to defer the proper check to the policy
             $allowed = true;
         }
     }

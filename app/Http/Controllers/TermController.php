@@ -3,9 +3,12 @@
 namespace App\Http\Controllers;
 
 use App\Models\Term;
-use App\Http\Requests\StoreTermRequest;
 use App\Http\Requests\UpdateTermRequest;
 use App\Models\Ensemble;
+use Illuminate\Http\RedirectResponse;
+use Illuminate\Http\Request;
+use Illuminate\Support\Str;
+use Illuminate\View\View;
 
 class TermController extends Controller
 {
@@ -25,24 +28,54 @@ class TermController extends Controller
         return view('auto-entities.index', [
             'entities' => $terms,
             'page_name' => 'Terms',
-            'page_subname' => 'Terms overview'
+            'page_subname' => 'Terms overview',
+            'create_entity' => [
+                'route' => 'terms.create',
+                'name' => 'term'
+            ]
         ]);
     }
 
     /**
      * Show the form for creating a new resource.
      */
-    public function create()
+    public function create(): View
     {
-        //
+        //$fields = get_create_fields(new User);
+        $fields = [
+            [
+                "name" => "name",
+                "label" => "Name",
+                "type" => "text",
+                "required" => true,
+                "icon" => "pencil",
+                "width" => 12
+            ]
+        ];
+
+        return view('auto-entities.create', [
+            'page_name' => 'Terms',
+            'page_subname' => 'Create new term',
+            'fields' => $fields,
+            'create_route' => route('terms.store')
+        ]);
     }
 
     /**
      * Store a newly created resource in storage.
      */
-    public function store(StoreTermRequest $request)
+    public function store(Request $request): RedirectResponse
     {
-        //
+        // TODO: better validation; maybe automatic somehow?
+        $attributes = $request->validate([
+            'name' => 'required',
+        ]);
+
+        $attributes['slug'] = Str::slug($attributes['name'], '_');
+
+        $term = Term::create($attributes);
+
+        return to_route('terms.show', $term);
     }
 
     /**

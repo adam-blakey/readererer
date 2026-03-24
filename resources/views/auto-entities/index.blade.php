@@ -1,4 +1,4 @@
-@props(['entities', 'page_name', 'page_subname'])
+@props(['entities', 'page_name', 'page_subname', 'create_entity' => null])
 
 <x-layout :$page_name :$page_subname>
 	<div class="container-xl">
@@ -15,9 +15,11 @@
                         </form>
                         <!-- TODO: align right and fix weird alignment -->
                         <div class="card-actions">
-                            <x-a :route="'users.create'" class="btn btn-primary">
-                                Add user
-                            </x-a>
+                            @if ($create_entity)
+                                <x-a :route="$create_entity['route']" class="btn btn-primary">
+                                    Add {{ $create_entity['name'] }}
+                                </x-a>
+                            @endif
                         </div>
                     </div>
 					<x-table :$entities />

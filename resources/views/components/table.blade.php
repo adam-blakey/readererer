@@ -51,7 +51,7 @@
 										@break
 
 										@case('datetime')
-											{{ $entity->$attribute->diffForHumans() }}
+											{{ $entity->$attribute?->diffForHumans() ?? '-' }}
 										@break
 
 										@default
