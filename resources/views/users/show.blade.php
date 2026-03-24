@@ -57,6 +57,11 @@
 										Name:
 										<strong>{{ $user->name }}</strong>
 									</div>
+                                    <div class="mb-2">
+                                        <x-icon name="keyboard" />
+                                        Username:
+                                        <strong>{{ $user->username }}</strong>
+                                    </div>
 									<div class="mb-2">
 										<x-icon name="mail" />
 										Email:

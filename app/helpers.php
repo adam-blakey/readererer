@@ -69,6 +69,7 @@ function get_create_fields(object $dummy): array
 {
     $columns = collect(Schema::getColumns($dummy->getTable()));
     $fillable = $dummy->getFillable();
+    $casts = $dummy->casts();
 
     $fields = [];
 
@@ -85,7 +86,7 @@ function get_create_fields(object $dummy): array
         $fields[] = [
             'name' => $name,
             'label' => ucfirst(str_replace('_', ' ', $name)),
-            'type' => map_database_type_to_html($type_name),
+            'type' => map_database_type_to_html($name, $type_name, $casts),
             'required' => !$nullable,
             'icon' => 'pencil',
             'width' => 12
@@ -95,13 +96,26 @@ function get_create_fields(object $dummy): array
     return $fields;
 }
 
-function map_database_type_to_html(string $db_type): string {
-    return match(strtolower($db_type)) {
+function map_database_type_to_html(string $name, string $db_type, array $casts): string {
+    if (in_array($name, $casts)) {
+        return $casts[$name];
+    }
+
+    if ($name == 'image') {
+        return 'image';
+    }
+    elseif ($name == 'email') {
+        return 'email';
+    }
+
+    $html_type = match(strtolower($db_type)) {
         'text', 'longtext', 'mediumtext'                    => 'textarea',
         'integer', 'bigint', 'smallint', 'decimal', 'float' => 'number',
-        'boolean', 'tinyint'                                => 'checkbox',
+        'boolean', 'tinyint'                                => 'boolean',
         'date', 'datetime', 'timestamp'                     => 'date',
         default                                             => 'text'
         // TODO: deal with enums nicely
     };
+
+    return $html_type;
 }
