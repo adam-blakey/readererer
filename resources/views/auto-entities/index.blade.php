@@ -5,7 +5,7 @@
 		<x-card-row>
 			<div class="col-md-12">
 				<x-card>
-                    <div class="d-flex">
+                    <div class="d-flex align-items-center">
                         <form method="GET" action="{{ url()->current() }}" class="d-flex align-items-center gap-2">
                             <input type="hidden" name="page" value="{{ request('page') }}" />
                             <label class="form-check m-4 pb-0">
@@ -13,8 +13,7 @@
                                 <span class="form-check-label">Show archived</span>
                             </label>
                         </form>
-                        <!-- TODO: align right and fix weird alignment -->
-                        <div class="card-actions">
+                        <div class="card-actions ms-auto me-4">
                             @if ($create_entity)
                                 <x-a :route="$create_entity['route']" class="btn btn-primary">
                                     Add {{ $create_entity['name'] }}
