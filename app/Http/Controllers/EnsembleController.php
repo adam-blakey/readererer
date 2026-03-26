@@ -60,7 +60,7 @@ class EnsembleController extends Controller
             ]
         ];
 
-        return view('auto-entities.create', [
+        return view('auto-entities.form', [
             'page_name' => 'Ensembles',
             'page_subname' => 'Create new ensemble',
             'fields' => $fields,

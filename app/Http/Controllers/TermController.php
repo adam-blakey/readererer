@@ -53,7 +53,7 @@ class TermController extends Controller
             ]
         ];
 
-        return view('auto-entities.create', [
+        return view('auto-entities.form', [
             'page_name' => 'Terms',
             'page_subname' => 'Create new term',
             'fields' => $fields,

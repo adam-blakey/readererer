@@ -1,4 +1,4 @@
-@props(['fields', 'page_name', 'page_subname', 'create_route'])
+@props(['update', 'fields', 'page_name', 'page_subname', 'form_route'])
 
 <x-layout :$page_name :$page_subname>
     <div class="container-xl">
@@ -10,8 +10,13 @@
                             {{ $page_subname }}
                         </h3>
                     </div>
-                    <form action="{{ $create_route }}" method="POST" class="space-y">
+                    <form action="{{ $form_route }}" method="POST" class="space-y">
                         @csrf
+                        @if ($update)
+                            @method('PATCH')
+                        @else
+                            @method('POST')
+                        @endif
                         <div class="card-body">
                             <div class="space-y">
                                 <div class="row">
@@ -23,7 +28,7 @@
                         </div>
 
                         <div class="card-footer text-end">
-                            <button type="submit" class="btn btn-primary">Create</button>
+                            <button type="submit" class="btn btn-primary">{{ $update ? 'Update' : 'Create' }}</button>
                         </div>
                     </form>
                 </x-card>

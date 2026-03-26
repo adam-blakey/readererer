@@ -67,11 +67,12 @@ class SetupGroupController extends Controller
             ]
         ];
 
-        return view('auto-entities.create', [
+        return view('auto-entities.form', [
             'page_name' => 'Setup groups',
             'page_subname' => 'Create new setup group',
+            'update' => false,
             'fields' => $fields,
-            'create_route' => route('setupgroups.store')
+            'form_route' => route('setupgroups.store')
         ]);
     }
 
@@ -92,6 +93,65 @@ class SetupGroupController extends Controller
         return to_route('setupgroups.show', $setup_group);
     }
 
+    public function edit(SetupGroup $setupGroup): View
+    {
+        //$fields = get_create_fields(new User);
+        $fields = [
+            [
+                "name" => "name",
+                "label" => "Name",
+                "type" => "text",
+                "required" => true,
+                "icon" => "pencil",
+                "width" => 12,
+                "value" => $setupGroup->name
+            ],
+            [
+                "name" => "week",
+                "label" => "Week",
+                "type" => "text",
+                "required" => true,
+                "icon" => "pencil",
+                "width" => 6,
+                "value" => $setupGroup->week
+            ],
+            [
+                "name" => "color",
+                "label" => "Color",
+                "type" => "text",
+                "required" => true,
+                "icon" => "pencil",
+                "width" => 6,
+                "value" => $setupGroup->color
+            ]
+        ];
+
+        return view('auto-entities.form', [
+            'page_name' => 'Setup groups',
+            'page_subname' => 'Update setup group',
+            'update' => true,
+            'fields' => $fields,
+            'form_route' => route('setupgroups.update', $setupGroup)
+        ]);
+    }
+
+    /**
+     * Store a newly created resource in storage.
+     */
+    public function update(Request $request, SetupGroup $setupGroup): RedirectResponse
+    {
+        // TODO: better validation; maybe automatic somehow?
+        $attributes = $request->validate([
+            'name' => 'required',
+            'week' => 'required',
+            'color' => 'required',
+        ]);
+
+        $setupGroup->update($attributes);
+
+        return to_route('setupgroups.show', $setupGroup);
+    }
+
     /**
      * Display the specified resource.
      */
@@ -105,24 +165,6 @@ class SetupGroupController extends Controller
             'destroy_route' => 'setupgroups.destroy',
             'restore_route' => 'setupgroups.restore'
         ]);
-    }
-
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(SetupGroup $setupGroup)
-    {
-        return view('setup-groups.edit', [
-            'setup_group' => $setupGroup,
-        ]);
-    }
-
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(UpdateSetupGroupRequest $request, SetupGroup $setupGroup)
-    {
-        //
     }
 
     /**

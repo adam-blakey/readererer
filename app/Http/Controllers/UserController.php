@@ -76,11 +76,12 @@ class UserController extends Controller
             ]
         ];
 
-        return view('auto-entities.create', [
+        return view('auto-entities.form', [
             'page_name' => 'Users',
             'page_subname' => 'Create new user',
+            'update' => false,
             'fields' => $fields,
-            'create_route' => route('users.store')
+            'form_route' => route('users.store'),
         ]);
     }
 
@@ -99,6 +100,77 @@ class UserController extends Controller
         $attributes['password'] = Str::password(16);
 
         $user = User::create($attributes);
+
+        return to_route('users.show', $user);
+    }
+
+    public function edit(User $user): View
+    {
+        //$fields = get_create_fields(new User);
+        $fields = [
+            [
+                "name" => "first_name",
+                "label" => "First name",
+                "type" => "text",
+                "required" => true,
+                "icon" => "user",
+                "width" => 6,
+                "value" => $user->first_name
+            ],
+            [
+                "name" => "last_name",
+                "label" => "Last name",
+                "type" => "text",
+                "required" => true,
+                "icon" => "user",
+                "width" => 6,
+                "value" => $user->last_name
+            ],
+            [
+                "name" => "email",
+                "label" => "Email",
+                "type" => "email",
+                "required" => false,
+                "icon" => "mail",
+                "width" => 12,
+                "value" => $user->email
+            ],
+            [
+                "name" => "role",
+                "label" => "Role",
+                "type" => "enum",
+                "options" => UserRole::cases(),
+                "default_option" => UserRole::Member,
+                "required" => true,
+                "icon" => "user-star",
+                "width" => 12,
+                "value" => $user->role
+            ]
+        ];
+
+        return view('auto-entities.form', [
+            'page_name' => 'Users',
+            'page_subname' => 'Update user',
+            'update' => true,
+            'fields' => $fields,
+            'form_route' => route('users.update', $user),
+        ]);
+    }
+
+    public function update(Request $request, User $user): RedirectResponse
+    {
+        // TODO: better validation; maybe automatic somehow?
+        $attributes = $request->validate([
+            'first_name' => 'required',
+            'last_name' => 'required',
+            'email' => 'required|email',
+            'role' => [Rule::enum(UserRole::class)]
+        ]);
+
+        // TODO: Need to be careful on username collisions.
+        $attributes['username'] = Str::slug($attributes['first_name'] . ' ' . $attributes['last_name'], '.');
+
+        $user->update($attributes);
 
         return to_route('users.show', $user);
     }
