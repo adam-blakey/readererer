@@ -2,6 +2,8 @@
 
 namespace App\Models;
 
+use App\Attributes\Icon;
+use App\Traits\HasPropertyIcons;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
@@ -13,10 +15,18 @@ class SetupGroup extends Model
     use HasFactory;
     use SoftDeletes;
     use AutoSortable;
+    use HasPropertyIcons;
 
+    #[Icon('mail')]
     protected $name;
+    #[Icon('calendar')]
     protected $week;
+    #[Icon('paint')]
     protected $color;
+    #[Icon('pencil-bolt')]
+    protected $created_at;
+    #[Icon('pencil-up')]
+    protected $updated_at;
 
     protected $visible = [
         'name',
@@ -49,6 +59,7 @@ class SetupGroup extends Model
         'color',
     ];
 
+    #[Icon('truck')]
     public function van_drivers(): BelongsToMany
     {
         return $this

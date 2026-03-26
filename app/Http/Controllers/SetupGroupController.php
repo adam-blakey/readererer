@@ -97,7 +97,14 @@ class SetupGroupController extends Controller
      */
     public function show(SetupGroup $setupGroup)
     {
-        //
+        return view('auto-entities.show', [
+            'entity' => $setupGroup,
+            'page_name' => 'Setup groups',
+            'page_subname' => 'Setup group ' . $setupGroup->name,
+            'edit_route' => 'setupgroups.edit',
+            'destroy_route' => 'setupgroups.destroy',
+            'restore_route' => 'setupgroups.restore'
+        ]);
     }
 
     /**

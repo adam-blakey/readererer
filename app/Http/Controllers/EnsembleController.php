@@ -2,11 +2,11 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Ensemble;
 use App\Http\Requests\UpdateEnsembleRequest;
+use App\Models\Ensemble;
 use App\Models\User;
 use App\Models\UserEnsemble;
-use App\ShowEnsemble;
+use App\Traits\ShowEnsemble;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;

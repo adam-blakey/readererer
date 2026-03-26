@@ -3,9 +3,8 @@
 namespace App\Http\Controllers;
 
 use App\Enums\UserRole;
-use App\Models\Ensemble;
 use App\Models\TermDate;
-use App\ShowEnsemble;
+use App\Traits\ShowEnsemble;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Auth;
 

@@ -51,7 +51,7 @@ Route::resource('terms', TermController::class)->middleware('auth');
 Route::patch('/terms/{term}/restore', [TermController::class, 'restore'])->name('terms.restore')->middleware('auth');
 Route::resource('users', UserController::class)->middleware('auth');
 Route::patch('/users/{user}/restore', [UserController::class, 'restore'])->name('users.restore')->middleware('auth');
-Route::resource('setupgroups', SetupGroupController::class)->middleware('auth');
+Route::resource('setupgroups', SetupGroupController::class)->middleware('auth')->parameter('setupgroups', 'setupGroup');
 Route::patch('/setupgroups/{setupgroup}/restore', [SetupGroupController::class, 'restore'])->name('setupgroups.restore')->middleware('auth');
 
 Route::get('/seating-plan/{ensemble:slug}/{termDate:id}', [SeatingPlanPdfController::class, 'show'])->name('seating-plan.show')->withoutScopedBindings();
