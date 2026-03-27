@@ -73,3 +73,7 @@
 .table thead th {
     background: #f2f3f4;
 }
+
+.drop-highlight {
+    border: 2px dashed #ccc;
+}
