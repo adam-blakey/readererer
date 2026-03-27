@@ -12,7 +12,10 @@ class SeatingPlanController extends Controller
     {
         $ensemble->load('users');
 
-        $users = $ensemble->users->sortBy('pivot.seat_column');
+        $users = $ensemble->users->sortBy([
+            ['pivot.seat_column', 'asc'],
+            ['pivot.seat_row', 'asc'],
+        ]);
 
         $groupedUsers = $users->groupBy(function ($user) {
             return $user->pivot->seat_row ?? 'unassigned';
@@ -20,8 +23,9 @@ class SeatingPlanController extends Controller
 
         return view('ensembles.seating-plan', [
             'ensemble' => $ensemble,
-            'groupedUsers' => $groupedUsers,
-            'page_name' => $ensemble->name . ' Seating Plan'
+            'grouped_users' => $groupedUsers,
+            'page_name' => 'Ensembles',
+            'page_subname' => $ensemble->name . ' seating plan',
         ]);
     }
 

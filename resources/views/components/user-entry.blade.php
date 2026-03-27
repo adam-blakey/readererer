@@ -1,4 +1,4 @@
-@props(['user', 'add_route' => true, 'secondary_info' => null, 'show_setup_group' => false, 'remove_from_ensemble' => null])
+@props(['user', 'add_route' => true, 'secondary_info' => null, 'show_setup_group' => false, 'remove_from_ensemble' => null, 'draggable' => false])
 
 @php
 	if ($secondary_info == null) {
@@ -6,7 +6,7 @@
 	}
 @endphp
 
-<a {!! $add_route ? "href='" . route('users.show', ['user' => $user]) . "'" : '' !!} class="py-1 nav-link d-flex lh-1 text-reset">
+<a {!! $add_route ? "href='" . route('users.show', ['user' => $user]) . "'" : '' !!} class="py-1 nav-link d-flex lh-1 text-reset {{ $draggable ? 'cursor-grab' : '' }}">
 	<x-avatar :user="$user" size="sm" :$show_setup_group />
 	<div class="d-none d-xl-block ps-2">
 		<div>{{ $user->name }}</div>
