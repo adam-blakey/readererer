@@ -9,7 +9,7 @@ use Barryvdh\DomPDF\Facade\Pdf;
 
 class SeatingPlanPdfController extends Controller
 {
-    public function show(Ensemble $ensemble, TermDate $termDate)
+    public function download(Ensemble $ensemble, TermDate $termDate)
     {
         $this->authorize('view', $ensemble);
 

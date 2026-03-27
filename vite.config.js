@@ -8,6 +8,7 @@ export default defineConfig({
             input: [
                 'resources/css/app.css',
                 'resources/js/app.js',
+                'resources/js/seating-plan.js',
                 'resources/images/favicon.png',
                 'resources/images/readererer-long-logo.svg',
                 'resources/images/readererer-square-logo.svg'

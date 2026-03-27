@@ -16,6 +16,7 @@
 	<meta charset="utf-8" />
 	<meta content="width=device-width, initial-scale=1, viewport-fit=cover" name="viewport" />
 	<meta content="ie=edge" http-equiv="X-UA-Compatible" />
+    <meta name="csrf-token" content="{{ csrf_token() }}">
 	<title>{{ $title }}</title>
 	<link href="{{ Vite::asset('resources/images/favicon.png') }}" rel="shortcut icon">
 	@vite(['resources/js/app.js', 'resources/css/app.css'])

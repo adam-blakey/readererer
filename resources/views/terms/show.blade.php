@@ -91,7 +91,7 @@
                                                             <div class="badge bg-white text-white-fg ms-2">scheduled Sun 8:00</div>
                                                         </a>
                                                         <!-- TODO: This currently just gets for the first ensemble. -->
-                                                        <x-a class="btn bg-orange text-orange-fg" href="{{ route('seating-plan.show', ['ensemble' => \App\Models\Ensemble::first(), 'termDate' => $td]) }}" target="_blank">
+                                                        <x-a class="btn bg-orange text-orange-fg" href="{{ route('seating-plan.download', ['ensemble' => \App\Models\Ensemble::first(), 'termDate' => $td]) }}" target="_blank">
                                                             <x-icon name="armchair" />
                                                             View seating plan
                                                         </x-a>
