@@ -6,7 +6,7 @@
     }
 @endphp
 
-<div class="py-1 nav-link d-flex lh-1 text-reset {{ $draggable ? 'cursor-grab' : '' }}">
+<div class="p-1 nav-link d-flex lh-1 text-reset {{ $draggable ? 'cursor-grab border border-2 rounded' : '' }}">
     <x-avatar :user="$user" size="sm" :$show_setup_group />
     <div class="d-none d-xl-block ps-2">
         <div>

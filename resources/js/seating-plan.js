@@ -43,8 +43,8 @@ document.addEventListener('DOMContentLoaded', function () {
     function setupDraggable(item) {
         item.draggable = true;
         item.addEventListener('dragstart', (e) => {
-            draggedItem = e.target.closest('.col-md-3');
-            draggedItem.classList.add('cursor-grabbing');
+            draggedItem = e.target.closest('.user-entry');
+            // draggedItem.firstChild.classList.add('cursor-grabbing');
             setTimeout(() => {
                 draggedItem.style.opacity = '0.5';
             }, 0);
@@ -55,16 +55,16 @@ document.addEventListener('DOMContentLoaded', function () {
             setTimeout(() => {
                 if (draggedItem) {
                     draggedItem.style.opacity = '';
-                    draggedItem.classList.remove('cursor-grabbing');
                     draggedItem = null;
                 }
+                // draggedItem.firstChild.classList.remove('cursor-grabbing');
                 containers.forEach(c => c.closest('.seating-row, .card-body').classList.remove('drop-highlight'));
                 updateSeatingPositions();
             }, 0);
         });
     }
 
-    document.querySelectorAll('.col-md-3').forEach(setupDraggable);
+    document.querySelectorAll('.user-entry').forEach(setupDraggable);
 
     containers.forEach(container => {
         container.addEventListener('dragover', (e) => {
@@ -143,21 +143,25 @@ document.addEventListener('DOMContentLoaded', function () {
             seatingPlan[row] = users;
         });
 
-        const ensembleSlug = window.location.pathname.split('/')[2];
-        fetch(`/ensembles/${ensembleSlug}/seating-plan`, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
-            },
-            body: JSON.stringify(seatingPlan)
-        }).then(response => {
-            if (response.ok) {
-                window.location.reload();
-            } else {
-                alert('Failed to save seating plan');
-            }
-        });
+        const form = document.createElement('form');
+        form.method = 'POST';
+        form.action = window.location.pathname;
+
+        const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+        const csrfInput = document.createElement('input');
+        csrfInput.type = 'hidden';
+        csrfInput.name = '_token';
+        csrfInput.value = csrfToken;
+        form.appendChild(csrfInput);
+
+        const dataInput = document.createElement('input');
+        dataInput.type = 'hidden';
+        dataInput.name = 'seating_plan';
+        dataInput.value = JSON.stringify(seatingPlan);
+        form.appendChild(dataInput);
+
+        document.body.appendChild(form);
+        form.submit();
     });
 
     updateSeatingPositions();

@@ -17,38 +17,38 @@
                     </div>
 
                     <div class="card-body">
-                        <div class="row" data-row="unassigned">
-                            @if(isset($grouped_users['unassigned']))
-                                @foreach($grouped_users['unassigned'] as $user)
-                                    <div class="col-md-3" data-user-id="{{ $user->id }}" data-original-row="{{ $user->original_seat_row }}" data-original-column="{{ $user->original_seat_column }}">
-                                        <x-user-entry :user="$user" />
-                                    </div>
-                                @endforeach
-                            @endif
-                        </div>
+                        @if(session('success'))
+                            <div class="alert alert-success">
+                                {{ session('success') }}
+                            </div>
+                        @endif
+
+                        @if(session('error'))
+                            <div class="alert alert-danger">
+                                {{ session('error') }}
+                            </div>
+                        @endif
 
                         @foreach($grouped_users as $row => $users)
-                            @if($row !== 'unassigned')
-                                <div class="card mb-3 seating-row" data-row="{{ $row }}">
-                                    <div class="card-header">
-                                        <h2 class="card-title">Row {{ $row }}</h2>
-                                    </div>
-                                    <div class="card-body">
-                                        <div class="row">
-                                            @foreach($users as $user)
-                                                <div class="col-md-3" data-user-id="{{ $user->id }}" data-original-row="{{ $user->original_seat_row }}" data-original-column="{{ $user->original_seat_column }}">
-                                                    <x-user-entry :user="$user" :add_route="false" :draggable="true" :secondary_info="$user->instrument_name" />
-                                                </div>
-                                            @endforeach
-                                        </div>
+                            <div class="card mb-3 seating-row" data-row="{{ $row }}">
+                                <div class="card-header">
+                                    <h2 class="card-title">Row {{ $row }}</h2>
+                                </div>
+                                <div class="card-body">
+                                    <div class="row min-h-2">
+                                        @foreach($users as $user)
+                                            <div class="col-md-3 user-entry" data-user-id="{{ $user->id }}" data-original-row="{{ $user->original_seat_row }}" data-original-column="{{ $user->original_seat_column }}">
+                                                <x-user-entry :user="$user" :add_route="false" :draggable="true" :secondary_info="$user->instrument_name" />
+                                            </div>
+                                        @endforeach
                                     </div>
                                 </div>
-                            @endif
+                            </div>
                         @endforeach
 
-                        <div class="card mb-3 seating-row" data-row="{{ ++$row }}" style="display: none;">
+                        <div class="card mb-3 seating-row" data-row="A" style="display: none;">
                             <div class="card-header">
-                                <h2 class="card-title">Row {{ $row }}</h2>
+                                <h2 class="card-title">Row A</h2>
                             </div>
                             <div class="card-body">
                                 <div class="row">

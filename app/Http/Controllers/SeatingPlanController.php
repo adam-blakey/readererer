@@ -77,7 +77,7 @@ class SeatingPlanController extends Controller
                         ]);
                     }
                 } else {
-                    foreach ($users as $index => $user) {
+                    foreach ($users as $user) {
                         $ensemble->users()->updateExistingPivot($user['id'], [
                             'seat_row' => $row,
                             'seat_column' => $user['column'],
