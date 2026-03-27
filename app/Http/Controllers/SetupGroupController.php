@@ -39,33 +39,31 @@ class SetupGroupController extends Controller
      */
     public function create(): View
     {
-        //$fields = get_create_fields(new User);
-        $fields = [
-            [
-                "name" => "name",
-                "label" => "Name",
-                "type" => "text",
-                "required" => true,
-                "icon" => "pencil",
-                "width" => 12
-            ],
-            [
-                "name" => "week",
-                "label" => "Week",
-                "type" => "text",
-                "required" => true,
-                "icon" => "pencil",
-                "width" => 6
-            ],
-            [
-                "name" => "color",
-                "label" => "Color",
-                "type" => "text",
-                "required" => true,
-                "icon" => "pencil",
-                "width" => 6
-            ]
-        ];
+        $dummy = new SetupGroup();
+        $fields = get_create_fields($dummy);
+//        $fields = [
+//            "name" => [
+//                "label" => "Name",
+//                "type" => "text",
+//                "required" => true,
+//                "icon" => $dummy->getIconForAttribute("name") ?? 'pencil',
+//                "width" => 12
+//            ],
+//            "week" => [
+//                "label" => "Week",
+//                "type" => "text",
+//                "required" => true,
+//                "icon" => $dummy->getIconForAttribute("week") ?? 'pencil',
+//                "width" => 6
+//            ],
+//            "color" => [
+//                "label" => "Color",
+//                "type" => "text",
+//                "required" => true,
+//                "icon" => $dummy->getIconForAttribute("color") ?? 'pencil',
+//                "width" => 6
+//            ]
+//        ];
 
         return view('auto-entities.form', [
             'page_name' => 'Setup groups',
@@ -95,36 +93,33 @@ class SetupGroupController extends Controller
 
     public function edit(SetupGroup $setupGroup): View
     {
-        //$fields = get_create_fields(new User);
-        $fields = [
-            [
-                "name" => "name",
-                "label" => "Name",
-                "type" => "text",
-                "required" => true,
-                "icon" => "pencil",
-                "width" => 12,
-                "value" => $setupGroup->name
-            ],
-            [
-                "name" => "week",
-                "label" => "Week",
-                "type" => "text",
-                "required" => true,
-                "icon" => "pencil",
-                "width" => 6,
-                "value" => $setupGroup->week
-            ],
-            [
-                "name" => "color",
-                "label" => "Color",
-                "type" => "text",
-                "required" => true,
-                "icon" => "pencil",
-                "width" => 6,
-                "value" => $setupGroup->color
-            ]
-        ];
+        $fields = get_create_fields($setupGroup);
+//        $fields = [
+//            "name" => [
+//                "label" => "Name",
+//                "type" => "text",
+//                "required" => true,
+//                "icon" => $setupGroup->getIconForAttribute("name") ?? 'pencil',
+//                "width" => 12,
+//                "value" => $setupGroup->name
+//            ],
+//            "week" => [
+//                "label" => "Week",
+//                "type" => "text",
+//                "required" => true,
+//                "icon" => $setupGroup->getIconForAttribute("week") ?? 'pencil',
+//                "width" => 6,
+//                "value" => $setupGroup->week
+//            ],
+//            "color" => [
+//                "label" => "Color",
+//                "type" => "text",
+//                "required" => true,
+//                "icon" => $setupGroup->getIconForAttribute("color") ?? 'pencil',
+//                "width" => 6,
+//                "value" => $setupGroup->color
+//            ]
+//        ];
 
         return view('auto-entities.form', [
             'page_name' => 'Setup groups',

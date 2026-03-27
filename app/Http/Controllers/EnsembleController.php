@@ -63,8 +63,9 @@ class EnsembleController extends Controller
         return view('auto-entities.form', [
             'page_name' => 'Ensembles',
             'page_subname' => 'Create new ensemble',
+            'update' => false,
             'fields' => $fields,
-            'create_route' => route('ensembles.store')
+            'form_route' => route('ensembles.store')
         ]);
     }
 

@@ -38,43 +38,14 @@ class UserController extends Controller
 
     public function create(): View
     {
-        //$fields = get_create_fields(new User);
-        $fields = [
-            [
-                "name" => "first_name",
-                "label" => "First name",
-                "type" => "text",
-                "required" => true,
-                "icon" => "user",
-                "width" => 6
-            ],
-            [
-                "name" => "last_name",
-                "label" => "Last name",
-                "type" => "text",
-                "required" => true,
-                "icon" => "user",
-                "width" => 6
-            ],
-            [
-                "name" => "email",
-                "label" => "Email",
-                "type" => "email",
-                "required" => false,
-                "icon" => "mail",
-                "width" => 12
-            ],
-            [
-                "name" => "role",
-                "label" => "Role",
-                "type" => "enum",
-                "options" => UserRole::cases(),
-                "default_option" => UserRole::Member,
-                "required" => true,
-                "icon" => "user-star",
-                "width" => 12
-            ]
-        ];
+        $fields = get_create_fields(new User);
+        $fields["first_name"]["width"] = 6;
+        $fields["last_name"]["width"] = 6;
+        unset($fields["password"]);
+        unset($fields["image"]);
+        $fields["role"]["type"] = "enum";
+        $fields["role"]["options"] = UserRole::cases();
+        $fields["role"]["default_option"] = UserRole::Member;
 
         return view('auto-entities.form', [
             'page_name' => 'Users',
@@ -106,47 +77,13 @@ class UserController extends Controller
 
     public function edit(User $user): View
     {
-        //$fields = get_create_fields(new User);
-        $fields = [
-            [
-                "name" => "first_name",
-                "label" => "First name",
-                "type" => "text",
-                "required" => true,
-                "icon" => "user",
-                "width" => 6,
-                "value" => $user->first_name
-            ],
-            [
-                "name" => "last_name",
-                "label" => "Last name",
-                "type" => "text",
-                "required" => true,
-                "icon" => "user",
-                "width" => 6,
-                "value" => $user->last_name
-            ],
-            [
-                "name" => "email",
-                "label" => "Email",
-                "type" => "email",
-                "required" => false,
-                "icon" => "mail",
-                "width" => 12,
-                "value" => $user->email
-            ],
-            [
-                "name" => "role",
-                "label" => "Role",
-                "type" => "enum",
-                "options" => UserRole::cases(),
-                "default_option" => UserRole::Member,
-                "required" => true,
-                "icon" => "user-star",
-                "width" => 12,
-                "value" => $user->role
-            ]
-        ];
+        $fields = get_create_fields($user);
+        $fields["first_name"]["width"] = 6;
+        $fields["last_name"]["width"] = 6;
+        unset($fields["password"]);
+        unset($fields["image"]);
+        $fields["role"]["type"] = "enum";
+        $fields["role"]["options"] = UserRole::cases();
 
         return view('auto-entities.form', [
             'page_name' => 'Users',
@@ -169,6 +106,7 @@ class UserController extends Controller
 
         // TODO: Need to be careful on username collisions.
         $attributes['username'] = Str::slug($attributes['first_name'] . ' ' . $attributes['last_name'], '.');
+        // TODO: lol, this seems to reset the password
 
         $user->update($attributes);
 

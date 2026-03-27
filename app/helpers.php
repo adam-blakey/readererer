@@ -82,18 +82,29 @@ function get_create_fields(object $dummy): array
         $name = $column['name'];
         $type_name = $column['type_name'];
         $nullable = $column['nullable'];
+        $icon = call_or_default($dummy, 'getIconForAttribute', $name, 'pencil');
 
-        $fields[] = [
-            'name' => $name,
+        $fields[$name] = [
             'label' => ucfirst(str_replace('_', ' ', $name)),
             'type' => map_database_type_to_html($name, $type_name, $casts),
             'required' => !$nullable,
-            'icon' => 'pencil',
+            'icon' => $icon,
+            'value' => $dummy->$name,
             'width' => 12
         ];
+
+        // TODO: populate options and default_option for enum
     }
 
     return $fields;
+}
+
+function call_or_default(Object $object, string $method, mixed $argument, mixed $defaultValue = null): mixed {
+    if (method_exists($object, $method) && is_callable([$object, $method])) {
+        return $object->$method($argument) ?? $defaultValue;
+    }
+
+    return $defaultValue;
 }
 
 function map_database_type_to_html(string $name, string $db_type, array $casts): string {

@@ -20,8 +20,8 @@
                         <div class="card-body">
                             <div class="space-y">
                                 <div class="row">
-                                    @foreach($fields as $field)
-                                        <x-forms.field :field="$field" />
+                                    @foreach($fields as $name => $data)
+                                        <x-forms.field :name="$name" :data="$data" />
                                     @endforeach
                                 </div>
                             </div>

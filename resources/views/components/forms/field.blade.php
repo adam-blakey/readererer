@@ -1,23 +1,24 @@
-@props(['field'])
+@props(['name', 'data'])
 
 @php
-    $error_message = $errors->first($field['name']);
+    $error_message = $errors->first($name);
     $has_error = $error_message != null;
-    $value = (isset($field['value'])) ? old($field['name'], $field['value']) : null;
+    $value = (isset($data['value'])) ? old($name, $data['value']) : null;
 @endphp
 
-<div @class(['col-md-'.$field['width']])>
-    <label @class(['col-3', 'col-form-label', 'required' => $field['required']])>{{ $field['label'] }}</label>
+<div @class(['col-md-'.$data['width']])>
+    <label @class(['col-3', 'col-form-label', 'required' => $data['required']])>{{ $data['label'] }}</label>
     <!-- TODO: fix alignment of icon when there is an error present -->
     <div class="input-icon">
         <span class="input-icon-addon">
-            <x-icon :name="$field['icon']" />
+            <x-icon :name="$data['icon']" />
         </span>
-        @switch($field['type'])
+        @switch($data['type'])
             @case('textarea')
-                <textarea name="{{ $field['name'] }}" @class(['form-control', 'required' => $field['required']]) rows="3" placeholder="{{ $field['label'] }}" @required($field['required'])>{{ $value }}</textarea>
+                <textarea name="{{ $name }}" @class(['form-control', 'required' => $data['required']]) rows="3" placeholder="{{ $data['label'] }}" @required($data['required'])>{{ $value }}</textarea>
                 @break
             @case('number')
+                <input name="{{ $name }}" type="number" value="{{ $value }}" @class(['form-control', 'required' => $data['required']]) placeholder="{{ $data['label'] }}" @required($data['required']) />
                 @break
             @case('checkbox')
                 @break
@@ -25,9 +26,9 @@
                 @break
             @case('enum')
                 <!-- TODO: This apparently isn't working correctly -->
-                @php($selected = ($value) ? : $field['default_option'])
-                <select name="{{ $field['name'] }}" class="form-select" style="padding-left: 2.5rem" @required($field['required'])>
-                    @foreach($field['options'] as $value => $case)
+                @php($selected = ($value) ? : $data['default_option'])
+                <select name="{{ $name }}" class="form-select" style="padding-left: 2.5rem" @required($data['required'])>
+                    @foreach($data['options'] as $value => $case)
                         <option value="{{ $value }}" {{ $selected == $case ? 'selected' : '' }}>
                             {{ $case->name }}
                         </option>
@@ -35,7 +36,7 @@
                 </select>
                 @break
             @default
-                <input type="text" name="{{ $field['name'] }}" value="{{ $value }}" @class(['form-control', 'is-invalid' => $has_error, 'required' => $field['required']]) placeholder="{{ $field['label'] }}" @required($field['required'])>
+                <input type="text" name="{{ $name }}" value="{{ $value }}" @class(['form-control', 'is-invalid' => $has_error, 'required' => $data['required']]) placeholder="{{ $data['label'] }}" @required($data['required'])>
         @endswitch
         @if($has_error)
             <div class="invalid-feedback">{{ $error_message }}</div>

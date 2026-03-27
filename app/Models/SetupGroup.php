@@ -17,7 +17,7 @@ class SetupGroup extends Model
     use AutoSortable;
     use HasPropertyIcons;
 
-    #[Icon('mail')]
+    #[Icon('arrow-badge-right')]
     protected $name;
     #[Icon('calendar')]
     protected $week;
