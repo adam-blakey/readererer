@@ -65,7 +65,8 @@ class SeatingPlanController extends Controller
 
     public function update(Request $request, Ensemble $ensemble)
     {
-        $seatingPlan = $request->input();
+        $input = $request->input();
+        $seatingPlan = json_decode($input['seating_plan'], true);
 
         DB::transaction(function () use ($seatingPlan, $ensemble) {
             foreach ($seatingPlan as $row => $users) {
@@ -87,6 +88,6 @@ class SeatingPlanController extends Controller
             }
         });
 
-        return response()->json(['status' => 'success']);
+        return to_route('ensembles.seating-plan.show', $ensemble);
     }
 }

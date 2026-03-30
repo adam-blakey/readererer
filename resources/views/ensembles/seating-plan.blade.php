@@ -38,7 +38,7 @@
                                     <div class="row min-h-2">
                                         @foreach($users as $user)
                                             <div class="col-md-3 user-entry" data-user-id="{{ $user->id }}" data-original-row="{{ $user->original_seat_row }}" data-original-column="{{ $user->original_seat_column }}">
-                                                <x-user-entry :user="$user" :add_route="false" :draggable="true" :secondary_info="$user->instrument_name" />
+                                                <x-user-entry :user="$user" :add_route="false" :draggable="true" :secondary_info="$user->instrument_name" :show_seating_position="true" />
                                             </div>
                                         @endforeach
                                     </div>
@@ -46,12 +46,12 @@
                             </div>
                         @endforeach
 
-                        <div class="card mb-3 seating-row" data-row="A" style="display: none;">
+                        <div class="card mb-3 seating-row" data-row="" style="display: none;">
                             <div class="card-header">
-                                <h2 class="card-title">Row A</h2>
+                                <h2 class="card-title">Row</h2>
                             </div>
                             <div class="card-body">
-                                <div class="row">
+                                <div class="row min-h-2">
                                 </div>
                             </div>
                         </div>

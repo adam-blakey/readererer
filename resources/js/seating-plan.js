@@ -5,17 +5,27 @@ document.addEventListener('DOMContentLoaded', function () {
     function updateSeatingPositions() {
         document.querySelectorAll('.seating-row').forEach(rowEl => {
             const row = rowEl.dataset.row;
-            rowEl.querySelectorAll('.col-md-3').forEach((userEl, index) => {
+            rowEl.querySelectorAll('.user-entry').forEach((userEl, index) => {
                 const positionEl = userEl.querySelector('.seating-position');
                 if (positionEl) {
-                    positionEl.textContent = `${row}${index + 1}`;
+                    if (row == "unassigned") {
+                        positionEl.textContent = null;
+                    }
+                    else {
+                        positionEl.textContent = `${row}${index + 1}`;
+                    }
                 }
 
                 const originalRow = userEl.dataset.originalRow;
                 const originalColumn = userEl.dataset.originalColumn;
                 const changedIndicator = userEl.querySelector('.seating-position-changed');
 
-                if (originalRow !== row || originalColumn != (index + 1)) {
+                console.log(originalColumn);
+
+                if (originalRow == "" && row == "unassigned") {
+                    changedIndicator.style.display = 'none';
+                }
+                else if (originalRow !== row || originalColumn != (index + 1)) {
                     changedIndicator.style.display = 'inline';
                 } else {
                     changedIndicator.style.display = 'none';
@@ -23,7 +33,7 @@ document.addEventListener('DOMContentLoaded', function () {
             });
         });
 
-        document.querySelectorAll('.row[data-row="unassigned"] .col-md-3').forEach(userEl => {
+        document.querySelectorAll('.row[data-row="unassigned"] .user-entry').forEach(userEl => {
             const positionEl = userEl.querySelector('.seating-position');
             if (positionEl) {
                 positionEl.textContent = '';
@@ -44,7 +54,6 @@ document.addEventListener('DOMContentLoaded', function () {
         item.draggable = true;
         item.addEventListener('dragstart', (e) => {
             draggedItem = e.target.closest('.user-entry');
-            // draggedItem.firstChild.classList.add('cursor-grabbing');
             setTimeout(() => {
                 draggedItem.style.opacity = '0.5';
             }, 0);
@@ -57,7 +66,6 @@ document.addEventListener('DOMContentLoaded', function () {
                     draggedItem.style.opacity = '';
                     draggedItem = null;
                 }
-                // draggedItem.firstChild.classList.remove('cursor-grabbing');
                 containers.forEach(c => c.closest('.seating-row, .card-body').classList.remove('drop-highlight'));
                 updateSeatingPositions();
             }, 0);
@@ -115,7 +123,7 @@ document.addEventListener('DOMContentLoaded', function () {
     });
 
     function getDragAfterElement(container, x) {
-        const draggableElements = [...container.querySelectorAll('.col-md-3:not(.dragging)')];
+        const draggableElements = [...container.querySelectorAll('.user-entry:not(.dragging)')];
 
         return draggableElements.reduce((closest, child) => {
             const box = child.getBoundingClientRect();
@@ -131,15 +139,24 @@ document.addEventListener('DOMContentLoaded', function () {
     const saveButton = document.getElementById('save-seating-plan');
     saveButton.addEventListener('click', () => {
         const seatingPlan = {};
-        document.querySelectorAll('.seating-row .card-body .row, .row[data-row="unassigned"]').forEach(rowEl => {
+        document.querySelectorAll('.seating-row .card-body .row').forEach(rowEl => {
             const row = rowEl.closest('[data-row]').dataset.row;
             const users = [];
-            rowEl.querySelectorAll('.col-md-3').forEach((userEl, index) => {
-                users.push({
-                    id: userEl.dataset.userId,
-                    column: index + 1
-                });
+            rowEl.querySelectorAll('.user-entry').forEach((userEl, index) => {
+                if (row == "unassigned") {
+                    users.push({
+                        id: userEl.dataset.userId,
+                        column: null
+                    });
+                }
+                else {
+                    users.push({
+                        id: userEl.dataset.userId,
+                        column: index + 1
+                    });
+                }
             });
+
             seatingPlan[row] = users;
         });
 
