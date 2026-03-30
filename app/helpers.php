@@ -130,3 +130,20 @@ function map_database_type_to_html(string $name, string $db_type, array $casts):
 
     return $html_type;
 }
+
+function color_name_to_hex(string $name): string {
+    switch (strtolower($name)) {
+        case 'blue': return '#066fd1';
+        case 'azure': return '#4299e1';
+        case 'indigo': return '#4263eb';
+        case 'purple': return '#ae3ec9';
+        case 'pink': return '#d6336c';
+        case 'red': return '#d63939';
+        case 'orange': return '#f76707';
+        case 'yellow': return '#f59f00';
+        case 'lime': return '#74b816';
+        case 'green': return '#2fb344';
+        case 'teal': return '#0ca678';
+        case 'cyan': return '#17a2b8';
+    }
+}
