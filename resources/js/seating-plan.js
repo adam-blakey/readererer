@@ -1,14 +1,20 @@
 document.addEventListener('DOMContentLoaded', function () {
     const containers = Array.from(document.querySelectorAll('.seating-row .card-body .row, .row[data-row="unassigned"]'));
     let draggedItem = null;
+    let positionsUpdated = false;
+
+    window.onbeforeunload = function (e) {
+        return positionsUpdated ? 1 : null;
+    }
 
     function updateSeatingPositions() {
+        let anyUpdated = false;
         document.querySelectorAll('.seating-row').forEach(rowEl => {
             const row = rowEl.dataset.row;
             rowEl.querySelectorAll('.user-entry').forEach((userEl, index) => {
                 const positionEl = userEl.querySelector('.seating-position');
                 if (positionEl) {
-                    if (row == "unassigned") {
+                    if (row === "unassigned") {
                         positionEl.textContent = null;
                     }
                     else {
@@ -20,18 +26,19 @@ document.addEventListener('DOMContentLoaded', function () {
                 const originalColumn = userEl.dataset.originalColumn;
                 const changedIndicator = userEl.querySelector('.seating-position-changed');
 
-                console.log(originalColumn);
-
-                if (originalRow == "" && row == "unassigned") {
+                if (originalRow === "" && row === "unassigned") {
                     changedIndicator.style.display = 'none';
                 }
                 else if (originalRow !== row || originalColumn != (index + 1)) {
                     changedIndicator.style.display = 'inline';
+                    anyUpdated = true;
                 } else {
                     changedIndicator.style.display = 'none';
                 }
             });
         });
+
+        positionsUpdated = anyUpdated;
 
         document.querySelectorAll('.row[data-row="unassigned"] .user-entry').forEach(userEl => {
             const positionEl = userEl.querySelector('.seating-position');
