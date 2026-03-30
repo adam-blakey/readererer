@@ -55,7 +55,11 @@
 										@break
 
 										@default
-											{{ $entity->$attribute }}
+                                            @if (class_exists($casts[$attribute]))
+                                                {{ $entity->$attribute->name ? : $entity->$attribute }}
+                                            @else
+                                                {{ $entity->$attribute }}
+                                            @endif
 									@endswitch
 								@elseif ($entity->$attribute instanceof Illuminate\Support\Collection)
                                     @if ($entity->$attribute->count() == 0)
