@@ -57,6 +57,7 @@ class SetupGroup extends Model
         'name',
         'week',
         'color',
+        'van_drivers'
     ];
 
     #[Icon('truck')]

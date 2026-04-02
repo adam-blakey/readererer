@@ -74,22 +74,44 @@ function get_create_fields(object $dummy): array
     $fields = [];
 
     foreach ($fillable as $fillable_entry) {
-        $column = $columns->firstWhere('name', $fillable_entry) ?? null;
-        if (!$column) {
-            continue;
-        }
+        // TODO: enum
+        if (method_exists($dummy, $fillable_entry) && ($dummy->$fillable_entry() instanceof Illuminate\Database\Eloquent\Relations\BelongsToMany)) {
+            $belongsToRelation = $dummy->$fillable_entry();
+            $relatedClass = $belongsToRelation->getRelated();
 
-        $name = $column['name'];
-        $type_name = $column['type_name'];
-        $nullable = $column['nullable'];
-        $icon = call_or_default($dummy, 'getIconForAttribute', $name, 'pencil');
+            $name = $fillable_entry;
+            $type = 'class';
+            $nullable = true;
+            $select_multiple = true;
+            $icon = call_or_default($dummy, 'getIconForAttribute', $name, 'pencil');
+            $options = $relatedClass::orderBy('first_name')
+                ->orderBy('last_name')
+                ->get();
+        }
+        else {
+            $column = $columns->firstWhere('name', $fillable_entry) ?? null;
+            if (!$column) {
+                continue;
+            }
+
+            $name = $column['name'];
+            $type_name = $column['type_name'];
+            $type = map_database_type_to_html($name, $type_name, $casts);
+            $nullable = $column['nullable'];
+            $select_multiple = false;
+            $icon = call_or_default($dummy, 'getIconForAttribute', $name, 'pencil');
+            $options = [];
+        }
 
         $fields[$name] = [
             'label' => ucfirst(str_replace('_', ' ', $name)),
-            'type' => map_database_type_to_html($name, $type_name, $casts),
+            'type' => $type,
             'required' => !$nullable,
             'icon' => $icon,
             'value' => $dummy->$name,
+            'options' => $options,
+            'default_option' => null,
+            'select_multiple' => $select_multiple,
             'width' => 12
         ];
 

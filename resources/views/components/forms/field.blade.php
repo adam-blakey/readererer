@@ -2,8 +2,9 @@
 
 @php
     $error_message = $errors->first($name);
-    $has_error = $error_message != null;
+    $has_error = $error_message != null || $error_message != '';
     $value = (isset($data['value'])) ? old($name, $data['value']) : null;
+    $classes = ['form-control', 'is-invalid' => $has_error, 'required' => $data['required']]
 @endphp
 
 <div @class(['col-md-'.$data['width']])>
@@ -14,11 +15,19 @@
             <x-icon :name="$data['icon']" />
         </span>
         @switch($data['type'])
+            @case('class')
+                <!-- TODO: style nice -->
+                <select name="{{ $name }}{{ $data['select_multiple'] ? '[]' : '' }}" @class($classes) {{ $data['select_multiple'] ? 'multiple' : '' }}>
+                    @foreach($data['options'] as $option)
+                        <option value="{{ $option->id }}" {{ $data['value']->contains($option->id) ? 'selected' : null }}>{{ $option->name }}</option>
+                    @endforeach
+                </select>
+                @break
             @case('textarea')
-                <textarea name="{{ $name }}" @class(['form-control', 'required' => $data['required']]) rows="3" placeholder="{{ $data['label'] }}" @required($data['required'])>{{ $value }}</textarea>
+                <textarea name="{{ $name }}" @class($classes) rows="3" placeholder="{{ $data['label'] }}" @required($data['required'])>{{ $value }}</textarea>
                 @break
             @case('number')
-                <input name="{{ $name }}" type="number" value="{{ $value }}" @class(['form-control', 'required' => $data['required']]) placeholder="{{ $data['label'] }}" @required($data['required']) />
+                <input name="{{ $name }}" type="number" value="{{ $value }}" @class($classes) placeholder="{{ $data['label'] }}" @required($data['required']) />
                 @break
             @case('checkbox')
                 @break
@@ -36,7 +45,7 @@
                 </select>
                 @break
             @default
-                <input type="text" name="{{ $name }}" value="{{ $value }}" @class(['form-control', 'is-invalid' => $has_error, 'required' => $data['required']]) placeholder="{{ $data['label'] }}" @required($data['required'])>
+                <input type="text" name="{{ $name }}" value="{{ $value }}" @class($classes) placeholder="{{ $data['label'] }}" @required($data['required'])>
         @endswitch
         @if($has_error)
             <div class="invalid-feedback">{{ $error_message }}</div>

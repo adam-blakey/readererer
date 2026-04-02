@@ -7,6 +7,7 @@ use App\Http\Requests\UpdateSetupGroupRequest;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
+use Illuminate\Support\Arr;
 
 class SetupGroupController extends Controller
 {
@@ -41,29 +42,6 @@ class SetupGroupController extends Controller
     {
         $dummy = new SetupGroup();
         $fields = get_create_fields($dummy);
-//        $fields = [
-//            "name" => [
-//                "label" => "Name",
-//                "type" => "text",
-//                "required" => true,
-//                "icon" => $dummy->getIconForAttribute("name") ?? 'pencil',
-//                "width" => 12
-//            ],
-//            "week" => [
-//                "label" => "Week",
-//                "type" => "text",
-//                "required" => true,
-//                "icon" => $dummy->getIconForAttribute("week") ?? 'pencil',
-//                "width" => 6
-//            ],
-//            "color" => [
-//                "label" => "Color",
-//                "type" => "text",
-//                "required" => true,
-//                "icon" => $dummy->getIconForAttribute("color") ?? 'pencil',
-//                "width" => 6
-//            ]
-//        ];
 
         return view('auto-entities.form', [
             'page_name' => 'Setup groups',
@@ -84,9 +62,18 @@ class SetupGroupController extends Controller
             'name' => 'required',
             'week' => 'required',
             'color' => 'required',
+            'van_drivers' => [
+                'id' => 'exists:users,id',
+            ]
         ]);
 
+        $van_drivers = Arr::pull($attributes, 'van_drivers');
         $setup_group = SetupGroup::create($attributes);
+
+        $setup_group->van_drivers()->detach();
+        foreach ($van_drivers as $van_driver) {
+            $setup_group->van_drivers()->attach($van_driver);
+        }
 
         return to_route('setupgroups.show', $setup_group);
     }
@@ -94,32 +81,6 @@ class SetupGroupController extends Controller
     public function edit(SetupGroup $setupGroup): View
     {
         $fields = get_create_fields($setupGroup);
-//        $fields = [
-//            "name" => [
-//                "label" => "Name",
-//                "type" => "text",
-//                "required" => true,
-//                "icon" => $setupGroup->getIconForAttribute("name") ?? 'pencil',
-//                "width" => 12,
-//                "value" => $setupGroup->name
-//            ],
-//            "week" => [
-//                "label" => "Week",
-//                "type" => "text",
-//                "required" => true,
-//                "icon" => $setupGroup->getIconForAttribute("week") ?? 'pencil',
-//                "width" => 6,
-//                "value" => $setupGroup->week
-//            ],
-//            "color" => [
-//                "label" => "Color",
-//                "type" => "text",
-//                "required" => true,
-//                "icon" => $setupGroup->getIconForAttribute("color") ?? 'pencil',
-//                "width" => 6,
-//                "value" => $setupGroup->color
-//            ]
-//        ];
 
         return view('auto-entities.form', [
             'page_name' => 'Setup groups',
@@ -140,9 +101,18 @@ class SetupGroupController extends Controller
             'name' => 'required',
             'week' => 'required',
             'color' => 'required',
+            'van_drivers' => [
+                'id' => 'exists:users,id',
+            ]
         ]);
 
+        $van_drivers = Arr::pull($attributes, 'van_drivers');
         $setupGroup->update($attributes);
+
+        $setupGroup->van_drivers()->detach();
+        foreach ($van_drivers as $van_driver) {
+            $setupGroup->van_drivers()->attach($van_driver);
+        }
 
         return to_route('setupgroups.show', $setupGroup);
     }
