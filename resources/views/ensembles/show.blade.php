@@ -17,8 +17,11 @@
 				</div>
 				<div class="col-auto ms-auto">
 					<div class="btn-list">
-                        <x-a href="{{ route('ensembles.seating-plan.show', ['ensemble' => $ensemble]) }}" class="btn"><x-icon name="users-group" />Seating plan</x-a>
-                        <x-a href="{{ route('ensembles.edit', ['ensemble' => $ensemble]) }}" class="btn"><x-icon name="pencil" />Edit</x-a>
+{{--                    TODO: More elegance required.    --}}
+                        @if (Auth::user()->role->value >= App\Enums\UserRole::Moderator->value)
+                            <x-a href="{{ route('ensembles.seating-plan.show', ['ensemble' => $ensemble]) }}" class="btn"><x-icon name="users-group" />Seating plan</x-a>
+                            <x-a href="{{ route('ensembles.edit', ['ensemble' => $ensemble]) }}" class="btn"><x-icon name="pencil" />Edit</x-a>
+                        @endif
 					</div>
 				</div>
 			</div>
