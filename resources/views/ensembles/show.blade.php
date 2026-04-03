@@ -72,14 +72,14 @@
                                         <x-icon name="user-cog" />
 										Admins ({{ $ensemble->admins->count() }}):
 										@foreach ($ensemble->admins as $admin)
-											<x-user-entry :user="$admin" />
+											<x-user-entry :user="$admin" secondary_info=" " />
 										@endforeach
 									</div>
 									<div class="mb-2">
                                         <x-icon name="users" />
 										Members ({{ $ensemble->users->count() }}):
 										@foreach ($ensemble->users as $user)
-											<x-user-entry :user="$user" />
+                                            <x-user-entry :user="$user" :add_route="false" :secondary_info="$user->membership($ensemble)" />
 										@endforeach
 									</div>
 								</div>

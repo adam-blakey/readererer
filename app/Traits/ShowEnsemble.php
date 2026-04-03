@@ -3,6 +3,7 @@
 namespace App\Traits;
 
 use App\Models\Ensemble;
+use App\Models\InstrumentFamily;
 use App\Models\Term;
 use Illuminate\Support\Carbon;
 
