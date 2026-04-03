@@ -2,11 +2,14 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\SetupGroup;
 use App\Models\Term;
 use App\Http\Requests\UpdateTermRequest;
 use App\Models\Ensemble;
+use App\Models\User;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Arr;
 use Illuminate\Support\Str;
 use Illuminate\View\View;
 
@@ -41,23 +44,18 @@ class TermController extends Controller
      */
     public function create(): View
     {
-        //$fields = get_create_fields(new User);
-        $fields = [
-            [
-                "name" => "name",
-                "label" => "Name",
-                "type" => "text",
-                "required" => true,
-                "icon" => "pencil",
-                "width" => 12
-            ]
-        ];
-
-        return view('auto-entities.form', [
-            'page_name' => 'Terms',
-            'page_subname' => 'Create new term',
-            'fields' => $fields,
-            'create_route' => route('terms.store')
+        $term = new Term();
+        $ensembles = Ensemble::whereNull('deleted_at')->orderBy('name')->get();
+        $setup_groups = SetupGroup::orderBy('name')->get();
+        $van_drivers = User::orderBy('first_name')->orderBy('last_name')->get();
+        return view('terms.form', [
+            'term' => $term,
+            'page_name' => 'New term',
+            'ensembles' => $ensembles,
+            'setup_groups' => $setup_groups,
+            'van_drivers' => $van_drivers,
+            'form_route' => route('terms.store'),
+            'form_method' => 'POST',
         ]);
     }
 
@@ -66,16 +64,34 @@ class TermController extends Controller
      */
     public function store(Request $request): RedirectResponse
     {
-        // TODO: better validation; maybe automatic somehow?
-        $attributes = $request->validate([
-            'name' => 'required',
-        ]);
+        $attributes = $request->validate(['name' => 'required', 'slug' => 'required|unique:terms']);
 
-        $attributes['slug'] = Str::slug($attributes['name'], '_');
+        $request_term_dates = collect($request->input('term_dates', []));
 
         $term = Term::create($attributes);
 
-        return to_route('terms.show', $term);
+        // Create or update term dates
+        $request_term_dates->each(function ($term_date) use ($term) {
+            $payload = [
+                'start_datetime' => $term_date['start_datetime'] ?? null,
+                'end_datetime' => $term_date['end_datetime'] ?? null,
+                'concert_ensemble_id' => $term_date['ensemble_id'] ?? null,
+                'setup_group_id' => $term_date['setup_group_id'] ?? null,
+                'van_driver_id' => $term_date['van_driver_id'] ?? null,
+            ];
+
+            if (!empty($term_date['id'])) {
+                // Update existing by ID, scoped to this term
+                $term->term_dates()->whereKey($term_date['id'])->update($payload);
+            } else {
+                // Create new
+                $term->term_dates()->create($payload);
+            }
+        });
+
+        $term->save();
+
+        return redirect()->route('terms.show', $term);
     }
 
     /**
@@ -98,10 +114,16 @@ class TermController extends Controller
     {
         $term->load('term_dates');
         $ensembles = Ensemble::whereNull('deleted_at')->orderBy('name')->get();
-        return view('terms.edit', [
+        $setup_groups = SetupGroup::orderBy('name')->get();
+        $van_drivers = User::orderBy('first_name')->orderBy('last_name')->get();
+        return view('terms.form', [
             'term' => $term,
             'page_name' => 'Edit term',
             'ensembles' => $ensembles,
+            'setup_groups' => $setup_groups,
+            'van_drivers' => $van_drivers,
+            'form_route' => route('terms.update', $term),
+            'form_method' => 'PATCH',
         ]);
     }
 
@@ -130,6 +152,8 @@ class TermController extends Controller
                 'start_datetime' => $term_date['start_datetime'] ?? null,
                 'end_datetime' => $term_date['end_datetime'] ?? null,
                 'concert_ensemble_id' => $term_date['ensemble_id'] ?? null,
+                'setup_group_id' => $term_date['setup_group_id'] ?? null,
+                'van_driver_id' => $term_date['van_driver_id'] ?? null,
             ];
 
             if (!empty($term_date['id'])) {
