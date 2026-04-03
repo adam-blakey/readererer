@@ -13,7 +13,9 @@
 				</div>
 				<div class="col">
 					<h1 class="my-0 font-bold">{{ $ensemble->name }}</h1>
-					<span class="badge bg-blue text-blue-fg">You're a member!</span>
+                    @if (\Illuminate\Support\Facades\Auth::user()->ensembles->contains($ensemble))
+					    <span class="badge bg-blue text-blue-fg">You're a member!</span>
+                    @endif
 				</div>
 				<div class="col-auto ms-auto">
 					<div class="btn-list">
