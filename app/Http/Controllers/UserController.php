@@ -111,10 +111,6 @@ class UserController extends Controller
             'setup_group' => 'required|exists:setup_groups,id'
         ]);
 
-        // TODO: Need to be careful on username collisions.
-        $attributes['username'] = Str::slug($attributes['first_name'] . ' ' . $attributes['last_name'], '.');
-        // TODO: lol, this seems to reset the password
-
         $setup_group_id = Arr::pull($attributes, 'setup_group');
         $setup_group = SetupGroup::find($setup_group_id);
         $user->update($attributes);
