@@ -38,8 +38,7 @@ class Ensemble extends Model
     ];
 
     protected $fillable = [
-        'name',
-        'slug'
+        'name'
     ];
 
     public function casts(): array

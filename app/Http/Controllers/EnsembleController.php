@@ -48,17 +48,7 @@ class EnsembleController extends Controller
      */
     public function create(): View
     {
-        //$fields = get_create_fields(new User);
-        $fields = [
-            [
-                "name" => "name",
-                "label" => "Name",
-                "type" => "text",
-                "required" => true,
-                "icon" => "pencil",
-                "width" => 12
-            ]
-        ];
+        $fields = get_create_fields(new Ensemble);
 
         return view('auto-entities.form', [
             'page_name' => 'Ensembles',
@@ -79,9 +69,9 @@ class EnsembleController extends Controller
             'name' => 'required',
         ]);
 
-        $attributes['slug'] = Str::slug($attributes['name'], '_');
-
-        $ensemble = Ensemble::create($attributes);
+        $ensemble = new Ensemble($attributes);
+        $ensemble->slug = Str::slug($attributes['name'], '_');
+        $ensemble->save();
 
         return to_route('ensembles.show', $ensemble);
     }
