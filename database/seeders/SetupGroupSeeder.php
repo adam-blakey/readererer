@@ -18,7 +18,7 @@ class SetupGroupSeeder extends Seeder
         for ($i = 1; $i <= 4; $i++)
         {
             $setupGroup = SetupGroup::factory()->create([
-                'name' => $i,
+                'name' => 'Setup group ' . $i,
                 'week' => $i,
                 'color' => $colors[$i-1],
             ]);
