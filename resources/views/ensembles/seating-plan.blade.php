@@ -1,0 +1,67 @@
+@props(['ensemble', 'grouped_users', 'page_name', 'page_subname'])
+
+<x-layout :$page_name :$page_subname>
+    <div class="container-xl">
+        <x-card-row>
+            <div class="col-md-12">
+                <x-card>
+                    <div class="card-header">
+                        <h3 class="card-title">
+                            {{ $page_subname }}
+                        </h3>
+                        <div class="card-actions">
+                            <button class="btn btn-primary" id="save-seating-plan">
+                                Save
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="card-body">
+                        @if(session('success'))
+                            <div class="alert alert-success">
+                                {{ session('success') }}
+                            </div>
+                        @endif
+
+                        @if(session('error'))
+                            <div class="alert alert-danger">
+                                {{ session('error') }}
+                            </div>
+                        @endif
+
+                        @foreach($grouped_users as $row => $users)
+                            <div class="card mb-3 seating-row" data-row="{{ $row }}">
+                                <div class="card-header">
+                                    <h2 class="card-title">Row {{ $row }}</h2>
+                                </div>
+                                <div class="card-body">
+                                    <div class="row min-h-2">
+                                        @foreach($users as $user)
+                                            <div class="col-md-3 user-entry" data-user-id="{{ $user->id }}" data-original-row="{{ $user->original_seat_row }}" data-original-column="{{ $user->original_seat_column }}">
+                                                <x-user-entry :user="$user" :add_route="false" :draggable="true" :secondary_info="$user->instrument_name" :show_seating_position="true" />
+                                            </div>
+                                        @endforeach
+                                    </div>
+                                </div>
+                            </div>
+                        @endforeach
+
+                        <div class="card mb-3 seating-row" data-row="" style="display: none;">
+                            <div class="card-header">
+                                <h2 class="card-title">Row</h2>
+                            </div>
+                            <div class="card-body">
+                                <div class="row min-h-2">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </x-card>
+            </div>
+        </x-card-row>
+    </div>
+
+    @push('scripts')
+        @vite('resources/js/seating-plan.js')
+    @endpush
+</x-layout>

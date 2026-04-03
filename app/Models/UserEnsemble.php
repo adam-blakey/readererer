@@ -2,7 +2,6 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\Pivot;
 
 class UserEnsemble extends Pivot
@@ -12,8 +11,18 @@ class UserEnsemble extends Pivot
         return $this->belongsTo(User::class);
     }
 
-    public function ensembles()
+    public function ensemble()
     {
-        return $this->HasMany(Ensemble::class, 'user_id', 'ensemble_id');
+        return $this->belongsTo(Ensemble::class);
+    }
+
+    public function instrumentFamily()
+    {
+        return $this->belongsTo(InstrumentFamily::class);
+    }
+
+    public function getSeatAttribute()
+    {
+        return $this->seat_column . $this->seat_row;
     }
 }

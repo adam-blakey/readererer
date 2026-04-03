@@ -8,16 +8,28 @@ use App\Http\Requests\UpdatePieceRequest;
 
 class PieceController extends Controller
 {
+    public function __construct()
+    {
+        $this->authorizeResource(Piece::class);
+    }
+
     /**
      * Display a listing of the resource.
      */
     public function index()
     {
-        $pieces = Piece::latest()->with(['composer'])->paginate(10);
+        $query = Piece::query();
+        if (request('with_trashed')) {
+            $query = $query->withTrashed();
+        } else {
+            $query = $query->whereNull('deleted_at');
+        }
+        $pieces = $query->with(['composer'])->autosort()->paginate(10)->appends(request()->only('with_trashed'));
 
-        return view('pieces.index', [
-            'pieces' => $pieces,
-            'page_name' => 'Pieces'
+        return view('auto-entities.index', [
+            'entities' => $pieces,
+            'page_name' => 'Pieces',
+            'page_subname' => 'Pieces overview'
         ]);
     }
 
@@ -42,7 +54,10 @@ class PieceController extends Controller
      */
     public function show(Piece $piece)
     {
-        //
+        return view('pieces.show', [
+            'piece' => $piece,
+            'page_name' => $piece->title
+        ]);
     }
 
     /**
@@ -66,6 +81,26 @@ class PieceController extends Controller
      */
     public function destroy(Piece $piece)
     {
-        //
+        $piece->delete();
+        return redirect()->back()->with('status', 'Record deleted.');
+    }
+
+    public function purgeTrashed()
+    {
+        Piece::onlyTrashed()->get()->each(function ($model) {
+            $model->forceDelete();
+        });
+        return redirect()->back()->with('status', 'All soft-deleted records permanently removed.');
+    }
+
+    public function restore(int $id)
+    {
+        $entity = Piece::withTrashed()->findOrFail($id)->restore();
+
+        // Not sure why this is necessary...
+        $entity->deleted_at = null;
+        $entity->save();
+
+        return redirect()->back()->with('status', 'Restored.');
     }
 }

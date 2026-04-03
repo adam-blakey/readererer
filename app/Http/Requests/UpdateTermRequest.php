@@ -2,6 +2,7 @@
 
 namespace App\Http\Requests;
 
+use App\Models\Term;
 use Illuminate\Foundation\Http\FormRequest;
 
 class UpdateTermRequest extends FormRequest
@@ -11,7 +12,7 @@ class UpdateTermRequest extends FormRequest
      */
     public function authorize(): bool
     {
-        return false;
+        return $this->user()->can('update', $this->term);
     }
 
     /**
@@ -22,7 +23,15 @@ class UpdateTermRequest extends FormRequest
     public function rules(): array
     {
         return [
-            //
+            'name' => 'required|string|max:255',
+            'slug' => 'required|string|max:255',
+
+            // Term dates must not be null; validate each provided row
+            'term_dates' => 'array',
+            'term_dates.*.id' => 'nullable|integer',
+            'term_dates.*.start_datetime' => 'required|date',
+            'term_dates.*.end_datetime' => 'required|date',
+            'term_dates.*.ensemble_id' => 'nullable|integer|exists:ensembles,id',
         ];
     }
 }

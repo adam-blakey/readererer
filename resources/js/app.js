@@ -1,6 +1,5 @@
 import './bootstrap';
 import "@tabler/core/dist/js/tabler.min.js";
-import "@tabler/core/dist/js/demo-theme.min.js";
 import "apexcharts/dist/apexcharts.min.js";
 import "autosize/dist/autosize.min.js";
 import "choices.js/public/assets/scripts/choices.min.js";

@@ -8,12 +8,29 @@ use App\Http\Requests\UpdateComposerRequest;
 
 class ComposerController extends Controller
 {
+    public function __construct()
+    {
+        $this->authorizeResource(Composer::class);
+    }
+
     /**
      * Display a listing of the resource.
      */
     public function index()
     {
-        //
+        $query = Composer::query();
+        if (request('with_trashed')) {
+            $query = $query->withTrashed();
+        } else {
+            $query = $query->whereNull('deleted_at');
+        }
+        $composers = $query->autosort()->paginate(10)->appends(request()->only('with_trashed'));
+
+        return view('auto-entities.index', [
+            'entities' => $composers,
+            'page_name' => 'Composers',
+            'page_subname' => 'Composers overview'
+        ]);
     }
 
     /**
@@ -61,6 +78,27 @@ class ComposerController extends Controller
      */
     public function destroy(Composer $composer)
     {
-        //
+        $composer->delete();
+        return redirect()->back()->with('status', 'Record deleted.');
+    }
+
+    public function purgeTrashed()
+    {
+        Composer::onlyTrashed()->get()->each(function ($model) {
+            $model->forceDelete();
+        });
+        return redirect()->back()->with('status', 'All soft-deleted records permanently removed.');
+    }
+
+    public function restore(int $id)
+    {
+        $entity = Composer::withTrashed()->findOrFail($id);
+        $entity->restore();
+
+        // Not sure why this is necessary...
+        $entity->deleted_at = null;
+        $entity->save();
+
+        return redirect()->back()->with('status', 'Restored.');
     }
 }

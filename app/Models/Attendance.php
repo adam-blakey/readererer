@@ -12,8 +12,15 @@ class Attendance extends Model
 {
     use HasFactory;
 
-    protected $edit_datetime;
     protected $edit_ip;
+    protected $fillable = [
+        'user_id',
+        'term_date_id',
+        'ensemble_id',
+        'status',
+        'edit_user_id',
+        'edit_ip',
+    ];
 
     public function user(): BelongsTo
     {
@@ -42,14 +49,25 @@ class Attendance extends Model
         ];
     }
 
+    public function getNameAttribute(): string
+    {
+        return $this->ensemble->name . ': ' . $this->term_date->term->name;
+    }
+
     public function getStatusTextAttribute(): string
     {
-        switch ($this->status) {
-            case AttendanceStatus::NotAttending:
-                return 'Not Attending';
+        $assume_attending = config('app.readererer_assume_attending');
+
+        $display_status = ($assume_attending and $this->status == AttendanceStatus::Unknown) ? AttendanceStatus::Attending : $this->status;
+
+        switch ($display_status) {
             case AttendanceStatus::Attending:
                 return 'Attending';
-            default:
+
+            case AttendanceStatus::NotAttending:
+                return 'Not attending';
+
+            case AttendanceStatus::Unknown:
                 return 'Unknown';
         }
     }

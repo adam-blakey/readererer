@@ -5,51 +5,122 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Carbon;
+use SDamian\Larasort\AutoSortable;
 
 class Term extends Model
 {
     use HasFactory;
+    use SoftDeletes;
+    use AutoSortable;
 
     protected string $name;
     protected string $slug;
     protected string $image;
-    protected bool $show;
+
+    // TODO: ideally we'd shorten some of these to friendly names when in tables.
+    protected $visible = [
+        'name',
+        'slug',
+        'number_of_rehearsals',
+        'number_of_concerts',
+        'earliest_date',
+        'latest_date',
+        'created_at',
+        'updated_at',
+    ];
+
+    public array $sortables = [
+        'name',
+        'slug',
+        'created_at',
+        'updated_at',
+    ];
+
+    protected $fillable = [
+        'name',
+        'slug',
+        'term_dates'
+    ];
+
+    public function casts(): array
+    {
+        return [
+            'created_at' => 'datetime',
+            'updated_at' => 'datetime',
+            'earliest_date' => 'datetime',
+            'latest_date' => 'datetime',
+        ];
+    }
 
     public function term_dates(): HasMany
     {
-        return $this->hasMany(TermDate::class);
+        return $this->hasMany(TermDate::class)->orderBy('start_datetime');
     }
 
-    public function earliest_date(): Carbon
+    public function getNumberOfRehearsalsAttribute(): int
     {
-        $earliest_termdate = $this->term_dates()->orderBy('start_datetime', 'asc')->firstOrFail();
-
-        return $earliest_termdate->start_datetime;
+        return $this->term_dates()->whereNull('concert_ensemble_id')->count();
     }
 
-    public function latest_date(): Carbon
+    public function getNumberOfConcertsAttribute(): int
     {
-        $latest_termdate = $this->term_dates()->orderBy('start_datetime', 'desc')->firstOrFail();
-
-        return $latest_termdate->end_datetime;
+        return $this->term_dates()->whereNotNull('concert_ensemble_id')->count();
     }
 
-    public function formatted_term_date_range(): string
+    public function getNumberOfTermDatesAttribute(): int
     {
-        if ($this->term_dates_count === 0)
+        return $this->term_dates()->count();
+    }
+
+    public function getEarliestDateAttribute(): ?Carbon
+    {
+        $earliest_termdate = $this
+            ->term_dates()
+            ->orderBy('start_datetime', 'asc')
+            ->first();
+
+        return $earliest_termdate?->start_datetime;
+    }
+
+    public function getLatestDateAttribute(): ?Carbon
+    {
+        $number_of_termdates = $this->term_dates()->count();
+        $latest_termdate = $this
+            ->term_dates()
+            ->orderBy('start_datetime', 'desc')
+            ->skip($number_of_termdates - 1)
+            ->first();
+
+        return $latest_termdate?->start_datetime;
+    }
+
+    public function getFormattedTermDateRangeAttribute(): string
+    {
+        if ($this->term_dates->count() === 0)
         {
             return '–';
         }
         else
         {
-            $first = $this->earliest_date();
-            $last = $this->latest_date();
+            $first = $this->earliestDate;
+            $last = $this->latestDate;
 
             // Get human-readable length.
-            $length = $first->diff($last)->months;
+            $months = $first->diff($last)->months;
 
-            return 'about ' . $length . ' months, ' . $first->format('Y-m-d') . ' to ' . $last->format('Y-m-d');
+            if ($months == 0)
+            {
+                if ($first->diff($last)->day == 0)
+                {
+                    return $first->format('Y-m-d');
+                }
+
+                return 'less than a month, ' . $first->format('Y-m-d') . ' to ' . $last->format('Y-m-d');
+            }
+
+            return 'about ' . $months . ' months, ' . $first->format('Y-m-d') . ' to ' . $last->format('Y-m-d');
         }
     }
 }

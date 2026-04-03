@@ -3,15 +3,45 @@
 namespace App\Models;
 
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
+use App\Traits\HasPropertyIcons;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
+use App\Enums\UserRole;
+use Carbon\Carbon;
+use Illuminate\Support\Carbon as SupportCarbon;
+use SDamian\Larasort\AutoSortable;
 
 class User extends Authenticatable
 {
-    use HasFactory, Notifiable;
+    use HasFactory, Notifiable, SoftDeletes, AutoSortable;
 
     protected $deleted_at;
+    protected $image;
+
+    protected $visible = [
+        'image',
+        'name',
+        'first_name',
+        'last_name',
+        'username',
+        'email',
+        'role',
+        'is_over_18',
+        'created_at',
+        'updated_at',
+    ];
+
+    public array $sortables = [
+        'first_name',
+        'last_name',
+        'username',
+        'email',
+        'role',
+        'created_at',
+        'updated_at',
+    ];
 
     public function attendances()
     {
@@ -20,7 +50,15 @@ class User extends Authenticatable
 
     public function ensembles()
     {
-        return $this->belongsToMany(Ensemble::class, 'user_ensemble', 'user_id', 'ensemble_id');
+        return $this->belongsToMany(Ensemble::class, 'user_ensemble')
+            ->withPivot('instrument_family_id')
+            ->withPivot('seat_column')
+            ->withPivot('seat_row');
+    }
+
+    public function setup_group()
+    {
+        return $this->belongsTo(SetupGroup::class);
     }
 
     /**
@@ -29,9 +67,13 @@ class User extends Authenticatable
      * @var array<int, string>
      */
     protected $fillable = [
-        'name',
+        'first_name',
+        'last_name',
+        'username',
         'email',
         'password',
+        'image',
+        'role',
     ];
 
     /**
@@ -49,11 +91,146 @@ class User extends Authenticatable
      *
      * @return array<string, string>
      */
-    protected function casts(): array
+    public function casts(): array
     {
         return [
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
+            'role' => UserRole::class,
+            'date_of_birth' => 'date',
+            'created_at' => 'datetime',
+            'updated_at' => 'datetime',
+            'is_over_18' => 'boolean',
         ];
+    }
+
+    public function getInitialsAttribute(): string
+    {
+        return $this->first_name[0] . $this->last_name[0];
+    }
+
+    public function getRoleDescriptionAttribute(): string
+    {
+        switch ($this->role) {
+            case UserRole::Admin:
+                return 'Admin';
+            case UserRole::Moderator:
+                return 'Moderator';
+            case UserRole::Member:
+                return 'Member';
+            case UserRole::Ensemble:
+                return 'Ensemble';
+            case UserRole::Guest:
+                return 'Guest';
+            default:
+                return 'Unknown';
+        }
+    }
+
+    public function getFullAddressAttribute(): string
+    {
+        $address = [];
+
+        if ($this->address_line1) {
+            $address[] = $this->address_line1;
+        }
+
+        if ($this->address_line2) {
+            $address[] = $this->address_line2;
+        }
+
+        if ($this->address_city) {
+            $address[] = $this->address_city;
+        }
+
+        if ($this->address_post_code) {
+            $address[] = $this->address_post_code;
+        }
+
+        return implode(', ', $address);
+    }
+
+    public function getIsOver18Attribute(): bool
+    {
+        if ($this->date_of_birth === null) {
+            return false;
+        }
+
+        return $this->date_of_birth->diffInYears(SupportCarbon::now()) >= 18;
+    }
+
+    public function getEmergencyContactDetailsAttribute(): string
+    {
+        $contact_details = [];
+
+        if ($this->emergency_contact_name) {
+            $contact_details[] = $this->emergency_contact_name;
+        }
+
+        if ($this->emergency_contact_number) {
+            $contact_details[] = $this->emergency_contact_number;
+        }
+
+        if ($this->emergency_contact_relationship) {
+            $contact_details[] = $this->emergency_contact_relationship;
+        }
+
+        if ($this->emergency_contact_address_line1) {
+            $contact_details[] = $this->emergency_contact_address_line1;
+        }
+
+        if ($this->emergency_contact_address_line2) {
+            $contact_details[] = $this->emergency_contact_address_line2;
+        }
+
+        if ($this->emergency_contact_address_city) {
+            $contact_details[] = $this->emergency_contact_address_city;
+        }
+
+        if ($this->emergency_contact_address_post_code) {
+            $contact_details[] = $this->emergency_contact_address_post_code;
+        }
+
+        return implode(', ', $contact_details);
+    }
+
+    public function getNameAttribute(): string
+    {
+        return $this->first_name . ' ' . $this->last_name;
+    }
+
+    public function getFirstNameInitialAttribute(): string
+    {
+        return $this->first_name[0];
+    }
+
+    public function getLastNameInitialAttribute(): string
+    {
+        return $this->last_name[0];
+    }
+
+    public function membership($ensemble): string {
+        $pivot = $this->ensembles->firstWhere('id', $ensemble->id)->pivot;
+        if (!$pivot) {
+            return "Not a member";
+        }
+
+        // TODO: Obvs this is terrible.
+        $instrument_family = InstrumentFamily::where('id', $pivot->instrument_family_id)->first();
+        $instrument_name = ($instrument_family) ? $instrument_family->name : '';
+
+        $seat_name = $pivot->seat_row . $pivot->seat_column;
+
+        if (!$instrument_name && !$seat_name) {
+            return "No membership information";
+        }
+        elseif ($instrument_name && !$seat_name) {
+            return $instrument_name;
+        }
+        elseif (!$instrument_name && $seat_name) {
+            return $seat_name;
+        }
+
+        return $seat_name . " in " . $instrument_name;
     }
 }
