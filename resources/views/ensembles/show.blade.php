@@ -17,27 +17,8 @@
 				</div>
 				<div class="col-auto ms-auto">
 					<div class="btn-list">
-                        <a aria-label="Button" class="btn" href="{{ route('ensembles.seating-plan.show', ['ensemble' => $ensemble]) }}">
-                            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-users-group" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
-                               <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
-                               <path d="M10 13a2 2 0 1 0 4 0a2 2 0 0 0 -4 0"></path>
-                               <path d="M8 21v-1a2 2 0 0 1 2 -2h4a2 2 0 0 1 2 2v1"></path>
-                               <path d="M15 5a2 2 0 1 0 4 0a2 2 0 0 0 -4 0"></path>
-                               <path d="M17 10h2a2 2 0 0 1 2 2v1"></path>
-                               <path d="M5 5a2 2 0 1 0 4 0a2 2 0 0 0 -4 0"></path>
-                               <path d="M3 10h2a2 2 0 0 1 2 2v1"></path>
-                            </svg>
-							Seating Plan
-						</a>
-						<a aria-label="Button" class="btn" href="{{ route('ensembles.edit', ['ensemble' => $ensemble]) }}">
-							<!-- Download SVG icon from http://tabler-icons.io/i/message -->
-							<svg class="icon icon-tabler icons-tabler-outline icon-tabler-pencil" fill="none" height="24" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" stroke="currentColor" viewBox="0 0 24 24" width="24" xmlns="http://www.w3.org/2000/svg">
-								<path d="M0 0h24v24H0z" fill="none" stroke="none" />
-								<path d="M4 20h4l10.5 -10.5a2.828 2.828 0 1 0 -4 -4l-10.5 10.5v4" />
-								<path d="M13.5 6.5l4 4" />
-							</svg>
-							Edit
-						</a>
+                        <x-a href="{{ route('ensembles.seating-plan.show', ['ensemble' => $ensemble]) }}" class="btn"><x-icon name="users-group" />Seating plan</x-a>
+                        <x-a href="{{ route('ensembles.edit', ['ensemble' => $ensemble]) }}" class="btn"><x-icon name="pencil" />Edit</x-a>
 					</div>
 				</div>
 			</div>

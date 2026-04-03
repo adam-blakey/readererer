@@ -46,6 +46,7 @@ Route::post('/ensembles/{ensemble}/add_user', [EnsembleController::class, 'add_u
 Route::post('/ensembles/{ensemble}/remove_user/{user}', [EnsembleController::class, 'remove_user'])->name('ensembles.remove_user')->middleware('auth');
 Route::get('/ensembles/{ensemble}/seating-plan', [SeatingPlanController::class, 'show'])->name('ensembles.seating-plan.show')->middleware('auth');
 Route::post('/ensembles/{ensemble}/seating-plan', [SeatingPlanController::class, 'update'])->name('ensembles.seating-plan.update')->middleware('auth');
+Route::get('/ensembles/{ensemble}/seating-plan/{termDate:id}/download', [SeatingPlanController::class, 'download'])->name('seating-plan.download')->withoutScopedBindings();
 Route::resource('pieces', PieceController::class)->middleware('auth');
 Route::patch('/pieces/{piece}/restore', [PieceController::class, 'restore'])->name('pieces.restore')->middleware('auth');
 Route::resource('setlists', SetlistController::class)->middleware('auth');
@@ -57,6 +58,5 @@ Route::patch('/users/{user}/restore', [UserController::class, 'restore'])->name(
 Route::resource('setupgroups', SetupGroupController::class)->middleware('auth')->parameter('setupgroups', 'setupGroup');
 Route::patch('/setupgroups/{setupgroup}/restore', [SetupGroupController::class, 'restore'])->name('setupgroups.restore')->middleware('auth');
 
-Route::get('/seating-plan/{ensemble:slug}/{termDate:id}/download', [SeatingPlanPdfController::class, 'download'])->name('seating-plan.download')->withoutScopedBindings();
 
 require __DIR__.'/auth.php';

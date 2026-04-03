@@ -4,7 +4,11 @@ namespace App\Http\Controllers;
 
 use App\Models\Ensemble;
 use App\Models\InstrumentFamily;
+use App\Models\TermDate;
+use App\Models\User;
+use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Collection;
 
@@ -12,6 +16,8 @@ class SeatingPlanController extends Controller
 {
     public function show(Ensemble $ensemble)
     {
+        $this->authorize('update', $ensemble);
+
         $ensemble->load('users');
 
         $users = $ensemble->users->sortBy([
@@ -65,6 +71,8 @@ class SeatingPlanController extends Controller
 
     public function update(Request $request, Ensemble $ensemble)
     {
+        $this->authorize('update', $ensemble);
+
         $input = $request->input();
         $seatingPlan = json_decode($input['seating_plan'], true);
 
@@ -89,5 +97,24 @@ class SeatingPlanController extends Controller
         });
 
         return to_route('ensembles.seating-plan.show', $ensemble);
+    }
+
+    public function download(Ensemble $ensemble, TermDate $termDate)
+    {
+        $this->authorize('view', $ensemble);
+
+        $members = User::latest()
+            ->with('attendances')
+            ->with('ensembles')
+            ->with('setup_group')
+            ->get()
+            ->filter(function($user) use ($ensemble) { return $user->ensembles->contains($ensemble) && $user->ensembles->where('id', $ensemble->id)->first()->pivot->instrument_family_id != null; })
+            ->values();
+
+        Pdf::setOption(['debugCss' => true]);
+        $pdf = Pdf::loadView('mail.seating-plan-pdf', compact('ensemble', 'termDate', 'members'))->setPaper('a4', 'landscape');
+        return $pdf->stream();
+
+        //return view('mail.seating-plan-pdf', compact('ensemble', 'termDate', 'members'));
     }
 }
