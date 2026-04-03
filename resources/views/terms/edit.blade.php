@@ -53,14 +53,14 @@
 										</div>
                                         <hr />
 										<div class="mb-3">
-    							<label class="card-title">Term dates</label>
-                                                    <script type="text/template" id="ensemble-options-template">
-                                                        <option value="">Not a concert</option>
-                                                        @foreach(($ensembles ?? collect()) as $ens)
-                                                            <option value="{{ $ens->id }}">{{ $ens->name }}</option>
-                                                        @endforeach
-                                                    </script>
-    							<div id="term-dates-list">
+    							            <label class="card-title">Term dates</label>
+                                            <script type="text/template" id="ensemble-options-template">
+                                                <option value="">Not a concert</option>
+                                                @foreach(($ensembles ?? collect()) as $ens)
+                                                    <option value="{{ $ens->id }}">{{ $ens->name }}</option>
+                                                @endforeach
+                                            </script>
+    							            <div id="term-dates-list">
                                                 @php
                                                     $existingDates = $term->term_dates?->sortBy('start_datetime') ?? collect();
                                                     $prefillDates = collect(old('term_dates'));
