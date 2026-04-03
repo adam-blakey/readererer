@@ -81,6 +81,7 @@ class SetupGroupController extends Controller
     public function edit(SetupGroup $setupGroup): View
     {
         $fields = get_create_fields($setupGroup);
+        $fields['van_drivers']['options'] = $fields['van_drivers']['options']->sortBy('first_name');
 
         return view('auto-entities.form', [
             'page_name' => 'Setup groups',

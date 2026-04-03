@@ -3,9 +3,11 @@
 namespace App\Http\Controllers;
 
 use App\Enums\UserRole;
+use App\Models\SetupGroup;
 use App\Models\User;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Arr;
 use Illuminate\Support\Str;
 use Illuminate\Validation\Rule;
 use Illuminate\View\View;
@@ -62,15 +64,19 @@ class UserController extends Controller
         $attributes = $request->validate([
             'first_name' => 'required',
             'last_name' => 'required',
-            'email' => 'required|email',
-            'role' => [Rule::enum(UserRole::class)]
+            'email' => 'email',
+            'role' => [Rule::enum(UserRole::class)],
+            'setup_group' => 'required|exists:setup_groups,id',
         ]);
 
         // TODO: Need to be careful on username collisions.
         $attributes['username'] = Str::slug($attributes['first_name'] . ' ' . $attributes['last_name'], '.');
         $attributes['password'] = Str::password(16);
 
+        $setup_group_id = Arr::pull($attributes, 'setup_group');
         $user = User::create($attributes);
+        $setup_group = SetupGroup::find($setup_group_id);
+        $user->setup_group()->associate($setup_group);
 
         return to_route('users.show', $user);
     }
@@ -100,15 +106,21 @@ class UserController extends Controller
         $attributes = $request->validate([
             'first_name' => 'required',
             'last_name' => 'required',
-            'email' => 'required|email',
-            'role' => [Rule::enum(UserRole::class)]
+            'email' => 'email',
+            'role' => [Rule::enum(UserRole::class)],
+            'setup_group' => 'required|exists:setup_groups,id'
         ]);
 
         // TODO: Need to be careful on username collisions.
         $attributes['username'] = Str::slug($attributes['first_name'] . ' ' . $attributes['last_name'], '.');
         // TODO: lol, this seems to reset the password
 
+        $setup_group_id = Arr::pull($attributes, 'setup_group');
+        $setup_group = SetupGroup::find($setup_group_id);
         $user->update($attributes);
+        $user->setup_group()->associate($setup_group);
+
+        $user->save();
 
         return to_route('users.show', $user);
     }

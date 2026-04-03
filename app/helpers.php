@@ -75,17 +75,17 @@ function get_create_fields(object $dummy): array
 
     foreach ($fillable as $fillable_entry) {
         // TODO: enum
-        if (method_exists($dummy, $fillable_entry) && ($dummy->$fillable_entry() instanceof Illuminate\Database\Eloquent\Relations\BelongsToMany)) {
+        if (method_exists($dummy, $fillable_entry) && (($dummy->$fillable_entry() instanceof Illuminate\Database\Eloquent\Relations\BelongsToMany) || ($dummy->$fillable_entry() instanceof Illuminate\Database\Eloquent\Relations\BelongsTo))) {
             $belongsToRelation = $dummy->$fillable_entry();
             $relatedClass = $belongsToRelation->getRelated();
+            $isBelongsToMany = ($dummy->$fillable_entry() instanceof Illuminate\Database\Eloquent\Relations\BelongsToMany);
 
             $name = $fillable_entry;
             $type = 'class';
-            $nullable = true;
-            $select_multiple = true;
+            $nullable = $isBelongsToMany;
+            $select_multiple = $isBelongsToMany;
             $icon = call_or_default($dummy, 'getIconForAttribute', $name, 'pencil');
-            $options = $relatedClass::orderBy('first_name')
-                ->orderBy('last_name')
+            $options = $relatedClass::orderBy('name')
                 ->get();
         }
         else {

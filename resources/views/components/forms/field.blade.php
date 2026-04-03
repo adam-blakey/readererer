@@ -1,3 +1,4 @@
+@php use Illuminate\Support\Collection; @endphp
 @props(['name', 'data'])
 
 @php
@@ -19,7 +20,8 @@
                 <!-- TODO: style nice -->
                 <select name="{{ $name }}{{ $data['select_multiple'] ? '[]' : '' }}" @class($classes) {{ $data['select_multiple'] ? 'multiple' : '' }}>
                     @foreach($data['options'] as $option)
-                        <option value="{{ $option->id }}" {{ $data['value']->contains($option->id) ? 'selected' : null }}>{{ $option->name }}</option>
+                        @php($selected = ($data['value'] instanceof Collection) ? $data['value']->contains($option->id) : $data['value'] == $option)
+                        <option value="{{ $option->id }}" {{ $selected ? 'selected' : null }}>{{ $option->name }}</option>
                     @endforeach
                 </select>
                 @break

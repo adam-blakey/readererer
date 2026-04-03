@@ -28,6 +28,7 @@ class User extends Authenticatable
         'username',
         'email',
         'role',
+        'setup_group',
         'is_over_18',
         'created_at',
         'updated_at',
@@ -74,6 +75,7 @@ class User extends Authenticatable
         'password',
         'image',
         'role',
+        'setup_group',
     ];
 
     /**
