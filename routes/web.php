@@ -4,6 +4,7 @@ use App\Http\Controllers\PieceController;
 use App\Http\Controllers\EnsembleController;
 use App\Http\Controllers\SeatingPlanController;
 use App\Http\Controllers\SeatingPlanPdfController;
+use App\Http\Controllers\SettingController;
 use App\Http\Controllers\TermController;
 use App\Http\Controllers\AttendanceController;
 use App\Http\Controllers\UserController;
@@ -57,6 +58,6 @@ Route::resource('users', UserController::class)->middleware('auth');
 Route::patch('/users/{user}/restore', [UserController::class, 'restore'])->name('users.restore')->middleware('auth');
 Route::resource('setupgroups', SetupGroupController::class)->middleware('auth')->parameter('setupgroups', 'setupGroup');
 Route::patch('/setupgroups/{setupgroup}/restore', [SetupGroupController::class, 'restore'])->name('setupgroups.restore')->middleware('auth');
-
+Route::get('/settings', [SettingController::class, 'edit'])->name('settings.edit')->middleware('auth');
 
 require __DIR__.'/auth.php';
