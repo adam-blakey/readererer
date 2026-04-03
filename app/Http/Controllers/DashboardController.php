@@ -24,10 +24,13 @@ class DashboardController extends Controller
         $setupGroup = $user->setup_group;
 
         // Upcoming rehearsal (any non-concert term date)
-        $nextRehearsal = TermDate::whereNull('concert_ensemble_id')
-            ->where('start_datetime', '>', Carbon::now())
-            ->orderBy('start_datetime')
-            ->first();
+        $nextRehearsal = null;
+        if (!empty($ensembles)) {
+            $nextRehearsal = TermDate::whereNull('concert_ensemble_id')
+                ->where('start_datetime', '>', Carbon::now())
+                ->orderBy('start_datetime')
+                ->first();
+        }
 
         // Upcoming concerts for user's ensembles
         $ensembleIds = $ensembles->pluck('id');

@@ -14,7 +14,7 @@ class EnsemblePolicy
      */
     public function viewAny(User $user)
     {
-        if ($user->role->value >= UserRole::Member->value) {
+        if ($user->role->value >= UserRole::Admin->value) {
             return Response::allow();
         }
 

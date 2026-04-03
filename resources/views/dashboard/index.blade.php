@@ -64,7 +64,7 @@
 						@if($setupGroup)
 							<div class="d-flex align-items-center">
 								<x-setup-group-badge :setup_group="$setupGroup" />
-								<span class="ms-2">Week {{ $setupGroup->week }}</span>
+								<span class="ms-2">{{ $setupGroup->name }}</span>
 							</div>
 						@else
 							<p class="text-muted">You are not assigned to a setup group.</p>
