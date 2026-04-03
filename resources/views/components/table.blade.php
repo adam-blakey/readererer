@@ -94,17 +94,24 @@
  					@endforeach
 					<td><x-a :route="$edit_route_name" :model="$entity">Edit</x-a></td>
                     <td>
+                        @php
+                            $allowed = Gate::allows('delete', $entity);
+                            $classes = ['btn', 'btn-sm'];
+                            if (!$allowed) {
+                                $classes = array_merge($classes, ['opacity-50', 'pointer-events-none', 'cursor-not-allowed']);
+                            }
+                        @endphp
                         @if ($entity->deleted_at != null)
                             <form method="POST" action="{{ route($restore_route_name, $entity) }}" onsubmit="return confirm('Are you sure you want to unarchive this record?');">
                                 @csrf
                                 @method('PATCH')
-                                <button type="submit" class="btn btn-outline-success btn-sm">Unarchive</button>
+                                <button type="submit" @class(array_merge(['btn-outline-success'], $classes))>Unarchive</button>
                             </form>
                         @else
                             <form method="POST" action="{{ route($destroy_route_name, $entity) }}" onsubmit="return confirm('Are you sure you want to archive this record?');">
                                 @csrf
                                 @method('DELETE')
-                                <button type="submit" class="btn btn-outline-danger btn-sm">Archive</button>
+                                <button type="submit" @class(array_merge(['btn-outline-danger'], $classes))>Archive</button>
                             </form>
                         @endif
                     </td>
