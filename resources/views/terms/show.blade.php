@@ -1,4 +1,4 @@
-@props(['term', 'page_name', 'nextRehearsal' => null, 'nextConcert' => null])
+@props(['term', 'page_name', 'ensembles', 'nextRehearsal' => null, 'nextConcert' => null])
 
 <x-layout :$page_name :show_page_header="0">
 	<div class="page-header">
@@ -90,11 +90,12 @@
                                                             Send attendance list now
                                                             <div class="badge bg-white text-white-fg ms-2">scheduled Sun 8:00</div>
                                                         </a>
-                                                        <!-- TODO: This currently just gets for the first ensemble. -->
-                                                        <x-a class="btn bg-orange text-orange-fg" href="{{ route('seating-plan.download', ['ensemble' => \App\Models\Ensemble::first(), 'termDate' => $td]) }}" target="_blank">
-                                                            <x-icon name="armchair" />
-                                                            View seating plan
-                                                        </x-a>
+                                                        @foreach($ensembles as $ensemble)
+                                                            <x-a class="btn bg-orange text-orange-fg" href="{{ route('seating-plan.download', ['ensemble' => $ensemble, 'termDate' => $td]) }}" target="_blank">
+                                                                <x-icon name="armchair" />
+                                                                View seating plan for {{ $ensemble->name }}
+                                                            </x-a>
+                                                        @endforeach
                                                         <a class="btn bg-info text-info-fg disabled">
                                                             <x-icon name="bell-ringing" />
                                                             Resend setup reminder
