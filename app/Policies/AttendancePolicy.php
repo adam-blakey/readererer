@@ -62,8 +62,12 @@ class AttendancePolicy
      */
     public function update(User $user, Attendance $attendance)
     {
-        // TODO: Should this be further restricted to see if the user is part of an ensemble?
-        if ($user->role->value >= UserRole::Ensemble->value) {
+        if ($user->role->value >= UserRole::Moderator->value) {
+            return Response::allow();
+        }
+
+        // Ensemble logins and members may only update attendance for an ensemble they belong to.
+        if ($user->role->value >= UserRole::Ensemble->value && $user->ensembles->contains('id', $attendance->ensemble_id)) {
             return Response::allow();
         }
 
