@@ -26,8 +26,12 @@ class EnsembleAdminPolicy
      */
     public function view(User $user, EnsembleAdmin $ensembleAdmin)
     {
-        // TODO: Further restrict access to only members of the ensemble.
-        if ($user->role->value >= UserRole::Member->value) {
+        if ($user->role->value >= UserRole::Moderator->value) {
+            return Response::allow();
+        }
+
+        // Members may only view the admins of an ensemble they belong to.
+        if ($user->role->value >= UserRole::Member->value && $user->ensembles->contains('id', $ensembleAdmin->ensemble_id)) {
             return Response::allow();
         }
 
