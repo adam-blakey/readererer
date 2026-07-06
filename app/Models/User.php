@@ -52,6 +52,7 @@ class User extends Authenticatable
     public function ensembles()
     {
         return $this->belongsToMany(Ensemble::class, 'user_ensemble')
+            ->using(UserEnsemble::class)
             ->withPivot('instrument_family_id')
             ->withPivot('seat_column')
             ->withPivot('seat_row');
@@ -212,15 +213,13 @@ class User extends Authenticatable
     }
 
     public function membership($ensemble): string {
-        $pivot = $this->ensembles->firstWhere('id', $ensemble->id)->pivot;
-        if (!$pivot) {
+        $membership = $this->ensembles->firstWhere('id', $ensemble->id);
+        if (!$membership) {
             return "Not a member";
         }
 
-        // TODO: Obvs this is terrible.
-        $instrument_family = InstrumentFamily::where('id', $pivot->instrument_family_id)->first();
-        $instrument_name = ($instrument_family) ? $instrument_family->name : '';
-
+        $pivot = $membership->pivot;
+        $instrument_name = $pivot->instrumentFamily?->name ?? '';
         $seat_name = $pivot->seat_row . $pivot->seat_column;
 
         if (!$instrument_name && !$seat_name) {
