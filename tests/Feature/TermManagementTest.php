@@ -102,6 +102,46 @@ test('updating a term with no term dates removes them all', function () {
     expect($term->fresh()->term_dates)->toHaveCount(0);
 });
 
+test('updating a term rejects term dates with missing or invalid fields', function () {
+    $term = Term::factory()->create(['name' => 'Original']);
+    $existing = TermDate::forceCreate([
+        'term_id' => $term->id,
+        'start_datetime' => '2026-01-05 19:00:00',
+        'end_datetime' => '2026-01-05 21:00:00',
+    ]);
+
+    // Missing end_datetime.
+    $this->actingAs(make_user(UserRole::Moderator))
+        ->patch(route('terms.update', $term), [
+            'name' => 'Renamed',
+            'slug' => $term->slug,
+            'term_dates' => [
+                ['start_datetime' => '2026-01-06 19:00:00'],
+            ],
+        ])
+        ->assertSessionHasErrors('term_dates.0.end_datetime');
+
+    // Concert ensemble that does not exist.
+    $this->actingAs(make_user(UserRole::Moderator))
+        ->patch(route('terms.update', $term), [
+            'name' => 'Renamed',
+            'slug' => $term->slug,
+            'term_dates' => [
+                [
+                    'start_datetime' => '2026-01-06 19:00:00',
+                    'end_datetime' => '2026-01-06 21:00:00',
+                    'ensemble_id' => 999999,
+                ],
+            ],
+        ])
+        ->assertSessionHasErrors('term_dates.0.ensemble_id');
+
+    // Nothing changed on either failed attempt.
+    $term->refresh();
+    expect($term->name)->toBe('Original');
+    expect($term->term_dates->pluck('id')->all())->toBe([$existing->id]);
+});
+
 test('updating a term requires the moderator role', function () {
     $term = Term::factory()->create();
 
@@ -119,6 +159,18 @@ test('a term can be soft deleted and restored', function () {
 
     $this->actingAs($user)->patch(route('terms.restore', $term->id))->assertRedirect();
     expect(Term::find($term->id))->not->toBeNull();
+});
+
+test('the terms index shows the friendly column labels', function () {
+    Term::factory()->create();
+
+    $response = $this->actingAs(make_user(UserRole::Member))->get(route('terms.index'));
+
+    $response->assertOk();
+    $response->assertSee('Rehearsals');
+    $response->assertSee('Concerts');
+    $response->assertSee('First date');
+    $response->assertSee('Last date');
 });
 
 test('the term show page renders with its dates', function () {

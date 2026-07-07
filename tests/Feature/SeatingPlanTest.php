@@ -53,6 +53,31 @@ test('updating the seating plan stores seat rows and columns on the pivot', func
     expect($pivot->seat_column)->toEqual(2);
 });
 
+test('updating the seating plan is forbidden without permission to update the ensemble', function () {
+    $ensemble = Ensemble::factory()->create();
+    $member = make_user(UserRole::Member);
+    join_ensemble($member, $ensemble, null, 'A', 1);
+
+    $payload = [
+        'seating_plan' => json_encode([
+            'B' => [['id' => $member->id, 'column' => 5]],
+        ]),
+    ];
+
+    $this->actingAs($member)
+        ->post(route('ensembles.seating-plan.update', $ensemble), $payload)
+        ->assertForbidden();
+
+    $this->actingAs(make_user(UserRole::Moderator))
+        ->post(route('ensembles.seating-plan.update', $ensemble), $payload)
+        ->assertForbidden();
+
+    // The seat was not moved.
+    $pivot = $ensemble->users()->first()->pivot;
+    expect($pivot->seat_row)->toEqual('A');
+    expect($pivot->seat_column)->toEqual(1);
+});
+
 test('moving a member to unassigned clears their seat', function () {
     $ensemble = Ensemble::factory()->create();
     $member = make_user(UserRole::Member);

@@ -23,6 +23,14 @@ test('creating an ensemble requires a name', function () {
     expect(Ensemble::count())->toBe(0);
 });
 
+test('creating an ensemble rejects an overlong name', function () {
+    $this->actingAs(make_user(UserRole::Admin))
+        ->post(route('ensembles.store'), ['name' => str_repeat('a', 256)])
+        ->assertSessionHasErrors('name');
+
+    expect(Ensemble::count())->toBe(0);
+});
+
 test('non-admins cannot create ensembles', function () {
     $this->actingAs(make_user(UserRole::Moderator))
         ->post(route('ensembles.store'), ['name' => 'Wind Band'])
@@ -126,6 +134,24 @@ test('a user can be removed from an ensemble', function () {
 
     expect(UserEnsemble::where('user_id', $member->id)->where('ensemble_id', $ensemble->id)->exists())
         ->toBeFalse();
+});
+
+test('restoring an ensemble that does not exist returns not found', function () {
+    $this->actingAs(make_user(UserRole::Admin))
+        ->patch(route('ensembles.restore', 999999))
+        ->assertNotFound();
+});
+
+test('guests cannot add users to an ensemble', function () {
+    $ensemble = Ensemble::factory()->create();
+    $member = make_user(UserRole::Member);
+
+    $this->post(route('ensembles.add_user', $ensemble), [
+        'user_id' => $member->id,
+        'instrument_family_id' => make_instrument_family()->id,
+    ])->assertRedirect('/login');
+
+    expect(UserEnsemble::count())->toBe(0);
 });
 
 test('removing a user who is not in the ensemble returns not found', function () {

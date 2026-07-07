@@ -29,6 +29,26 @@ test('clean_attribute_name replaces underscores and capitalises the first word',
     expect(clean_attribute_name('emergency_contact_number'))->toBe('Emergency contact number');
 });
 
+// column_label
+
+test('column_label uses the model\'s column_labels map when the attribute is listed', function () {
+    $term = new Term;
+
+    expect(column_label($term, 'number_of_rehearsals'))->toBe('Rehearsals');
+    expect(column_label($term, 'number_of_concerts'))->toBe('Concerts');
+    expect(column_label($term, 'earliest_date'))->toBe('First date');
+    expect(column_label($term, 'latest_date'))->toBe('Last date');
+});
+
+test('column_label falls back to the cleaned attribute name for unmapped attributes', function () {
+    expect(column_label(new Term, 'name'))->toBe('Name');
+    expect(column_label(new Term, 'created_at'))->toBe('Created at');
+});
+
+test('column_label falls back for models without a column_labels map', function () {
+    expect(column_label(new Composer, 'first_name'))->toBe('First name');
+});
+
 // call_or_default
 
 test('call_or_default calls the method when it exists', function () {

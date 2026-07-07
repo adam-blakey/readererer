@@ -91,6 +91,31 @@ test('a poll submission can update several members at once', function () {
     expect(Attendance::where('user_id', $memberTwo->id)->first()->status)->toBe(AttendanceStatus::NotAttending);
 });
 
+test('the poll page is not found for unknown ensembles or terms', function () {
+    $ensemble = Ensemble::factory()->create();
+    $term = Term::factory()->create();
+    $admin = make_user(UserRole::Admin);
+
+    $this->actingAs($admin)
+        ->get(route('attendance.poll', ['ensemble' => 'no-such-ensemble', 'term' => $term->slug]))
+        ->assertNotFound();
+
+    $this->actingAs($admin)
+        ->get(route('attendance.poll', ['ensemble' => $ensemble->slug, 'term' => 'no-such-term']))
+        ->assertNotFound();
+});
+
+test('an empty poll submission records nothing', function () {
+    $ensemble = Ensemble::factory()->create();
+    $term = Term::factory()->create();
+
+    $this->actingAs(make_user(UserRole::Admin))
+        ->post(route('attendance.poll-store', ['ensemble' => $ensemble->slug, 'term' => $term->slug]), [])
+        ->assertRedirect();
+
+    expect(Attendance::count())->toBe(0);
+});
+
 test('repeated poll submissions append new attendance records rather than replacing them', function () {
     $ensemble = Ensemble::factory()->create();
     $term = Term::factory()->create();
