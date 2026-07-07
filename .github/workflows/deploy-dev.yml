@@ -1,0 +1,37 @@
+name: Deploy to dev
+
+# Pull requests deploy their branch to the shared `dev` environment.
+on:
+  pull_request:
+    types: [opened, reopened, synchronize]
+
+# One deploy per PR; a newer push supersedes an in-flight deploy for the same PR.
+concurrency:
+  group: deploy-dev-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+  deployments: write
+
+jobs:
+  deploy:
+    # Fork PRs cannot read environment secrets, so only deploy same-repo branches.
+    if: github.event.pull_request.head.repo.full_name == github.repository
+    runs-on: ubuntu-latest
+    environment:
+      name: dev
+      url: https://${{ vars.APP_DOMAIN }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: ./.github/actions/envoy-deploy
+        with:
+          ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
+          unix-username: ${{ vars.UNIX_USERNAME }}
+          server-domain: ${{ vars.SERVER_DOMAIN }}
+          server-port: ${{ vars.SERVER_PORT }}
+          app-domain: ${{ vars.APP_DOMAIN }}
+          # Deploy the PR's source branch. It must exist on the server's git remote.
+          ref: ${{ github.head_ref }}
+          seed-database: "1"
