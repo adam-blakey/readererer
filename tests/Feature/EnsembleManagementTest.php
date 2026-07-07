@@ -162,3 +162,25 @@ test('removing a user who is not in the ensemble returns not found', function ()
         ->post(route('ensembles.remove_user', [$ensemble, $member]))
         ->assertNotFound();
 });
+
+test('the ensemble show page renders with management buttons for moderators', function () {
+    $ensemble = Ensemble::factory()->create();
+
+    $this->actingAs(make_user(UserRole::Moderator))
+        ->get(route('ensembles.show', $ensemble))
+        ->assertOk()
+        ->assertSee('Seating plan')
+        ->assertSee('Edit');
+});
+
+test('the ensemble show page hides management buttons from ordinary members', function () {
+    $ensemble = Ensemble::factory()->create();
+    $member = make_user(UserRole::Member);
+    join_ensemble($member, $ensemble);
+
+    $this->actingAs($member)
+        ->get(route('ensembles.show', $ensemble))
+        ->assertOk()
+        ->assertSee("You're a member!", false)
+        ->assertDontSee('Seating plan');
+});
