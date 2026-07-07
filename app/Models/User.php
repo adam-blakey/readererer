@@ -18,9 +18,6 @@ class User extends Authenticatable
 {
     use HasFactory, Notifiable, SoftDeletes, AutoSortable;
 
-    protected $deleted_at;
-    protected $image;
-
     protected $visible = [
         'image',
         'name',

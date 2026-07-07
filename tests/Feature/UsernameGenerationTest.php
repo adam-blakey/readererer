@@ -2,7 +2,6 @@
 
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
-use Illuminate\Support\Facades\DB;
 
 uses(RefreshDatabase::class);
 
@@ -25,9 +24,7 @@ test('suffixes keep counting up as more collisions occur', function () {
 
 test('soft-deleted users still reserve their username', function () {
     $user = User::factory()->create(['username' => 'john.smith']);
-    // Soft-delete at the database level to sidestep an unrelated model quirk
-    // (User declares a `deleted_at` property that shadows the SoftDeletes cast).
-    DB::table('users')->where('id', $user->id)->update(['deleted_at' => now()]);
+    $user->delete();
 
     expect(User::generateUniqueUsername('John', 'Smith'))->toBe('john.smith.2');
 });

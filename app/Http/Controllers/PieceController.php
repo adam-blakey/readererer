@@ -97,10 +97,6 @@ class PieceController extends Controller
     {
         $entity = Piece::withTrashed()->findOrFail($id)->restore();
 
-        // Not sure why this is necessary...
-        $entity->deleted_at = null;
-        $entity->save();
-
         return redirect()->back()->with('status', 'Restored.');
     }
 }

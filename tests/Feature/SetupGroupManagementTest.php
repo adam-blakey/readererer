@@ -129,6 +129,21 @@ test('an invalid update leaves the setup group untouched', function () {
     expect($setupGroup->van_drivers->pluck('id')->all())->toBe([$driver->id]);
 });
 
+test('a setup group can be soft deleted and restored through the endpoints', function () {
+    // Regression test: SetupGroup used to declare `created_at`/`updated_at`
+    // properties that shadowed the Eloquent attributes, making the destroy
+    // endpoint error.
+    $setupGroup = SetupGroup::create(['name' => 'Group A', 'week' => 1, 'color' => 'blue']);
+    $admin = make_user(UserRole::Admin);
+
+    $this->actingAs($admin)->delete(route('setupgroups.destroy', $setupGroup))->assertRedirect();
+    expect(SetupGroup::find($setupGroup->id))->toBeNull();
+    expect(SetupGroup::withTrashed()->find($setupGroup->id))->not->toBeNull();
+
+    $this->actingAs($admin)->patch(route('setupgroups.restore', $setupGroup->id))->assertRedirect();
+    expect(SetupGroup::find($setupGroup->id))->not->toBeNull();
+});
+
 test('guests cannot create setup groups', function () {
     $this->post(route('setupgroups.store'), [
         'name' => 'Group A',

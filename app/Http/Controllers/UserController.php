@@ -131,10 +131,6 @@ class UserController extends Controller
         $user = User::withTrashed()->findOrFail($userId);
         $user->restore();
 
-        // Not sure why this is necessary...
-        $user->deleted_at = null;
-        $user->save();
-
         return redirect()->back()->with('status', 'User restored.');
     }
 }

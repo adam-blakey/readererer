@@ -95,10 +95,6 @@ class ComposerController extends Controller
         $entity = Composer::withTrashed()->findOrFail($id);
         $entity->restore();
 
-        // Not sure why this is necessary...
-        $entity->deleted_at = null;
-        $entity->save();
-
         return redirect()->back()->with('status', 'Restored.');
     }
 }

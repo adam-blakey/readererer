@@ -190,13 +190,25 @@ test('an invalid update leaves the user untouched', function () {
 
 test('the show page for a soft-deleted user is not found', function () {
     $user = make_user(UserRole::Member);
-    // Soft-delete at the database level to sidestep the delete() quirk
-    // (User declares a `deleted_at` property that shadows the attribute).
-    Illuminate\Support\Facades\DB::table('users')->where('id', $user->id)->update(['deleted_at' => now()]);
+    $user->delete();
 
     $this->actingAs(make_user(UserRole::Admin))
         ->get(route('users.show', $user->id))
         ->assertNotFound();
+});
+
+test('a user can be soft deleted and restored through the endpoints', function () {
+    // Regression test: User used to declare a `deleted_at` property that
+    // shadowed the Eloquent attribute, making these endpoints error.
+    $user = make_user(UserRole::Member);
+    $admin = make_user(UserRole::Admin);
+
+    $this->actingAs($admin)->delete(route('users.destroy', $user))->assertRedirect();
+    expect(User::find($user->id))->toBeNull();
+    expect(User::withTrashed()->find($user->id))->not->toBeNull();
+
+    $this->actingAs($admin)->patch(route('users.restore', $user->id))->assertRedirect();
+    expect(User::find($user->id))->not->toBeNull();
 });
 
 test('the user edit form renders', function () {
