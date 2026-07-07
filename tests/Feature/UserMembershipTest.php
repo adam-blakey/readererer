@@ -4,9 +4,6 @@ use App\Models\Ensemble;
 use App\Models\InstrumentFamily;
 use App\Models\User;
 use App\Models\UserEnsemble;
-use Illuminate\Foundation\Testing\RefreshDatabase;
-
-uses(RefreshDatabase::class);
 
 test('membership describes the seat and instrument family', function () {
     $ensemble = Ensemble::factory()->create();
