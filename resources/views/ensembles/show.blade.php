@@ -1,7 +1,11 @@
 @props(['ensemble', 'page_name'])
 
+@use('App\Enums\UserRole')
+
 @php
-	$terms = App\Models\Term::all()->sortBy('earliest_date');
+	$currentUser = auth()->user();
+	$isMember = $currentUser->ensembles->contains($ensemble);
+	$canManage = $currentUser->role->value >= UserRole::Moderator->value;
 @endphp
 
 <x-layout :$page_name :show_page_header="0">
@@ -13,19 +17,18 @@
 				</div>
 				<div class="col">
 					<h1 class="my-0 font-bold">{{ $ensemble->name }}</h1>
-                    @if (\Illuminate\Support\Facades\Auth::user()->ensembles->contains($ensemble))
-					    <span class="badge bg-blue text-blue-fg">You're a member!</span>
-                    @endif
+					@if ($isMember)
+						<span class="badge bg-blue text-blue-fg">You're a member!</span>
+					@endif
 				</div>
-				<div class="col-auto ms-auto">
-					<div class="btn-list">
-{{--                    TODO: More elegance required.    --}}
-                        @if (Auth::user()->role->value >= App\Enums\UserRole::Moderator->value)
-                            <x-a href="{{ route('ensembles.seating-plan.show', ['ensemble' => $ensemble]) }}" class="btn"><x-icon name="users-group" />Seating plan</x-a>
-                            <x-a href="{{ route('ensembles.edit', ['ensemble' => $ensemble]) }}" class="btn"><x-icon name="pencil" />Edit</x-a>
-                        @endif
+				@if ($canManage)
+					<div class="col-auto ms-auto">
+						<div class="btn-list">
+							<x-a href="{{ route('ensembles.seating-plan.show', ['ensemble' => $ensemble]) }}" class="btn"><x-icon name="users-group" />Seating plan</x-a>
+							<x-a href="{{ route('ensembles.edit', ['ensemble' => $ensemble]) }}" class="btn"><x-icon name="pencil" />Edit</x-a>
+						</div>
 					</div>
-				</div>
+				@endif
 			</div>
 		</div>
 	</div>
