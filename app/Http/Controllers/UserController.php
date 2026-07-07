@@ -3,13 +3,13 @@
 namespace App\Http\Controllers;
 
 use App\Enums\UserRole;
+use App\Http\Requests\StoreUserRequest;
+use App\Http\Requests\UpdateUserRequest;
 use App\Models\SetupGroup;
 use App\Models\User;
 use Illuminate\Http\RedirectResponse;
-use Illuminate\Http\Request;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Str;
-use Illuminate\Validation\Rule;
 use Illuminate\View\View;
 
 class UserController extends Controller
@@ -58,16 +58,9 @@ class UserController extends Controller
         ]);
     }
 
-    public function store(Request $request): RedirectResponse
+    public function store(StoreUserRequest $request): RedirectResponse
     {
-        // TODO: better validation; maybe automatic somehow?
-        $attributes = $request->validate([
-            'first_name' => 'required',
-            'last_name' => 'required',
-            'email' => 'email',
-            'role' => [Rule::enum(UserRole::class)],
-            'setup_group' => 'required|exists:setup_groups,id',
-        ]);
+        $attributes = $request->validated();
 
         // TODO: Need to be careful on username collisions.
         $attributes['username'] = Str::slug($attributes['first_name'] . ' ' . $attributes['last_name'], '.');
@@ -100,16 +93,9 @@ class UserController extends Controller
         ]);
     }
 
-    public function update(Request $request, User $user): RedirectResponse
+    public function update(UpdateUserRequest $request, User $user): RedirectResponse
     {
-        // TODO: better validation; maybe automatic somehow?
-        $attributes = $request->validate([
-            'first_name' => 'required',
-            'last_name' => 'required',
-            'email' => 'email',
-            'role' => [Rule::enum(UserRole::class)],
-            'setup_group' => 'required|exists:setup_groups,id'
-        ]);
+        $attributes = $request->validated();
 
         $setup_group_id = Arr::pull($attributes, 'setup_group');
         $setup_group = SetupGroup::find($setup_group_id);

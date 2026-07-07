@@ -3,9 +3,9 @@
 namespace App\Http\Controllers;
 
 use App\Models\SetupGroup;
+use App\Http\Requests\StoreSetupGroupRequest;
 use App\Http\Requests\UpdateSetupGroupRequest;
 use Illuminate\Http\RedirectResponse;
-use Illuminate\Http\Request;
 use Illuminate\View\View;
 use Illuminate\Support\Arr;
 
@@ -55,19 +55,11 @@ class SetupGroupController extends Controller
     /**
      * Store a newly created resource in storage.
      */
-    public function store(Request $request): RedirectResponse
+    public function store(StoreSetupGroupRequest $request): RedirectResponse
     {
-        // TODO: better validation; maybe automatic somehow?
-        $attributes = $request->validate([
-            'name' => 'required',
-            'week' => 'required',
-            'color' => 'required',
-            'van_drivers' => [
-                'id' => 'exists:users,id',
-            ]
-        ]);
+        $attributes = $request->validated();
 
-        $van_drivers = Arr::pull($attributes, 'van_drivers');
+        $van_drivers = Arr::pull($attributes, 'van_drivers') ?? [];
         $setup_group = SetupGroup::create($attributes);
 
         $setup_group->van_drivers()->detach();
@@ -95,19 +87,11 @@ class SetupGroupController extends Controller
     /**
      * Store a newly created resource in storage.
      */
-    public function update(Request $request, SetupGroup $setupGroup): RedirectResponse
+    public function update(UpdateSetupGroupRequest $request, SetupGroup $setupGroup): RedirectResponse
     {
-        // TODO: better validation; maybe automatic somehow?
-        $attributes = $request->validate([
-            'name' => 'required',
-            'week' => 'required',
-            'color' => 'required',
-            'van_drivers' => [
-                'id' => 'exists:users,id',
-            ]
-        ]);
+        $attributes = $request->validated();
 
-        $van_drivers = Arr::pull($attributes, 'van_drivers');
+        $van_drivers = Arr::pull($attributes, 'van_drivers') ?? [];
         $setupGroup->update($attributes);
 
         $setupGroup->van_drivers()->detach();
