@@ -5,11 +5,13 @@ namespace App\Models;
 use App\Enums\EmailStatus;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class EmailLog extends Model
 {
     protected $fillable = [
+        'term_date_id',
         'mailable_class',
         'mailable_args',
         'subject',
@@ -26,5 +28,10 @@ class EmailLog extends Model
     public function recipients(): HasMany
     {
         return $this->hasMany(EmailRecipient::class);
+    }
+
+    public function termDate(): BelongsTo
+    {
+        return $this->belongsTo(TermDate::class);
     }
 }

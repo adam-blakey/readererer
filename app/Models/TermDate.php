@@ -8,6 +8,7 @@ use Illuminate\Support\Carbon;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
@@ -64,6 +65,11 @@ class TermDate extends Model
     public function concert_ensemble(): BelongsTo
     {
         return $this->belongsTo(Ensemble::class, 'concert_ensemble_id');
+    }
+
+    public function email_logs(): HasMany
+    {
+        return $this->hasMany(EmailLog::class)->latest();
     }
 
     protected function casts(): array
