@@ -58,6 +58,18 @@ class TermDatePolicy
     }
 
     /**
+     * Determine whether the user can send notification emails for the model.
+     */
+    public function sendNotifications(User $user, TermDate $termDate)
+    {
+        if ($user->role->value >= UserRole::Moderator->value) {
+            return Response::allow();
+        }
+
+        return Response::deny();
+    }
+
+    /**
      * Determine whether the user can delete the model.
      */
     public function delete(User $user, TermDate $termDate)

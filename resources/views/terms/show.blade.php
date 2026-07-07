@@ -75,32 +75,45 @@
                                                         <div>
                                                             <x-icon name="mail" /><strong>Email history: </strong>
                                                             <div class="mx-2">
-                                                                <div><x-icon name="check" /> Setup reminder to Group B: about 2 days ago</div>
-                                                                <div><x-icon name="alert-square" />Failed setup reminder to Ensemble A: about 1 day ago</div>
-                                                                <div><x-icon name="check" />Setup reminder to Ensemble A: 34 minutes ago</div>
-                                                                <div><x-icon name="check" />Setup reminder to Group B: 34 minutes ago</div>
+                                                                @forelse($td->email_logs as $log)
+                                                                    <div>
+                                                                        <x-icon name="{{ $log->status === \App\Enums\EmailStatus::Failed ? 'alert-square' : 'check' }}" />
+                                                                        {{ $log->subject }} — {{ $log->recipients->count() }} recipient(s): {{ $log->created_at->diffForHumans() }}
+                                                                    </div>
+                                                                @empty
+                                                                    <div class="text-muted">No emails sent yet.</div>
+                                                                @endforelse
                                                             </div>
                                                         </div>
                                                     </div>
 
-                                                    <!-- TODO: Obviously these need to work. -->
                                                     <div class="btn-list">
-                                                        <a class="btn bg-orange text-orange-fg disabled">
-                                                            <x-icon name="list-check" />
-                                                            Send attendance list now
-                                                            <div class="badge bg-white text-white-fg ms-2">scheduled Sun 8:00</div>
-                                                        </a>
+                                                        @can('sendNotifications', $td)
+                                                            <form method="POST" action="{{ route('term-dates.send-attendance-list', $td) }}" class="d-inline">
+                                                                @csrf
+                                                                <button type="submit" class="btn bg-orange text-orange-fg">
+                                                                    <x-icon name="list-check" />
+                                                                    Send attendance list now
+                                                                </button>
+                                                            </form>
+                                                        @endcan
                                                         @foreach($ensembles as $ensemble)
                                                             <x-a class="btn bg-orange text-orange-fg" href="{{ route('seating-plan.download', ['ensemble' => $ensemble, 'termDate' => $td]) }}" target="_blank">
                                                                 <x-icon name="armchair" />
                                                                 View seating plan for {{ $ensemble->name }}
                                                             </x-a>
                                                         @endforeach
-                                                        <a class="btn bg-info text-info-fg disabled">
-                                                            <x-icon name="bell-ringing" />
-                                                            Resend setup reminder
-                                                            <div class="badge bg-white text-white-fg ms-2">sent Thu 8:00</div>
-                                                        </a>
+                                                        @can('sendNotifications', $td)
+                                                            @if($td->setup_group)
+                                                                <form method="POST" action="{{ route('term-dates.send-setup-reminder', $td) }}" class="d-inline">
+                                                                    @csrf
+                                                                    <button type="submit" class="btn bg-info text-info-fg">
+                                                                        <x-icon name="bell-ringing" />
+                                                                        Resend setup reminder
+                                                                    </button>
+                                                                </form>
+                                                            @endif
+                                                        @endcan
                                                     </div>
                                                 </div>
                                             </div>
