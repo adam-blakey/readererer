@@ -27,6 +27,22 @@ function clean_attribute_name($dirty_attribute)
     return $clean_attribute;
 }
 
+/**
+ * Resolve the label to show for an attribute in a table header.
+ *
+ * A model may declare a public `$column_labels` map (attribute => label) to
+ * override the generated name with something friendlier; anything not listed
+ * there falls back to clean_attribute_name().
+ */
+function column_label($model, $attribute)
+{
+    if (property_exists($model, 'column_labels') && array_key_exists($attribute, $model->column_labels)) {
+        return $model->column_labels[$attribute];
+    }
+
+    return clean_attribute_name($attribute);
+}
+
 function member_status_totals($members, $term_date): array
 {
     $assume_attending = config('app.readererer_assume_attending');

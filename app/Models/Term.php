@@ -19,7 +19,6 @@ class Term extends Model
     protected string $slug;
     protected string $image;
 
-    // TODO: ideally we'd shorten some of these to friendly names when in tables.
     protected $visible = [
         'name',
         'slug',
@@ -29,6 +28,14 @@ class Term extends Model
         'latest_date',
         'created_at',
         'updated_at',
+    ];
+
+    // Friendlier, shorter labels for the wordier columns when rendered in tables.
+    public array $column_labels = [
+        'number_of_rehearsals' => 'Rehearsals',
+        'number_of_concerts' => 'Concerts',
+        'earliest_date' => 'First date',
+        'latest_date' => 'Last date',
     ];
 
     public array $sortables = [
