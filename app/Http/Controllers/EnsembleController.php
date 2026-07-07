@@ -2,13 +2,13 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\StoreEnsembleRequest;
 use App\Http\Requests\UpdateEnsembleRequest;
 use App\Models\Ensemble;
 use App\Models\User;
 use App\Models\UserEnsemble;
 use App\Traits\ShowEnsemble;
 use Illuminate\Http\RedirectResponse;
-use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 use Illuminate\View\View;
 
@@ -62,12 +62,9 @@ class EnsembleController extends Controller
     /**
      * Store a newly created resource in storage.
      */
-    public function store(Request $request): RedirectResponse
+    public function store(StoreEnsembleRequest $request): RedirectResponse
     {
-        // TODO: better validation; maybe automatic somehow?
-        $attributes = $request->validate([
-            'name' => 'required',
-        ]);
+        $attributes = $request->validated();
 
         $ensemble = new Ensemble($attributes);
         $ensemble->slug = Str::slug($attributes['name'], '_');

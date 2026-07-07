@@ -20,7 +20,7 @@
 				<tr>
 					@foreach ($attributes as $attribute)
 						@php
-							$clean_attribute = clean_attribute_name($attribute);
+							$clean_attribute = column_label($entities->first(), $attribute);
 						@endphp
 
 						<th>

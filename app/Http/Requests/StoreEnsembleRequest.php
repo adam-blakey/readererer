@@ -11,7 +11,8 @@ class StoreEnsembleRequest extends FormRequest
      */
     public function authorize(): bool
     {
-        return false;
+        // Authorisation is handled by the controller's authorizeResource() call.
+        return true;
     }
 
     /**
@@ -22,7 +23,7 @@ class StoreEnsembleRequest extends FormRequest
     public function rules(): array
     {
         return [
-            //
+            'name' => ['required', 'string', 'max:255'],
         ];
     }
 }
