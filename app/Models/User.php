@@ -11,6 +11,7 @@ use Illuminate\Notifications\Notifiable;
 use App\Enums\UserRole;
 use Carbon\Carbon;
 use Illuminate\Support\Carbon as SupportCarbon;
+use Illuminate\Support\Str;
 use SDamian\Larasort\AutoSortable;
 
 class User extends Authenticatable
@@ -105,6 +106,28 @@ class User extends Authenticatable
             'updated_at' => 'datetime',
             'is_over_18' => 'boolean',
         ];
+    }
+
+    /**
+     * Build a username from a name that is unique across all users.
+     *
+     * The base is the dotted slug of the name (e.g. "john.smith"). If that is
+     * already taken a numeric suffix is appended ("john.smith.2", "john.smith.3",
+     * ...). Soft-deleted users are considered too, since the `username` column is
+     * uniquely constrained and their rows still occupy the value.
+     */
+    public static function generateUniqueUsername(string $firstName, string $lastName): string
+    {
+        $base = Str::slug($firstName . ' ' . $lastName, '.');
+        $username = $base;
+        $suffix = 1;
+
+        while (static::withTrashed()->where('username', $username)->exists()) {
+            $suffix++;
+            $username = $base . '.' . $suffix;
+        }
+
+        return $username;
     }
 
     public function getInitialsAttribute(): string
