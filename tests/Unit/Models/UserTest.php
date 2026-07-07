@@ -91,16 +91,13 @@ test('users belong to a setup group', function () {
     expect($user->setup_group->name)->toBe('Group A');
 });
 
-test('deleting a user soft-deletes the row but raises a warning', function () {
-    // User declares a real `protected $deleted_at` property (for the icon
-    // annotations), which shadows Eloquent's magic attribute access inside
-    // the model. The soft-delete UPDATE still runs, but SoftDeletes then
-    // trips an "Undefined array key" warning syncing the original
-    // attributes. This documents the current (buggy) behaviour.
+test('users are soft deleted and can be restored', function () {
     $user = User::factory()->create();
 
-    expect(fn () => $user->delete())->toThrow(ErrorException::class, 'Undefined array key "deleted_at"');
-
+    $user->delete();
     expect(User::find($user->id))->toBeNull();
     expect(User::withTrashed()->find($user->id))->not->toBeNull();
+
+    $user->restore();
+    expect(User::find($user->id))->not->toBeNull();
 });

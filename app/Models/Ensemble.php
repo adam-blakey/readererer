@@ -15,10 +15,6 @@ class Ensemble extends Model
     use SoftDeletes;
     use AutoSortable;
 
-    protected $name;
-    protected $slug;
-    protected $image;
-
     protected $visible = [
         'image',
         'name',

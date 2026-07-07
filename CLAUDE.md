@@ -48,7 +48,7 @@ Deploys are GitLab-CI driven (`.gitlab-ci.yml`) via Laravel Envoy (`Envoy.blade.
 Most entities (Composer, Piece, Setlist, Term, etc.) are rendered by shared views in `resources/views/auto-entities/` (`index`, `show`, `form`) rather than per-entity Blade. The forms are built dynamically by reflecting over the model:
 
 - `app/helpers.php` (globally autoloaded via composer `files`) — `get_create_fields()` introspects a model's `getFillable()`, DB column types (`Schema::getColumns`), casts, and relationships to produce a field list (label, html input type, required, icon, options) for the generic form. `map_database_type_to_html()` maps DB types to form inputs. `get_route_name_from_model()` / `get_class_name_from_model()` derive route names like `composers.show` from a model instance.
-- `App\Attributes\Icon` + `App\Traits\HasPropertyIcons` — annotate a model property/relation method with `#[Icon('name')]` and the form/show views pull the Tabler icon for that attribute via `getIconForAttribute()`.
+- `App\Attributes\Icon` + `App\Traits\HasPropertyIcons` — annotate a model relation method with `#[Icon('name')]`, or (for database attributes) the model class with `#[Icon('name', for: 'attribute')]`, and the form/show views pull the Tabler icon for that attribute via `getIconForAttribute()`. Never declare a real property for a database column just to carry an annotation — it shadows Eloquent's attribute handling (breaking soft deletes, restores and timestamps).
 
 When adding a field to an entity, update the migration **and** the model's `$fillable` (and `$casts`/`$visible`/`$sortables` as needed); the generic form picks it up automatically. There is a `// TODO: enum` gap — enum columns are not yet mapped to form inputs.
 
@@ -56,7 +56,7 @@ When adding a field to an entity, update the migration **and** the model's `$fil
 Role-based via the `UserRole` int enum (`Guest=0, Ensemble=1, Member=2, Moderator=3, Admin=4`) on `users.role`. Policies in `app/Policies/` compare `$user->role->value >= UserRole::X->value`. Controllers call `$this->authorizeResource(Model::class)` in their constructor, and routes attach `->can(...)` / `->middleware('auth')` (see `routes/web.php`). The `Ensemble` role is a shared generic login that can only update attendance polls; `view` on an ensemble also allows non-admins who belong to that ensemble (`$user->ensembles->contains(...)`).
 
 ### Soft deletes everywhere
-Models use `SoftDeletes`. Index controllers honour a `with_trashed` query param, and each resource has a `restore` route (`PATCH /{resource}/{id}/restore`) plus `purgeTrashed`. The restore action manually nulls `deleted_at` and re-saves (there's a known quirk noted in a code comment).
+Models use `SoftDeletes`. Index controllers honour a `with_trashed` query param, and each resource has a `restore` route (`PATCH /{resource}/{id}/restore`) plus `purgeTrashed`.
 
 ### Sorting
 Uses `s-damian/larasort` (`AutoSortable` trait + `$sortables` array on models). Index queries call `->autosort()`; the `<x-larasort-link>` Blade component renders sortable column headers.

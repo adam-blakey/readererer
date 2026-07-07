@@ -10,23 +10,17 @@ use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use SDamian\Larasort\AutoSortable;
 
+#[Icon('arrow-badge-right', for: 'name')]
+#[Icon('calendar', for: 'week')]
+#[Icon('paint', for: 'color')]
+#[Icon('pencil-bolt', for: 'created_at')]
+#[Icon('pencil-up', for: 'updated_at')]
 class SetupGroup extends Model
 {
     use HasFactory;
     use SoftDeletes;
     use AutoSortable;
     use HasPropertyIcons;
-
-    #[Icon('arrow-badge-right')]
-    protected $name;
-    #[Icon('calendar')]
-    protected $week;
-    #[Icon('paint')]
-    protected $color;
-    #[Icon('pencil-bolt')]
-    protected $created_at;
-    #[Icon('pencil-up')]
-    protected $updated_at;
 
     protected $visible = [
         'name',

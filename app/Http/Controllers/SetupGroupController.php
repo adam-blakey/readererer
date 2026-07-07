@@ -139,10 +139,6 @@ class SetupGroupController extends Controller
         $entity = SetupGroup::withTrashed()->findOrFail($id);
         $entity->restore();
 
-        // Not sure why this is necessary...
-        $entity->deleted_at = null;
-        $entity->save();
-
         return redirect()->back()->with('status', 'Restored.');
     }
 }

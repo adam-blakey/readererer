@@ -15,10 +15,6 @@ class Term extends Model
     use SoftDeletes;
     use AutoSortable;
 
-    protected string $name;
-    protected string $slug;
-    protected string $image;
-
     protected $visible = [
         'name',
         'slug',

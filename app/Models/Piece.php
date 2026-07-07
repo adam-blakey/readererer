@@ -17,8 +17,6 @@ class Piece extends Model
     use SoftDeletes;
     use AutoSortable;
 
-    protected $name;
-
     protected $visible = [
         'name',
         'composer',

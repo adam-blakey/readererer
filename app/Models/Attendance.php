@@ -12,7 +12,6 @@ class Attendance extends Model
 {
     use HasFactory;
 
-    protected $edit_ip;
     protected $fillable = [
         'user_id',
         'term_date_id',

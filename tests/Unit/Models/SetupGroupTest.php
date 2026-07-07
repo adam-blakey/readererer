@@ -31,16 +31,22 @@ test('icon lookup returns null for attributes without an Icon annotation', funct
     expect((new SetupGroup)->getIconForAttribute('nonexistent'))->toBeNull();
 });
 
-test('deleting a setup group soft-deletes the row but raises a warning', function () {
-    // SetupGroup declares real `protected $created_at` / `$updated_at`
-    // properties (for the icon annotations), which shadow Eloquent's magic
-    // attribute access inside the model. The soft-delete UPDATE still runs,
-    // but SoftDeletes then trips an "Undefined array key" warning syncing
-    // the original attributes. This documents the current (buggy) behaviour.
+test('setup groups are soft deleted and can be restored', function () {
     $setupGroup = SetupGroup::create(['name' => 'Group A', 'week' => 1, 'color' => 'blue']);
 
-    expect(fn () => $setupGroup->delete())->toThrow(ErrorException::class, 'Undefined array key "updated_at"');
-
+    $setupGroup->delete();
     expect(SetupGroup::find($setupGroup->id))->toBeNull();
     expect(SetupGroup::withTrashed()->find($setupGroup->id))->not->toBeNull();
+
+    $setupGroup->restore();
+    expect(SetupGroup::find($setupGroup->id))->not->toBeNull();
+});
+
+test('setup groups persist their timestamps', function () {
+    // Regression test: declared $created_at/$updated_at properties used to
+    // shadow the Eloquent attributes, so timestamps were never written.
+    $setupGroup = SetupGroup::create(['name' => 'Group A', 'week' => 1, 'color' => 'blue']);
+
+    expect($setupGroup->fresh()->created_at)->not->toBeNull();
+    expect($setupGroup->fresh()->updated_at)->not->toBeNull();
 });
