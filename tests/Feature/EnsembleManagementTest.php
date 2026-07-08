@@ -184,3 +184,66 @@ test('the ensemble show page hides management buttons from ordinary members', fu
         ->assertSee("You're a member!", false)
         ->assertDontSee('Seating plan');
 });
+
+test('the ensemble show page hides polls until the ensemble has members', function () {
+    $ensemble = Ensemble::factory()->create();
+
+    $this->actingAs(make_user(UserRole::Moderator))
+        ->get(route('ensembles.show', $ensemble))
+        ->assertOk()
+        ->assertSee('Add members before polls become available');
+});
+
+test('the ensemble show page shows polls once the ensemble has members', function () {
+    $ensemble = Ensemble::factory()->create();
+    join_ensemble(make_user(UserRole::Member), $ensemble);
+
+    $this->actingAs(make_user(UserRole::Moderator))
+        ->get(route('ensembles.show', $ensemble))
+        ->assertOk()
+        ->assertDontSee('Add members before polls become available');
+});
+
+test('the ensemble members table lists members with their instrument and seat', function () {
+    $ensemble = Ensemble::factory()->create();
+    $member = make_user(UserRole::Member, ['first_name' => 'Ada', 'last_name' => 'Lovelace']);
+    $instrumentFamily = make_instrument_family('Strings');
+    join_ensemble($member, $ensemble, $instrumentFamily, '2', 'C');
+
+    $this->actingAs(make_user(UserRole::Moderator))
+        ->get(route('ensembles.members', $ensemble))
+        ->assertOk()
+        ->assertSee('Ada Lovelace')
+        ->assertSee('Strings')
+        ->assertSee('C2');
+});
+
+test('a member of an ensemble can view its members table', function () {
+    $ensemble = Ensemble::factory()->create();
+    $member = make_user(UserRole::Member);
+    join_ensemble($member, $ensemble);
+
+    $this->actingAs($member)
+        ->get(route('ensembles.members', $ensemble))
+        ->assertOk();
+});
+
+test('a non-member without a management role cannot view an ensemble members table', function () {
+    $ensemble = Ensemble::factory()->create();
+    $outsider = make_user(UserRole::Member);
+
+    $this->actingAs($outsider)
+        ->get(route('ensembles.members', $ensemble))
+        ->assertForbidden();
+});
+
+test('the ensemble members table hides removal controls from ordinary members', function () {
+    $ensemble = Ensemble::factory()->create();
+    $member = make_user(UserRole::Member);
+    join_ensemble($member, $ensemble);
+
+    $this->actingAs($member)
+        ->get(route('ensembles.members', $ensemble))
+        ->assertOk()
+        ->assertDontSee('Add user');
+});
