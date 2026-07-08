@@ -7,7 +7,7 @@
     |--------------------------------------------------------------------------
     */
     $root = $unix_username;
-    $repository = 'git@gitlab.com:adam.blakey/readererer.git';
+    $repository = 'git@github.com:adam-blakey/readererer.git';
     $venv = '/home/'.$unix_username.'/nodevenv/domains/'.$domain.'/20/bin/activate';
 
     /*
