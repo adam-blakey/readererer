@@ -51,6 +51,18 @@
 									</div>
 								</div>
 							</form>
+
+							<hr />
+
+							<form action="{{ route('ensembles.seating-plan-enabled', ['ensemble' => $ensemble]) }}" method="POST">
+								@csrf
+								@method('PATCH')
+								<label class="form-check form-switch">
+									<input class="form-check-input" type="checkbox" name="seating_plan_enabled" value="1" onchange="this.form.submit()" @checked($ensemble->seating_plan_enabled)>
+									<span class="form-check-label">Seating plan enabled</span>
+								</label>
+								<div class="form-hint">When off, this ensemble has no seating plan and members are added without a seat.</div>
+							</form>
 						</div>
 					</div>
 				</div>

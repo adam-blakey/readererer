@@ -2,6 +2,8 @@
 
 @php
     $ensembles = $ensembles ?? collect();
+    // Only ensembles that run a seating plan offer a plan to download.
+    $seating_plan_ensembles = $ensembles->filter(fn ($ensemble) => $ensemble->seating_plan_enabled);
     $dates = ($term_dates ?? collect())->sortBy('start_datetime');
 @endphp
 
@@ -107,7 +109,7 @@
                                         </form>
                                     @endif
                                 @endcan
-                                @foreach ($ensembles as $ensemble)
+                                @foreach ($seating_plan_ensembles as $ensemble)
                                     <x-a class="btn btn-sm bg-orange text-orange-fg" href="{{ route('seating-plan.download', ['ensemble' => $ensemble, 'termDate' => $td]) }}" target="_blank">
                                         <x-icon name="armchair" />
                                         Seating plan: {{ $ensemble->name }}

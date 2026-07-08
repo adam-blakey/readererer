@@ -38,8 +38,8 @@ class EnsembleController extends Controller
             'page_subname' => 'Ensemble overview',
             'create_entity' => [
                 'route' => 'ensembles.create',
-                'name' => 'ensemble'
-            ]
+                'name' => 'ensemble',
+            ],
         ]);
     }
 
@@ -55,7 +55,7 @@ class EnsembleController extends Controller
             'page_subname' => 'Create new ensemble',
             'update' => false,
             'fields' => $fields,
-            'form_route' => route('ensembles.store')
+            'form_route' => route('ensembles.store'),
         ]);
     }
 
@@ -82,7 +82,7 @@ class EnsembleController extends Controller
     {
         return view('ensembles.edit', [
             'ensemble' => $ensemble,
-            'page_name' => 'Edit ' . $ensemble->name
+            'page_name' => 'Edit '.$ensemble->name,
         ]);
     }
 
@@ -100,6 +100,7 @@ class EnsembleController extends Controller
     public function destroy(Ensemble $ensemble)
     {
         $ensemble->delete();
+
         return redirect()->back()->with('status', 'Record deleted.');
     }
 
@@ -108,6 +109,7 @@ class EnsembleController extends Controller
         Ensemble::onlyTrashed()->get()->each(function ($model) {
             $model->forceDelete();
         });
+
         return redirect()->back()->with('status', 'All soft-deleted records permanently removed.');
     }
 
@@ -133,6 +135,19 @@ class EnsembleController extends Controller
         ]);
     }
 
+    /**
+     * Toggle whether this ensemble runs a seating plan.
+     */
+    public function updateSeatingPlanEnabled(Ensemble $ensemble): RedirectResponse
+    {
+        $this->authorize('update', $ensemble);
+
+        $ensemble->seating_plan_enabled = request()->boolean('seating_plan_enabled');
+        $ensemble->save();
+
+        return redirect()->back()->with('status', 'Seating plan setting updated.');
+    }
+
     public function add_user(Ensemble $ensemble)
     {
         $validated = request()->validate([
@@ -142,11 +157,14 @@ class EnsembleController extends Controller
             'seat_column' => 'nullable|string|max:10',
         ]);
 
-        $ensemble->users()->attach($validated['user_id'], [
+        // A seat is only meaningful for ensembles that run a seating plan.
+        $seat = $ensemble->seating_plan_enabled
+            ? ['seat_row' => $validated['seat_row'] ?? null, 'seat_column' => $validated['seat_column'] ?? null]
+            : ['seat_row' => null, 'seat_column' => null];
+
+        $ensemble->users()->attach($validated['user_id'], array_merge([
             'instrument_family_id' => $validated['instrument_family_id'],
-            'seat_row' => $validated['seat_row'],
-            'seat_column' => $validated['seat_column'],
-        ]);
+        ], $seat));
 
         return redirect()->back()->with('status', 'User added to ensemble.');
     }

@@ -25,7 +25,9 @@
 					<div class="col-auto ms-auto">
 						<div class="btn-list">
 							<x-a href="{{ route('ensembles.members', ['ensemble' => $ensemble]) }}" class="btn"><x-icon name="users" />Members</x-a>
-							<x-a href="{{ route('ensembles.seating-plan.show', ['ensemble' => $ensemble]) }}" class="btn"><x-icon name="users-group" />Seating plan</x-a>
+							@if ($ensemble->seating_plan_enabled)
+								<x-a href="{{ route('ensembles.seating-plan.show', ['ensemble' => $ensemble]) }}" class="btn"><x-icon name="users-group" />Seating plan</x-a>
+							@endif
 							<x-a href="{{ route('ensembles.edit', ['ensemble' => $ensemble]) }}" class="btn"><x-icon name="pencil" />Edit</x-a>
 						</div>
 					</div>

@@ -2,14 +2,10 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Casts\Attribute;
-use Illuminate\Database\Eloquent\Relations\BelongsToMany;
-use Illuminate\Support\Carbon;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
-use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 class TermDate extends Model
@@ -42,13 +38,11 @@ class TermDate extends Model
 
     public function getInferredVanDriverAttribute()
     {
-        if ($this->van_driver != null)
-        {
+        if ($this->van_driver != null) {
             return $this->van_driver;
         }
 
-        if ($this->setup_group == null)
-        {
+        if ($this->setup_group == null) {
             return null;
         }
 
@@ -85,11 +79,11 @@ class TermDate extends Model
 
     public function getNameAttribute(): string
     {
-        if ($this->start_datetime->isSameDay($this->end_datetime))
-        {
-            return $this->start_datetime->format('l, jS F Y') . '  ' . $this->start_datetime->format('H:i') . '-' . $this->end_datetime->format('H:i');
+        if ($this->start_datetime->isSameDay($this->end_datetime)) {
+            return $this->start_datetime->format('l, jS F Y').'  '.$this->start_datetime->format('H:i').'-'.$this->end_datetime->format('H:i');
         }
-        return $this->start_datetime->format('l, jS F Y H:i') . ' - ' . $this->end_datetime->format('l, jS F Y H:i');
+
+        return $this->start_datetime->format('l, jS F Y H:i').' - '.$this->end_datetime->format('l, jS F Y H:i');
     }
 
     /**
@@ -98,11 +92,11 @@ class TermDate extends Model
      */
     public function getDateLabelAttribute(): string
     {
-        if ($this->start_datetime->isSameDay($this->end_datetime))
-        {
+        if ($this->start_datetime->isSameDay($this->end_datetime)) {
             return $this->start_datetime->format('D, j M Y');
         }
-        return $this->start_datetime->format('D, j M Y') . ' – ' . $this->end_datetime->format('D, j M Y');
+
+        return $this->start_datetime->format('D, j M Y').' – '.$this->end_datetime->format('D, j M Y');
     }
 
     /**
@@ -110,6 +104,6 @@ class TermDate extends Model
      */
     public function getTimeLabelAttribute(): string
     {
-        return $this->start_datetime->format('H:i') . '–' . $this->end_datetime->format('H:i');
+        return $this->start_datetime->format('H:i').'–'.$this->end_datetime->format('H:i');
     }
 }

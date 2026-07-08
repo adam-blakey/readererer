@@ -110,6 +110,41 @@ test('a user can be added to an ensemble with an instrument family and seat', fu
     expect($pivot->seat)->toBe('C2');
 });
 
+test('adding a user to a seating-plan-disabled ensemble ignores the seat', function () {
+    $ensemble = Ensemble::factory()->create(['seating_plan_enabled' => false]);
+    $member = make_user(UserRole::Member);
+    $instrumentFamily = make_instrument_family('Percussion');
+
+    $this->actingAs(make_user(UserRole::Admin))
+        ->post(route('ensembles.add_user', $ensemble), [
+            'user_id' => $member->id,
+            'instrument_family_id' => $instrumentFamily->id,
+            'seat_row' => '2',
+            'seat_column' => 'C',
+        ])
+        ->assertRedirect();
+
+    $pivot = UserEnsemble::where('user_id', $member->id)->where('ensemble_id', $ensemble->id)->first();
+    expect($pivot->instrument_family_id)->toBe($instrumentFamily->id);
+    expect($pivot->seat_row)->toBeNull();
+    expect($pivot->seat_column)->toBeNull();
+});
+
+test('a moderator can toggle whether an ensemble runs a seating plan', function () {
+    $ensemble = Ensemble::factory()->create(['seating_plan_enabled' => true]);
+
+    // Unchecked checkbox submits no value.
+    $this->actingAs(make_user(UserRole::Admin))
+        ->patch(route('ensembles.seating-plan-enabled', $ensemble), [])
+        ->assertRedirect();
+    expect($ensemble->fresh()->seating_plan_enabled)->toBeFalse();
+
+    $this->actingAs(make_user(UserRole::Admin))
+        ->patch(route('ensembles.seating-plan-enabled', $ensemble), ['seating_plan_enabled' => '1'])
+        ->assertRedirect();
+    expect($ensemble->fresh()->seating_plan_enabled)->toBeTrue();
+});
+
 test('adding a user to an ensemble validates the user and instrument family', function () {
     $ensemble = Ensemble::factory()->create();
 

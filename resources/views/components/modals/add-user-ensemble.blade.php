@@ -44,20 +44,24 @@
                             @endforeach
                         </select>
                     </div>
-                    <div class="row">
-                        <div class="col-md-6">
-                            <div class="mb-3">
-                                <label class="form-label">Seat Row</label>
-                                <input type="text" name="seat_row" class="form-control" placeholder="A">
+                    @if($ensemble->seating_plan_enabled)
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label class="form-label">Seat Row</label>
+                                    <input type="text" name="seat_row" class="form-control" placeholder="A">
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label class="form-label">Seat Column</label>
+                                    <input type="text" name="seat_column" class="form-control" placeholder="1">
+                                </div>
                             </div>
                         </div>
-                        <div class="col-md-6">
-                            <div class="mb-3">
-                                <label class="form-label">Seat Column</label>
-                                <input type="text" name="seat_column" class="form-control" placeholder="1">
-                            </div>
-                        </div>
-                    </div>
+                    @else
+                        <p class="text-muted mb-0">This ensemble does not use a seating plan, so no seat is assigned.</p>
+                    @endif
                 </div>
 
                 <div class="modal-footer">
