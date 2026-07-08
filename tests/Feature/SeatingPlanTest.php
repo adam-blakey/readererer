@@ -109,7 +109,7 @@ test('the seating plan pdf downloads for authorised users', function () {
     join_ensemble($member, $ensemble, null, 1, 'A');
 
     $response = $this->actingAs(make_user(UserRole::Admin))
-        ->get(route('seating-plan.download', ['ensemble' => $ensemble, 'termDate' => $termDate->id]));
+        ->get(route('ensembles.seating-plan.download', ['ensemble' => $ensemble, 'termDate' => $termDate->id]));
 
     $response->assertOk();
     $response->assertHeader('content-type', 'application/pdf');
@@ -127,6 +127,6 @@ test('the seating plan pdf is forbidden without permission to view the ensemble'
     $member = make_user(UserRole::Member);
 
     $this->actingAs($member)
-        ->get(route('seating-plan.download', ['ensemble' => $ensemble, 'termDate' => $termDate->id]))
+        ->get(route('ensembles.seating-plan.download', ['ensemble' => $ensemble, 'termDate' => $termDate->id]))
         ->assertForbidden();
 });

@@ -98,7 +98,7 @@
                                                             </form>
                                                         @endcan
                                                         @foreach($ensembles as $ensemble)
-                                                            <x-a class="btn bg-orange text-orange-fg" href="{{ route('seating-plan.download', ['ensemble' => $ensemble, 'termDate' => $td]) }}" target="_blank">
+                                                            <x-a class="btn bg-orange text-orange-fg" href="{{ route('ensembles.seating-plan.download', ['ensemble' => $ensemble, 'termDate' => $td]) }}" target="_blank">
                                                                 <x-icon name="armchair" />
                                                                 View seating plan for {{ $ensemble->name }}
                                                             </x-a>

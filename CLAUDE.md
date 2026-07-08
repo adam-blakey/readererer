@@ -65,7 +65,7 @@ Uses `s-damian/larasort` (`AutoSortable` trait + `$sortables` array on models). 
 `member_status_totals()` in `helpers.php` computes attending/not-attending/unknown counts for a term date, taking the latest attendance record per member. Behaviour is tuned by custom config keys in `config/app.php`: `readererer_assume_attending`, `readererer_allow_change_to_unknown`, `readererer_repeating_headings` (env-overridable). `AttendanceStatus` enum is `Unknown=0, Attending=1, NotAttending=2`.
 
 ### Seating plans & PDFs
-`SeatingPlanController` edits per-ensemble seating (seat_row/seat_column stored on the `user_ensemble` pivot). PDF output uses `barryvdh/laravel-dompdf` (`SeatingPlanPdfController`, `seating-plan.download` route).
+`SeatingPlanController` edits per-ensemble seating (seat_row/seat_column stored on the `user_ensemble` pivot). PDF output uses `barryvdh/laravel-dompdf` (`SeatingPlanPdfController`, `ensembles.seating-plan.download` route).
 
 ### Key domain relationships
 - `Term` hasMany `TermDate`; a `TermDate` with `ensemble_id = null` is a rehearsal, otherwise it's that ensemble's concert (see `ShowEnsemble` trait). Terms cache a `latest_date`.

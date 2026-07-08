@@ -2,12 +2,12 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\SetupGroup;
 use App\Http\Requests\StoreSetupGroupRequest;
 use App\Http\Requests\UpdateSetupGroupRequest;
+use App\Models\SetupGroup;
 use Illuminate\Http\RedirectResponse;
-use Illuminate\View\View;
 use Illuminate\Support\Arr;
+use Illuminate\View\View;
 
 class SetupGroupController extends Controller
 {
@@ -29,9 +29,9 @@ class SetupGroupController extends Controller
             'page_name' => 'Setup groups',
             'page_subname' => 'Setup groups overview',
             'create_entity' => [
-                'route' => 'setupgroups.create',
-                'name' => 'setup group'
-            ]
+                'route' => 'setup-groups.create',
+                'name' => 'setup group',
+            ],
         ]);
     }
 
@@ -40,7 +40,7 @@ class SetupGroupController extends Controller
      */
     public function create(): View
     {
-        $dummy = new SetupGroup();
+        $dummy = new SetupGroup;
         $fields = get_create_fields($dummy);
 
         return view('auto-entities.form', [
@@ -48,7 +48,7 @@ class SetupGroupController extends Controller
             'page_subname' => 'Create new setup group',
             'update' => false,
             'fields' => $fields,
-            'form_route' => route('setupgroups.store')
+            'form_route' => route('setup-groups.store'),
         ]);
     }
 
@@ -67,7 +67,7 @@ class SetupGroupController extends Controller
             $setup_group->van_drivers()->attach($van_driver);
         }
 
-        return to_route('setupgroups.show', $setup_group);
+        return to_route('setup-groups.show', $setup_group);
     }
 
     public function edit(SetupGroup $setupGroup): View
@@ -80,7 +80,7 @@ class SetupGroupController extends Controller
             'page_subname' => 'Update setup group',
             'update' => true,
             'fields' => $fields,
-            'form_route' => route('setupgroups.update', $setupGroup)
+            'form_route' => route('setup-groups.update', $setupGroup),
         ]);
     }
 
@@ -99,7 +99,7 @@ class SetupGroupController extends Controller
             $setupGroup->van_drivers()->attach($van_driver);
         }
 
-        return to_route('setupgroups.show', $setupGroup);
+        return to_route('setup-groups.show', $setupGroup);
     }
 
     /**
@@ -110,10 +110,10 @@ class SetupGroupController extends Controller
         return view('auto-entities.show', [
             'entity' => $setupGroup,
             'page_name' => 'Setup groups',
-            'page_subname' => 'Setup group ' . $setupGroup->name,
-            'edit_route' => 'setupgroups.edit',
-            'destroy_route' => 'setupgroups.destroy',
-            'restore_route' => 'setupgroups.restore'
+            'page_subname' => 'Setup group '.$setupGroup->name,
+            'edit_route' => 'setup-groups.edit',
+            'destroy_route' => 'setup-groups.destroy',
+            'restore_route' => 'setup-groups.restore',
         ]);
     }
 
@@ -123,6 +123,7 @@ class SetupGroupController extends Controller
     public function destroy(SetupGroup $setupGroup)
     {
         $setupGroup->delete();
+
         return redirect()->back()->with('status', 'Record deleted.');
     }
 
@@ -131,6 +132,7 @@ class SetupGroupController extends Controller
         SetupGroup::onlyTrashed()->get()->each(function ($model) {
             $model->forceDelete();
         });
+
         return redirect()->back()->with('status', 'All soft-deleted records permanently removed.');
     }
 

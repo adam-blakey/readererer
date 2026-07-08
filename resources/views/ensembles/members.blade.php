@@ -68,7 +68,7 @@
 										</td>
 										@can('update', $ensemble)
 											<td>
-												<form method="POST" action="{{ route('ensembles.remove_user', [$ensemble, $member]) }}" onsubmit="return confirm('Remove {{ $member->name }} from {{ $ensemble->name }}?');">
+												<form method="POST" action="{{ route('ensembles.remove-user', [$ensemble, $member]) }}" onsubmit="return confirm('Remove {{ $member->name }} from {{ $ensemble->name }}?');">
 													@csrf
 													<button type="submit" class="btn btn-outline-danger btn-sm">Remove</button>
 												</form>

@@ -45,7 +45,7 @@
 	    [
 	        'title' => 'Setup groups',
 	        'icon' => 'users',
-	        'route' => 'setupgroups.index',
+	        'route' => 'setup-groups.index',
 	        'auth' => Auth::user()?->can('viewAny', App\Models\SetupGroup::class),
 	    ],
 	    [

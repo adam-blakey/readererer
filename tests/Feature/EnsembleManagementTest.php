@@ -96,7 +96,7 @@ test('a user can be added to an ensemble with an instrument family and seat', fu
     $instrumentFamily = make_instrument_family('Percussion');
 
     $this->actingAs(make_user(UserRole::Admin))
-        ->post(route('ensembles.add_user', $ensemble), [
+        ->post(route('ensembles.add-user', $ensemble), [
             'user_id' => $member->id,
             'instrument_family_id' => $instrumentFamily->id,
             'seat_row' => '2',
@@ -114,7 +114,7 @@ test('adding a user to an ensemble validates the user and instrument family', fu
     $ensemble = Ensemble::factory()->create();
 
     $this->actingAs(make_user(UserRole::Admin))
-        ->post(route('ensembles.add_user', $ensemble), [
+        ->post(route('ensembles.add-user', $ensemble), [
             'user_id' => 999999,
             'instrument_family_id' => 999999,
         ])
@@ -129,7 +129,7 @@ test('a user can be removed from an ensemble', function () {
     join_ensemble($member, $ensemble);
 
     $this->actingAs(make_user(UserRole::Admin))
-        ->post(route('ensembles.remove_user', [$ensemble, $member]))
+        ->post(route('ensembles.remove-user', [$ensemble, $member]))
         ->assertRedirect();
 
     expect(UserEnsemble::where('user_id', $member->id)->where('ensemble_id', $ensemble->id)->exists())
@@ -146,7 +146,7 @@ test('guests cannot add users to an ensemble', function () {
     $ensemble = Ensemble::factory()->create();
     $member = make_user(UserRole::Member);
 
-    $this->post(route('ensembles.add_user', $ensemble), [
+    $this->post(route('ensembles.add-user', $ensemble), [
         'user_id' => $member->id,
         'instrument_family_id' => make_instrument_family()->id,
     ])->assertRedirect('/login');
@@ -159,7 +159,7 @@ test('removing a user who is not in the ensemble returns not found', function ()
     $member = make_user(UserRole::Member);
 
     $this->actingAs(make_user(UserRole::Admin))
-        ->post(route('ensembles.remove_user', [$ensemble, $member]))
+        ->post(route('ensembles.remove-user', [$ensemble, $member]))
         ->assertNotFound();
 });
 
