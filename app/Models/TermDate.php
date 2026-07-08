@@ -20,6 +20,8 @@ class TermDate extends Model
         'start_datetime',
         'end_datetime',
         'concert_ensemble_id',
+        'setup_group_id',
+        'van_driver_id',
     ];
 
     public function term(): BelongsTo

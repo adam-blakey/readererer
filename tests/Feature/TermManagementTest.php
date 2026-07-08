@@ -2,6 +2,7 @@
 
 use App\Enums\UserRole;
 use App\Models\Ensemble;
+use App\Models\SetupGroup;
 use App\Models\Term;
 use App\Models\TermDate;
 
@@ -184,4 +185,80 @@ test('the term show page renders with its dates', function () {
     $this->actingAs(make_user(UserRole::Member))
         ->get(route('terms.show', $term))
         ->assertOk();
+});
+
+test('creating a term persists the setup group and van driver on its dates', function () {
+    $setupGroup = SetupGroup::create(['name' => 'Group A', 'color' => 'blue']);
+    $driver = make_user(UserRole::Member);
+
+    $this->actingAs(make_user(UserRole::Moderator))->post(route('terms.store'), [
+        'name' => 'Autumn 2026',
+        'slug' => 'autumn-2026',
+        'term_dates' => [
+            [
+                'start_datetime' => '2026-09-05 19:00:00',
+                'end_datetime' => '2026-09-05 21:00:00',
+                'setup_group_id' => $setupGroup->id,
+                'van_driver_id' => $driver->id,
+            ],
+        ],
+    ])->assertRedirect();
+
+    $termDate = Term::where('slug', 'autumn-2026')->first()->term_dates->first();
+    expect($termDate->setup_group_id)->toBe($setupGroup->id);
+    expect($termDate->van_driver_id)->toBe($driver->id);
+});
+
+test('updating a term persists the setup group and van driver on its dates', function () {
+    $term = Term::factory()->create();
+    $setupGroup = SetupGroup::create(['name' => 'Group B', 'color' => 'green']);
+    $driver = make_user(UserRole::Member);
+
+    $this->actingAs(make_user(UserRole::Moderator))->patch(route('terms.update', $term), [
+        'name' => $term->name,
+        'slug' => $term->slug,
+        'term_dates' => [
+            [
+                'start_datetime' => '2026-09-05 19:00:00',
+                'end_datetime' => '2026-09-05 21:00:00',
+                'setup_group_id' => $setupGroup->id,
+                'van_driver_id' => $driver->id,
+            ],
+        ],
+    ])->assertRedirect();
+
+    $termDate = $term->fresh()->term_dates->first();
+    expect($termDate->setup_group_id)->toBe($setupGroup->id);
+    expect($termDate->van_driver_id)->toBe($driver->id);
+});
+
+test('creating a term rejects an unknown setup group or van driver', function () {
+    $this->actingAs(make_user(UserRole::Moderator))
+        ->post(route('terms.store'), [
+            'name' => 'Bad Term',
+            'slug' => 'bad-term',
+            'term_dates' => [
+                [
+                    'start_datetime' => '2026-09-05 19:00:00',
+                    'end_datetime' => '2026-09-05 21:00:00',
+                    'setup_group_id' => 999999,
+                    'van_driver_id' => 999999,
+                ],
+            ],
+        ])
+        ->assertSessionHasErrors(['term_dates.0.setup_group_id', 'term_dates.0.van_driver_id']);
+
+    expect(Term::where('slug', 'bad-term')->exists())->toBeFalse();
+});
+
+test('the term edit form renders the setup group, van driver and row template', function () {
+    $term = Term::factory()->create();
+    SetupGroup::create(['name' => 'Group A', 'color' => 'blue']);
+
+    $this->actingAs(make_user(UserRole::Moderator))
+        ->get(route('terms.edit', $term))
+        ->assertOk()
+        ->assertSee('Setup group')
+        ->assertSee('Van driver override')
+        ->assertSee('term-date-row-template', false);
 });
