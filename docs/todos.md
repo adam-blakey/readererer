@@ -41,11 +41,6 @@ How entities split across the phases:
 - Index view should show the name of the user role (mostly done — role enum text now
   pulls through; verify).
 
-**Ensembles**
-- Ensemble edit page should allow adding/removing users.
-- Members list view (table) for an ensemble.
-- Check ensembles actually have users before making polls visible.
-
 **Terms / term dates**
 - Add setup groups to term dates.
 - Term dates editor has overlapping duplicate and removal buttons.

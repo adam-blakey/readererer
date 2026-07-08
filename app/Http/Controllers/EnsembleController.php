@@ -119,6 +119,20 @@ class EnsembleController extends Controller
         return redirect()->back()->with('status', 'Restored.');
     }
 
+    /**
+     * Display a table of the ensemble's members.
+     */
+    public function members(Ensemble $ensemble): View
+    {
+        $this->authorize('view', $ensemble);
+
+        return view('ensembles.members', [
+            'ensemble' => $ensemble,
+            'page_name' => $ensemble->name,
+            'page_subname' => 'Members',
+        ]);
+    }
+
     public function add_user(Ensemble $ensemble)
     {
         $validated = request()->validate([
