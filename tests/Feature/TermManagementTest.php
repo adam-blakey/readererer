@@ -187,6 +187,36 @@ test('the term show page renders with its dates', function () {
         ->assertOk();
 });
 
+test('the term show page lists its dates in a table', function () {
+    $ensemble = Ensemble::factory()->create();
+    $setupGroup = SetupGroup::create(['name' => 'Group A', 'color' => 'blue']);
+    $term = Term::factory()->create();
+
+    // A concert date with a setup group, and a plain rehearsal.
+    TermDate::forceCreate([
+        'term_id' => $term->id,
+        'start_datetime' => '2026-05-01 19:00:00',
+        'end_datetime' => '2026-05-01 21:00:00',
+        'concert_ensemble_id' => $ensemble->id,
+        'setup_group_id' => $setupGroup->id,
+    ]);
+    TermDate::forceCreate([
+        'term_id' => $term->id,
+        'start_datetime' => '2026-05-08 19:00:00',
+        'end_datetime' => '2026-05-08 21:00:00',
+    ]);
+
+    $this->actingAs(make_user(UserRole::Moderator))
+        ->get(route('terms.show', $term))
+        ->assertOk()
+        ->assertSee('card-table', false)
+        ->assertSee('Setup group')
+        ->assertSee('Van driver')
+        ->assertSee('Concert')
+        ->assertSee('Rehearsal')
+        ->assertSee('Send attendance list now');
+});
+
 test('creating a term persists the setup group and van driver on its dates', function () {
     $setupGroup = SetupGroup::create(['name' => 'Group A', 'color' => 'blue']);
     $driver = make_user(UserRole::Member);

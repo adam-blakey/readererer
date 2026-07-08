@@ -71,11 +71,6 @@ How entities split across the phases:
 - Members list view (table) for an ensemble.
 - Check ensembles actually have users before making polls visible.
 
-**Terms / term dates**
-- Add setup groups to term dates.
-- Term dates editor has overlapping duplicate and removal buttons.
-- Term dates view (table), with options to send emails.
-
 **Attendance**
 - Attendance register (in progress, marked `[~]`).
 - Show who you're playing with for upcoming concerts and rehearsals.
