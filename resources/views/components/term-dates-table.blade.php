@@ -10,14 +10,24 @@
         <p class="p-3 mb-0 text-muted">Nothing scheduled.</p>
     @else
         <table class="table table-vcenter card-table">
+            <colgroup>
+                <col style="width: 14%">
+                <col style="width: 8%">
+                <col style="width: 15%">
+                <col style="width: 8%">
+                <col style="width: 13%">
+                <col style="width: 20%">
+                <col style="width: 22%">
+            </colgroup>
             <thead>
                 <tr>
                     <th>Date</th>
+                    <th>Time</th>
                     <th>Type</th>
                     <th>Setup group</th>
                     <th>Van driver</th>
                     <th>Emails</th>
-                    <th class="w-1">Actions</th>
+                    <th>Actions</th>
                 </tr>
             </thead>
             <tbody>
@@ -25,11 +35,12 @@
                     <tr>
                         <td>
                             @if ($td->start_datetime->isPast())
-                                <strike>{{ $td->name }}</strike>
+                                <strike>{{ $td->date_label }}</strike>
                             @else
-                                {{ $td->name }}
+                                {{ $td->date_label }}
                             @endif
                         </td>
+                        <td class="text-nowrap">{{ $td->time_label }}</td>
                         <td>
                             @if ($td->concert_ensemble_id)
                                 <span class="badge bg-green text-green-fg">Concert @if($td->concert_ensemble) ({{ $td->concert_ensemble->name }}) @endif</span>
@@ -52,17 +63,32 @@
                             @endif
                         </td>
                         <td>
-                            @forelse ($td->email_logs as $log)
-                                <div>
-                                    <x-icon name="{{ $log->status === \App\Enums\EmailStatus::Failed ? 'alert-square' : 'check' }}" />
-                                    {{ $log->subject }} — {{ $log->recipients->count() }} recipient(s), {{ $log->created_at->diffForHumans() }}
-                                </div>
-                            @empty
+                            @php $logs = $td->email_logs; @endphp
+                            @if ($logs->isEmpty())
                                 <span class="text-muted">No emails sent yet.</span>
-                            @endforelse
+                            @else
+                                @php $latest = $logs->first(); $rest = $logs->slice(1); @endphp
+                                <div>
+                                    <x-icon name="{{ $latest->status === \App\Enums\EmailStatus::Failed ? 'alert-square' : 'check' }}" />
+                                    {{ $latest->subject }} — {{ $latest->recipients->count() }} recipient(s), {{ $latest->created_at->diffForHumans() }}
+                                </div>
+                                @if ($rest->isNotEmpty())
+                                    <a class="d-inline-block small" data-bs-toggle="collapse" href="#email-history-{{ $td->id }}" role="button" aria-expanded="false">
+                                        Show {{ $rest->count() }} earlier
+                                    </a>
+                                    <div class="collapse" id="email-history-{{ $td->id }}">
+                                        @foreach ($rest as $log)
+                                            <div class="text-secondary">
+                                                <x-icon name="{{ $log->status === \App\Enums\EmailStatus::Failed ? 'alert-square' : 'check' }}" />
+                                                {{ $log->subject }} — {{ $log->recipients->count() }} recipient(s), {{ $log->created_at->diffForHumans() }}
+                                            </div>
+                                        @endforeach
+                                    </div>
+                                @endif
+                            @endif
                         </td>
                         <td>
-                            <div class="btn-list flex-nowrap">
+                            <div class="btn-list">
                                 @can('sendNotifications', $td)
                                     <form method="POST" action="{{ route('term-dates.send-attendance-list', $td) }}">
                                         @csrf

@@ -91,4 +91,25 @@ class TermDate extends Model
         }
         return $this->start_datetime->format('l, jS F Y H:i') . ' - ' . $this->end_datetime->format('l, jS F Y H:i');
     }
+
+    /**
+     * The date portion, for rendering in its own table column. Multi-day
+     * dates show the span; single-day dates just the one date.
+     */
+    public function getDateLabelAttribute(): string
+    {
+        if ($this->start_datetime->isSameDay($this->end_datetime))
+        {
+            return $this->start_datetime->format('D, j M Y');
+        }
+        return $this->start_datetime->format('D, j M Y') . ' – ' . $this->end_datetime->format('D, j M Y');
+    }
+
+    /**
+     * The time portion, for rendering in its own table column.
+     */
+    public function getTimeLabelAttribute(): string
+    {
+        return $this->start_datetime->format('H:i') . '–' . $this->end_datetime->format('H:i');
+    }
 }
