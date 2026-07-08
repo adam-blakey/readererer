@@ -58,14 +58,6 @@ How entities split across the phases:
 
 ### Planning TODOs (from `docs/development-plan.md`)
 
-**Members / users**
-- Edit users within ensembles (recurring item — appears under several focus dates).
-- `users.edit` should allow adding the user to ensembles (multi-dropdown) and changing
-  their setup group.
-- Users edit page gives a 500 error.
-- Index view should show the name of the user role (mostly done — role enum text now
-  pulls through; verify).
-
 **Ensembles**
 - Ensemble edit page should allow adding/removing users.
 - Members list view (table) for an ensemble.
