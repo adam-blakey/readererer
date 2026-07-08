@@ -31,45 +31,7 @@ How entities split across the phases:
 
 ## Phase 1 — Attendance diary
 
-### Code TODOs (in source)
-
-- **Tighten the attendance-update policy** — `app/Policies/AttendancePolicy.php:65`:
-  `update()` currently allows any user at or above the `Ensemble` role; the TODO asks
-  whether this should be restricted to members of the relevant ensemble.
-- **Tighten the ensemble-admin view policy** — `app/Policies/EnsembleAdminPolicy.php:29`:
-  `view()` allows any `Member`+; should be restricted to members of that ensemble.
-- **Clean up `User::membership()`** — `app/Models/User.php:220`: flagged "obvs this is
-  terrible" — manual lookup of instrument family and seat from the pivot.
-- **Friendly column names on `Term`** — `app/Models/Term.php:22`: shorten the `$visible`
-  column names to friendlier labels when rendered in tables.
-- **Better / automatic validation in controllers** — `UserController.php:63`,
-  `UserController.php:105`, `EnsembleController.php:67`, `SetupGroupController.php:60`,
-  `SetupGroupController.php:100`: all carry "better validation; maybe automatic somehow?".
-- **Username collision handling** — `app/Http/Controllers/UserController.php:72`:
-  needs care when generated usernames collide.
-- **Ensemble show view elegance** — `resources/views/ensembles/show.blade.php:22`:
-  "more elegance required".
-- **Wire up the notification buttons** — `resources/views/terms/show.blade.php:86`:
-  the "Send attendance list now" / setup-reminder buttons are placeholders
-  ("obviously these need to work").
-- **Term form technical debt** — `resources/views/terms/form.blade.php:1`:
-  "horrible technical debt"; relates to the overlapping duplicate/remove buttons noted
-  in the plan.
-
 ### Planning TODOs (from `docs/development-plan.md`)
-
-**Members / users**
-- Edit users within ensembles (recurring item — appears under several focus dates).
-- `users.edit` should allow adding the user to ensembles (multi-dropdown) and changing
-  their setup group.
-- Users edit page gives a 500 error.
-- Index view should show the name of the user role (mostly done — role enum text now
-  pulls through; verify).
-
-**Ensembles**
-- Ensemble edit page should allow adding/removing users.
-- Members list view (table) for an ensemble.
-- Check ensembles actually have users before making polls visible.
 
 **Attendance**
 - Attendance register (in progress, marked `[~]`).

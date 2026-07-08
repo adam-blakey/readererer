@@ -24,6 +24,7 @@
 				@if ($canManage)
 					<div class="col-auto ms-auto">
 						<div class="btn-list">
+							<x-a href="{{ route('ensembles.members', ['ensemble' => $ensemble]) }}" class="btn"><x-icon name="users" />Members</x-a>
 							<x-a href="{{ route('ensembles.seating-plan.show', ['ensemble' => $ensemble]) }}" class="btn"><x-icon name="users-group" />Seating plan</x-a>
 							<x-a href="{{ route('ensembles.edit', ['ensemble' => $ensemble]) }}" class="btn"><x-icon name="pencil" />Edit</x-a>
 						</div>
@@ -42,7 +43,9 @@
                             <h2 class="mb-0 card-heading">Active polls</h2>
                         </div>
                         <div class="card-body">
-                            @if($upcomingTerms->count() == 0)
+                            @if($ensemble->users->isEmpty())
+                                <p class="mb-0 text-muted">This ensemble has no members yet. Add members before polls become available.</p>
+                            @elseif($upcomingTerms->count() == 0)
                                 Nothing upcoming.
                             @else
                                 @foreach($upcomingTerms as $term)

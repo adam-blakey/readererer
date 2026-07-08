@@ -1,26 +1,19 @@
 <?php
 
-use App\Http\Controllers\PieceController;
-use App\Http\Controllers\EnsembleController;
-use App\Http\Controllers\SeatingPlanController;
-use App\Http\Controllers\SeatingPlanPdfController;
-use App\Http\Controllers\SettingController;
-use App\Http\Controllers\TermController;
 use App\Http\Controllers\AttendanceController;
-use App\Http\Controllers\UserController;
 use App\Http\Controllers\ComposerController;
 use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\EnsembleController;
+use App\Http\Controllers\PieceController;
+use App\Http\Controllers\SeatingPlanController;
 use App\Http\Controllers\SetlistController;
+use App\Http\Controllers\SettingController;
 use App\Http\Controllers\SetupGroupController;
+use App\Http\Controllers\TermController;
 use App\Http\Controllers\TermDateNotificationController;
-use Illuminate\Support\Facades\Route;
-use App\Models\Piece;
-use App\Models\Composer;
-use App\Models\Ensemble;
-use App\Models\Term;
+use App\Http\Controllers\UserController;
 use App\Models\Attendance;
-use App\Models\User;
-use App\Models\Setlist;
+use Illuminate\Support\Facades\Route;
 
 Route::view('/', 'home', ['page_name' => config('app.name')])
     ->name('home');
@@ -44,6 +37,7 @@ Route::resource('composers', ComposerController::class)->middleware('auth');
 Route::patch('/composers/{composer}/restore', [ComposerController::class, 'restore'])->name('composers.restore')->middleware('auth');
 Route::resource('ensembles', EnsembleController::class)->middleware('auth');
 Route::patch('/ensembles/{ensemble}/restore', [EnsembleController::class, 'restore'])->name('ensembles.restore')->middleware('auth');
+Route::get('/ensembles/{ensemble}/members', [EnsembleController::class, 'members'])->name('ensembles.members')->middleware('auth');
 Route::post('/ensembles/{ensemble}/add_user', [EnsembleController::class, 'add_user'])->name('ensembles.add_user')->middleware('auth');
 Route::post('/ensembles/{ensemble}/remove_user/{user}', [EnsembleController::class, 'remove_user'])->name('ensembles.remove_user')->middleware('auth');
 Route::get('/ensembles/{ensemble}/seating-plan', [SeatingPlanController::class, 'show'])->name('ensembles.seating-plan.show')->middleware('auth');
@@ -59,6 +53,8 @@ Route::post('/term-dates/{termDate}/send-attendance-list', [TermDateNotification
 Route::post('/term-dates/{termDate}/send-setup-reminder', [TermDateNotificationController::class, 'sendSetupReminder'])->name('term-dates.send-setup-reminder')->middleware('auth');
 Route::resource('users', UserController::class)->middleware('auth');
 Route::patch('/users/{user}/restore', [UserController::class, 'restore'])->name('users.restore')->middleware('auth');
+Route::post('/users/{user}/ensembles', [UserController::class, 'attachEnsemble'])->name('users.ensembles.attach')->middleware('auth');
+Route::delete('/users/{user}/ensembles/{ensemble}', [UserController::class, 'detachEnsemble'])->name('users.ensembles.detach')->middleware('auth');
 Route::resource('setupgroups', SetupGroupController::class)->middleware('auth')->parameter('setupgroups', 'setupGroup');
 Route::patch('/setupgroups/{setupgroup}/restore', [SetupGroupController::class, 'restore'])->name('setupgroups.restore')->middleware('auth');
 Route::get('/settings', [SettingController::class, 'edit'])->name('settings.edit')->middleware('auth');
