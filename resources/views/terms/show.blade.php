@@ -5,10 +5,18 @@
 		<div class="container">
 			<div class="row align-items-center">
 				<div class="col">
-					<h1 class="my-0 font-bold">{{ $term->name }}</h1>
-					@if($term->term_dates_count ?? $term->term_dates?->count())
-						<span class="badge bg-blue text-blue-fg">{{ $term->term_dates_count ?? $term->term_dates->count() }} dates</span>
-					@endif
+					<h1 class="my-0 font-bold">
+						{{ $term->name }}
+						@if($term->term_dates_count ?? $term->term_dates?->count())
+							<span class="badge bg-blue text-blue-fg align-middle">{{ $term->term_dates_count ?? $term->term_dates->count() }} dates</span>
+						@endif
+					</h1>
+					<div class="list-inline list-inline-dots text-secondary mt-1 mb-0">
+						<span class="list-inline-item"><x-icon name="calendar" />{{ $term->formattedTermDateRange }}</span>
+						<span class="list-inline-item"><x-icon name="link" />{{ $term->slug }}</span>
+						<span class="list-inline-item">Created {{ $term->created_at?->diffForHumans() }}</span>
+						<span class="list-inline-item">Updated {{ $term->updated_at?->diffForHumans() }}</span>
+					</div>
 				</div>
 				<div class="col-auto ms-auto">
 					<div class="btn-list">
@@ -35,23 +43,6 @@
 							<h2 class="mb-0 card-heading">All dates</h2>
 						</div>
                         <x-term-dates-table :term_dates="$term->term_dates" :ensembles="$ensembles" />
-					</div>
-				</div>
-				<div class="col-lg-4">
-					<div class="row row-cards">
-						<div class="col-12">
-							<div class="card">
-                                <div class="card-header">
-                                    <h2 class="mb-0 card-heading">Term details</h2>
-                                </div>
-								<div class="card-body">
-									<div class="mb-2"><strong>Created:</strong> {{ $term->created_at?->diffForHumans() }}</div>
-									<div class="mb-2"><strong>Updated:</strong> {{ $term->updated_at?->diffForHumans() }}</div>
-                                    <div class="mb-2"><strong>Slug:</strong> {{ $term->slug }}</div>
-                                    <div class="mb-2"><strong>Range:</strong> {{ $term->formattedTermDateRange }}</div>
-								</div>
-							</div>
-						</div>
 					</div>
 				</div>
 			</div>
