@@ -1,6 +1,7 @@
 <?php
 
 use App\Enums\UserRole;
+use App\Models\Ensemble;
 use App\Models\SetupGroup;
 use App\Models\User;
 
@@ -217,4 +218,88 @@ test('the user edit form renders', function () {
     $this->actingAs(make_user(UserRole::Admin))
         ->get(route('users.edit', $user))
         ->assertOk();
+});
+
+test('the user edit page renders for a user with a setup group and ensembles', function () {
+    // Regression test: the edit page used to 500 for a fully populated user.
+    $setupGroup = make_setup_group_for_users();
+    $user = make_user(UserRole::Member, ['setup_group_id' => $setupGroup->id]);
+    $ensemble = Ensemble::factory()->create();
+    join_ensemble($user, $ensemble, make_instrument_family('Strings'), 'A', '1');
+
+    $this->actingAs(make_user(UserRole::Admin))
+        ->get(route('users.edit', $user))
+        ->assertOk()
+        ->assertSee('Add to ensemble')
+        ->assertSee($ensemble->name)
+        ->assertSee('Setup group');
+});
+
+test('the user edit page renders when the user has no setup group or ensembles', function () {
+    $user = make_user(UserRole::Member);
+
+    $this->actingAs(make_user(UserRole::Admin))
+        ->get(route('users.edit', $user))
+        ->assertOk()
+        ->assertSee('not a member of any ensembles');
+});
+
+test('a user can be added to an ensemble from the edit page', function () {
+    $user = make_user(UserRole::Member);
+    $ensemble = Ensemble::factory()->create();
+    $instrumentFamily = make_instrument_family('Brass');
+
+    $this->actingAs(make_user(UserRole::Admin))
+        ->post(route('users.ensembles.attach', $user), [
+            'ensemble_id' => $ensemble->id,
+            'instrument_family_id' => $instrumentFamily->id,
+            'seat_row' => 'B',
+            'seat_column' => '2',
+        ])
+        ->assertRedirect();
+
+    $pivot = $user->fresh()->ensembles->firstWhere('id', $ensemble->id)?->pivot;
+    expect($pivot)->not->toBeNull();
+    expect($pivot->instrument_family_id)->toBe($instrumentFamily->id);
+    expect($pivot->seat_row)->toBe('B');
+    expect($pivot->seat_column)->toBe('2');
+});
+
+test('adding a user to an ensemble they already belong to does not duplicate the membership', function () {
+    $user = make_user(UserRole::Member);
+    $ensemble = Ensemble::factory()->create();
+    $instrumentFamily = make_instrument_family('Woodwind');
+    join_ensemble($user, $ensemble, $instrumentFamily);
+
+    $this->actingAs(make_user(UserRole::Admin))
+        ->post(route('users.ensembles.attach', $user), [
+            'ensemble_id' => $ensemble->id,
+            'instrument_family_id' => $instrumentFamily->id,
+        ])
+        ->assertRedirect();
+
+    expect($user->fresh()->ensembles()->where('ensembles.id', $ensemble->id)->count())->toBe(1);
+});
+
+test('adding a user to an ensemble validates the input', function () {
+    $user = make_user(UserRole::Member);
+
+    $this->actingAs(make_user(UserRole::Admin))
+        ->post(route('users.ensembles.attach', $user), [
+            'ensemble_id' => 999999,
+            'instrument_family_id' => 999999,
+        ])
+        ->assertSessionHasErrors(['ensemble_id', 'instrument_family_id']);
+});
+
+test('a user can be removed from an ensemble from the edit page', function () {
+    $user = make_user(UserRole::Member);
+    $ensemble = Ensemble::factory()->create();
+    join_ensemble($user, $ensemble, make_instrument_family('Percussion'));
+
+    $this->actingAs(make_user(UserRole::Admin))
+        ->delete(route('users.ensembles.detach', ['user' => $user, 'ensemble' => $ensemble]))
+        ->assertRedirect();
+
+    expect($user->fresh()->ensembles->contains('id', $ensemble->id))->toBeFalse();
 });

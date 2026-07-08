@@ -5,9 +5,13 @@ namespace App\Http\Controllers;
 use App\Enums\UserRole;
 use App\Http\Requests\StoreUserRequest;
 use App\Http\Requests\UpdateUserRequest;
+use App\Models\Ensemble;
+use App\Models\InstrumentFamily;
 use App\Models\SetupGroup;
 use App\Models\User;
+use App\Models\UserEnsemble;
 use Illuminate\Http\RedirectResponse;
+use Illuminate\Http\Request;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Str;
 use Illuminate\View\View;
@@ -33,21 +37,21 @@ class UserController extends Controller
             'page_subname' => 'Users overview',
             'create_entity' => [
                 'route' => 'users.create',
-                'name' => 'user'
-            ]
+                'name' => 'user',
+            ],
         ]);
     }
 
     public function create(): View
     {
         $fields = get_create_fields(new User);
-        $fields["first_name"]["width"] = 6;
-        $fields["last_name"]["width"] = 6;
-        unset($fields["password"]);
-        unset($fields["image"]);
-        $fields["role"]["type"] = "enum";
-        $fields["role"]["options"] = UserRole::cases();
-        $fields["role"]["default_option"] = UserRole::Member;
+        $fields['first_name']['width'] = 6;
+        $fields['last_name']['width'] = 6;
+        unset($fields['password']);
+        unset($fields['image']);
+        $fields['role']['type'] = 'enum';
+        $fields['role']['options'] = UserRole::cases();
+        $fields['role']['default_option'] = UserRole::Member;
 
         return view('auto-entities.form', [
             'page_name' => 'Users',
@@ -75,20 +79,20 @@ class UserController extends Controller
 
     public function edit(User $user): View
     {
-        $fields = get_create_fields($user);
-        $fields["first_name"]["width"] = 6;
-        $fields["last_name"]["width"] = 6;
-        unset($fields["password"]);
-        unset($fields["image"]);
-        $fields["role"]["type"] = "enum";
-        $fields["role"]["options"] = UserRole::cases();
+        $user->load(['ensembles', 'setup_group']);
 
-        return view('auto-entities.form', [
-            'page_name' => 'Users',
-            'page_subname' => 'Update user',
-            'update' => true,
-            'fields' => $fields,
-            'form_route' => route('users.update', $user),
+        $instrumentFamilies = InstrumentFamily::whereIn(
+            'id', $user->ensembles->pluck('pivot.instrument_family_id')->unique()
+        )->get()->keyBy('id');
+
+        return view('users.edit', [
+            'user' => $user,
+            'roles' => UserRole::cases(),
+            'setupGroups' => SetupGroup::orderBy('name')->get(),
+            'ensembles' => Ensemble::orderBy('name')->get(),
+            'allInstrumentFamilies' => InstrumentFamily::orderBy('name')->get(),
+            'instrumentFamilies' => $instrumentFamilies,
+            'page_name' => 'Edit '.$user->name,
         ]);
     }
 
@@ -117,12 +121,14 @@ class UserController extends Controller
         return view('users.show', [
             'user' => $user,
             'instrumentFamilies' => $instrumentFamilies,
-            'page_name' => $user->name
+            'page_name' => $user->name,
         ]);
     }
+
     public function destroy(User $user)
     {
         $user->delete();
+
         return redirect()->back()->with('status', 'Record deleted.');
     }
 
@@ -132,5 +138,44 @@ class UserController extends Controller
         $user->restore();
 
         return redirect()->back()->with('status', 'User restored.');
+    }
+
+    /**
+     * Add the user to an ensemble from the user edit page.
+     */
+    public function attachEnsemble(Request $request, User $user): RedirectResponse
+    {
+        $validated = $request->validate([
+            'ensemble_id' => 'required|exists:ensembles,id',
+            'instrument_family_id' => 'required|exists:instrument_families,id',
+            'seat_row' => 'nullable|string|max:10',
+            'seat_column' => 'nullable|string|max:10',
+        ]);
+
+        if ($user->ensembles()->where('ensembles.id', $validated['ensemble_id'])->exists()) {
+            return redirect()->back()->with('status', 'User is already a member of that ensemble.');
+        }
+
+        $user->ensembles()->attach($validated['ensemble_id'], [
+            'instrument_family_id' => $validated['instrument_family_id'],
+            'seat_row' => $validated['seat_row'] ?? null,
+            'seat_column' => $validated['seat_column'] ?? null,
+        ]);
+
+        return redirect()->back()->with('status', 'User added to ensemble.');
+    }
+
+    /**
+     * Remove the user from an ensemble from the user edit page.
+     */
+    public function detachEnsemble(User $user, Ensemble $ensemble): RedirectResponse
+    {
+        $pivot = UserEnsemble::where('user_id', $user->id)
+            ->where('ensemble_id', $ensemble->id)
+            ->firstOrFail();
+
+        $pivot->delete();
+
+        return redirect()->back()->with('status', 'User removed from ensemble.');
     }
 }
