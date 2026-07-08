@@ -17,6 +17,7 @@ RUN composer install \
         --no-interaction \
         --prefer-dist \
         --optimize-autoloader \
+        --ignore-platform-req=php+ \
         --no-scripts
 
 # ---- Runtime: Apache serving Laravel's public/ ----
