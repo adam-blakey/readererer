@@ -1,93 +1,137 @@
-# Readererer
+<p align="center">
+  <img src="docs/images/readererer-logo.svg" alt="Readererer" width="440">
+</p>
 
+<p align="center">
+  <strong>Attendance, rosters and a digital music library for community ensembles and orchestras.</strong>
+</p>
 
+<p align="center">
+  <img alt="Laravel 11" src="https://img.shields.io/badge/Laravel-11-FF2D20?logo=laravel&logoColor=white">
+  <img alt="PHP 8.2+" src="https://img.shields.io/badge/PHP-8.2%2B-777BB4?logo=php&logoColor=white">
+  <img alt="Tabler UI" src="https://img.shields.io/badge/UI-Tabler%20%2B%20Tailwind-0054A6">
+  <img alt="SQLite" src="https://img.shields.io/badge/DB-SQLite-003B57?logo=sqlite&logoColor=white">
+  <img alt="Tests: Pest" src="https://img.shields.io/badge/Tests-Pest-6C5CE7">
+</p>
+
+---
+
+Readererer is a web app for running the admin side of a music ensemble. It keeps
+track of who plays what, when the group rehearses and performs, and — crucially —
+**who is turning up**. Members reply to a term's attendance poll, and conductors and
+committee members get a clear register of attending / not attending / not-yet-replied
+for every rehearsal and concert. Alongside attendance it manages ensembles, seating
+plans, setup-group and van-driver rosters, and a library of setlists, pieces and parts.
+
+## The attendance poll
+
+The heart of the app. Each term shows every member against every rehearsal and concert
+date, with a three-state control per date — **attending** (green), **not attending**
+(red) or **not yet replied** (grey `?`). Members can update their own answers; totals
+always use the latest reply per member.
+
+![Attendance poll for an ensemble across a term](docs/images/attendance-poll.png)
+
+## Features
+
+**Running the calendar (attendance diary)**
+
+- **Members & users** with per-ensemble instrument family and seat position.
+- **Ensembles** — a member can belong to several; each carries its own roster and seating.
+- **Terms & term dates** — a date with no ensemble is a rehearsal, otherwise it is that
+  ensemble's concert. Terms cache their latest date for quick display.
+- **Attendance polls & register** — three-state replies, with attending / not-attending /
+  unknown totals per date (latest reply per member wins). Behaviour is tunable via config
+  (`readererer_assume_attending`, `readererer_allow_change_to_unknown`,
+  `readererer_repeating_headings`).
+- **Seating plans** — per-ensemble seat rows and columns, downloadable as a PDF.
+- **Setup groups & van drivers** — rosters for who sets up and who drives, per date.
+
+**The music library (digital sheet music)**
+
+- **Composers, pieces and parts** — each part is tied to an instrument family.
+- **Setlists** — group pieces together and attach them to term dates.
+
+**Throughout**
+
+- **Role-based access** — `Guest`, `Ensemble` (a shared login that can only fill in
+  polls), `Member`, `Moderator` and `Admin`.
+- **Convention-driven CRUD** — most entities share generic index / show / form views that
+  are built by reflecting over the model, so adding a field to a migration and `$fillable`
+  is usually enough to surface it in the UI.
+- **Soft deletes with restore**, sortable index tables, and Tabler icons throughout.
+
+## Tech stack
+
+| Layer      | Choice                                                             |
+| ---------- | ------------------------------------------------------------------ |
+| Framework  | Laravel 11 (PHP 8.2+)                                              |
+| Frontend   | Blade + [Tabler](https://tabler.io) UI + Tailwind, bundled by Vite |
+| Database   | SQLite (`database/database.sqlite`)                               |
+| PDFs       | `barryvdh/laravel-dompdf`                                          |
+| Sorting    | `s-damian/larasort`                                               |
+| Tests      | [Pest](https://pestphp.com)                                       |
+| Formatting | [Laravel Pint](https://laravel.com/docs/pint)                     |
 
 ## Getting started
 
-To make it easy for you to get started with GitLab, here's a list of recommended next steps.
+**Requirements:** PHP 8.2+, Composer, and Node.js.
 
-Already a pro? Just edit this README.md and make it your own. Want to make it easy? [Use the template at the bottom](#editing-this-readme)!
+```bash
+# Install dependencies
+composer install
+npm install
 
-## Add your files
+# Create your environment file and app key
+cp .env.example .env
+php artisan key:generate
 
-- [ ] [Create](https://docs.gitlab.com/ee/user/project/repository/web_editor.html#create-a-file) or [upload](https://docs.gitlab.com/ee/user/project/repository/web_editor.html#upload-a-file) files
-- [ ] [Add files using the command line](https://docs.gitlab.com/ee/gitlab-basics/add-file.html#add-a-file-using-the-command-line) or push an existing Git repository with the following command:
-
+# Create the SQLite database, run migrations and seed sample data
+touch database/database.sqlite
+php artisan migrate:fresh --seed
 ```
-cd existing_repo
-git remote add origin https://gitlab.com/adam.blakey/readererer.git
-git branch -M main
-git push -uf origin main
+
+Run the app with the PHP dev server and Vite in two terminals:
+
+```bash
+php artisan serve   # http://localhost:8000
+npm run dev         # Vite dev server / HMR
 ```
 
-## Integrate with your tools
+Then log in with one of the seeded accounts — `admin` / `password` gives you the full
+admin view (there is one seeded user per role: `guest`, `ensemble`, `member`,
+`moderator`, `admin`, all with the password `password`).
 
-- [ ] [Set up project integrations](https://gitlab.com/adam.blakey/readererer/-/settings/integrations)
+To build assets for production instead of running the dev server:
 
-## Collaborate with your team
+```bash
+npm run build
+```
 
-- [ ] [Invite team members and collaborators](https://docs.gitlab.com/ee/user/project/members/)
-- [ ] [Create a new merge request](https://docs.gitlab.com/ee/user/project/merge_requests/creating_merge_requests.html)
-- [ ] [Automatically close issues from merge requests](https://docs.gitlab.com/ee/user/project/issues/managing_issues.html#closing-issues-automatically)
-- [ ] [Enable merge request approvals](https://docs.gitlab.com/ee/user/project/merge_requests/approvals/)
-- [ ] [Set auto-merge](https://docs.gitlab.com/ee/user/project/merge_requests/merge_when_pipeline_succeeds.html)
+### Tests & formatting
 
-## Test and Deploy
+```bash
+php artisan test                 # or ./vendor/bin/pest
+./vendor/bin/pest --filter 'name of test'
 
-Use the built-in continuous integration in GitLab.
+./vendor/bin/pint                # format
+./vendor/bin/pint --test         # check formatting only
+```
 
-- [ ] [Get started with GitLab CI/CD](https://docs.gitlab.com/ee/ci/quick_start/index.html)
-- [ ] [Analyze your code for known vulnerabilities with Static Application Security Testing (SAST)](https://docs.gitlab.com/ee/user/application_security/sast/)
-- [ ] [Deploy to Kubernetes, Amazon EC2, or Amazon ECS using Auto Deploy](https://docs.gitlab.com/ee/topics/autodevops/requirements.html)
-- [ ] [Use pull-based deployments for improved Kubernetes management](https://docs.gitlab.com/ee/user/clusters/agent/)
-- [ ] [Set up protected environments](https://docs.gitlab.com/ee/ci/environments/protected_environments.html)
+## Deployment
 
-***
-
-# Editing this README
-
-When you're ready to make this README your own, just edit this file and use the handy template below (or feel free to structure it however you want - this is just a starting point!). Thanks to [makeareadme.com](https://www.makeareadme.com/) for this template.
-
-## Suggestions for a good README
-
-Every project is different, so consider which of these sections apply to yours. The sections used in the template are suggestions for most open source projects. Also keep in mind that while a README can be too long and detailed, too long is better than too short. If you think your README is too long, consider utilizing another form of documentation rather than cutting out information.
-
-## Name
-Choose a self-explaining name for your project.
-
-## Description
-Let people know what your project can do specifically. Provide context and add a link to any reference visitors might be unfamiliar with. A list of Features or a Background subsection can also be added here. If there are alternatives to your project, this is a good place to list differentiating factors.
-
-## Badges
-On some READMEs, you may see small images that convey metadata, such as whether or not all the tests are passing for the project. You can use Shields to add some to your README. Many services also have instructions for adding a badge.
-
-## Visuals
-Depending on what you are making, it can be a good idea to include screenshots or even a video (you'll frequently see GIFs rather than actual videos). Tools like ttygif can help, but check out Asciinema for a more sophisticated method.
-
-## Installation
-Within a particular ecosystem, there may be a common way of installing things, such as using Yarn, NuGet, or Homebrew. However, consider the possibility that whoever is reading your README is a novice and would like more guidance. Listing specific steps helps remove ambiguity and gets people to using your project as quickly as possible. If it only runs in a specific context like a particular programming language version or operating system or has dependencies that have to be installed manually, also add a Requirements subsection.
-
-## Usage
-Use examples liberally, and show the expected output if you can. It's helpful to have inline the smallest example of usage that you can demonstrate, while providing links to more sophisticated examples if they are too long to reasonably include in the README.
-
-## Support
-Tell people where they can go to for help. It can be any combination of an issue tracker, a chat room, an email address, etc.
-
-## Roadmap
-If you have ideas for releases in the future, it is a good idea to list them in the README.
-
-## Contributing
-State if you are open to contributions and what your requirements are for accepting them.
-
-For people who want to make changes to your project, it's helpful to have some documentation on how to get started. Perhaps there is a script that they should run or some environment variables that they need to set. Make these steps explicit. These instructions could also be useful to your future self.
-
-You can also document commands to lint the code or run tests. These steps help to ensure high code quality and reduce the likelihood that the changes inadvertently break something. Having instructions for running tests is especially helpful if it requires external setup, such as starting a Selenium server for testing in a browser.
-
-## Authors and acknowledgment
-Show your appreciation to those who have contributed to the project.
-
-## License
-For open source projects, say how it is licensed.
+Deployment is GitLab-CI driven (`.gitlab-ci.yml`) using Laravel Envoy (`Envoy.blade.php`)
+over SSH. Pushing a `v*` tag deploys `main` to the demo server; the `develop` branch
+deploys to the test server. The deploy story pulls the latest code, installs
+dependencies, compiles assets, migrates (optionally seeds) and brings the app back up.
 
 ## Project status
-If you have run out of energy or time for your project, put a note at the top of the README saying that development has slowed down or stopped completely. Someone may choose to fork your project or volunteer to step in as a maintainer or owner, allowing your project to keep going. You can also make an explicit request for maintainers.
+
+Active development. Work is organised into two phases — the **attendance diary** (members,
+ensembles, terms, polls, seating, rosters, notifications) and the **digital sheet music**
+library (composers, pieces, parts, setlists). See [`docs/todos.md`](docs/todos.md) for the
+outstanding work in each phase.
+
+## Copyright
+
+© 2024–present Adam Blakey. All rights reserved.
