@@ -9,7 +9,17 @@ COPY . .
 RUN npm run build
 
 # ---- Install PHP dependencies (production only) ----
-FROM composer:2 AS vendor
+# Resolve/install against the same PHP the runtime uses (8.4) rather than
+# whatever the composer:2 image currently ships, so platform requirements in
+# composer.lock are checked against the real target.
+FROM php:8.4-cli AS vendor
+COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
+# git + unzip are needed for Composer to fetch/extract packages; unlike the
+# Alpine composer image, php:8.4-cli does not bundle them.
+RUN apt-get update && apt-get install -y --no-install-recommends \
+        git \
+        unzip \
+    && rm -rf /var/lib/apt/lists/*
 WORKDIR /app
 COPY . .
 RUN composer install \
@@ -20,7 +30,7 @@ RUN composer install \
         --no-scripts
 
 # ---- Runtime: Apache serving Laravel's public/ ----
-FROM php:8.2-apache AS runtime
+FROM php:8.4-apache AS runtime
 
 # System libraries and PHP extensions the app needs (dompdf -> gd, mysql/sqlite drivers, etc.)
 RUN apt-get update && apt-get install -y --no-install-recommends \
