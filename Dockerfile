@@ -11,8 +11,9 @@ RUN npm run build
 # ---- Install PHP dependencies (production only) ----
 # Resolve/install against the same PHP the runtime uses (8.4) rather than
 # whatever the composer:2 image currently ships, so platform requirements in
-# composer.lock are checked against the real target.
-FROM php:8.4-cli AS vendor
+# composer.lock are checked against the real target. Pinned to the Debian
+# bookworm variant to match the runtime image.
+FROM php:8.4-cli-bookworm AS vendor
 COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
 # git + unzip are needed for Composer to fetch/extract packages; unlike the
 # Alpine composer image, php:8.4-cli does not bundle them.
@@ -30,7 +31,11 @@ RUN composer install \
         --no-scripts
 
 # ---- Runtime: Apache serving Laravel's public/ ----
-FROM php:8.4-apache AS runtime
+# Pinned to the Debian bookworm variant: the unqualified php:8.4-apache tag now
+# resolves to Debian 13 "trixie", which drops/renames some of the -dev packages
+# installed below (e.g. libfreetype6-dev). Bookworm is the OS this apt recipe
+# was written for and keeps every package name valid.
+FROM php:8.4-apache-bookworm AS runtime
 
 # System libraries and PHP extensions the app needs (dompdf -> gd, mysql/sqlite drivers, etc.)
 RUN apt-get update && apt-get install -y --no-install-recommends \
