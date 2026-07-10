@@ -11,10 +11,10 @@
     "devDependencies": {
         "autoprefixer": "^10.4.19",
         "axios": "^1.16.0",
-        "laravel-vite-plugin": "^1.0",
+        "laravel-vite-plugin": "^3.1",
         "postcss": "^8.4.39",
         "tailwindcss": "^3.4.4",
-        "vite": "^5.0"
+        "vite": "^8.1"
     },
     "dependencies": {
         "@tabler/core": "^1.4.0",
@@ -28,13 +28,13 @@
         "flatpickr": "^4.6.13",
         "imask": "^6.6.3",
         "jsvectormap": "^1.6.0",
-        "laravel-vite-plugin": "^1.0",
+        "laravel-vite-plugin": "^3.1",
         "litepicker": "^2.0.12",
         "nouislider": "^15.8.1",
         "postcss": "^8.4.39",
         "tailwindcss": "^3.4.4",
         "tom-select": "^2.3.1",
-        "vite": "^5.0",
-        "vite-plugin-static-copy": "^2.2.0"
+        "vite": "^8.1",
+        "vite-plugin-static-copy": "^4.1.1"
     }
 }

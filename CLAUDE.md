@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## What this is
 
-Readererer is a Laravel 11 (PHP 8.2) app for managing a music ensemble/orchestra: members, ensembles, terms and rehearsal/concert dates, attendance polls, setlists/pieces/composers, seating plans, and setup-group/van-driver rosters. Frontend is Blade + Tabler UI + Tailwind, bundled with Vite. Database is SQLite (`database/database.sqlite`).
+Readererer is a Laravel 13 (PHP 8.4) app for managing a music ensemble/orchestra: members, ensembles, terms and rehearsal/concert dates, attendance polls, setlists/pieces/composers, seating plans, and setup-group/van-driver rosters. Frontend is Blade + Tabler UI + Tailwind, bundled with Vite. Database is SQLite (`database/database.sqlite`).
 
 ## Commands
 
