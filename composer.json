@@ -8,7 +8,7 @@
         "php": "^8.4",
         "barryvdh/laravel-dompdf": "^3.1",
         "fakerphp/faker": "1.23",
-        "laravel/framework": "^11.41.3",
+        "laravel/framework": "11.54.0",
         "laravel/tinker": "^2.9",
         "s-damian/larasort": "^1.0"
     },
