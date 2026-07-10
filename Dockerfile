@@ -31,10 +31,9 @@ RUN composer install \
         --no-scripts
 
 # ---- Runtime: Apache serving Laravel's public/ ----
-# Pinned to the Debian bookworm variant: the unqualified php:8.4-apache tag now
-# resolves to Debian 13 "trixie", which drops/renames some of the -dev packages
-# installed below (e.g. libfreetype6-dev). Bookworm is the OS this apt recipe
-# was written for and keeps every package name valid.
+# Pinned to the Debian bookworm variant for a reproducible base: the unqualified
+# php:8.4-apache tag now floats to Debian 13 "trixie", and pinning keeps the OS
+# (and therefore the apt package set below) stable across rebuilds.
 FROM php:8.4-apache-bookworm AS runtime
 
 # System libraries and PHP extensions the app needs (dompdf -> gd, mysql/sqlite drivers, etc.)
@@ -44,6 +43,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
         libjpeg-dev \
         libfreetype6-dev \
         libonig-dev \
+        libsqlite3-dev \
     && docker-php-ext-configure gd --with-freetype --with-jpeg \
     && docker-php-ext-install -j"$(nproc)" \
         pdo_mysql \
