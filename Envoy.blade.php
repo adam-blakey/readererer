@@ -8,7 +8,7 @@
     */
     $root = $unix_username;
     $repository = 'git@github.com:adam-blakey/readererer.git';
-    $venv = '/home/'.$unix_username.'/nodevenv/domains/'.$domain.'/20/bin/activate';
+    $venv = '/home/'.$unix_username.'/nodevenv/domains/'.$domain.'/24/bin/activate';
 
     /*
     |--------------------------------------------------------------------------
