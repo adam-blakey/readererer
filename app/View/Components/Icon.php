@@ -6,7 +6,6 @@ use Closure;
 use Illuminate\Contracts\View\View;
 use Illuminate\View\Component;
 use Illuminate\Support\Facades\File;
-use Illuminate\Support\Facades\URL;
 
 class Icon extends Component
 {
@@ -26,12 +25,7 @@ class Icon extends Component
      */
     public function render(): View|Closure|string
     {
-        if (config('app.env') === 'production') {
-            $icon_path = public_path(self::$icon_base_path . "/outline/{$this->name}.svg");
-        }
-        else {
-            $icon_path = public_path(self::$icon_base_path . "/{$this->name}.svg");
-        }
+        $icon_path = public_path(self::$icon_base_path . "/{$this->name}.svg");
 
         if (!File::exists($icon_path)) {
             return '';

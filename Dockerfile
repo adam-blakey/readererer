@@ -9,7 +9,18 @@ COPY . .
 RUN npm run build
 
 # ---- Install PHP dependencies (production only) ----
-FROM composer:2 AS vendor
+# Resolve/install against the same PHP the runtime uses (8.4) rather than
+# whatever the composer:2 image currently ships, so platform requirements in
+# composer.lock are checked against the real target. Pinned to the Debian
+# bookworm variant to match the runtime image.
+FROM php:8.4-cli-bookworm AS vendor
+COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
+# git + unzip are needed for Composer to fetch/extract packages; unlike the
+# Alpine composer image, php:8.4-cli does not bundle them.
+RUN apt-get update && apt-get install -y --no-install-recommends \
+        git \
+        unzip \
+    && rm -rf /var/lib/apt/lists/*
 WORKDIR /app
 COPY . .
 RUN composer install \
@@ -20,15 +31,19 @@ RUN composer install \
         --no-scripts
 
 # ---- Runtime: Apache serving Laravel's public/ ----
-FROM php:8.2-apache AS runtime
+# Pinned to the Debian bookworm variant for a reproducible base: the unqualified
+# php:8.4-apache tag now floats to Debian 13 "trixie", and pinning keeps the OS
+# (and therefore the apt package set below) stable across rebuilds.
+FROM php:8.4-apache-bookworm AS runtime
 
 # System libraries and PHP extensions the app needs (dompdf -> gd, mysql/sqlite drivers, etc.)
 RUN apt-get update && apt-get install -y --no-install-recommends \
         libzip-dev \
         libpng-dev \
-        libjpeg62-turbo-dev \
+        libjpeg-dev \
         libfreetype6-dev \
         libonig-dev \
+        libsqlite3-dev \
     && docker-php-ext-configure gd --with-freetype --with-jpeg \
     && docker-php-ext-install -j"$(nproc)" \
         pdo_mysql \

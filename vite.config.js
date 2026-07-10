@@ -18,7 +18,7 @@ export default defineConfig({
         viteStaticCopy({
             targets: [
                 {
-                    src: 'node_modules/@tabler/icons/icons/*',
+                    src: 'node_modules/@tabler/icons/icons/outline/*',
                     dest: 'icons',
                 },
             ],
