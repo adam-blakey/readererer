@@ -37,13 +37,22 @@ pushed.
 
 Multi-stage `Dockerfile`:
 
-1. `node:20-alpine` builds the Vite assets (`npm ci && npm run build`).
+1. `node:24-alpine` builds the Vite assets (`npm ci && npm run build`).
 2. `composer:2` installs PHP dependencies (`--no-dev`).
 3. `php:8.2-apache` serves Laravel's `public/` directory.
 
 Runtime configuration (`APP_KEY`, `DB_*`, etc.) is supplied by the server as
 environment variables — **nothing sensitive is baked into the image** (`.env` and
 the local SQLite database are excluded via `.dockerignore`).
+
+### Footer version number
+
+The version shown in the app footer comes from `version.json`, generated at
+build time (read by `config/_version.php` — no git commands run inside the
+app). The image workflows compute it with `git describe` and pass it in as
+Docker build arguments; everywhere else (local installs, the production SSH
+deploy) `php artisan app:generate-version` writes it from composer's
+`post-autoload-dump` hook.
 
 ## Production — SSH deploy
 
