@@ -89,9 +89,13 @@ class EnsembleController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(UpdateEnsembleRequest $request, Ensemble $ensemble)
+    public function update(UpdateEnsembleRequest $request, Ensemble $ensemble): RedirectResponse
     {
-        //
+        $ensemble->name = $request->validated('name');
+        $ensemble->seating_plan_enabled = $request->boolean('seating_plan_enabled');
+        $ensemble->save();
+
+        return to_route('ensembles.show', $ensemble);
     }
 
     /**
@@ -133,19 +137,6 @@ class EnsembleController extends Controller
             'page_name' => $ensemble->name,
             'page_subname' => 'Members',
         ]);
-    }
-
-    /**
-     * Toggle whether this ensemble runs a seating plan.
-     */
-    public function updateSeatingPlanEnabled(Ensemble $ensemble): RedirectResponse
-    {
-        $this->authorize('update', $ensemble);
-
-        $ensemble->seating_plan_enabled = request()->boolean('seating_plan_enabled');
-        $ensemble->save();
-
-        return redirect()->back()->with('status', 'Seating plan setting updated.');
     }
 
     public function add_user(Ensemble $ensemble)
