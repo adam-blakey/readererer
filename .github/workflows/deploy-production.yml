@@ -1,0 +1,72 @@
+name: Deploy to production
+
+# Publishing a GitHub release deploys to production over SSH using Laravel
+# Envoy (the deploy story in Envoy.blade.php). All connection details come
+# from the `production` environment's variables and secrets.
+on:
+  release:
+    types: [published]
+
+concurrency:
+  group: deploy-production
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+  deployments: write
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    environment:
+      name: production
+      url: https://${{ vars.APP_DOMAIN }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: "8.2"
+          tools: composer
+
+      - name: Install Laravel Envoy
+        run: |
+          composer global require laravel/envoy=~2.10 --no-interaction --prefer-dist
+          echo "$(composer global config bin-dir --absolute)" >> "$GITHUB_PATH"
+
+      - name: Deploy with Envoy over SSH
+        env:
+          # Secret: the private SSH key for the production server.
+          SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
+          # Variables: non-sensitive connection details.
+          UNIX_USERNAME: ${{ vars.UNIX_USERNAME }}
+          SERVER_DOMAIN: ${{ vars.SERVER_DOMAIN }}
+          SERVER_PORT: ${{ vars.SERVER_PORT }}
+          APP_DOMAIN: ${{ vars.APP_DOMAIN }}
+        run: |
+          set -euo pipefail
+
+          # Load the deploy key into an ssh-agent so Envoy's `-A` agent
+          # forwarding lets the server authenticate to the git remote.
+          eval "$(ssh-agent -s)"
+          mkdir -p ~/.ssh
+          chmod 700 ~/.ssh
+          printf '%s\n' "$SSH_PRIVATE_KEY" > ~/.ssh/deploy_key
+          chmod 600 ~/.ssh/deploy_key
+          ssh-add ~/.ssh/deploy_key
+
+          # Trust the production host on first connect.
+          printf 'Host *\n    StrictHostKeyChecking accept-new\n' > ~/.ssh/config
+          chmod 600 ~/.ssh/config
+          ssh-keyscan -p "$SERVER_PORT" "$SERVER_DOMAIN" >> ~/.ssh/known_hosts 2>/dev/null || true
+
+          # Deploys main (which the release tag should point at). Envoy also
+          # fetches all tags as part of the deploy story.
+          envoy run deploy \
+            --branch=main \
+            --domain="$APP_DOMAIN" \
+            --unix_username="$UNIX_USERNAME" \
+            --server_domain="$SERVER_DOMAIN" \
+            --server_port="$SERVER_PORT" \
+            --seed_database=0

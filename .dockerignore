@@ -1,0 +1,14 @@
+.git
+.github
+.gitlab-ci.yml
+node_modules
+vendor
+.env
+.env.*
+database/database.sqlite
+public/build
+public/hot
+storage/logs/*.log
+Envoy.blade.php
+README.md
+tests
