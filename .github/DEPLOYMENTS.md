@@ -37,7 +37,7 @@ pushed.
 
 Multi-stage `Dockerfile`:
 
-1. `node:20-alpine` builds the Vite assets (`npm ci && npm run build`).
+1. `node:24-alpine` builds the Vite assets (`npm ci && npm run build`).
 2. `composer:2` installs PHP dependencies (`--no-dev`).
 3. `php:8.2-apache` serves Laravel's `public/` directory.
 
