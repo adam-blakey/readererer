@@ -246,7 +246,7 @@ test('the user edit page renders when the user has no setup group or ensembles',
 
 test('a user can be added to an ensemble from the edit page', function () {
     $user = make_user(UserRole::Member);
-    $ensemble = Ensemble::factory()->create();
+    $ensemble = Ensemble::factory()->create(['seating_plan_enabled' => true]);
     $instrumentFamily = make_instrument_family('Brass');
 
     $this->actingAs(make_user(UserRole::Admin))

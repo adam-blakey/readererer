@@ -91,7 +91,7 @@ test('the ensembles index can include soft-deleted records with with_trashed', f
 });
 
 test('a user can be added to an ensemble with an instrument family and seat', function () {
-    $ensemble = Ensemble::factory()->create();
+    $ensemble = Ensemble::factory()->create(['seating_plan_enabled' => true]);
     $member = make_user(UserRole::Member);
     $instrumentFamily = make_instrument_family('Percussion');
 
@@ -229,12 +229,22 @@ test('removing a user who is not in the ensemble returns not found', function ()
 });
 
 test('the ensemble show page renders with management buttons for moderators', function () {
-    $ensemble = Ensemble::factory()->create();
+    $ensemble = Ensemble::factory()->create(['seating_plan_enabled' => true]);
 
     $this->actingAs(make_user(UserRole::Moderator))
         ->get(route('ensembles.show', $ensemble))
         ->assertOk()
         ->assertSee('Seating plan')
+        ->assertSee('Edit');
+});
+
+test('the ensemble show page hides the seating plan button when seating is disabled', function () {
+    $ensemble = Ensemble::factory()->create(['seating_plan_enabled' => false]);
+
+    $this->actingAs(make_user(UserRole::Moderator))
+        ->get(route('ensembles.show', $ensemble))
+        ->assertOk()
+        ->assertDontSee('Seating plan')
         ->assertSee('Edit');
 });
 
