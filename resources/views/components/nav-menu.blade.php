@@ -25,6 +25,12 @@
 	        'auth' => Auth::user()?->can('viewAny', App\Models\Ensemble::class),
 	    ],
 	    [
+	        'title' => 'Notifications',
+	        'icon' => 'bell',
+	        'route' => 'notifications.index',
+	        'auth' => Auth::user()?->can('view.notifications'),
+	    ],
+	    [
 	        'title' => 'Pieces',
 	        'icon' => 'file-description',
 	        'route' => 'pieces.index',

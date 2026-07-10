@@ -4,6 +4,7 @@ use App\Http\Controllers\AttendanceController;
 use App\Http\Controllers\ComposerController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\EnsembleController;
+use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\PieceController;
 use App\Http\Controllers\SeatingPlanController;
 use App\Http\Controllers\SetlistController;
@@ -20,6 +21,11 @@ Route::view('/', 'home', ['page_name' => config('app.name')])
 Route::get('/dashboard', [DashboardController::class, 'index'])
     ->name('dashboard')
     ->can('view.dashboard');
+
+Route::get('/notifications', [NotificationController::class, 'index'])
+    ->name('notifications.index')
+    ->middleware('auth')
+    ->can('view.notifications');
 
 Route::get('/attendance', [AttendanceController::class, 'index'])
     ->name('attendance.index')
@@ -51,6 +57,7 @@ Route::resource('terms', TermController::class)->middleware('auth');
 Route::patch('/terms/{term}/restore', [TermController::class, 'restore'])->name('terms.restore')->middleware('auth');
 Route::post('/term-dates/{termDate}/send-attendance-list', [TermDateNotificationController::class, 'sendAttendanceList'])->name('term-dates.send-attendance-list')->middleware('auth');
 Route::post('/term-dates/{termDate}/send-setup-reminder', [TermDateNotificationController::class, 'sendSetupReminder'])->name('term-dates.send-setup-reminder')->middleware('auth');
+Route::post('/term-dates/{termDate}/send-van-driver-reminder', [TermDateNotificationController::class, 'sendVanDriverReminder'])->name('term-dates.send-van-driver-reminder')->middleware('auth');
 Route::resource('users', UserController::class)->middleware('auth');
 Route::patch('/users/{user}/restore', [UserController::class, 'restore'])->name('users.restore')->middleware('auth');
 Route::post('/users/{user}/ensembles', [UserController::class, 'attachEnsemble'])->name('users.ensembles.attach')->middleware('auth');

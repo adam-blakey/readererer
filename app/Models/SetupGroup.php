@@ -7,6 +7,7 @@ use App\Traits\HasPropertyIcons;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use SDamian\Larasort\AutoSortable;
 
@@ -17,10 +18,10 @@ use SDamian\Larasort\AutoSortable;
 #[Icon('pencil-up', for: 'updated_at')]
 class SetupGroup extends Model
 {
-    use HasFactory;
-    use SoftDeletes;
     use AutoSortable;
+    use HasFactory;
     use HasPropertyIcons;
+    use SoftDeletes;
 
     protected $visible = [
         'name',
@@ -51,8 +52,14 @@ class SetupGroup extends Model
         'name',
         'week',
         'color',
-        'van_drivers'
+        'van_drivers',
     ];
+
+    #[Icon('users')]
+    public function members(): HasMany
+    {
+        return $this->hasMany(User::class);
+    }
 
     #[Icon('truck')]
     public function van_drivers(): BelongsToMany

@@ -51,12 +51,6 @@ How entities split across the phases:
 **Setup groups**
 - Show the hex colour in the index view.
 
-**Notifications / emails**
-- Proper notifications system, with an overview and types: setup-group reminder,
-  van-driver reminder, and "groups/drivers changed" alerts.
-- Emails (general).
-- Useful logging.
-
 **Dashboard**
 - Date formatting (e.g. "next rehearsal" on the dashboard).
 - Show the next date against each setup group.

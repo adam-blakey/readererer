@@ -113,6 +113,15 @@
                                                                     </button>
                                                                 </form>
                                                             @endif
+                                                            @if($td->inferred_van_driver)
+                                                                <form method="POST" action="{{ route('term-dates.send-van-driver-reminder', $td) }}" class="d-inline">
+                                                                    @csrf
+                                                                    <button type="submit" class="btn bg-info text-info-fg">
+                                                                        <x-icon name="truck" />
+                                                                        Send van driver reminder
+                                                                    </button>
+                                                                </form>
+                                                            @endif
                                                         @endcan
                                                     </div>
                                                 </div>
