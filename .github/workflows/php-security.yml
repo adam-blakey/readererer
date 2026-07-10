@@ -1,9 +1,9 @@
 # PHP-specific security scanning, kept separate from the CodeQL analysis
 # matrix (codeql.yml) so each scanner runs exactly once per trigger.
 #
-# NOTE: action inputs that have defaults (lock, format, report_file, ...) are
-# intentionally not listed under `with:` — an explicitly empty value overrides
-# the action's default and breaks the underlying tool ("unknown format").
+# NOTE: action inputs that have defaults (lock, format, ...) are intentionally
+# not listed under `with:` — an explicitly empty value overrides the action's
+# default and breaks the underlying tool ("unknown format").
 name: "PHP Security"
 
 on:
@@ -70,10 +70,21 @@ jobs:
     - name: Checkout repository
       uses: actions/checkout@v4
 
+    # The psalm/psalm-github-security-scan Docker action is unmaintained and
+    # ships PHP 8.2, which can no longer load this project's dependencies
+    # (they require PHP >= 8.4), so run the same scan directly on PHP 8.4.
+    - name: Setup PHP
+      uses: shivammathur/setup-php@v2
+      with:
+        php-version: '8.4'
+        coverage: none
+        tools: psalm
+
+    - name: Install Composer dependencies
+      run: composer install --no-scripts --no-progress
+
     - name: Run Psalm security scan
-      # You may pin to the exact commit or the version.
-      # uses: psalm/psalm-github-security-scan@9ec1b5e2b854b3f048fa32e8c4aaa9ae05d77345
-      uses: psalm/psalm-github-security-scan@1.4.0
+      run: psalm --output-format=github --taint-analysis --report=results.sarif
 
     # Findings appear under Security -> Code scanning, alongside the CodeQL
     # results from codeql.yml.
