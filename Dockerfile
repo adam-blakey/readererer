@@ -76,6 +76,17 @@ WORKDIR /var/www/html
 COPY --from=vendor /app /var/www/html
 COPY --from=assets /app/public/build /var/www/html/public/build
 
+# Version metadata shown in the app footer (read by config/_version.php).
+# .git is excluded from the build context, so the CI workflows compute these
+# from git and pass them in as build arguments; the defaults leave the file
+# empty and the config falls back to its placeholders.
+ARG APP_VERSION_TAG=""
+ARG APP_VERSION_HASH=""
+ARG APP_VERSION_DATE=""
+RUN printf '{"tag":"%s","hash":"%s","date":"%s"}\n' \
+        "$APP_VERSION_TAG" "$APP_VERSION_HASH" "$APP_VERSION_DATE" \
+        > version.json
+
 # Laravel needs these writable at runtime (package manifest, cache, logs, sessions).
 RUN chown -R www-data:www-data storage bootstrap/cache \
     && chmod -R ug+rwX storage bootstrap/cache
