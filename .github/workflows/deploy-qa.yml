@@ -25,7 +25,20 @@ jobs:
     environment:
       name: qa
     steps:
+      # Full history and tags so `git describe` can compute the version that
+      # gets baked into the image (the footer's version number).
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Compute version metadata
+        id: version
+        run: |
+          {
+            echo "tag=$(git describe --tags 2>/dev/null || true)"
+            echo "hash=$(git log --pretty=%h -n1 HEAD)"
+            echo "date=$(git log --pretty=%cI -n1 HEAD)"
+          } >> "$GITHUB_OUTPUT"
 
       - name: Log in to the Container registry
         uses: docker/login-action@v3
@@ -53,5 +66,9 @@ jobs:
           push: true
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
+          build-args: |
+            APP_VERSION_TAG=${{ steps.version.outputs.tag }}
+            APP_VERSION_HASH=${{ steps.version.outputs.hash }}
+            APP_VERSION_DATE=${{ steps.version.outputs.date }}
           cache-from: type=gha
           cache-to: type=gha,mode=max

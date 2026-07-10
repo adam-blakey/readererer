@@ -45,6 +45,15 @@ Runtime configuration (`APP_KEY`, `DB_*`, etc.) is supplied by the server as
 environment variables — **nothing sensitive is baked into the image** (`.env` and
 the local SQLite database are excluded via `.dockerignore`).
 
+### Footer version number
+
+The version shown in the app footer comes from `version.json`, generated at
+build time (read by `config/_version.php` — no git commands run inside the
+app). The image workflows compute it with `git describe` and pass it in as
+Docker build arguments; everywhere else (local installs, the production SSH
+deploy) `php artisan app:generate-version` writes it from composer's
+`post-autoload-dump` hook.
+
 ## Production — SSH deploy
 
 `production` keeps the existing SSH deploy: it installs Laravel Envoy on the
