@@ -1,7 +1,7 @@
 # syntax=docker/dockerfile:1
 
 # ---- Build frontend assets with Vite ----
-FROM node:20-alpine AS assets
+FROM node:24-alpine AS assets
 WORKDIR /app
 COPY package.json package-lock.json ./
 RUN npm ci
