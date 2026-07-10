@@ -101,23 +101,16 @@ jobs:
         category: "/language:${{matrix.language}}"
 
     # Symfony
+    # Inputs (lock, format, disable-exit-code) are intentionally not set so the
+    # action's defaults apply — an explicitly empty `with:` value overrides the
+    # default and breaks the underlying CLI ("unknown format").
     - name: The PHP Security Checker
       # You may pin to the exact commit or the version.
       # uses: symfonycorp/security-checker-action@258311ef7ac571f1310780ef3d79fc5abef642b5
       uses: symfonycorp/security-checker-action@v5
-      with:
-        # The path to composer.lock is stored (root directory by default)
-        lock: # optional, default is ./composer.lock
-        # The output format (ansi by default, supported: ansi, junit, markdown, json, or yaml)
-        format: # optional, default is ansi
-        # Whether to continue when issues are detected (false by default)
-        disable-exit-code: # optional, default is 0
 
     # Psalm
     - name: Psalm – Security Scanner for PHP
       # You may pin to the exact commit or the version.
       # uses: psalm/psalm-github-security-scan@9ec1b5e2b854b3f048fa32e8c4aaa9ae05d77345
       uses: psalm/psalm-github-security-scan@1.4.0
-      with:
-        # File for Psalm’s output
-        report_file: # optional, default is results.sarif
