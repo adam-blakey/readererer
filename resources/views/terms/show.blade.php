@@ -14,7 +14,7 @@
 					<div class="btn-list">
 						@foreach($ensembles as $ensemble)
 							@can('view', $ensemble)
-								<x-a class="btn" href="{{ route('attendance.register', ['ensemble' => $ensemble, 'term' => $term]) }}">
+								<x-a class="btn" href="{{ route('attendance.show', ['ensemble' => $ensemble, 'term' => $term]) }}">
 									<x-icon name="clipboard-check" />
 									{{ $ensemble->name }} register
 								</x-a>
