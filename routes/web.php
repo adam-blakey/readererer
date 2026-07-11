@@ -24,18 +24,18 @@ Route::get('/dashboard', [DashboardController::class, 'index'])
 Route::get('/attendance', [AttendanceController::class, 'index'])
     ->name('attendance.index')
     ->can('viewAny', Attendance::class);
-Route::get('/attendance/poll/{ensemble:slug}/{term:slug}', [AttendanceController::class, 'poll'])
+Route::get('/attendance/{ensemble:slug}/{term:slug}', [AttendanceController::class, 'show'])
     ->withoutScopedBindings()
-    ->name('attendance.poll')
+    ->name('attendance.show')
     ->can('view', 'ensemble');
-Route::post('/attendance/poll/{ensemble:slug}/{term:slug}', [AttendanceController::class, 'poll_store'])
+Route::get('/attendance/{ensemble:slug}/{term:slug}/edit', [AttendanceController::class, 'edit'])
     ->withoutScopedBindings()
-    ->name('attendance.poll-store')
+    ->name('attendance.edit')
+    ->can('view', 'ensemble');
+Route::patch('/attendance/{ensemble:slug}/{term:slug}', [AttendanceController::class, 'update'])
+    ->withoutScopedBindings()
+    ->name('attendance.update')
     ->can('create', Attendance::class);
-Route::get('/attendance/register/{ensemble:slug}/{term:slug}', [AttendanceController::class, 'register'])
-    ->withoutScopedBindings()
-    ->name('attendance.register')
-    ->can('view', 'ensemble');
 
 Route::resource('composers', ComposerController::class)->middleware('auth');
 Route::patch('/composers/{composer}/restore', [ComposerController::class, 'restore'])->name('composers.restore')->middleware('auth');

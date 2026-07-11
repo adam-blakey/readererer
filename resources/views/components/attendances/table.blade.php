@@ -24,7 +24,7 @@
 						<td><x-a :route="'users.show'" :user="$attendance->edit_user">{{ $attendance->edit_user->name }}</x-a></td>
 						<td>{{ $attendance->updated_at }}</td>
 						<td>{{ $attendance->term_date->start_datetime->diffForHumans() }}</td>
-						<td><x-a :route="'attendance.poll'" :ensemble="$attendance->ensemble" :term="$attendance->term_date->term">{{ $attendance->name }}</x-a></td>
+						<td><x-a :route="'attendance.edit'" :ensemble="$attendance->ensemble" :term="$attendance->term_date->term">{{ $attendance->name }}</x-a></td>
 						<td>{{ $attendance->status_text }}</td>
 					</tr>
 				@endforeach

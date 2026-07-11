@@ -45,8 +45,9 @@
 @endphp
 
 <div class="table-responsive">
-	<form action="{{ route('attendance.poll-store', ['ensemble' => $ensemble, 'term' => $term]) }}" method="POST">
+	<form action="{{ route('attendance.update', ['ensemble' => $ensemble, 'term' => $term]) }}" method="POST">
 		@csrf
+		@method('PATCH')
 		<table class="table table-vcenter card-table text-nowrap datatable">
 			<tbody>
 				@php
