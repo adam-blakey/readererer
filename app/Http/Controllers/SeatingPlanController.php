@@ -8,9 +8,8 @@ use App\Models\TermDate;
 use App\Models\User;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\DB;
 
 class SeatingPlanController extends Controller
 {
@@ -46,7 +45,7 @@ class SeatingPlanController extends Controller
             ->filter(fn ($key) => $key !== 'unassigned')
             ->max();
 
-        if (!$maxRow) {
+        if (! $maxRow) {
             $maxRow = 'A';
         }
 
@@ -54,18 +53,32 @@ class SeatingPlanController extends Controller
         $nextRow++;
         $allRows = range('A', $nextRow);
 
-        $finalGroupedUsers = new Collection();
-        $finalGroupedUsers->put('unassigned', $groupedUsers->get('unassigned', new Collection()));
+        $finalGroupedUsers = new Collection;
 
         foreach ($allRows as $row) {
-            $finalGroupedUsers->put($row, $groupedUsers->get($row, new Collection()));
+            $finalGroupedUsers->put($row, $groupedUsers->get($row, new Collection));
         }
+
+        $unassignedUsers = $groupedUsers->get('unassigned', new Collection)
+            ->sortBy('name')
+            ->groupBy(fn ($user) => $user->instrument_name ?? 'No instrument')
+            ->sortKeys();
+
+        $upcomingTermDates = TermDate::where('start_datetime', '>=', now())
+            ->where(function ($query) use ($ensemble) {
+                $query->whereNull('concert_ensemble_id')
+                    ->orWhere('concert_ensemble_id', $ensemble->id);
+            })
+            ->orderBy('start_datetime')
+            ->get();
 
         return view('ensembles.seating-plan', [
             'ensemble' => $ensemble,
             'grouped_users' => $finalGroupedUsers,
+            'unassigned_users' => $unassignedUsers,
+            'upcoming_term_dates' => $upcomingTermDates,
             'page_name' => 'Ensembles',
-            'page_subname' => $ensemble->name . ' seating plan',
+            'page_subname' => $ensemble->name.' seating plan',
         ]);
     }
 
@@ -108,13 +121,16 @@ class SeatingPlanController extends Controller
             ->with('ensembles')
             ->with('setup_group')
             ->get()
-            ->filter(function($user) use ($ensemble) { return $user->ensembles->contains($ensemble) && $user->ensembles->where('id', $ensemble->id)->first()->pivot->instrument_family_id != null; })
+            ->filter(function ($user) use ($ensemble) {
+                return $user->ensembles->contains($ensemble) && $user->ensembles->where('id', $ensemble->id)->first()->pivot->instrument_family_id != null;
+            })
             ->values();
 
         Pdf::setOption(['debugCss' => true]);
         $pdf = Pdf::loadView('mail.seating-plan-pdf', compact('ensemble', 'termDate', 'members'))->setPaper('a4', 'landscape');
+
         return $pdf->stream();
 
-        //return view('mail.seating-plan-pdf', compact('ensemble', 'termDate', 'members'));
+        // return view('mail.seating-plan-pdf', compact('ensemble', 'termDate', 'members'));
     }
 }

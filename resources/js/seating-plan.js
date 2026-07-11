@@ -1,5 +1,5 @@
 document.addEventListener('DOMContentLoaded', function () {
-    const containers = Array.from(document.querySelectorAll('.seating-row .card-body .row, .row[data-row="unassigned"]'));
+    const rowsContainer = document.getElementById('seating-rows');
     let draggedItem = null;
     let positionsUpdated = false;
 
@@ -7,130 +7,153 @@ document.addEventListener('DOMContentLoaded', function () {
         return positionsUpdated ? 1 : null;
     }
 
+    function assignedRows() {
+        return Array.from(rowsContainer.querySelectorAll('.seating-row'));
+    }
+
+    function createRow(letter) {
+        const card = document.createElement('div');
+        card.className = 'card mb-3 seating-row';
+        card.dataset.row = letter;
+
+        const header = document.createElement('div');
+        header.className = 'card-header';
+        const title = document.createElement('h2');
+        title.className = 'card-title';
+        title.textContent = `Row ${letter}`;
+        header.appendChild(title);
+
+        const body = document.createElement('div');
+        body.className = 'card-body';
+        const container = document.createElement('div');
+        container.className = 'row min-h-2 drop-container';
+        body.appendChild(container);
+
+        card.appendChild(header);
+        card.appendChild(body);
+
+        return card;
+    }
+
+    // Keep exactly one empty row after the last occupied row, so there is
+    // always somewhere to drop a member without ever accumulating spares.
+    function normaliseRows() {
+        const rows = assignedRows();
+        let lastOccupied = -1;
+        rows.forEach((row, index) => {
+            if (row.querySelector('.user-entry')) {
+                lastOccupied = index;
+            }
+        });
+
+        for (let index = rows.length - 1; index > lastOccupied + 1; index--) {
+            rows[index].remove();
+        }
+
+        if (lastOccupied === rows.length - 1) {
+            const lastRow = rows[lastOccupied];
+            const letter = lastRow
+                ? String.fromCharCode(lastRow.dataset.row.charCodeAt(0) + 1)
+                : 'A';
+            rowsContainer.appendChild(createRow(letter));
+        }
+    }
+
     function updateSeatingPositions() {
         let anyUpdated = false;
+
         document.querySelectorAll('.seating-row').forEach(rowEl => {
             const row = rowEl.dataset.row;
+            const unassigned = row === 'unassigned';
+
             rowEl.querySelectorAll('.user-entry').forEach((userEl, index) => {
                 const positionEl = userEl.querySelector('.seating-position');
                 if (positionEl) {
-                    if (row === "unassigned") {
-                        positionEl.textContent = null;
-                    }
-                    else {
-                        positionEl.textContent = `${row}${index + 1}`;
-                    }
+                    positionEl.textContent = unassigned ? '' : `${row}${index + 1}`;
                 }
 
                 const originalRow = userEl.dataset.originalRow;
                 const originalColumn = userEl.dataset.originalColumn;
-                const changedIndicator = userEl.querySelector('.seating-position-changed');
+                const changed = unassigned
+                    ? originalRow !== ''
+                    : (originalRow !== row || originalColumn != (index + 1));
 
-                if (originalRow === "" && row === "unassigned") {
-                    changedIndicator.style.display = 'none';
+                const changedIndicator = userEl.querySelector('.seating-position-changed');
+                if (changedIndicator) {
+                    changedIndicator.style.display = changed ? 'inline' : 'none';
                 }
-                else if (originalRow !== row || originalColumn != (index + 1)) {
-                    changedIndicator.style.display = 'inline';
+
+                const originalPositionEl = userEl.querySelector('.seating-position-original');
+                if (originalPositionEl) {
+                    originalPositionEl.textContent = originalRow ? `${originalRow}${originalColumn}` : '';
+                    originalPositionEl.style.display = (changed && originalRow) ? 'inline-block' : 'none';
+                }
+
+                if (changed) {
                     anyUpdated = true;
-                } else {
-                    changedIndicator.style.display = 'none';
                 }
             });
         });
 
         positionsUpdated = anyUpdated;
-
-        document.querySelectorAll('.row[data-row="unassigned"] .user-entry').forEach(userEl => {
-            const positionEl = userEl.querySelector('.seating-position');
-            if (positionEl) {
-                positionEl.textContent = '';
-            }
-
-            const originalRow = userEl.dataset.originalRow;
-            const changedIndicator = userEl.querySelector('.seating-position-changed');
-
-            if (originalRow) {
-                changedIndicator.style.display = 'inline';
-            } else {
-                changedIndicator.style.display = 'none';
-            }
-        });
     }
 
-    function setupDraggable(item) {
+    document.querySelectorAll('.user-entry').forEach(item => {
         item.draggable = true;
-        item.addEventListener('dragstart', (e) => {
-            draggedItem = e.target.closest('.user-entry');
-            setTimeout(() => {
-                draggedItem.style.opacity = '0.5';
-            }, 0);
-            containers.forEach(c => c.closest('.seating-row, .card-body').classList.add('drop-highlight'));
-        });
+    });
 
-        item.addEventListener('dragend', (e) => {
-            setTimeout(() => {
-                if (draggedItem) {
-                    draggedItem.style.opacity = '';
-                    draggedItem = null;
-                }
-                containers.forEach(c => c.closest('.seating-row, .card-body').classList.remove('drop-highlight'));
-                updateSeatingPositions();
-            }, 0);
-        });
-    }
+    // Drag-and-drop is delegated from the document so rows created after page
+    // load behave identically to the ones rendered by the server.
+    document.addEventListener('dragstart', (e) => {
+        const entry = e.target.closest('.user-entry');
+        if (!entry) {
+            return;
+        }
 
-    document.querySelectorAll('.user-entry').forEach(setupDraggable);
+        draggedItem = entry;
+        setTimeout(() => {
+            entry.style.opacity = '0.5';
+        }, 0);
+        document.querySelectorAll('.seating-row').forEach(rowEl => rowEl.classList.add('drop-highlight'));
+    });
 
-    containers.forEach(container => {
-        container.addEventListener('dragover', (e) => {
+    document.addEventListener('dragend', () => {
+        if (draggedItem) {
+            draggedItem.style.opacity = '';
+            draggedItem = null;
+        }
+        document.querySelectorAll('.seating-row').forEach(rowEl => rowEl.classList.remove('drop-highlight'));
+        normaliseRows();
+        updateSeatingPositions();
+    });
+
+    document.addEventListener('dragover', (e) => {
+        if (!draggedItem) {
+            return;
+        }
+
+        const container = e.target.closest('.drop-container');
+        if (!container) {
+            return;
+        }
+
+        e.preventDefault();
+        const afterElement = getDragAfterElement(container, e.clientX);
+        if (afterElement == null) {
+            container.appendChild(draggedItem);
+        } else {
+            container.insertBefore(draggedItem, afterElement);
+        }
+    });
+
+    document.addEventListener('drop', (e) => {
+        if (e.target.closest('.drop-container')) {
             e.preventDefault();
-            const afterElement = getDragAfterElement(container, e.clientX);
-            if (draggedItem) {
-                if (afterElement == null) {
-                    container.appendChild(draggedItem);
-                } else {
-                    container.insertBefore(draggedItem, afterElement);
-                }
-            }
-        });
-
-        container.addEventListener('drop', (e) => {
-            e.preventDefault();
-            if (draggedItem) {
-                const parentRow = draggedItem.closest('.seating-row');
-                if (parentRow && parentRow.nextElementSibling && parentRow.nextElementSibling.style.display === 'none') {
-                    const newRow = parentRow.nextElementSibling;
-                    newRow.style.display = '';
-                    const newRowLetter = String.fromCharCode(parentRow.dataset.row.charCodeAt(0) + 1);
-                    newRow.dataset.row = newRowLetter;
-                    newRow.querySelector('.card-title').textContent = `Row ${newRowLetter}`;
-
-                    const nextNewRow = newRow.cloneNode(true);
-                    const nextRowLetter = String.fromCharCode(newRowLetter.charCodeAt(0) + 1);
-                    nextNewRow.dataset.row = nextRowLetter;
-                    nextNewRow.querySelector('.card-title').textContent = `Row ${nextRowLetter}`;
-                    nextNewRow.querySelector('.row').innerHTML = '';
-                    newRow.parentNode.appendChild(nextNewRow);
-
-                    containers.push(nextNewRow.querySelector('.row'));
-                    nextNewRow.querySelector('.row').addEventListener('dragover', (e) => {
-                        e.preventDefault();
-                        const afterElement = getDragAfterElement(nextNewRow.querySelector('.row'), e.clientX);
-                        if (draggedItem) {
-                            if (afterElement == null) {
-                                nextNewRow.querySelector('.row').appendChild(draggedItem);
-                            } else {
-                                nextNewRow.querySelector('.row').insertBefore(draggedItem, afterElement);
-                            }
-                        }
-                    });
-                }
-            }
-        });
+        }
     });
 
     function getDragAfterElement(container, x) {
-        const draggableElements = [...container.querySelectorAll('.user-entry:not(.dragging)')];
+        const draggableElements = [...container.querySelectorAll('.user-entry')].filter(el => el !== draggedItem);
 
         return draggableElements.reduce((closest, child) => {
             const box = child.getBoundingClientRect();
@@ -146,22 +169,14 @@ document.addEventListener('DOMContentLoaded', function () {
     const saveButton = document.getElementById('save-seating-plan');
     saveButton.addEventListener('click', () => {
         const seatingPlan = {};
-        document.querySelectorAll('.seating-row .card-body .row').forEach(rowEl => {
-            const row = rowEl.closest('[data-row]').dataset.row;
+        document.querySelectorAll('.seating-row').forEach(rowEl => {
+            const row = rowEl.dataset.row;
             const users = [];
             rowEl.querySelectorAll('.user-entry').forEach((userEl, index) => {
-                if (row == "unassigned") {
-                    users.push({
-                        id: userEl.dataset.userId,
-                        column: null
-                    });
-                }
-                else {
-                    users.push({
-                        id: userEl.dataset.userId,
-                        column: index + 1
-                    });
-                }
+                users.push({
+                    id: userEl.dataset.userId,
+                    column: row === 'unassigned' ? null : index + 1,
+                });
             });
 
             seatingPlan[row] = users;
@@ -188,5 +203,6 @@ document.addEventListener('DOMContentLoaded', function () {
         form.submit();
     });
 
+    normaliseRows();
     updateSeatingPositions();
 });

@@ -7,6 +7,11 @@
     function get_seat_column($member, $ensemble) {
         return $member->ensembles->where('id', $ensemble->id)->first()->pivot->seat_column;
     }
+    function get_instrument_color($member, $ensemble) {
+        $color = instrument_family_color($member->ensembles->where('id', $ensemble->id)->first()->pivot->instrument_family_id);
+
+        return $color ? color_name_to_hex($color) : '#000000';
+    }
 
     $members = $members->sortBy([
         fn ($a, $b) => get_seat_row($a, $ensemble) <=> get_seat_row($b, $ensemble),
@@ -59,20 +64,20 @@
                 @foreach($members as $member)
                     @php($attendance_value = $member->attendances->where('term_date_id', $termDate->id)->sortByDesc('created_at')->first()?->status ?? App\Enums\AttendanceStatus::Unknown)
                     <tr>
-                        <td style="padding: 0.15em 0.4em; border: 2px solid black;">
+                        <td style="padding: 0.15em 0.4em; border: 2px solid black; border-left: 6px solid {{ get_instrument_color($member, $ensemble) }};">
                             @switch($attendance_value)
                                 @case(App\Enums\AttendanceStatus::Attending)
                                     <span>{{ $member->name }}</span>
                                     @break
                                 @case(App\Enums\AttendanceStatus::Unknown)
                                     @if(array_key_exists('unknown', $attendanceTotals))
-                                        <i>{{ $member->name }}</i> ?
+                                        <i style="color: #f59f00;">{{ $member->name }} ?</i>
                                     @else
                                         <span>{{ $member->name }}</span>
                                     @endif
                                     @break
                                 @case(App\Enums\AttendanceStatus::NotAttending)
-                                    <s style="color: #9CA3AF">{{ $member->name }}</s>
+                                    <s style="color: #9CA3AF; text-decoration: line-through;">{{ $member->name }}</s>
                                     @break
                             @endswitch
                         </td>

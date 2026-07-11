@@ -42,12 +42,6 @@ How entities split across the phases:
 - Attendance register (in progress, marked `[~]`).
 - Show who you're playing with for upcoming concerts and rehearsals.
 
-**Seating plan**
-- Seating plan should be looped over rather than living under terms.
-- Better styling: strikethroughs and colours.
-- Split the seating plan up by instrument.
-- Bug: too many / too few new rows created in the seating-plan editor.
-
 **Setup groups**
 - Show the hex colour in the index view.
 
