@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Enums\UserRole;
 use App\Models\TermDate;
+use App\Models\User;
 use App\Traits\ShowEnsemble;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Auth;
@@ -55,6 +56,28 @@ class DashboardController extends Controller
             });
         }
 
+        // Who you're playing with: the other members attending each upcoming date.
+        // Rehearsals count members sharing any of the user's ensembles; concerts
+        // count the concert ensemble's members.
+        $members = User::with(['attendances', 'ensembles', 'setup_group'])->get();
+        $playing_with = function (TermDate $term_date) use ($members, $user, $ensembleIds) {
+            $playing = $members->filter(function ($member) use ($term_date, $ensembleIds) {
+                $memberships = $term_date->concert_ensemble_id
+                    ? $member->ensembles->where('id', $term_date->concert_ensemble_id)
+                    : $member->ensembles->whereIn('id', $ensembleIds);
+
+                return $memberships->contains(fn ($ensemble) => $ensemble->pivot->instrument_family_id != null);
+            });
+
+            return members_attending($playing, $term_date)
+                ->reject(fn ($member) => $member->id === $user->id)
+                ->sortBy('first_name')
+                ->values();
+        };
+
+        $nextRehearsalAttendees = $nextRehearsal ? $playing_with($nextRehearsal) : collect();
+        $nextConcertAttendees = $nextConcerts->mapWithKeys(fn ($concert) => [$concert->id => $playing_with($concert)]);
+
         return view('dashboard.index', [
             'page_name' => config('app.name') . ' dashboard',
             'ensembles' => $ensembles,
@@ -62,6 +85,8 @@ class DashboardController extends Controller
             'nextRehearsal' => $nextRehearsal,
             'nextConcerts' => $nextConcerts,
             'nextVanDrive' => $nextVanDrive,
+            'nextRehearsalAttendees' => $nextRehearsalAttendees,
+            'nextConcertAttendees' => $nextConcertAttendees,
         ]);
     }
 }

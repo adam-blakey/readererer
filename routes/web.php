@@ -32,6 +32,10 @@ Route::post('/attendance/poll/{ensemble:slug}/{term:slug}', [AttendanceControlle
     ->withoutScopedBindings()
     ->name('attendance.poll-store')
     ->can('create', Attendance::class);
+Route::get('/attendance/register/{ensemble:slug}/{term:slug}', [AttendanceController::class, 'register'])
+    ->withoutScopedBindings()
+    ->name('attendance.register')
+    ->can('view', 'ensemble');
 
 Route::resource('composers', ComposerController::class)->middleware('auth');
 Route::patch('/composers/{composer}/restore', [ComposerController::class, 'restore'])->name('composers.restore')->middleware('auth');

@@ -43,6 +43,36 @@ function column_label($model, $attribute)
     return clean_attribute_name($attribute);
 }
 
+/**
+ * The latest recorded attendance status for a member at a term date.
+ *
+ * Attendance history is append-only, so the most recent record wins; a member
+ * with no records is Unknown.
+ */
+function latest_attendance_status($member, $term_date): App\Enums\AttendanceStatus
+{
+    $attendance = $member->attendances->where('term_date_id', $term_date->id)->sortByDesc('created_at')->first();
+
+    return $attendance->status ?? App\Enums\AttendanceStatus::Unknown;
+}
+
+/**
+ * Filter a collection of members down to those attending a term date,
+ * counting Unknown members as attending when `readererer_assume_attending`
+ * is enabled.
+ */
+function members_attending($members, $term_date)
+{
+    $assume_attending = config('app.readererer_assume_attending');
+
+    return $members->filter(function ($member) use ($term_date, $assume_attending) {
+        $status = latest_attendance_status($member, $term_date);
+
+        return $status == App\Enums\AttendanceStatus::Attending
+            || ($assume_attending && $status == App\Enums\AttendanceStatus::Unknown);
+    })->values();
+}
+
 function member_status_totals($members, $term_date): array
 {
     $assume_attending = config('app.readererer_assume_attending');
@@ -52,8 +82,7 @@ function member_status_totals($members, $term_date): array
     $number_unknown = 0;
 
     foreach ($members as $member) {
-        $attendance = $member->attendances->where('term_date_id', $term_date->id)->sortByDesc('created_at')->first();
-        $attendance_value = $attendance->status ?? App\Enums\AttendanceStatus::Unknown;
+        $attendance_value = latest_attendance_status($member, $term_date);
 
         switch ($attendance_value) {
             case App\Enums\AttendanceStatus::Attending:

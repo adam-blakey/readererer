@@ -32,6 +32,20 @@ class AttendanceController extends Controller
     }
 
     /**
+     * The members of an ensemble who play in it (i.e. have an instrument family).
+     */
+    private function playing_members(Ensemble $ensemble)
+    {
+        return User::latest()
+            ->with('attendances')
+            ->with('ensembles')
+            ->with('setup_group')
+            ->get()
+            ->filter(function($user) use ($ensemble) { return $user->ensembles->contains($ensemble) && $user->ensembles->where('id', $ensemble->id)->first()->pivot->instrument_family_id != null; })
+            ->values();
+    }
+
+    /**
      * Display the attendance poll.
      */
     public function poll(Ensemble $ensemble, Term $term, Request $request)
@@ -39,13 +53,7 @@ class AttendanceController extends Controller
         // Ensure the current user is allowed to view this ensemble (restrict ensemble users to their own ensemble)
         $this->authorize('view', $ensemble);
 
-        $members = User::latest()
-        ->with('attendances')
-        ->with('ensembles')
-        ->with('setup_group')
-        ->get()
-        ->filter(function($user) use ($ensemble) { return $user->ensembles->contains($ensemble) && $user->ensembles->where('id', $ensemble->id)->first()->pivot->instrument_family_id != null; })
-        ->values();
+        $members = $this->playing_members($ensemble);
 
         $page_name = $ensemble->name . ': ' . $term->name;
 
@@ -55,6 +63,26 @@ class AttendanceController extends Controller
             'page_name' => $page_name,
             'ensemble' => $ensemble,
             'sortby' => $request->query('sortby') ?? 'first_name',
+        ]);
+    }
+
+    /**
+     * Display the read-only attendance register for an ensemble's term.
+     */
+    public function register(Ensemble $ensemble, Term $term)
+    {
+        // Ensure the current user is allowed to view this ensemble (restrict ensemble users to their own ensemble)
+        $this->authorize('view', $ensemble);
+
+        $members = $this->playing_members($ensemble)
+            ->sortBy('first_name')
+            ->values();
+
+        return view('attendances.register', [
+            'members' => $members,
+            'term' => $term,
+            'page_name' => $ensemble->name . ': ' . $term->name,
+            'ensemble' => $ensemble,
         ]);
     }
 

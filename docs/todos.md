@@ -38,10 +38,6 @@ How entities split across the phases:
 - Term dates editor has overlapping duplicate and removal buttons.
 - Term dates view (table), with options to send emails.
 
-**Attendance**
-- Attendance register (in progress, marked `[~]`).
-- Show who you're playing with for upcoming concerts and rehearsals.
-
 **Seating plan**
 - Seating plan should be looped over rather than living under terms.
 - Better styling: strikethroughs and colours.
