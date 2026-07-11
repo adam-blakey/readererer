@@ -51,7 +51,7 @@ wait for `**/dashboard`.
 
 - Dashboard: `/dashboard` (log in as a factory user who belongs to an ensemble,
   not `admin` — the role users have no ensembles).
-- Attendance poll: `/attendance/poll/{ensemble-slug}/{term-slug}`.
-- Attendance register: `/attendance/register/{ensemble-slug}/{term-slug}`.
+- Attendance register (show): `/attendance/{ensemble-slug}/{term-slug}`.
+- Attendance poll (edit): `/attendance/{ensemble-slug}/{term-slug}/edit`.
 - Term page with per-date accordion: `/terms/{id}`.
 - Ensemble page: `/ensembles/{id}` (moderator+ or a member of it).

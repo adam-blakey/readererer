@@ -26,10 +26,10 @@ test('the register lists ensemble members who have an instrument family', functi
     join_ensemble($outsider, Ensemble::factory()->create());
 
     $response = $this->actingAs(make_user(UserRole::Admin))
-        ->get(route('attendance.register', ['ensemble' => $ensemble->slug, 'term' => $term->slug]));
+        ->get(route('attendance.show', ['ensemble' => $ensemble->slug, 'term' => $term->slug]));
 
     $response->assertOk();
-    $response->assertViewIs('attendances.register');
+    $response->assertViewIs('attendances.show');
     expect($response->viewData('members')->pluck('id')->all())->toBe([$playingMember->id]);
 });
 
@@ -66,7 +66,7 @@ test('the register shows the latest attendance statuses and totals', function ()
     ]);
 
     $response = $this->actingAs($admin)
-        ->get(route('attendance.register', ['ensemble' => $ensemble->slug, 'term' => $term->slug]));
+        ->get(route('attendance.show', ['ensemble' => $ensemble->slug, 'term' => $term->slug]));
 
     $response->assertOk();
     $response->assertSee('Attending');
@@ -83,7 +83,7 @@ test('the register page requires permission to view the ensemble', function () {
         'start_datetime' => now()->addWeek(),
         'end_datetime' => now()->addWeek()->addHours(2),
     ]);
-    $url = route('attendance.register', ['ensemble' => $ensemble->slug, 'term' => $term->slug]);
+    $url = route('attendance.show', ['ensemble' => $ensemble->slug, 'term' => $term->slug]);
 
     $this->get($url)->assertForbidden();
 
@@ -107,11 +107,11 @@ test('the register page is not found for unknown ensembles or terms', function (
     $admin = make_user(UserRole::Admin);
 
     $this->actingAs($admin)
-        ->get(route('attendance.register', ['ensemble' => 'no-such-ensemble', 'term' => $term->slug]))
+        ->get(route('attendance.show', ['ensemble' => 'no-such-ensemble', 'term' => $term->slug]))
         ->assertNotFound();
 
     $this->actingAs($admin)
-        ->get(route('attendance.register', ['ensemble' => $ensemble->slug, 'term' => 'no-such-term']))
+        ->get(route('attendance.show', ['ensemble' => $ensemble->slug, 'term' => 'no-such-term']))
         ->assertNotFound();
 });
 

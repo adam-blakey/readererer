@@ -88,7 +88,7 @@ test('the attendance poll page requires permission to view the ensemble', functi
         'start_datetime' => now()->addWeek(),
         'end_datetime' => now()->addWeek()->addHours(2),
     ]);
-    $url = route('attendance.poll', ['ensemble' => $ensemble->slug, 'term' => $term->slug]);
+    $url = route('attendance.edit', ['ensemble' => $ensemble->slug, 'term' => $term->slug]);
 
     $this->get($url)->assertForbidden();
 
@@ -112,13 +112,13 @@ test('the attendance poll page requires permission to view the ensemble', functi
 test('submitting the attendance poll requires the admin-only create permission', function () {
     $ensemble = Ensemble::factory()->create();
     $term = Term::factory()->create();
-    $url = route('attendance.poll-store', ['ensemble' => $ensemble->slug, 'term' => $term->slug]);
+    $url = route('attendance.update', ['ensemble' => $ensemble->slug, 'term' => $term->slug]);
 
-    $this->post($url)->assertForbidden();
-    $this->actingAs(make_user(UserRole::Ensemble))->post($url)->assertForbidden();
-    $this->actingAs(make_user(UserRole::Member))->post($url)->assertForbidden();
-    $this->actingAs(make_user(UserRole::Moderator))->post($url)->assertForbidden();
-    $this->actingAs(make_user(UserRole::Admin))->post($url)->assertRedirect();
+    $this->patch($url)->assertForbidden();
+    $this->actingAs(make_user(UserRole::Ensemble))->patch($url)->assertForbidden();
+    $this->actingAs(make_user(UserRole::Member))->patch($url)->assertForbidden();
+    $this->actingAs(make_user(UserRole::Moderator))->patch($url)->assertForbidden();
+    $this->actingAs(make_user(UserRole::Admin))->patch($url)->assertRedirect();
 });
 
 test('the settings page requires authentication', function () {
