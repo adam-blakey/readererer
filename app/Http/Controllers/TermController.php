@@ -115,9 +115,25 @@ class TermController extends Controller
         $term->load('term_dates')->with('van_driver');
         $ensembles = Ensemble::orderBy('name')->get();
 
+        // Attendance totals per term date: rehearsals count every playing member,
+        // concerts only the concert ensemble's members.
+        $members = User::with(['attendances', 'ensembles'])->get();
+        $attendance_totals = $term->term_dates->mapWithKeys(function ($term_date) use ($members) {
+            $playing = $members->filter(function ($member) use ($term_date) {
+                $memberships = $term_date->concert_ensemble_id
+                    ? $member->ensembles->where('id', $term_date->concert_ensemble_id)
+                    : $member->ensembles;
+
+                return $memberships->contains(fn ($ensemble) => $ensemble->pivot->instrument_family_id != null);
+            });
+
+            return [$term_date->id => member_status_totals($playing, $term_date)];
+        });
+
         return view('terms.show', [
             'term' => $term,
             'ensembles' => $ensembles,
+            'attendance_totals' => $attendance_totals,
             'page_name' => $term->name,
         ]);
     }
