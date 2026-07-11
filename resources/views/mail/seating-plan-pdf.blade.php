@@ -48,6 +48,17 @@
 
 <h1 style="margin-top: 0;">Seating plan for {{ $termDate->start_datetime->format('jS M') }}</h1>
 
+<p style="margin-top: 0;">
+    <strong>Key: </strong>
+    @foreach($instrumentFamilies as $instrumentFamily)
+        <span style="display: inline-block; padding: 0 6px; margin-right: 12px; border-left: 6px solid {{ color_name_to_hex(instrument_family_color($instrumentFamily->id)) }};">{{ $instrumentFamily->name }}</span>
+    @endforeach
+    <s style="color: #9CA3AF; text-decoration: line-through; margin-right: 12px;">Not attending</s>
+    @if (array_key_exists('unknown', $attendanceTotals))
+        <i style="color: #f59f00;">Unknown ?</i>
+    @endif
+</p>
+
 <section style="display: flex; flex-wrap: wrap; justify-content: space-between;">
     @for($row = $minRow; $row <= $maxRow; $row++)
         @php

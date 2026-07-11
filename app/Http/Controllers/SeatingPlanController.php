@@ -64,12 +64,19 @@ class SeatingPlanController extends Controller
             ->groupBy(fn ($user) => $user->instrument_name ?? 'No instrument')
             ->sortKeys();
 
-        $upcomingTermDates = TermDate::where('start_datetime', '>=', now())
-            ->where(function ($query) use ($ensemble) {
-                $query->whereNull('concert_ensemble_id')
-                    ->orWhere('concert_ensemble_id', $ensemble->id);
-            })
+        $termDatesForEnsemble = TermDate::where(function ($query) use ($ensemble) {
+            $query->whereNull('concert_ensemble_id')
+                ->orWhere('concert_ensemble_id', $ensemble->id);
+        });
+
+        $upcomingTermDates = (clone $termDatesForEnsemble)
+            ->where('start_datetime', '>=', now())
             ->orderBy('start_datetime')
+            ->get();
+
+        $pastTermDates = (clone $termDatesForEnsemble)
+            ->where('start_datetime', '<', now())
+            ->orderByDesc('start_datetime')
             ->get();
 
         return view('ensembles.seating-plan', [
@@ -77,6 +84,7 @@ class SeatingPlanController extends Controller
             'grouped_users' => $finalGroupedUsers,
             'unassigned_users' => $unassignedUsers,
             'upcoming_term_dates' => $upcomingTermDates,
+            'past_term_dates' => $pastTermDates,
             'page_name' => 'Ensembles',
             'page_subname' => $ensemble->name.' seating plan',
         ]);
@@ -126,8 +134,13 @@ class SeatingPlanController extends Controller
             })
             ->values();
 
+        $instrumentFamilyIds = $members
+            ->map(fn ($member) => $member->ensembles->where('id', $ensemble->id)->first()->pivot->instrument_family_id)
+            ->unique();
+        $instrumentFamilies = InstrumentFamily::whereIn('id', $instrumentFamilyIds)->orderBy('name')->get();
+
         Pdf::setOption(['debugCss' => true]);
-        $pdf = Pdf::loadView('mail.seating-plan-pdf', compact('ensemble', 'termDate', 'members'))->setPaper('a4', 'landscape');
+        $pdf = Pdf::loadView('mail.seating-plan-pdf', compact('ensemble', 'termDate', 'members', 'instrumentFamilies'))->setPaper('a4', 'landscape');
 
         return $pdf->stream();
 

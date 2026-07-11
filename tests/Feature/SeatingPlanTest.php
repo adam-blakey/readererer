@@ -90,6 +90,11 @@ test('the seating plan page offers downloads for upcoming rehearsals and own con
     $dates = $response->viewData('upcoming_term_dates');
     expect($dates->pluck('id')->all())->toBe([$upcomingRehearsal->id, $ownConcert->id]);
     $response->assertSee(route('seating-plan.download', ['ensemble' => $ensemble, 'termDate' => $upcomingRehearsal]));
+
+    // Past dates are offered separately so the dropdown can filter them.
+    $pastDates = $response->viewData('past_term_dates');
+    expect($pastDates->pluck('id')->all())->toBe([$pastRehearsal->id]);
+    $response->assertSee(route('seating-plan.download', ['ensemble' => $ensemble, 'termDate' => $pastRehearsal]));
 });
 
 test('updating the seating plan stores seat rows and columns on the pivot', function () {

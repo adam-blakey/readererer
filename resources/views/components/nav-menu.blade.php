@@ -25,6 +25,12 @@
 	        'auth' => Auth::user()?->can('viewAny', App\Models\Ensemble::class),
 	    ],
 	    [
+	        'title' => 'Instrument families',
+	        'icon' => 'guitar-pick',
+	        'route' => 'instrumentfamilys.index',
+	        'auth' => Auth::user()?->can('viewAny', App\Models\InstrumentFamily::class),
+	    ],
+	    [
 	        'title' => 'Pieces',
 	        'icon' => 'file-description',
 	        'route' => 'pieces.index',

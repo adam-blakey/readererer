@@ -166,6 +166,35 @@ document.addEventListener('DOMContentLoaded', function () {
         }, { offset: Number.NEGATIVE_INFINITY }).element;
     }
 
+    const downloadMenu = document.getElementById('download-menu');
+    if (downloadMenu) {
+        const searchInput = downloadMenu.querySelector('#download-search');
+        const noResults = downloadMenu.querySelector('#download-no-results');
+
+        function applyDownloadFilter() {
+            const scope = downloadMenu.querySelector('input[name="download-scope"]:checked').value;
+            const query = searchInput.value.trim().toLowerCase();
+            let visible = 0;
+
+            downloadMenu.querySelectorAll('.download-option').forEach(item => {
+                const matches = (scope === 'all' || item.dataset.when === scope)
+                    && item.dataset.search.includes(query);
+                item.style.display = matches ? '' : 'none';
+                if (matches) {
+                    visible++;
+                }
+            });
+
+            noResults.style.display = visible ? 'none' : '';
+        }
+
+        searchInput.addEventListener('input', applyDownloadFilter);
+        downloadMenu.querySelectorAll('input[name="download-scope"]').forEach(radio => {
+            radio.addEventListener('change', applyDownloadFilter);
+        });
+        applyDownloadFilter();
+    }
+
     const saveButton = document.getElementById('save-seating-plan');
     saveButton.addEventListener('click', () => {
         const seatingPlan = {};
@@ -200,6 +229,8 @@ document.addEventListener('DOMContentLoaded', function () {
         form.appendChild(dataInput);
 
         document.body.appendChild(form);
+        // Saving is an intentional navigation; don't trigger the unsaved-changes prompt.
+        positionsUpdated = false;
         form.submit();
     });
 
