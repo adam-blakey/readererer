@@ -64,7 +64,7 @@ class AttendanceController extends Controller
     }
 
     /**
-     * Show the attendance poll for editing.
+     * Show the attendance register for editing.
      */
     public function edit(Ensemble $ensemble, Term $term, Request $request)
     {
@@ -85,8 +85,9 @@ class AttendanceController extends Controller
     }
 
     /**
-     * Record the submitted poll statuses. Attendance history is append-only,
-     * so each submission creates new records rather than mutating old ones.
+     * Record the submitted register statuses. Attendance history is
+     * append-only, so each submission creates new records rather than
+     * mutating old ones.
      */
     public function update(Ensemble $ensemble, Term $term, Request $request)
     {
