@@ -79,10 +79,10 @@ test('the attendance index requires moderator or above', function () {
     $this->actingAs(make_user(UserRole::Admin))->get($url)->assertOk();
 });
 
-test('the attendance poll page requires permission to view the ensemble', function () {
+test('the attendance register edit page requires permission to view the ensemble', function () {
     $ensemble = Ensemble::factory()->create();
     $term = Term::factory()->create();
-    // The poll view requires the term to have at least one date.
+    // The register edit view requires the term to have at least one date.
     TermDate::forceCreate([
         'term_id' => $term->id,
         'start_datetime' => now()->addWeek(),
@@ -96,12 +96,12 @@ test('the attendance poll page requires permission to view the ensemble', functi
     join_ensemble($ensembleLogin, $ensemble);
     $this->actingAs($ensembleLogin)->get($url)->assertOk();
 
-    // An ensemble login for a different ensemble may not view this one's poll.
+    // An ensemble login for a different ensemble may not view this one's register.
     $otherLogin = make_user(UserRole::Ensemble);
     join_ensemble($otherLogin, Ensemble::factory()->create());
     $this->actingAs($otherLogin)->get($url)->assertForbidden();
 
-    // A member of a different ensemble may not view the poll either.
+    // A member of a different ensemble may not view the register either.
     $outsider = make_user(UserRole::Member);
     join_ensemble($outsider, Ensemble::factory()->create());
     $this->actingAs($outsider)->get($url)->assertForbidden();
@@ -109,7 +109,7 @@ test('the attendance poll page requires permission to view the ensemble', functi
     $this->actingAs(make_user(UserRole::Moderator))->get($url)->assertOk();
 });
 
-test('submitting the attendance poll requires the admin-only create permission', function () {
+test('submitting the attendance register requires the admin-only create permission', function () {
     $ensemble = Ensemble::factory()->create();
     $term = Term::factory()->create();
     $url = route('attendance.update', ['ensemble' => $ensemble->slug, 'term' => $term->slug]);
