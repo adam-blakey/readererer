@@ -49,7 +49,13 @@
                                 Nothing upcoming.
                             @else
                                 @foreach($upcomingTerms as $term)
-                                    <x-poll-entry :ensemble="$ensemble" :term="$term" />
+                                    <div class="d-flex align-items-center justify-content-between">
+                                        <x-poll-entry :ensemble="$ensemble" :term="$term" />
+                                        <x-a class="btn btn-sm" href="{{ route('attendance.register', ['ensemble' => $ensemble, 'term' => $term]) }}">
+                                            <x-icon name="clipboard-check" />
+                                            Register
+                                        </x-a>
+                                    </div>
                                 @endforeach
                             @endif
                         </div>

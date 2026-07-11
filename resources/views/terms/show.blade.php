@@ -1,4 +1,4 @@
-@props(['term', 'page_name', 'ensembles', 'nextRehearsal' => null, 'nextConcert' => null])
+@props(['term', 'page_name', 'ensembles', 'attendance_totals' => collect(), 'nextRehearsal' => null, 'nextConcert' => null])
 
 <x-layout :$page_name :show_page_header="0">
 	<div class="page-header">
@@ -12,6 +12,14 @@
 				</div>
 				<div class="col-auto ms-auto">
 					<div class="btn-list">
+						@foreach($ensembles as $ensemble)
+							@can('view', $ensemble)
+								<x-a class="btn" href="{{ route('attendance.register', ['ensemble' => $ensemble, 'term' => $term]) }}">
+									<x-icon name="clipboard-check" />
+									{{ $ensemble->name }} register
+								</x-a>
+							@endcan
+						@endforeach
 						<a aria-label="Edit" class="btn" href="{{ route('terms.edit', ['term' => $term]) }}">
 							<svg class="icon icon-tabler icons-tabler-outline icon-tabler-pencil" fill="none" height="24" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" stroke="currentColor" viewBox="0 0 24 24" width="24" xmlns="http://www.w3.org/2000/svg">
 								<path d="M0 0h24v24H0z" fill="none" stroke="none" />
@@ -65,13 +73,21 @@
                                             </div>
                                             <div id="collapse-{{ $td->id }}-default" class="accordion-collapse collapse" data-bs-parent="#term-date-accordion">
                                                 <div class="accordion-body">
+                                                    @php
+                                                        $totals = $attendance_totals[$td->id] ?? null;
+                                                    @endphp
                                                     <div class="mb-2">
                                                         <div>
-                                                            <x-icon name="user-edit" /><strong>Attending: </strong> 0
+                                                            <x-icon name="user-check" /><strong>Attending: </strong> {{ $totals['attending'] ?? 0 }}
                                                         </div>
                                                         <div>
-                                                            <x-icon name="user-off" /><strong>Absent: </strong> 0
+                                                            <x-icon name="user-off" /><strong>Absent: </strong> {{ $totals['not_attending'] ?? 0 }}
                                                         </div>
+                                                        @isset($totals['unknown'])
+                                                            <div>
+                                                                <x-icon name="question-mark" /><strong>Unknown: </strong> {{ $totals['unknown'] }}
+                                                            </div>
+                                                        @endisset
                                                         <div>
                                                             <x-icon name="mail" /><strong>Email history: </strong>
                                                             <div class="mx-2">
