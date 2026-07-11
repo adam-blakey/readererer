@@ -25,14 +25,14 @@ class SeatingPlanController extends Controller
         ]);
 
         $instrumentIds = $users->pluck('pivot.instrument_family_id')->filter()->unique();
-        $instruments = InstrumentFamily::whereIn('id', $instrumentIds)->pluck('name', 'id');
+        $instruments = InstrumentFamily::whereIn('id', $instrumentIds)->get()->keyBy('id');
 
         $users->each(function ($user) use ($instruments) {
-            if ($user->pivot->instrument_family_id) {
-                $user->instrument_name = $instruments->get($user->pivot->instrument_family_id);
-            } else {
-                $user->instrument_name = null;
-            }
+            $instrument = $user->pivot->instrument_family_id
+                ? $instruments->get($user->pivot->instrument_family_id)
+                : null;
+            $user->instrument_name = $instrument?->name;
+            $user->instrument_color = $instrument?->color;
             $user->original_seat_row = $user->pivot->seat_row;
             $user->original_seat_column = $user->pivot->seat_column;
         });

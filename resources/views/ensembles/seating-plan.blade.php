@@ -69,15 +69,15 @@
                             <div class="card-body">
                                 @foreach($unassigned_users as $instrument => $users)
                                     <h3 class="mb-1">
-                                        @if($color = instrument_family_color($users->first()->pivot->instrument_family_id))
-                                            <span class="badge badge-dot bg-{{ $color }} me-1"></span>
+                                        @if($users->first()->instrument_color)
+                                            <span class="badge badge-dot bg-{{ $users->first()->instrument_color }} me-1"></span>
                                         @endif
                                         {{ $instrument }}
                                     </h3>
                                     <div class="row min-h-2 mb-2 drop-container">
                                         @foreach($users as $user)
                                             <div class="col-md-3 user-entry" data-user-id="{{ $user->id }}" data-original-row="{{ $user->original_seat_row }}" data-original-column="{{ $user->original_seat_column }}">
-                                                <x-user-entry :user="$user" :add_route="false" :draggable="true" :secondary_info="$user->instrument_name" :show_seating_position="true" :accent_color="instrument_family_color($user->pivot->instrument_family_id)" />
+                                                <x-user-entry :user="$user" :add_route="false" :draggable="true" :secondary_info="$user->instrument_name" :show_seating_position="true" :accent_color="$user->instrument_color" />
                                             </div>
                                         @endforeach
                                     </div>
@@ -96,7 +96,7 @@
                                         <div class="row min-h-2 drop-container">
                                             @foreach($users as $user)
                                                 <div class="col-md-3 user-entry" data-user-id="{{ $user->id }}" data-original-row="{{ $user->original_seat_row }}" data-original-column="{{ $user->original_seat_column }}">
-                                                    <x-user-entry :user="$user" :add_route="false" :draggable="true" :secondary_info="$user->instrument_name" :show_seating_position="true" :accent_color="instrument_family_color($user->pivot->instrument_family_id)" />
+                                                    <x-user-entry :user="$user" :add_route="false" :draggable="true" :secondary_info="$user->instrument_name" :show_seating_position="true" :accent_color="$user->instrument_color" />
                                                 </div>
                                             @endforeach
                                         </div>

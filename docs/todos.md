@@ -42,9 +42,6 @@ How entities split across the phases:
 - Attendance register (in progress, marked `[~]`).
 - Show who you're playing with for upcoming concerts and rehearsals.
 
-**Setup groups**
-- Show the hex colour in the index view.
-
 **Notifications / emails**
 - Proper notifications system, with an overview and types: setup-group reminder,
   van-driver reminder, and "groups/drivers changed" alerts.
@@ -88,8 +85,6 @@ These touch the shared generic-CRUD layer or general UX and so apply regardless 
   (icon alignment when an error is present), `:20` ("style nice"), `:39` (something
   "apparently isn't working correctly").
 - **Auto-entity show view button alignment** — `resources/views/auto-entities/show.blade.php:22`.
-- **Show real hex in tables** — `resources/views/components/table.blade.php:86`: currently
-  prints a literal `#rrggbb` placeholder instead of the actual colour.
 - **Proper colour picker** — recurring item in the plan (used by setup groups, etc.).
 - **Canonical breadcrumb navigation** — recurring item; plan suggests
   `diglactic/laravel-breadcrumbs`.

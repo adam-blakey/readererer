@@ -10,51 +10,55 @@ test('the instrument family index requires the moderator role', function () {
     $this->actingAs(make_user(UserRole::Admin))->get(route('instrumentfamilys.index'))->assertOk();
 });
 
-test('an instrument family can be created', function () {
+test('an instrument family can be created with a colour', function () {
     $this->actingAs(make_user(UserRole::Moderator))->get(route('instrumentfamilys.create'))->assertOk();
 
     $response = $this->actingAs(make_user(UserRole::Moderator))->post(route('instrumentfamilys.store'), [
         'name' => 'Bassoons',
+        'color' => 'teal',
     ]);
 
     $instrumentFamily = InstrumentFamily::where('name', 'Bassoons')->first();
     expect($instrumentFamily)->not->toBeNull();
+    expect($instrumentFamily->color)->toBe('teal');
     $response->assertRedirect(route('instrumentfamilys.show', $instrumentFamily));
 });
 
-test('creating an instrument family requires a name', function () {
+test('creating an instrument family requires a name and colour', function () {
     $this->actingAs(make_user(UserRole::Moderator))
         ->post(route('instrumentfamilys.store'), [])
-        ->assertSessionHasErrors('name');
+        ->assertSessionHasErrors(['name', 'color']);
 
     expect(InstrumentFamily::count())->toBe(0);
 });
 
 test('members cannot create instrument families', function () {
     $this->actingAs(make_user(UserRole::Member))
-        ->post(route('instrumentfamilys.store'), ['name' => 'Bassoons'])
+        ->post(route('instrumentfamilys.store'), ['name' => 'Bassoons', 'color' => 'teal'])
         ->assertForbidden();
 
     expect(InstrumentFamily::count())->toBe(0);
 });
 
 test('an instrument family can be viewed and updated', function () {
-    $instrumentFamily = InstrumentFamily::create(['name' => 'Bassoons']);
+    $instrumentFamily = InstrumentFamily::create(['name' => 'Bassoons', 'color' => 'teal']);
 
     $this->actingAs(make_user(UserRole::Moderator))
         ->get(route('instrumentfamilys.show', $instrumentFamily))
         ->assertOk()
-        ->assertSee('Bassoons');
+        ->assertSee('Bassoons')
+        ->assertSee('teal');
 
     $this->actingAs(make_user(UserRole::Moderator))
         ->get(route('instrumentfamilys.edit', $instrumentFamily))
         ->assertOk();
 
     $this->actingAs(make_user(UserRole::Moderator))
-        ->patch(route('instrumentfamilys.update', $instrumentFamily), ['name' => 'Contrabassoons'])
+        ->patch(route('instrumentfamilys.update', $instrumentFamily), ['name' => 'Contrabassoons', 'color' => 'pink'])
         ->assertRedirect(route('instrumentfamilys.show', $instrumentFamily));
 
     expect($instrumentFamily->fresh()->name)->toBe('Contrabassoons');
+    expect($instrumentFamily->fresh()->color)->toBe('pink');
 });
 
 test('deleting an instrument family soft deletes it and admins can restore it', function () {

@@ -172,7 +172,7 @@ function map_database_type_to_html(string $name, string $db_type, array $casts):
     return $html_type;
 }
 
-function color_name_to_hex(string $name): string
+function color_name_to_hex(string $name): ?string
 {
     switch (strtolower($name)) {
         case 'blue': return '#066fd1';
@@ -188,15 +188,6 @@ function color_name_to_hex(string $name): string
         case 'teal': return '#0ca678';
         case 'cyan': return '#17a2b8';
     }
-}
 
-function instrument_family_color(?int $instrument_family_id): ?string
-{
-    if ($instrument_family_id === null) {
-        return null;
-    }
-
-    $colors = ['blue', 'azure', 'indigo', 'purple', 'pink', 'red', 'orange', 'yellow', 'lime', 'green', 'teal', 'cyan'];
-
-    return $colors[($instrument_family_id - 1) % count($colors)];
+    return null;
 }

@@ -7,10 +7,10 @@
     function get_seat_column($member, $ensemble) {
         return $member->ensembles->where('id', $ensemble->id)->first()->pivot->seat_column;
     }
-    function get_instrument_color($member, $ensemble) {
-        $color = instrument_family_color($member->ensembles->where('id', $ensemble->id)->first()->pivot->instrument_family_id);
+    function get_instrument_color($member, $ensemble, $instrumentFamilies) {
+        $family = $instrumentFamilies->firstWhere('id', $member->ensembles->where('id', $ensemble->id)->first()->pivot->instrument_family_id);
 
-        return $color ? color_name_to_hex($color) : '#000000';
+        return ($family ? color_name_to_hex($family->color) : null) ?? '#000000';
     }
 
     $members = $members->sortBy([
@@ -51,7 +51,7 @@
 <p style="margin-top: 0;">
     <strong>Key: </strong>
     @foreach($instrumentFamilies as $instrumentFamily)
-        <span style="display: inline-block; padding: 0 6px; margin-right: 12px; border-left: 6px solid {{ color_name_to_hex(instrument_family_color($instrumentFamily->id)) }};">{{ $instrumentFamily->name }}</span>
+        <span style="display: inline-block; padding: 0 6px; margin-right: 12px; border-left: 6px solid {{ color_name_to_hex($instrumentFamily->color) ?? '#000000' }};">{{ $instrumentFamily->name }}</span>
     @endforeach
     <s style="color: #9CA3AF; text-decoration: line-through; margin-right: 12px;">Not attending</s>
     @if (array_key_exists('unknown', $attendanceTotals))
@@ -75,7 +75,7 @@
                 @foreach($members as $member)
                     @php($attendance_value = $member->attendances->where('term_date_id', $termDate->id)->sortByDesc('created_at')->first()?->status ?? App\Enums\AttendanceStatus::Unknown)
                     <tr>
-                        <td style="padding: 0.15em 0.4em; border: 2px solid black; border-left: 6px solid {{ get_instrument_color($member, $ensemble) }};">
+                        <td style="padding: 0.15em 0.4em; border: 2px solid black; border-left: 6px solid {{ get_instrument_color($member, $ensemble, $instrumentFamilies) }};">
                             @switch($attendance_value)
                                 @case(App\Enums\AttendanceStatus::Attending)
                                     <span>{{ $member->name }}</span>

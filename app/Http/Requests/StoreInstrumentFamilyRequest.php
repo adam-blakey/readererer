@@ -24,6 +24,7 @@ class StoreInstrumentFamilyRequest extends FormRequest
     {
         return [
             'name' => ['required', 'string', 'max:255'],
+            'color' => ['required', 'string', 'max:50'],
         ];
     }
 }

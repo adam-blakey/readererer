@@ -10,6 +10,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 use SDamian\Larasort\AutoSortable;
 
 #[Icon('guitar-pick', for: 'name')]
+#[Icon('paint', for: 'color')]
 #[Icon('pencil-bolt', for: 'created_at')]
 #[Icon('pencil-up', for: 'updated_at')]
 class InstrumentFamily extends Model
@@ -21,12 +22,14 @@ class InstrumentFamily extends Model
 
     protected $visible = [
         'name',
+        'color',
         'created_at',
         'updated_at',
     ];
 
     public array $sortables = [
         'name',
+        'color',
         'created_at',
         'updated_at',
     ];
@@ -41,5 +44,6 @@ class InstrumentFamily extends Model
 
     protected $fillable = [
         'name',
+        'color',
     ];
 }

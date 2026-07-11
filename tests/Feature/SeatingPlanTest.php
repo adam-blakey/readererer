@@ -53,6 +53,10 @@ test('unassigned members are split up by instrument family', function () {
     expect($unassigned->get('Flutes')->pluck('id')->all())->toBe([$flautist->id]);
     expect($unassigned->get('Trumpets')->pluck('id')->all())->toBe([$trumpeter->id]);
     expect($unassigned->get('No instrument')->pluck('id')->all())->toBe([$unknown->id]);
+
+    // Each member carries their instrument family's colour for the editor.
+    expect($unassigned->get('Flutes')->first()->instrument_color)->toBe('blue');
+    expect($unassigned->get('No instrument')->first()->instrument_color)->toBeNull();
 });
 
 test('the seating plan page offers downloads for upcoming rehearsals and own concerts', function () {
