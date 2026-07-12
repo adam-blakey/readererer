@@ -6,8 +6,8 @@ one of the two delivery phases.
 ## The two phases
 
 - **Phase 1 — Attendance diary.** Everything around running an ensemble's calendar:
-  members/users, ensembles, terms and rehearsal/concert dates, attendance polls and
-  the register, seating plans, setup-group / van-driver rosters, notifications and
+  members/users, ensembles, terms and rehearsal/concert dates, attendance registers,
+  seating plans, setup-group / van-driver rosters, notifications and
   emails, the dashboard, and the auth/role plumbing that gates all of it.
 - **Phase 2 — Digital sheet music.** The library side: composers, pieces, the parts
   that make up each piece (one per instrument family), and the setlists that group
@@ -33,10 +33,6 @@ How entities split across the phases:
 
 ### Planning TODOs (from `docs/development-plan.md`)
 
-**Ensembles**
-- Calculate the number of members in each ensemble and show this in the show and
-  index views.
-
 **Terms / term dates**
 - Add setup groups to term dates.
 - Term dates editor has overlapping duplicate and removal buttons.
@@ -47,8 +43,6 @@ How entities split across the phases:
 - Better styling: strikethroughs and colours.
 - Split the seating plan up by instrument.
 - Bug: too many / too few new rows created in the seating-plan editor.
-- Bug: the seeder seems to sometimes generate duplicate seat positions within the
-  same ensemble.
 
 **Setup groups**
 - Show the hex colour in the index view.
