@@ -5,7 +5,9 @@
     $error_message = $errors->first($name);
     $has_error = $error_message != null || $error_message != '';
     $value = (isset($data['value'])) ? old($name, $data['value']) : null;
-    $classes = ['form-control', 'is-invalid' => $has_error, 'required' => $data['required']]
+    $classes = ['form-control', 'is-invalid' => $has_error, 'required' => $data['required']];
+    $has_color_preview = $data['type'] === 'enum' && ($name === 'color');
+    $selected_color_class = $has_color_preview ? (color_name_to_css_class((string) ($value ?: ($data['default_option'] ?? null))) ?? 'secondary') : null;
 @endphp
 
 <div @class(['col-md-'.$data['width']])>
@@ -13,7 +15,11 @@
     <!-- TODO: fix alignment of icon when there is an error present -->
     <div class="input-icon">
         <span class="input-icon-addon">
-            <x-icon :name="$data['icon']" />
+            @if ($has_color_preview)
+                <span data-color-preview class="avatar avatar-xs rounded-circle bg-{{ $selected_color_class }}"></span>
+            @else
+                <x-icon :name="$data['icon']" />
+            @endif
         </span>
         @switch($data['type'])
             @case('class')
@@ -37,9 +43,24 @@
                 @break
             @case('enum')
                 @php($selected = $value ?: $data['default_option'])
-                <select name="{{ $name }}" class="form-select" style="padding-left: 2.5rem" @required($data['required'])>
+                <select
+                    name="{{ $name }}"
+                    @class(['form-select', 'is-invalid' => $has_error])
+                    style="padding-left: 2.5rem"
+                    @required($data['required'])
+                    @if ($has_color_preview)
+                        onchange="const color=this.options[this.selectedIndex].dataset.colorClass||'secondary';const swatch=this.closest('.input-icon').querySelector('[data-color-preview]');if(swatch){swatch.className='avatar avatar-xs rounded-circle bg-'+color;}"
+                    @endif
+                >
                     @foreach($data['options'] as $optionValue => $optionLabel)
-                        <option value="{{ $optionValue }}" {{ (string) $selected === (string) $optionValue ? 'selected' : '' }}>
+                        @php($optionColorClass = $has_color_preview ? (color_name_to_css_class((string) $optionValue) ?? 'secondary') : null)
+                        <option
+                            value="{{ $optionValue }}"
+                            {{ (string) $selected === (string) $optionValue ? 'selected' : '' }}
+                            @if ($has_color_preview)
+                                data-color-class="{{ $optionColorClass }}"
+                            @endif
+                        >
                             {{ $optionLabel }}
                         </option>
                     @endforeach

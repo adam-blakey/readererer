@@ -56,7 +56,7 @@
 
 										@default
                                             @if (class_exists($casts[$attribute]))
-                                                {{ $entity->$attribute->name ? : $entity->$attribute }}
+                                                {{ $entity->$attribute->name ?? $entity->$attribute }}
                                             @else
                                                 {{ $entity->$attribute }}
                                             @endif
