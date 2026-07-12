@@ -3,7 +3,7 @@ import "@tabler/core/dist/js/tabler.min.js";
 import "apexcharts/dist/apexcharts.min.js";
 import "autosize/dist/autosize.min.js";
 import "choices.js/public/assets/scripts/choices.min.js";
-import "countup.js/dist/countUp.min.js";
+import "countup.js";
 import "flatpickr/dist/flatpickr.min.js";
 import "imask/dist/imask.min.js";
 import "jsvectormap/dist/jsvectormap.min.js"
