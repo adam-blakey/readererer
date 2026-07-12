@@ -33,6 +33,10 @@ How entities split across the phases:
 
 ### Planning TODOs (from `docs/development-plan.md`)
 
+**Ensembles**
+- Calculate the number of members in each ensemble and show this in the show and
+  index views.
+
 **Terms / term dates**
 - Add setup groups to term dates.
 - Term dates editor has overlapping duplicate and removal buttons.
@@ -41,15 +45,6 @@ How entities split across the phases:
 **Attendance**
 - Attendance register (in progress, marked `[~]`).
 - Show who you're playing with for upcoming concerts and rehearsals.
-
-**Seating plan**
-- Seating plan should be looped over rather than living under terms.
-- Better styling: strikethroughs and colours.
-- Split the seating plan up by instrument.
-- Bug: too many / too few new rows created in the seating-plan editor.
-
-**Setup groups**
-- Show the hex colour in the index view.
 
 **Dashboard**
 - Date formatting (e.g. "next rehearsal" on the dashboard).
@@ -88,8 +83,6 @@ These touch the shared generic-CRUD layer or general UX and so apply regardless 
   (icon alignment when an error is present), `:20` ("style nice"), `:39` (something
   "apparently isn't working correctly").
 - **Auto-entity show view button alignment** — `resources/views/auto-entities/show.blade.php:22`.
-- **Show real hex in tables** — `resources/views/components/table.blade.php:86`: currently
-  prints a literal `#rrggbb` placeholder instead of the actual colour.
 - **Proper colour picker** — recurring item in the plan (used by setup groups, etc.).
 - **Canonical breadcrumb navigation** — recurring item; plan suggests
   `diglactic/laravel-breadcrumbs`.

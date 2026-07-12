@@ -25,6 +25,12 @@
 	        'auth' => Auth::user()?->can('viewAny', App\Models\Ensemble::class),
 	    ],
 	    [
+	        'title' => 'Instrument families',
+	        'icon' => 'guitar-pick',
+	        'route' => 'instrumentfamilys.index',
+	        'auth' => Auth::user()?->can('viewAny', App\Models\InstrumentFamily::class),
+	    ],
+	    [
 	        'title' => 'Notifications',
 	        'icon' => 'bell',
 	        'route' => 'notifications.index',
@@ -131,21 +137,6 @@
 							</li>
 						@endforeach
 					</ul>
-					<div class="order-first my-2 my-md-0 flex-grow-1 flex-md-grow-0 order-md-last">
-						<form action="./" autocomplete="off" method="get" novalidate>
-							<div class="input-icon">
-								<span class="input-icon-addon">
-									<!-- Download SVG icon from http://tabler-icons.io/i/search -->
-									<svg class="icon" fill="none" height="24" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" stroke="currentColor" viewBox="0 0 24 24" width="24" xmlns="http://www.w3.org/2000/svg">
-										<path d="M0 0h24v24H0z" fill="none" stroke="none" />
-										<circle cx="10" cy="10" r="7" />
-										<line x1="21" x2="15" y1="21" y2="15" />
-									</svg>
-								</span>
-								<input aria-label="Search in website" class="form-control" placeholder="Search…" type="text" value="">
-							</div>
-						</form>
-					</div>
 				</div>
 			</div>
 		</div>

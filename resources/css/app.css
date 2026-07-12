@@ -8,7 +8,7 @@
 @import "jsvectormap/dist/jsvectormap.min.css";
 @import "litepicker/dist/css/litepicker.css";
 @import "nouislider/dist/nouislider.min.css";
-@import "tom-select/dist/css/tom-select.min.css";
+@import "tom-select/dist/css/tom-select.bootstrap5.min.css";
 
 @import url("https://rsms.me/inter/inter.css");
 
@@ -80,4 +80,17 @@
 
 .min-h-2 {
     min-height: 2rem;
+}
+
+.download-menu {
+    max-height: 20rem;
+    min-width: 20rem;
+    overflow-y: auto;
+}
+
+.download-menu-filters {
+    position: sticky;
+    top: 0;
+    z-index: 1;
+    background: var(--tblr-bg-surface, #fff);
 }

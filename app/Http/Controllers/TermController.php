@@ -2,15 +2,14 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\SetupGroup;
-use App\Models\Term;
 use App\Http\Requests\UpdateTermRequest;
 use App\Models\Ensemble;
+use App\Models\SetupGroup;
+use App\Models\Term;
 use App\Models\User;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Arr;
-use Illuminate\Support\Str;
 use Illuminate\View\View;
 
 class TermController extends Controller
@@ -34,8 +33,8 @@ class TermController extends Controller
             'page_subname' => 'Terms overview',
             'create_entity' => [
                 'route' => 'terms.create',
-                'name' => 'term'
-            ]
+                'name' => 'term',
+            ],
         ]);
     }
 
@@ -44,10 +43,11 @@ class TermController extends Controller
      */
     public function create(): View
     {
-        $term = new Term();
+        $term = new Term;
         $ensembles = Ensemble::whereNull('deleted_at')->orderBy('name')->get();
         $setup_groups = SetupGroup::orderBy('name')->get();
         $van_drivers = User::orderBy('first_name')->orderBy('last_name')->get();
+
         return view('terms.form', [
             'term' => $term,
             'page_name' => 'New term',
@@ -93,7 +93,7 @@ class TermController extends Controller
                 'van_driver_id' => $term_date['van_driver_id'] ?? null,
             ];
 
-            if (!empty($term_date['id'])) {
+            if (! empty($term_date['id'])) {
                 // Update existing by ID, scoped to this term. Saved through the
                 // model so TermDateObserver can send "groups/drivers changed" alerts.
                 $term->term_dates()->whereKey($term_date['id'])->first()?->update($payload);
@@ -114,11 +114,9 @@ class TermController extends Controller
     public function show(Term $term)
     {
         $term->load('term_dates')->with('van_driver');
-        $ensembles = Ensemble::orderBy('name')->get();
 
         return view('terms.show', [
             'term' => $term,
-            'ensembles' => $ensembles,
             'page_name' => $term->name,
         ]);
     }
@@ -132,6 +130,7 @@ class TermController extends Controller
         $ensembles = Ensemble::whereNull('deleted_at')->orderBy('name')->get();
         $setup_groups = SetupGroup::orderBy('name')->get();
         $van_drivers = User::orderBy('first_name')->orderBy('last_name')->get();
+
         return view('terms.form', [
             'term' => $term,
             'page_name' => 'Edit term',
@@ -152,7 +151,7 @@ class TermController extends Controller
 
         $request_term_dates = collect($request->input('term_dates', []));
 
-        /// Delete term dates that are not in the request
+        // / Delete term dates that are not in the request
         $keepIds = $request_term_dates->pluck('id')->filter()->values()->all();
 
         if (count($keepIds) > 0) {
@@ -172,7 +171,7 @@ class TermController extends Controller
                 'van_driver_id' => $term_date['van_driver_id'] ?? null,
             ];
 
-            if (!empty($term_date['id'])) {
+            if (! empty($term_date['id'])) {
                 // Update existing by ID, scoped to this term. Saved through the
                 // model so TermDateObserver can send "groups/drivers changed" alerts.
                 $term->term_dates()->whereKey($term_date['id'])->first()?->update($payload);
@@ -194,6 +193,7 @@ class TermController extends Controller
     public function destroy(Term $term)
     {
         $term->delete();
+
         return redirect()->back()->with('status', 'Record deleted.');
     }
 
@@ -202,6 +202,7 @@ class TermController extends Controller
         Term::onlyTrashed()->get()->each(function ($model) {
             $model->forceDelete();
         });
+
         return redirect()->back()->with('status', 'All soft-deleted records permanently removed.');
     }
 
