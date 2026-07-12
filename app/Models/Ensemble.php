@@ -11,9 +11,9 @@ use SDamian\Larasort\AutoSortable;
 
 class Ensemble extends Model
 {
+    use AutoSortable;
     use HasFactory;
     use SoftDeletes;
-    use AutoSortable;
 
     protected $visible = [
         'image',
@@ -34,13 +34,14 @@ class Ensemble extends Model
     ];
 
     protected $fillable = [
-        'name'
+        'name',
     ];
 
     public function casts(): array
     {
         return [
             'show' => 'boolean',
+            'seating_plan_enabled' => 'boolean',
             'created_at' => 'datetime',
             'updated_at' => 'datetime',
         ];
@@ -48,7 +49,7 @@ class Ensemble extends Model
 
     public function admins(): BelongsToMany
     {
-        //return $this->hasManyThrough(User::class, EnsembleAdmin::class, 'ensemble_id', 'ensemble_admin_id');
+        // return $this->hasManyThrough(User::class, EnsembleAdmin::class, 'ensemble_id', 'ensemble_admin_id');
 
         return $this->belongsToMany(User::class, 'ensemble_admins', 'ensemble_id', 'admin_id')->orderBy('first_name');
     }

@@ -91,7 +91,7 @@ test('the ensembles index can include soft-deleted records with with_trashed', f
 });
 
 test('a user can be added to an ensemble with an instrument family and seat', function () {
-    $ensemble = Ensemble::factory()->create();
+    $ensemble = Ensemble::factory()->create(['seating_plan_enabled' => true]);
     $member = make_user(UserRole::Member);
     $instrumentFamily = make_instrument_family('Percussion');
 
@@ -108,6 +108,71 @@ test('a user can be added to an ensemble with an instrument family and seat', fu
     expect($pivot)->not->toBeNull();
     expect($pivot->instrument_family_id)->toBe($instrumentFamily->id);
     expect($pivot->seat)->toBe('C2');
+});
+
+test('adding a user to a seating-plan-disabled ensemble ignores the seat', function () {
+    $ensemble = Ensemble::factory()->create(['seating_plan_enabled' => false]);
+    $member = make_user(UserRole::Member);
+    $instrumentFamily = make_instrument_family('Percussion');
+
+    $this->actingAs(make_user(UserRole::Admin))
+        ->post(route('ensembles.add_user', $ensemble), [
+            'user_id' => $member->id,
+            'instrument_family_id' => $instrumentFamily->id,
+            'seat_row' => '2',
+            'seat_column' => 'C',
+        ])
+        ->assertRedirect();
+
+    $pivot = UserEnsemble::where('user_id', $member->id)->where('ensemble_id', $ensemble->id)->first();
+    expect($pivot->instrument_family_id)->toBe($instrumentFamily->id);
+    expect($pivot->seat_row)->toBeNull();
+    expect($pivot->seat_column)->toBeNull();
+});
+
+test('the ensemble edit page renders the seating plan toggle', function () {
+    $ensemble = Ensemble::factory()->create(['seating_plan_enabled' => true]);
+
+    $this->actingAs(make_user(UserRole::Admin))
+        ->get(route('ensembles.edit', $ensemble))
+        ->assertOk()
+        ->assertSee('Seating plan enabled')
+        ->assertSee('name="seating_plan_enabled"', false)
+        ->assertSee('form="ensemble-edit-form"', false);
+});
+
+test('saving the ensemble edit page persists the seating plan toggle', function () {
+    $ensemble = Ensemble::factory()->create(['name' => 'Strings', 'seating_plan_enabled' => true]);
+
+    // Unchecked checkbox submits no value.
+    $this->actingAs(make_user(UserRole::Admin))
+        ->put(route('ensembles.update', $ensemble), ['name' => 'Strings'])
+        ->assertRedirect(route('ensembles.show', $ensemble));
+    expect($ensemble->fresh()->seating_plan_enabled)->toBeFalse();
+
+    $this->actingAs(make_user(UserRole::Admin))
+        ->put(route('ensembles.update', $ensemble), ['name' => 'Renamed Strings', 'seating_plan_enabled' => '1'])
+        ->assertRedirect();
+
+    $ensemble->refresh();
+    expect($ensemble->seating_plan_enabled)->toBeTrue();
+    expect($ensemble->name)->toBe('Renamed Strings');
+});
+
+test('updating an ensemble requires a name', function () {
+    $ensemble = Ensemble::factory()->create();
+
+    $this->actingAs(make_user(UserRole::Admin))
+        ->put(route('ensembles.update', $ensemble), [])
+        ->assertSessionHasErrors('name');
+});
+
+test('updating an ensemble requires the update ability', function () {
+    $ensemble = Ensemble::factory()->create();
+
+    $this->actingAs(make_user(UserRole::Member))
+        ->put(route('ensembles.update', $ensemble), ['name' => 'Nope'])
+        ->assertForbidden();
 });
 
 test('adding a user to an ensemble validates the user and instrument family', function () {
@@ -164,12 +229,22 @@ test('removing a user who is not in the ensemble returns not found', function ()
 });
 
 test('the ensemble show page renders with management buttons for moderators', function () {
-    $ensemble = Ensemble::factory()->create();
+    $ensemble = Ensemble::factory()->create(['seating_plan_enabled' => true]);
 
     $this->actingAs(make_user(UserRole::Moderator))
         ->get(route('ensembles.show', $ensemble))
         ->assertOk()
         ->assertSee('Seating plan')
+        ->assertSee('Edit');
+});
+
+test('the ensemble show page hides the seating plan button when seating is disabled', function () {
+    $ensemble = Ensemble::factory()->create(['seating_plan_enabled' => false]);
+
+    $this->actingAs(make_user(UserRole::Moderator))
+        ->get(route('ensembles.show', $ensemble))
+        ->assertOk()
+        ->assertDontSee('Seating plan')
         ->assertSee('Edit');
 });
 

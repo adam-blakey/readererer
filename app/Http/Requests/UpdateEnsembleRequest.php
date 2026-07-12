@@ -11,7 +11,8 @@ class UpdateEnsembleRequest extends FormRequest
      */
     public function authorize(): bool
     {
-        return false;
+        // Authorisation is handled by the controller's authorizeResource() call.
+        return true;
     }
 
     /**
@@ -22,7 +23,8 @@ class UpdateEnsembleRequest extends FormRequest
     public function rules(): array
     {
         return [
-            //
+            'name' => ['required', 'string', 'max:255'],
+            'seating_plan_enabled' => ['sometimes', 'boolean'],
         ];
     }
 }
