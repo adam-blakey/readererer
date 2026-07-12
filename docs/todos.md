@@ -33,6 +33,10 @@ How entities split across the phases:
 
 ### Planning TODOs (from `docs/development-plan.md`)
 
+**Ensembles**
+- Calculate the number of members in each ensemble and show this in the show and
+  index views.
+
 **Terms / term dates**
 - Add setup groups to term dates.
 - Term dates editor has overlapping duplicate and removal buttons.
@@ -43,6 +47,8 @@ How entities split across the phases:
 - Better styling: strikethroughs and colours.
 - Split the seating plan up by instrument.
 - Bug: too many / too few new rows created in the seating-plan editor.
+- Bug: the seeder seems to sometimes generate duplicate seat positions within the
+  same ensemble.
 
 **Setup groups**
 - Show the hex colour in the index view.
