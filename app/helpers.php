@@ -93,7 +93,6 @@ function get_create_fields(object $dummy): array
     $fields = [];
 
     foreach ($fillable as $fillable_entry) {
-        // TODO: enum
         if (method_exists($dummy, $fillable_entry) && (($dummy->$fillable_entry() instanceof BelongsToMany) || ($dummy->$fillable_entry() instanceof BelongsTo))) {
             $belongsToRelation = $dummy->$fillable_entry();
             $relatedClass = $belongsToRelation->getRelated();
@@ -103,6 +102,7 @@ function get_create_fields(object $dummy): array
             $type = 'class';
             $nullable = $isBelongsToMany;
             $select_multiple = $isBelongsToMany;
+            $default_option = null;
             $icon = call_or_default($dummy, 'getIconForAttribute', $name, 'pencil');
             $options = $relatedClass::orderBy('name')
                 ->get();
@@ -114,11 +114,21 @@ function get_create_fields(object $dummy): array
 
             $name = $column['name'];
             $type_name = $column['type_name'];
-            $type = map_database_type_to_html($name, $type_name, $casts);
+            $enumClass = (property_exists($dummy, 'enums') && array_key_exists($name, $dummy->enums)) ? $dummy->enums[$name] : null;
+            if ($enumClass && enum_exists($enumClass)) {
+                $type = 'enum';
+                $default_option = $column['default'] ?? null;
+                $options = collect($enumClass::cases())
+                    ->mapWithKeys(fn ($case) => [$case->value => method_exists($case, 'label') ? $case->label() : $case->name])
+                    ->all();
+            } else {
+                $type = map_database_type_to_html($name, $type_name, $casts);
+                $default_option = $column['default'] ?? null;
+                $options = [];
+            }
             $nullable = $column['nullable'];
             $select_multiple = false;
             $icon = call_or_default($dummy, 'getIconForAttribute', $name, 'pencil');
-            $options = [];
         }
 
         $fields[$name] = [
@@ -128,12 +138,11 @@ function get_create_fields(object $dummy): array
             'icon' => $icon,
             'value' => $dummy->$name,
             'options' => $options,
-            'default_option' => null,
+            'default_option' => $default_option,
             'select_multiple' => $select_multiple,
             'width' => 12,
         ];
 
-        // TODO: populate options and default_option for enum
     }
 
     return $fields;
@@ -166,28 +175,27 @@ function map_database_type_to_html(string $name, string $db_type, array $casts):
         'boolean', 'tinyint' => 'boolean',
         'date', 'datetime', 'timestamp' => 'date',
         default => 'text'
-        // TODO: deal with enums nicely
     };
 
     return $html_type;
 }
 
-function color_name_to_hex(string $name): ?string
+function color_name_to_hex(mixed $name): ?string
 {
-    switch (strtolower($name)) {
-        case 'blue': return '#066fd1';
-        case 'azure': return '#4299e1';
-        case 'indigo': return '#4263eb';
-        case 'purple': return '#ae3ec9';
-        case 'pink': return '#d6336c';
-        case 'red': return '#d63939';
-        case 'orange': return '#f76707';
-        case 'yellow': return '#f59f00';
-        case 'lime': return '#74b816';
-        case 'green': return '#2fb344';
-        case 'teal': return '#0ca678';
-        case 'cyan': return '#17a2b8';
+    if ($name instanceof \App\Enums\Color) {
+        return $name->hex();
     }
 
-    return null;
+    $enum = \App\Enums\Color::tryFrom(strtolower((string) $name));
+    return $enum ? $enum->hex() : null;
+}
+
+function color_name_to_css_class(mixed $name): ?string
+{
+    if ($name instanceof \App\Enums\Color) {
+        return $name->cssClass();
+    }
+
+    $enum = \App\Enums\Color::tryFrom(strtolower((string) $name));
+    return $enum ? $enum->cssClass() : null;
 }
