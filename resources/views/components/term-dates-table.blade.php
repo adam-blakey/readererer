@@ -94,7 +94,7 @@
                                 @can('sendNotifications', $td)
                                     <form method="POST" action="{{ route('term-dates.send-attendance-list', $td) }}">
                                         @csrf
-                                        <button type="submit" class="btn btn-sm bg-orange text-orange-fg">
+                                        <button type="submit" class="btn btn-sm bg-info text-info-fg">
                                             <x-icon name="list-check" />
                                             Send attendance list now
                                         </button>
@@ -102,9 +102,18 @@
                                     @if ($td->setup_group)
                                         <form method="POST" action="{{ route('term-dates.send-setup-reminder', $td) }}">
                                             @csrf
-                                            <button type="submit" class="btn btn-sm bg-info text-info-fg">
+                                            <button type="submit" class="btn btn-sm bg-info-lt text-info-lt-fg">
                                                 <x-icon name="bell-ringing" />
                                                 Resend setup reminder
+                                            </button>
+                                        </form>
+                                    @endif
+                                    @if($td->inferred_van_driver)
+                                        <form method="POST" action="{{ route('term-dates.send-van-driver-reminder', $td) }}" class="d-inline">
+                                            @csrf
+                                            <button type="submit" class="btn btn-sm bg-info text-info-fg">
+                                                <x-icon name="truck" />
+                                                Send van driver reminder
                                             </button>
                                         </form>
                                     @endif
