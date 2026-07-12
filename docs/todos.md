@@ -33,6 +33,10 @@ How entities split across the phases:
 
 ### Planning TODOs (from `docs/development-plan.md`)
 
+**Ensembles**
+- Calculate the number of members in each ensemble and show this in the show and
+  index views.
+
 **Terms / term dates**
 - Add setup groups to term dates.
 - Term dates editor has overlapping duplicate and removal buttons.
