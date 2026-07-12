@@ -6,8 +6,6 @@ use App\Models\Attendance;
 use App\Models\User;
 use App\Models\Ensemble;
 use App\Models\Term;
-use App\Http\Requests\StoreAttendanceRequest;
-use App\Http\Requests\UpdateAttendanceRequest;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
@@ -32,24 +30,52 @@ class AttendanceController extends Controller
     }
 
     /**
-     * Display the attendance poll.
+     * The members of an ensemble who play in it (i.e. have an instrument family).
      */
-    public function poll(Ensemble $ensemble, Term $term, Request $request)
+    private function playing_members(Ensemble $ensemble)
+    {
+        return User::latest()
+            ->with('attendances')
+            ->with('ensembles')
+            ->with('setup_group')
+            ->get()
+            ->filter(function($user) use ($ensemble) { return $user->ensembles->contains($ensemble) && $user->ensembles->where('id', $ensemble->id)->first()->pivot->instrument_family_id != null; })
+            ->values();
+    }
+
+    /**
+     * Display the read-only attendance register for an ensemble's term.
+     */
+    public function show(Ensemble $ensemble, Term $term)
     {
         // Ensure the current user is allowed to view this ensemble (restrict ensemble users to their own ensemble)
         $this->authorize('view', $ensemble);
 
-        $members = User::latest()
-        ->with('attendances')
-        ->with('ensembles')
-        ->with('setup_group')
-        ->get()
-        ->filter(function($user) use ($ensemble) { return $user->ensembles->contains($ensemble) && $user->ensembles->where('id', $ensemble->id)->first()->pivot->instrument_family_id != null; })
-        ->values();
+        $members = $this->playing_members($ensemble)
+            ->sortBy('first_name')
+            ->values();
+
+        return view('attendances.show', [
+            'members' => $members,
+            'term' => $term,
+            'page_name' => $ensemble->name . ': ' . $term->name,
+            'ensemble' => $ensemble,
+        ]);
+    }
+
+    /**
+     * Show the attendance register for editing.
+     */
+    public function edit(Ensemble $ensemble, Term $term, Request $request)
+    {
+        // Ensure the current user is allowed to view this ensemble (restrict ensemble users to their own ensemble)
+        $this->authorize('view', $ensemble);
+
+        $members = $this->playing_members($ensemble);
 
         $page_name = $ensemble->name . ': ' . $term->name;
 
-        return view('attendances.poll', [
+        return view('attendances.edit', [
             'members' => $members,
             'term' => $term,
             'page_name' => $page_name,
@@ -58,7 +84,12 @@ class AttendanceController extends Controller
         ]);
     }
 
-    public function poll_store(Ensemble $ensemble, Term $term, Request $request)
+    /**
+     * Record the submitted register statuses. Attendance history is
+     * append-only, so each submission creates new records rather than
+     * mutating old ones.
+     */
+    public function update(Ensemble $ensemble, Term $term, Request $request)
     {
         // Ensure the current user is allowed to view this ensemble (restrict ensemble users to their own ensemble)
         $this->authorize('view', $ensemble);
@@ -66,7 +97,7 @@ class AttendanceController extends Controller
         $request_ip = $request->ip();
 
         $request->collect()->each(function($parameter_value, $parameter_key) use ($request_ip, $ensemble) {
-            if ($parameter_key == '_token') {
+            if (in_array($parameter_key, ['_token', '_method'])) {
                 return;
             }
 
@@ -88,54 +119,6 @@ class AttendanceController extends Controller
             ]);
         });
 
-        return redirect()->route('attendance.poll', ['ensemble' => $ensemble, 'term' => $term]);
-    }
-
-    /**
-     * Show the form for creating a new resource.
-     */
-    public function create()
-    {
-        //
-    }
-
-    /**
-     * Store a newly created resource in storage.
-     */
-    public function store(StoreAttendanceRequest $request)
-    {
-        //
-    }
-
-    /**
-     * Display the specified resource.
-     */
-    public function show(Attendance $attendance)
-    {
-        //
-    }
-
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(Attendance $attendance)
-    {
-        //
-    }
-
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(UpdateAttendanceRequest $request, Attendance $attendance)
-    {
-        //
-    }
-
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(Attendance $attendance)
-    {
-        //
+        return redirect()->route('attendance.show', ['ensemble' => $ensemble, 'term' => $term]);
     }
 }

@@ -6,8 +6,8 @@ one of the two delivery phases.
 ## The two phases
 
 - **Phase 1 — Attendance diary.** Everything around running an ensemble's calendar:
-  members/users, ensembles, terms and rehearsal/concert dates, attendance polls and
-  the register, seating plans, setup-group / van-driver rosters, notifications and
+  members/users, ensembles, terms and rehearsal/concert dates, attendance registers,
+  seating plans, setup-group / van-driver rosters, notifications and
   emails, the dashboard, and the auth/role plumbing that gates all of it.
 - **Phase 2 — Digital sheet music.** The library side: composers, pieces, the parts
   that make up each piece (one per instrument family), and the setlists that group
@@ -36,10 +36,6 @@ How entities split across the phases:
 **Ensembles**
 - Calculate the number of members in each ensemble and show this in the show and
   index views.
-
-**Attendance**
-- Attendance register (in progress, marked `[~]`).
-- Show who you're playing with for upcoming concerts and rehearsals.
 
 **Notifications / emails**
 - Proper notifications system, with an overview and types: setup-group reminder,

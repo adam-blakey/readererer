@@ -42,16 +42,16 @@
 				<div class="col">
                     <div class="mb-3 card">
                         <div class="card-header">
-                            <h2 class="mb-0 card-heading">Active polls</h2>
+                            <h2 class="mb-0 card-heading">Attendance registers</h2>
                         </div>
                         <div class="card-body">
                             @if($ensemble->users->isEmpty())
-                                <p class="mb-0 text-muted">This ensemble has no members yet. Add members before polls become available.</p>
+                                <p class="mb-0 text-muted">This ensemble has no members yet. Add members before attendance registers become available.</p>
                             @elseif($upcomingTerms->count() == 0)
                                 Nothing upcoming.
                             @else
                                 @foreach($upcomingTerms as $term)
-                                    <x-poll-entry :ensemble="$ensemble" :term="$term" />
+                                    <x-register-entry :ensemble="$ensemble" :term="$term" />
                                 @endforeach
                             @endif
                         </div>

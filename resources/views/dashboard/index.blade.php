@@ -1,4 +1,4 @@
-@props(['page_name', 'ensembles' => collect(), 'setupGroup' => null, 'nextRehearsal' => null, 'nextConcerts' => collect(), 'nextVanDrive' => null])
+@props(['page_name', 'ensembles' => collect(), 'setupGroup' => null, 'nextRehearsal' => null, 'nextConcerts' => collect(), 'nextVanDrive' => null, 'nextRehearsalAttendees' => collect(), 'nextConcertAttendees' => collect()])
 
 <x-layout :$page_name page_subname="Dashboard">
 	<div class="container-xl">
@@ -35,6 +35,9 @@
 					<x-card-body>
 						<div class="card-title">Next rehearsal</div>
 						<x-rehearsal-entry :term_date="$nextRehearsal" />
+						@if($nextRehearsal)
+							<x-attendances.playing-with :attendees="$nextRehearsalAttendees" />
+						@endif
 					</x-card-body>
 					<x-card-body>
 						<div class="card-title">Your next concerts</div>
@@ -50,6 +53,7 @@
 									</div>
 									<div class="ms-2 small text-muted">{{ optional($concert->concert_ensemble)->name }}</div>
 								</div>
+								<x-attendances.playing-with :attendees="$nextConcertAttendees[$concert->id] ?? collect()" />
 							@endforeach
 						@endif
 					</x-card-body>

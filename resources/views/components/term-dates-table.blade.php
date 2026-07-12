@@ -1,10 +1,12 @@
-@props(['term_dates', 'ensembles' => null])
+@props(['term_dates', 'ensembles' => null, 'attendance_totals' => null])
 
 @php
     $ensembles = $ensembles ?? collect();
     // Only ensembles that run a seating plan offer a plan to download.
     $seating_plan_ensembles = $ensembles->filter(fn ($ensemble) => $ensemble->seating_plan_enabled);
     $dates = ($term_dates ?? collect())->sortBy('start_datetime');
+    // An attendance column is shown only when totals (keyed by term date id) are provided.
+    $show_attendance = $attendance_totals !== null && $attendance_totals->isNotEmpty();
 @endphp
 
 <div class="table-responsive">
@@ -13,13 +15,16 @@
     @else
         <table class="table table-vcenter card-table">
             <colgroup>
+                <col style="width: 13%">
+                <col style="width: 7%">
                 <col style="width: 14%">
                 <col style="width: 8%">
-                <col style="width: 15%">
-                <col style="width: 8%">
-                <col style="width: 13%">
-                <col style="width: 20%">
-                <col style="width: 22%">
+                <col style="width: 12%">
+                @if ($show_attendance)
+                    <col style="width: 10%">
+                @endif
+                <col style="width: 17%">
+                <col style="width: 19%">
             </colgroup>
             <thead>
                 <tr>
@@ -28,6 +33,9 @@
                     <th>Type</th>
                     <th>Setup group</th>
                     <th>Van driver</th>
+                    @if ($show_attendance)
+                        <th>Attendance</th>
+                    @endif
                     <th>Emails</th>
                     <th>Actions</th>
                 </tr>
@@ -64,6 +72,16 @@
                                 {{ $td->inferred_van_driver->name }}
                             @endif
                         </td>
+                        @if ($show_attendance)
+                            <td class="text-nowrap">
+                                @php $totals = $attendance_totals[$td->id] ?? null; @endphp
+                                <span class="text-green" title="Attending"><x-icon name="check" />{{ $totals['attending'] ?? 0 }}</span>
+                                <span class="text-red ms-1" title="Not attending"><x-icon name="x" />{{ $totals['not_attending'] ?? 0 }}</span>
+                                @isset($totals['unknown'])
+                                    <span class="text-muted ms-1" title="Unknown"><x-icon name="question-mark" />{{ $totals['unknown'] }}</span>
+                                @endisset
+                            </td>
+                        @endif
                         <td>
                             @php $logs = $td->email_logs; @endphp
                             @if ($logs->isEmpty())

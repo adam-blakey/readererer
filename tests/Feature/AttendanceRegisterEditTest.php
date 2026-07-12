@@ -7,10 +7,10 @@ use App\Models\Ensemble;
 use App\Models\Term;
 use App\Models\TermDate;
 
-test('the poll lists ensemble members who have an instrument family', function () {
+test('the register edit page lists ensemble members who have an instrument family', function () {
     $ensemble = Ensemble::factory()->create();
     $term = Term::factory()->create();
-    // The poll view requires the term to have at least one date.
+    // The register edit view requires the term to have at least one date.
     TermDate::forceCreate([
         'term_id' => $term->id,
         'start_datetime' => now()->addWeek(),
@@ -27,13 +27,13 @@ test('the poll lists ensemble members who have an instrument family', function (
     join_ensemble($outsider, Ensemble::factory()->create());
 
     $response = $this->actingAs(make_user(UserRole::Admin))
-        ->get(route('attendance.poll', ['ensemble' => $ensemble->slug, 'term' => $term->slug]));
+        ->get(route('attendance.edit', ['ensemble' => $ensemble->slug, 'term' => $term->slug]));
 
     $response->assertOk();
     expect($response->viewData('members')->pluck('id')->all())->toBe([$playingMember->id]);
 });
 
-test('submitting the poll records attendance for each member and term date', function () {
+test('submitting the register records attendance for each member and term date', function () {
     $ensemble = Ensemble::factory()->create();
     $term = Term::factory()->create();
     $termDate = TermDate::forceCreate([
@@ -47,12 +47,12 @@ test('submitting the poll records attendance for each member and term date', fun
 
     $admin = make_user(UserRole::Admin);
 
-    $response = $this->actingAs($admin)->post(
-        route('attendance.poll-store', ['ensemble' => $ensemble->slug, 'term' => $term->slug]),
+    $response = $this->actingAs($admin)->patch(
+        route('attendance.update', ['ensemble' => $ensemble->slug, 'term' => $term->slug]),
         ["status-t{$termDate->id}m{$member->id}" => AttendanceStatus::Attending->value]
     );
 
-    $response->assertRedirect(route('attendance.poll', ['ensemble' => $ensemble, 'term' => $term]));
+    $response->assertRedirect(route('attendance.show', ['ensemble' => $ensemble, 'term' => $term]));
 
     $attendance = Attendance::first();
     expect($attendance)->not->toBeNull();
@@ -64,7 +64,7 @@ test('submitting the poll records attendance for each member and term date', fun
     expect($attendance->edit_ip)->not->toBeNull();
 });
 
-test('a poll submission can update several members at once', function () {
+test('a register submission can update several members at once', function () {
     $ensemble = Ensemble::factory()->create();
     $term = Term::factory()->create();
     $termDate = TermDate::forceCreate([
@@ -78,8 +78,8 @@ test('a poll submission can update several members at once', function () {
     join_ensemble($memberOne, $ensemble);
     join_ensemble($memberTwo, $ensemble);
 
-    $this->actingAs(make_user(UserRole::Admin))->post(
-        route('attendance.poll-store', ['ensemble' => $ensemble->slug, 'term' => $term->slug]),
+    $this->actingAs(make_user(UserRole::Admin))->patch(
+        route('attendance.update', ['ensemble' => $ensemble->slug, 'term' => $term->slug]),
         [
             "status-t{$termDate->id}m{$memberOne->id}" => AttendanceStatus::Attending->value,
             "status-t{$termDate->id}m{$memberTwo->id}" => AttendanceStatus::NotAttending->value,
@@ -91,32 +91,32 @@ test('a poll submission can update several members at once', function () {
     expect(Attendance::where('user_id', $memberTwo->id)->first()->status)->toBe(AttendanceStatus::NotAttending);
 });
 
-test('the poll page is not found for unknown ensembles or terms', function () {
+test('the register edit page is not found for unknown ensembles or terms', function () {
     $ensemble = Ensemble::factory()->create();
     $term = Term::factory()->create();
     $admin = make_user(UserRole::Admin);
 
     $this->actingAs($admin)
-        ->get(route('attendance.poll', ['ensemble' => 'no-such-ensemble', 'term' => $term->slug]))
+        ->get(route('attendance.edit', ['ensemble' => 'no-such-ensemble', 'term' => $term->slug]))
         ->assertNotFound();
 
     $this->actingAs($admin)
-        ->get(route('attendance.poll', ['ensemble' => $ensemble->slug, 'term' => 'no-such-term']))
+        ->get(route('attendance.edit', ['ensemble' => $ensemble->slug, 'term' => 'no-such-term']))
         ->assertNotFound();
 });
 
-test('an empty poll submission records nothing', function () {
+test('an empty register submission records nothing', function () {
     $ensemble = Ensemble::factory()->create();
     $term = Term::factory()->create();
 
     $this->actingAs(make_user(UserRole::Admin))
-        ->post(route('attendance.poll-store', ['ensemble' => $ensemble->slug, 'term' => $term->slug]), [])
+        ->patch(route('attendance.update', ['ensemble' => $ensemble->slug, 'term' => $term->slug]), [])
         ->assertRedirect();
 
     expect(Attendance::count())->toBe(0);
 });
 
-test('repeated poll submissions append new attendance records rather than replacing them', function () {
+test('repeated register submissions append new attendance records rather than replacing them', function () {
     $ensemble = Ensemble::factory()->create();
     $term = Term::factory()->create();
     $termDate = TermDate::forceCreate([
@@ -128,11 +128,11 @@ test('repeated poll submissions append new attendance records rather than replac
     $member = make_user(UserRole::Member);
     join_ensemble($member, $ensemble);
 
-    $url = route('attendance.poll-store', ['ensemble' => $ensemble->slug, 'term' => $term->slug]);
+    $url = route('attendance.update', ['ensemble' => $ensemble->slug, 'term' => $term->slug]);
     $admin = make_user(UserRole::Admin);
 
-    $this->actingAs($admin)->post($url, ["status-t{$termDate->id}m{$member->id}" => AttendanceStatus::Attending->value]);
-    $this->actingAs($admin)->post($url, ["status-t{$termDate->id}m{$member->id}" => AttendanceStatus::NotAttending->value]);
+    $this->actingAs($admin)->patch($url, ["status-t{$termDate->id}m{$member->id}" => AttendanceStatus::Attending->value]);
+    $this->actingAs($admin)->patch($url, ["status-t{$termDate->id}m{$member->id}" => AttendanceStatus::NotAttending->value]);
 
     // Attendance history is append-only; the latest record wins when totals are computed.
     expect(Attendance::where('user_id', $member->id)->count())->toBe(2);

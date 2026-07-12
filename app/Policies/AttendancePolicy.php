@@ -34,18 +34,6 @@ class AttendancePolicy
     }
 
     /**
-     * Determine whether the user can interact with polls.
-     */
-//    public function poll(User $user)
-//    {
-//        if ($user->role >= UserRole::Moderator) {
-//            return Response::allow();
-//        }
-//
-//        return Response::deny();
-//    }
-
-    /**
      * Determine whether the user can create models.
      */
     public function create(User $user)

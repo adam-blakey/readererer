@@ -62,8 +62,10 @@
         $ability = null;
         $subject = null;
 
-        // Special-case mappings
-        if ($route === 'attendance.poll') {
+        // Special-case mappings: attendance routes are keyed by ensemble + term,
+        // not an Attendance instance, so the generic inference below cannot
+        // resolve a subject for them — defer to the route's own authorization.
+        if (Str::startsWith($route, 'attendance.')) {
             ;
         }
         elseif (Str::startsWith($route, 'setupgroup')) {

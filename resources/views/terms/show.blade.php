@@ -1,4 +1,4 @@
-@props(['term', 'page_name', 'ensembles', 'nextRehearsal' => null, 'nextConcert' => null])
+@props(['term', 'page_name', 'ensembles', 'attendance_totals' => collect(), 'nextRehearsal' => null, 'nextConcert' => null])
 
 <x-layout :$page_name :show_page_header="0">
 	<div class="page-header">
@@ -20,6 +20,14 @@
 				</div>
 				<div class="col-auto ms-auto">
 					<div class="btn-list">
+						@foreach($ensembles as $ensemble)
+							@can('view', $ensemble)
+								<x-a class="btn" href="{{ route('attendance.show', ['ensemble' => $ensemble, 'term' => $term]) }}">
+									<x-icon name="clipboard-check" />
+									{{ $ensemble->name }} register
+								</x-a>
+							@endcan
+						@endforeach
 						<a aria-label="Edit" class="btn" href="{{ route('terms.edit', ['term' => $term]) }}">
 							<svg class="icon icon-tabler icons-tabler-outline icon-tabler-pencil" fill="none" height="24" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" stroke="currentColor" viewBox="0 0 24 24" width="24" xmlns="http://www.w3.org/2000/svg">
 								<path d="M0 0h24v24H0z" fill="none" stroke="none" />
@@ -42,7 +50,7 @@
 						<div class="card-header">
 							<h2 class="mb-0 card-heading">All dates</h2>
 						</div>
-                        <x-term-dates-table :term_dates="$term->term_dates" :ensembles="$ensembles" />
+                        <x-term-dates-table :term_dates="$term->term_dates" :ensembles="$ensembles" :attendance_totals="$attendance_totals" />
 					</div>
 				</div>
 			</div>

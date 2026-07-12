@@ -260,23 +260,23 @@ test('the ensemble show page hides management buttons from ordinary members', fu
         ->assertDontSee('Seating plan');
 });
 
-test('the ensemble show page hides polls until the ensemble has members', function () {
+test('the ensemble show page hides registers until the ensemble has members', function () {
     $ensemble = Ensemble::factory()->create();
 
     $this->actingAs(make_user(UserRole::Moderator))
         ->get(route('ensembles.show', $ensemble))
         ->assertOk()
-        ->assertSee('Add members before polls become available');
+        ->assertSee('Add members before attendance registers become available');
 });
 
-test('the ensemble show page shows polls once the ensemble has members', function () {
+test('the ensemble show page shows registers once the ensemble has members', function () {
     $ensemble = Ensemble::factory()->create();
     join_ensemble(make_user(UserRole::Member), $ensemble);
 
     $this->actingAs(make_user(UserRole::Moderator))
         ->get(route('ensembles.show', $ensemble))
         ->assertOk()
-        ->assertDontSee('Add members before polls become available');
+        ->assertDontSee('Add members before attendance registers become available');
 });
 
 test('the ensemble members table lists members with their instrument and seat', function () {
