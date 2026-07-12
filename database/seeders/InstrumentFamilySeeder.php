@@ -3,7 +3,6 @@
 namespace Database\Seeders;
 
 use App\Models\InstrumentFamily;
-use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 
 class InstrumentFamilySeeder extends Seeder
@@ -14,16 +13,16 @@ class InstrumentFamilySeeder extends Seeder
     public function run(): void
     {
         $instrumentFamilies = [
-            ['name' => 'Conductor'],
-            ['name' => 'Bb Clarinets'],
-            ['name' => 'Double Reeds'],
-            ['name' => 'Eb, Alto, and Bass Clarinets'],
-            ['name' => 'Flutes'],
-            ['name' => 'French Horns'],
-            ['name' => 'Lower Brass'],
-            ['name' => 'Percussion'],
-            ['name' => 'Saxophones'],
-            ['name' => 'Trumpets'],
+            ['name' => 'Conductor', 'color' => 'blue'],
+            ['name' => 'Bb Clarinets', 'color' => 'azure'],
+            ['name' => 'Double Reeds', 'color' => 'indigo'],
+            ['name' => 'Eb, Alto, and Bass Clarinets', 'color' => 'purple'],
+            ['name' => 'Flutes', 'color' => 'pink'],
+            ['name' => 'French Horns', 'color' => 'red'],
+            ['name' => 'Lower Brass', 'color' => 'orange'],
+            ['name' => 'Percussion', 'color' => 'yellow'],
+            ['name' => 'Saxophones', 'color' => 'lime'],
+            ['name' => 'Trumpets', 'color' => 'green'],
         ];
 
         InstrumentFamily::insert($instrumentFamilies);

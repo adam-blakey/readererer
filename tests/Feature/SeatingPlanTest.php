@@ -31,8 +31,74 @@ test('the seating plan groups members by seat row', function () {
 
     $response->assertOk();
     $grouped = $response->viewData('grouped_users');
-    expect($grouped->get('unassigned')->pluck('id')->all())->toBe([$unseated->id]);
+    expect($grouped->has('unassigned'))->toBeFalse();
     expect($grouped->get('A')->pluck('id')->all())->toBe([$seated->id]);
+    expect($response->viewData('unassigned_users')->flatten(1)->pluck('id')->all())->toBe([$unseated->id]);
+});
+
+test('unassigned members are split up by instrument family', function () {
+    $ensemble = Ensemble::factory()->create();
+    $flautist = make_user(UserRole::Member);
+    $trumpeter = make_user(UserRole::Member);
+    $unknown = make_user(UserRole::Member);
+    join_ensemble($flautist, $ensemble, make_instrument_family('Flutes'));
+    join_ensemble($trumpeter, $ensemble, make_instrument_family('Trumpets'));
+    join_ensemble_without_instrument($unknown, $ensemble);
+
+    $response = $this->actingAs(make_user(UserRole::Admin))
+        ->get(route('ensembles.seating-plan.show', $ensemble));
+
+    $response->assertOk();
+    $unassigned = $response->viewData('unassigned_users');
+    expect($unassigned->get('Flutes')->pluck('id')->all())->toBe([$flautist->id]);
+    expect($unassigned->get('Trumpets')->pluck('id')->all())->toBe([$trumpeter->id]);
+    expect($unassigned->get('No instrument')->pluck('id')->all())->toBe([$unknown->id]);
+
+    // Each member carries their instrument family's colour for the editor.
+    expect($unassigned->get('Flutes')->first()->instrument_color)->toBe('blue');
+    expect($unassigned->get('No instrument')->first()->instrument_color)->toBeNull();
+});
+
+test('the seating plan page offers downloads for upcoming rehearsals and own concerts', function () {
+    $ensemble = Ensemble::factory()->create();
+    $otherEnsemble = Ensemble::factory()->create();
+    $term = Term::factory()->create();
+
+    $pastRehearsal = TermDate::forceCreate([
+        'term_id' => $term->id,
+        'start_datetime' => now()->subWeek(),
+        'end_datetime' => now()->subWeek()->addHours(2),
+    ]);
+    $upcomingRehearsal = TermDate::forceCreate([
+        'term_id' => $term->id,
+        'start_datetime' => now()->addWeek(),
+        'end_datetime' => now()->addWeek()->addHours(2),
+    ]);
+    $ownConcert = TermDate::forceCreate([
+        'term_id' => $term->id,
+        'start_datetime' => now()->addWeeks(2),
+        'end_datetime' => now()->addWeeks(2)->addHours(2),
+        'concert_ensemble_id' => $ensemble->id,
+    ]);
+    $otherConcert = TermDate::forceCreate([
+        'term_id' => $term->id,
+        'start_datetime' => now()->addWeeks(3),
+        'end_datetime' => now()->addWeeks(3)->addHours(2),
+        'concert_ensemble_id' => $otherEnsemble->id,
+    ]);
+
+    $response = $this->actingAs(make_user(UserRole::Admin))
+        ->get(route('ensembles.seating-plan.show', $ensemble));
+
+    $response->assertOk();
+    $dates = $response->viewData('upcoming_term_dates');
+    expect($dates->pluck('id')->all())->toBe([$upcomingRehearsal->id, $ownConcert->id]);
+    $response->assertSee(route('seating-plan.download', ['ensemble' => $ensemble, 'termDate' => $upcomingRehearsal]));
+
+    // Past dates are offered separately so the dropdown can filter them.
+    $pastDates = $response->viewData('past_term_dates');
+    expect($pastDates->pluck('id')->all())->toBe([$pastRehearsal->id]);
+    $response->assertSee(route('seating-plan.download', ['ensemble' => $ensemble, 'termDate' => $pastRehearsal]));
 });
 
 test('updating the seating plan stores seat rows and columns on the pivot', function () {
