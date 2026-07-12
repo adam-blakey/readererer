@@ -32,6 +32,17 @@ test('creating an instrument family requires a name and colour', function () {
     expect(InstrumentFamily::count())->toBe(0);
 });
 
+test('creating an instrument family rejects colours outside the allowed palette', function () {
+    $this->actingAs(make_user(UserRole::Moderator))
+        ->post(route('instrumentfamilys.store'), [
+            'name' => 'Bassoons',
+            'color' => '#123456',
+        ])
+        ->assertSessionHasErrors(['color']);
+
+    expect(InstrumentFamily::count())->toBe(0);
+});
+
 test('members cannot create instrument families', function () {
     $this->actingAs(make_user(UserRole::Member))
         ->post(route('instrumentfamilys.store'), ['name' => 'Bassoons', 'color' => 'teal'])

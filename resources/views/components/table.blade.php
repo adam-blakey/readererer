@@ -77,12 +77,13 @@
 								@elseif (gettype($entity->$attribute) == 'object' and class_exists(get_class($entity->$attribute)))
 									<x-clickable-model :model="$entity->$attribute" />
                                 @elseif (str_contains($attribute, 'color'))
+                                    @php($colorClass = color_name_to_css_class($entity->$attribute))
                                     <div class="row align-items-center">
                                         <div class="col-auto">
-                                            <div class="avatar bg-{{ $entity->$attribute }} text-{{ $entity->$attribute }}-fg"></div>
+                                            <div class="avatar bg-{{ $colorClass ?? 'secondary' }} text-{{ $colorClass ?? 'secondary' }}-fg"></div>
                                         </div>
                                         <div class="col">
-                                            {{ ucfirst($entity->$attribute) }}<br>
+                                            {{ ucfirst($colorClass ?? (string) $entity->$attribute) }}<br>
                                             @if ($hex = color_name_to_hex($entity->$attribute))
                                                 <code>{{ $hex }}</code>
                                             @endif

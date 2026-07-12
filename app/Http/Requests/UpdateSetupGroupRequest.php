@@ -2,7 +2,9 @@
 
 namespace App\Http\Requests;
 
+use App\Enums\ColorName;
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Rules\Enum;
 
 class UpdateSetupGroupRequest extends FormRequest
 {
@@ -24,7 +26,7 @@ class UpdateSetupGroupRequest extends FormRequest
         return [
             'name' => ['required', 'string', 'max:255'],
             'week' => ['nullable', 'integer', 'min:0', 'max:10'],
-            'color' => ['required', 'string', 'max:50'],
+            'color' => ['required', new Enum(ColorName::class)],
             'van_drivers' => ['nullable', 'array'],
             'van_drivers.*' => ['exists:users,id'],
         ];

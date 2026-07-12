@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use App\Attributes\Icon;
+use App\Enums\ColorName;
 use App\Traits\HasPropertyIcons;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -32,6 +33,10 @@ class InstrumentFamily extends Model
         'color',
         'created_at',
         'updated_at',
+    ];
+
+    public array $enums = [
+        'color' => ColorName::class,
     ];
 
     public function casts(): array

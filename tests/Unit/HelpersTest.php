@@ -104,6 +104,11 @@ test('map_database_type_to_html maps database types to html input types', functi
 
 // color_name_to_hex
 
+test('color_name_to_css_class returns known Tabler class names', function () {
+    expect(color_name_to_css_class('blue'))->toBe('blue');
+    expect(color_name_to_css_class('Teal'))->toBe('teal');
+});
+
 test('color_name_to_hex maps known Tabler colour names to hex values', function (string $name, string $hex) {
     expect(color_name_to_hex($name))->toBe($hex);
 })->with([

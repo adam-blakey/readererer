@@ -1,6 +1,8 @@
 <?php
 
+use App\Enums\ColorName;
 use App\Models\Ensemble;
+use App\Models\InstrumentFamily;
 use App\Models\SetupGroup;
 use App\Models\Term;
 use App\Models\User;
@@ -65,4 +67,15 @@ test('an integer column becomes a number field', function () {
     $fields = get_create_fields(new SetupGroup);
 
     expect($fields['week']['type'])->toBe('number');
+});
+
+test('enum-backed fields become select options with enum values', function () {
+    $fields = get_create_fields(new InstrumentFamily);
+
+    expect($fields['color']['type'])->toBe('enum');
+    expect($fields['color']['options'])->toBe(
+        collect(ColorName::cases())
+            ->mapWithKeys(fn (ColorName $color) => [$color->value => $color->label()])
+            ->all()
+    );
 });

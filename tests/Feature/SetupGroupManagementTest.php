@@ -42,6 +42,17 @@ test('creating a setup group requires a name and colour', function () {
     expect(SetupGroup::count())->toBe(0);
 });
 
+test('creating a setup group rejects colours outside the allowed palette', function () {
+    $this->actingAs(make_user(UserRole::Admin))
+        ->post(route('setupgroups.store'), [
+            'name' => 'Group A',
+            'color' => '#123456',
+        ])
+        ->assertSessionHasErrors(['color']);
+
+    expect(SetupGroup::count())->toBe(0);
+});
+
 test('creating a setup group rejects an out-of-range week', function () {
     $this->actingAs(make_user(UserRole::Admin))
         ->post(route('setupgroups.store'), [

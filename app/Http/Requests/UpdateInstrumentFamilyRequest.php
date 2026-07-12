@@ -2,8 +2,10 @@
 
 namespace App\Http\Requests;
 
+use App\Enums\ColorName;
 use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Rules\Enum;
 
 class UpdateInstrumentFamilyRequest extends FormRequest
 {
@@ -24,7 +26,7 @@ class UpdateInstrumentFamilyRequest extends FormRequest
     {
         return [
             'name' => ['required', 'string', 'max:255'],
-            'color' => ['required', 'string', 'max:50'],
+            'color' => ['required', new Enum(ColorName::class)],
         ];
     }
 }

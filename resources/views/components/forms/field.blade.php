@@ -36,12 +36,11 @@
             @case('date')
                 @break
             @case('enum')
-                <!-- TODO: This apparently isn't working correctly -->
-                @php($selected = ($value) ? : $data['default_option'])
+                @php($selected = $value ?: $data['default_option'])
                 <select name="{{ $name }}" class="form-select" style="padding-left: 2.5rem" @required($data['required'])>
-                    @foreach($data['options'] as $value => $case)
-                        <option value="{{ $value }}" {{ $selected == $case ? 'selected' : '' }}>
-                            {{ $case->name }}
+                    @foreach($data['options'] as $optionValue => $optionLabel)
+                        <option value="{{ $optionValue }}" {{ (string) $selected === (string) $optionValue ? 'selected' : '' }}>
+                            {{ $optionLabel }}
                         </option>
                     @endforeach
                 </select>
