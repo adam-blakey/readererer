@@ -31,6 +31,10 @@ class SetupGroup extends Model
         'updated_at',
     ];
 
+    public array $enums = [
+        'color' => \App\Enums\Color::class,
+    ];
+
     public array $sortables = [
         'name',
         'week',
@@ -42,6 +46,7 @@ class SetupGroup extends Model
     public function casts(): array
     {
         return [
+            'color' => \App\Enums\Color::class,
             'created_at' => 'datetime',
             'updated_at' => 'datetime',
         ];

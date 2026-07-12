@@ -16,7 +16,6 @@ use SDamian\Larasort\AutoSortable;
 class InstrumentFamily extends Model
 {
     use AutoSortable;
-    use HasFactory;
     use HasPropertyIcons;
     use SoftDeletes;
 
@@ -25,6 +24,10 @@ class InstrumentFamily extends Model
         'color',
         'created_at',
         'updated_at',
+    ];
+
+    public array $enums = [
+        'color' => \App\Enums\Color::class,
     ];
 
     public array $sortables = [
@@ -37,6 +40,7 @@ class InstrumentFamily extends Model
     public function casts(): array
     {
         return [
+            'color' => \App\Enums\Color::class,
             'created_at' => 'datetime',
             'updated_at' => 'datetime',
         ];
