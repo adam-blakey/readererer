@@ -156,11 +156,15 @@ class UserController extends Controller
             return redirect()->back()->with('status', 'User is already a member of that ensemble.');
         }
 
-        $user->ensembles()->attach($validated['ensemble_id'], [
+        // A seat is only meaningful for ensembles that run a seating plan.
+        $ensemble = Ensemble::findOrFail($validated['ensemble_id']);
+        $seat = $ensemble->seating_plan_enabled
+            ? ['seat_row' => $validated['seat_row'] ?? null, 'seat_column' => $validated['seat_column'] ?? null]
+            : ['seat_row' => null, 'seat_column' => null];
+
+        $user->ensembles()->attach($validated['ensemble_id'], array_merge([
             'instrument_family_id' => $validated['instrument_family_id'],
-            'seat_row' => $validated['seat_row'] ?? null,
-            'seat_column' => $validated['seat_column'] ?? null,
-        ]);
+        ], $seat));
 
         return redirect()->back()->with('status', 'User added to ensemble.');
     }

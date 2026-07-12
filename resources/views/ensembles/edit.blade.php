@@ -16,9 +16,9 @@
 				</div>
 				<div class="col-auto ms-auto">
 					<div class="btn-list">
-						<a aria-label="Button" class="btn btn-primary" href="{{ route('ensembles.edit', ['ensemble' => $ensemble]) }}">
+						<button aria-label="Save" class="btn btn-primary" form="ensemble-edit-form" type="submit">
 							Save
-						</a>
+						</button>
 					</div>
 				</div>
 			</div>
@@ -34,7 +34,7 @@
 							<h2 class="mb-0 card-heading">Edit ensemble details</h2>
 						</div>
 						<div class="card-body">
-							<form action="{{ route('ensembles.update', ['ensemble' => $ensemble]) }}" method="POST">
+							<form action="{{ route('ensembles.update', ['ensemble' => $ensemble]) }}" id="ensemble-edit-form" method="POST">
 								@csrf
 								@method('PUT')
 
@@ -45,8 +45,19 @@
 											<input class="form-control" disabled id="id" name="id" type="text" value="{{ $ensemble->id }}">
 										</div>
 										<div class="mb-3">
-											<label class="form-label">Text</label>
-											<input class="form-control" id="name" name="name" placeholder="Ensemble name" type="text" value="{{ $ensemble->name }}">
+											<label class="form-label" for="name">Name</label>
+											<input class="form-control @error('name') is-invalid @enderror" id="name" name="name" placeholder="Ensemble name" type="text" value="{{ old('name', $ensemble->name) }}">
+											@error('name')
+												<x-forms.input-error :messages="$message" />
+											@enderror
+										</div>
+										<hr />
+										<div class="mb-3">
+											<label class="form-check form-switch">
+												<input class="form-check-input" type="checkbox" name="seating_plan_enabled" value="1" @checked(old('seating_plan_enabled', $ensemble->seating_plan_enabled))>
+												<span class="form-check-label">Seating plan enabled</span>
+											</label>
+											<div class="form-hint">When off, this ensemble has no seating plan and members are added without a seat.</div>
 										</div>
 									</div>
 								</div>

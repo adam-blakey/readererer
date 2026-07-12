@@ -37,11 +37,6 @@ How entities split across the phases:
 - Calculate the number of members in each ensemble and show this in the show and
   index views.
 
-**Terms / term dates**
-- Add setup groups to term dates.
-- Term dates editor has overlapping duplicate and removal buttons.
-- Term dates view (table), with options to send emails.
-
 **Attendance**
 - Attendance register (in progress, marked `[~]`).
 - Show who you're playing with for upcoming concerts and rehearsals.

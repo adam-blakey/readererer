@@ -187,6 +187,70 @@ test('the term show page renders with its dates', function () {
         ->assertOk();
 });
 
+test('the term show page lists its dates in a table', function () {
+    $ensemble = Ensemble::factory()->create();
+    $setupGroup = SetupGroup::create(['name' => 'Group A', 'color' => 'blue']);
+    $term = Term::factory()->create();
+
+    // A concert date with a setup group, and a plain rehearsal.
+    TermDate::forceCreate([
+        'term_id' => $term->id,
+        'start_datetime' => '2026-05-01 19:00:00',
+        'end_datetime' => '2026-05-01 21:00:00',
+        'concert_ensemble_id' => $ensemble->id,
+        'setup_group_id' => $setupGroup->id,
+    ]);
+    TermDate::forceCreate([
+        'term_id' => $term->id,
+        'start_datetime' => '2026-05-08 19:00:00',
+        'end_datetime' => '2026-05-08 21:00:00',
+    ]);
+
+    $this->actingAs(make_user(UserRole::Moderator))
+        ->get(route('terms.show', $term))
+        ->assertOk()
+        ->assertSee('card-table', false)
+        ->assertSee('<th>Date</th>', false)
+        ->assertSee('<th>Time</th>', false)
+        ->assertSee('Setup group')
+        ->assertSee('Van driver')
+        ->assertSee('Concert')
+        ->assertSee('Rehearsal')
+        ->assertSee('19:00–21:00')
+        ->assertSee('Send attendance list now');
+});
+
+test('the term show page collapses all but the latest email into an accordion', function () {
+    $termDate = TermDate::forceCreate([
+        'term_id' => Term::factory()->create()->id,
+        'start_datetime' => '2026-05-01 19:00:00',
+        'end_datetime' => '2026-05-01 21:00:00',
+    ]);
+
+    // An older log and a newer one; email_logs() returns latest first.
+    $older = \App\Models\EmailLog::create([
+        'term_date_id' => $termDate->id,
+        'mailable_class' => \App\Mail\AttendanceListMail::class,
+        'subject' => 'Older attendance list',
+        'status' => \App\Enums\EmailStatus::Sent,
+    ]);
+    $older->forceFill(['created_at' => now()->subDay()])->save();
+    \App\Models\EmailLog::create([
+        'term_date_id' => $termDate->id,
+        'mailable_class' => \App\Mail\AttendanceListMail::class,
+        'subject' => 'Newer attendance list',
+        'status' => \App\Enums\EmailStatus::Sent,
+    ]);
+
+    $this->actingAs(make_user(UserRole::Moderator))
+        ->get(route('terms.show', $termDate->term))
+        ->assertOk()
+        ->assertSee('Newer attendance list')
+        ->assertSee('Older attendance list')
+        ->assertSee('Show 1 earlier')
+        ->assertSee('email-history-'.$termDate->id, false);
+});
+
 test('creating a term persists the setup group and van driver on its dates', function () {
     $setupGroup = SetupGroup::create(['name' => 'Group A', 'color' => 'blue']);
     $driver = make_user(UserRole::Member);
