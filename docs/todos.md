@@ -37,11 +37,6 @@ How entities split across the phases:
 - Calculate the number of members in each ensemble and show this in the show and
   index views.
 
-**Terms / term dates**
-- Add setup groups to term dates.
-- Term dates editor has overlapping duplicate and removal buttons.
-- Term dates view (table), with options to send emails.
-
 **Notifications / emails**
 - Proper notifications system, with an overview and types: setup-group reminder,
   van-driver reminder, and "groups/drivers changed" alerts.

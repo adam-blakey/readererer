@@ -246,7 +246,7 @@ test('the user edit page renders when the user has no setup group or ensembles',
 
 test('a user can be added to an ensemble from the edit page', function () {
     $user = make_user(UserRole::Member);
-    $ensemble = Ensemble::factory()->create();
+    $ensemble = Ensemble::factory()->create(['seating_plan_enabled' => true]);
     $instrumentFamily = make_instrument_family('Brass');
 
     $this->actingAs(make_user(UserRole::Admin))
@@ -263,6 +263,26 @@ test('a user can be added to an ensemble from the edit page', function () {
     expect($pivot->instrument_family_id)->toBe($instrumentFamily->id);
     expect($pivot->seat_row)->toBe('B');
     expect($pivot->seat_column)->toBe('2');
+});
+
+test('adding a user to a seating-plan-disabled ensemble from the edit page ignores the seat', function () {
+    $user = make_user(UserRole::Member);
+    $ensemble = Ensemble::factory()->create(['seating_plan_enabled' => false]);
+    $instrumentFamily = make_instrument_family('Brass');
+
+    $this->actingAs(make_user(UserRole::Admin))
+        ->post(route('users.ensembles.attach', $user), [
+            'ensemble_id' => $ensemble->id,
+            'instrument_family_id' => $instrumentFamily->id,
+            'seat_row' => 'B',
+            'seat_column' => '2',
+        ])
+        ->assertRedirect();
+
+    $pivot = $user->fresh()->ensembles->firstWhere('id', $ensemble->id)?->pivot;
+    expect($pivot->instrument_family_id)->toBe($instrumentFamily->id);
+    expect($pivot->seat_row)->toBeNull();
+    expect($pivot->seat_column)->toBeNull();
 });
 
 test('adding a user to an ensemble they already belong to does not duplicate the membership', function () {
