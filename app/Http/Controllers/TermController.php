@@ -94,8 +94,9 @@ class TermController extends Controller
             ];
 
             if (! empty($term_date['id'])) {
-                // Update existing by ID, scoped to this term
-                $term->term_dates()->whereKey($term_date['id'])->update($payload);
+                // Update existing by ID, scoped to this term. Saved through the
+                // model so TermDateObserver can send "groups/drivers changed" alerts.
+                $term->term_dates()->whereKey($term_date['id'])->first()?->update($payload);
             } else {
                 // Create new
                 $term->term_dates()->create($payload);
@@ -173,8 +174,9 @@ class TermController extends Controller
             ];
 
             if (! empty($term_date['id'])) {
-                // Update existing by ID, scoped to this term
-                $term->term_dates()->whereKey($term_date['id'])->update($payload);
+                // Update existing by ID, scoped to this term. Saved through the
+                // model so TermDateObserver can send "groups/drivers changed" alerts.
+                $term->term_dates()->whereKey($term_date['id'])->first()?->update($payload);
             } else {
                 // Create new
                 $term->term_dates()->create($payload);

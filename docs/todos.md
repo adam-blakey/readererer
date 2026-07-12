@@ -41,12 +41,6 @@ How entities split across the phases:
 - Attendance register (in progress, marked `[~]`).
 - Show who you're playing with for upcoming concerts and rehearsals.
 
-**Notifications / emails**
-- Proper notifications system, with an overview and types: setup-group reminder,
-  van-driver reminder, and "groups/drivers changed" alerts.
-- Emails (general).
-- Useful logging.
-
 **Dashboard**
 - Date formatting (e.g. "next rehearsal" on the dashboard).
 - Show the next date against each setup group.

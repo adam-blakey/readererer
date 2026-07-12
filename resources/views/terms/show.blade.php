@@ -42,7 +42,7 @@
 						<div class="card-header">
 							<h2 class="mb-0 card-heading">All dates</h2>
 						</div>
-                        <x-term-dates-table :term_dates="$term->term_dates" :ensembles="$ensembles" />
+            <x-term-dates-table :term_dates="$term->term_dates" :ensembles="$ensembles" />
 					</div>
 				</div>
 			</div>
