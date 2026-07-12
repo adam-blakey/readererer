@@ -62,6 +62,21 @@
                                             {{ $loop->last ? '' : ',' }}
                                         @endforeach
                                     @endif
+                                @elseif (str_contains($attribute, 'color'))
+                                    @php
+                                        $colorClass = color_name_to_css_class($entity->$attribute);
+                                    @endphp
+                                    <div class="row align-items-center mt-2 mb-2">
+                                        <div class="col-auto">
+                                            <div class="avatar bg-{{ $colorClass ?? 'secondary' }} text-{{ $colorClass ?? 'secondary' }}-fg"></div>
+                                        </div>
+                                        <div class="col">
+                                            <strong>{{ ucfirst($colorClass ?? (string) $entity->$attribute) }}</strong><br>
+                                            @if ($hex = color_name_to_hex($entity->$attribute))
+                                                <code>{{ $hex }}</code>
+                                            @endif
+                                        </div>
+                                    </div>
                                 @else
                                     <strong>{{ $entity->$attribute }}</strong>
                                 @endif

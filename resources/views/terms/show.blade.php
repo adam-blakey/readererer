@@ -113,12 +113,6 @@
                                                                 </button>
                                                             </form>
                                                         @endcan
-                                                        @foreach($ensembles as $ensemble)
-                                                            <x-a class="btn bg-orange text-orange-fg" href="{{ route('seating-plan.download', ['ensemble' => $ensemble, 'termDate' => $td]) }}" target="_blank">
-                                                                <x-icon name="armchair" />
-                                                                View seating plan for {{ $ensemble->name }}
-                                                            </x-a>
-                                                        @endforeach
                                                         @can('sendNotifications', $td)
                                                             @if($td->setup_group)
                                                                 <form method="POST" action="{{ route('term-dates.send-setup-reminder', $td) }}" class="d-inline">

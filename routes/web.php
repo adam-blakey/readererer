@@ -4,6 +4,7 @@ use App\Http\Controllers\AttendanceController;
 use App\Http\Controllers\ComposerController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\EnsembleController;
+use App\Http\Controllers\InstrumentFamilyController;
 use App\Http\Controllers\PieceController;
 use App\Http\Controllers\SeatingPlanController;
 use App\Http\Controllers\SetlistController;
@@ -47,6 +48,8 @@ Route::post('/ensembles/{ensemble}/remove_user/{user}', [EnsembleController::cla
 Route::get('/ensembles/{ensemble}/seating-plan', [SeatingPlanController::class, 'show'])->name('ensembles.seating-plan.show')->middleware('auth');
 Route::post('/ensembles/{ensemble}/seating-plan', [SeatingPlanController::class, 'update'])->name('ensembles.seating-plan.update')->middleware('auth');
 Route::get('/ensembles/{ensemble}/seating-plan/{termDate:id}/download', [SeatingPlanController::class, 'download'])->name('seating-plan.download')->withoutScopedBindings();
+Route::resource('instrument-families', InstrumentFamilyController::class)->names('instrumentfamilys')->parameter('instrument-families', 'instrumentFamily')->middleware('auth');
+Route::patch('/instrument-families/{instrumentFamily}/restore', [InstrumentFamilyController::class, 'restore'])->name('instrumentfamilys.restore')->middleware('auth');
 Route::resource('pieces', PieceController::class)->middleware('auth');
 Route::patch('/pieces/{piece}/restore', [PieceController::class, 'restore'])->name('pieces.restore')->middleware('auth');
 Route::resource('setlists', SetlistController::class)->middleware('auth');
