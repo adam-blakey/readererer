@@ -20,6 +20,11 @@ export default defineConfig({
                 {
                     src: 'node_modules/@tabler/icons/icons/outline/*',
                     dest: 'icons',
+                    // vite-plugin-static-copy v4 preserves the matched file's
+                    // full directory path under dest by default; stripBase
+                    // flattens it back to icons/<name>.svg (the path the
+                    // <x-icon> component reads).
+                    rename: { stripBase: true },
                 },
             ],
         }),
