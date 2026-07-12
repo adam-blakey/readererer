@@ -18,19 +18,19 @@
 
 Readererer is a web app for running the admin side of a music ensemble. It keeps
 track of who plays what, when the group rehearses and performs, and — crucially —
-**who is turning up**. Members reply to a term's attendance poll, and conductors and
-committee members get a clear register of attending / not attending / not-yet-replied
+**who is turning up**. Members fill in a term's attendance register, and conductors and
+committee members get a clear view of attending / not attending / not-yet-replied
 for every rehearsal and concert. Alongside attendance it manages ensembles, seating
 plans, setup-group and van-driver rosters, and a library of setlists, pieces and parts.
 
-## The attendance poll
+## The attendance register
 
 The heart of the app. Each term shows every member against every rehearsal and concert
 date, with a three-state control per date — **attending** (green), **not attending**
 (red) or **not yet replied** (grey `?`). Members can update their own answers; totals
 always use the latest reply per member.
 
-![Attendance poll for an ensemble across a term](docs/images/attendance-poll.png)
+![Attendance register for an ensemble across a term](docs/images/attendance-poll.png)
 
 ## Features
 
@@ -40,7 +40,7 @@ always use the latest reply per member.
 - **Ensembles** — a member can belong to several; each carries its own roster and seating.
 - **Terms & term dates** — a date with no ensemble is a rehearsal, otherwise it is that
   ensemble's concert. Terms cache their latest date for quick display.
-- **Attendance polls & register** — three-state replies, with attending / not-attending /
+- **Attendance registers** — three-state replies, with attending / not-attending /
   unknown totals per date (latest reply per member wins). Behaviour is tunable via config
   (`readererer_assume_attending`, `readererer_allow_change_to_unknown`,
   `readererer_repeating_headings`).
@@ -55,7 +55,7 @@ always use the latest reply per member.
 **Throughout**
 
 - **Role-based access** — `Guest`, `Ensemble` (a shared login that can only fill in
-  polls), `Member`, `Moderator` and `Admin`.
+  attendance registers), `Member`, `Moderator` and `Admin`.
 - **Convention-driven CRUD** — most entities share generic index / show / form views that
   are built by reflecting over the model, so adding a field to a migration and `$fillable`
   is usually enough to surface it in the UI.
@@ -128,7 +128,7 @@ dependencies, compiles assets, migrates (optionally seeds) and brings the app ba
 ## Project status
 
 Active development. Work is organised into two phases — the **attendance diary** (members,
-ensembles, terms, polls, seating, rosters, notifications) and the **digital sheet music**
+ensembles, terms, attendance registers, seating, rosters, notifications) and the **digital sheet music**
 library (composers, pieces, parts, setlists). See [`docs/todos.md`](docs/todos.md) for the
 outstanding work in each phase.
 

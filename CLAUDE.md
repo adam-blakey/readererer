@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## What this is
 
-Readererer is a Laravel 13 (PHP 8.4) app for managing a music ensemble/orchestra: members, ensembles, terms and rehearsal/concert dates, attendance polls, setlists/pieces/composers, seating plans, and setup-group/van-driver rosters. Frontend is Blade + Tabler UI + Tailwind, bundled with Vite. Database is SQLite (`database/database.sqlite`).
+Readererer is a Laravel 13 (PHP 8.4) app for managing a music ensemble/orchestra: members, ensembles, terms and rehearsal/concert dates, attendance registers, setlists/pieces/composers, seating plans, and setup-group/van-driver rosters. Frontend is Blade + Tabler UI + Tailwind, bundled with Vite. Database is SQLite (`database/database.sqlite`).
 
 ## Commands
 
@@ -53,7 +53,7 @@ Most entities (Composer, Piece, Setlist, Term, etc.) are rendered by shared view
 When adding a field to an entity, update the migration **and** the model's `$fillable` (and `$casts`/`$visible`/`$sortables` as needed); the generic form picks it up automatically. There is a `// TODO: enum` gap — enum columns are not yet mapped to form inputs.
 
 ### Authorization
-Role-based via the `UserRole` int enum (`Guest=0, Ensemble=1, Member=2, Moderator=3, Admin=4`) on `users.role`. Policies in `app/Policies/` compare `$user->role->value >= UserRole::X->value`. Controllers call `$this->authorizeResource(Model::class)` in their constructor, and routes attach `->can(...)` / `->middleware('auth')` (see `routes/web.php`). The `Ensemble` role is a shared generic login that can only update attendance polls; `view` on an ensemble also allows non-admins who belong to that ensemble (`$user->ensembles->contains(...)`).
+Role-based via the `UserRole` int enum (`Guest=0, Ensemble=1, Member=2, Moderator=3, Admin=4`) on `users.role`. Policies in `app/Policies/` compare `$user->role->value >= UserRole::X->value`. Controllers call `$this->authorizeResource(Model::class)` in their constructor, and routes attach `->can(...)` / `->middleware('auth')` (see `routes/web.php`). The `Ensemble` role is a shared generic login that can only update attendance registers; `view` on an ensemble also allows non-admins who belong to that ensemble (`$user->ensembles->contains(...)`).
 
 ### Soft deletes everywhere
 Models use `SoftDeletes`. Index controllers honour a `with_trashed` query param, and each resource has a `restore` route (`PATCH /{resource}/{id}/restore`) plus `purgeTrashed`.
