@@ -1,11 +1,14 @@
 <?php
 
+use App\Enums\AttendanceStatus;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Support\Facades\Schema;
 
 function get_route_name_from_model($model, $route = 'show')
 {
     $class_name = get_class_name_from_model($model);
-    $route_name = $class_name . 's.' . $route;
+    $route_name = $class_name.'s.'.$route;
 
     return $route_name;
 }
@@ -53,16 +56,16 @@ function member_status_totals($members, $term_date): array
 
     foreach ($members as $member) {
         $attendance = $member->attendances->where('term_date_id', $term_date->id)->sortByDesc('created_at')->first();
-        $attendance_value = $attendance->status ?? App\Enums\AttendanceStatus::Unknown;
+        $attendance_value = $attendance->status ?? AttendanceStatus::Unknown;
 
         switch ($attendance_value) {
-            case App\Enums\AttendanceStatus::Attending:
+            case AttendanceStatus::Attending:
                 $number_attending++;
                 break;
-            case App\Enums\AttendanceStatus::NotAttending:
+            case AttendanceStatus::NotAttending:
                 $number_not_attending++;
                 break;
-            case App\Enums\AttendanceStatus::Unknown:
+            case AttendanceStatus::Unknown:
                 $number_unknown++;
                 break;
         }
@@ -76,7 +79,7 @@ function member_status_totals($members, $term_date): array
         return [
             'attending' => $number_attending,
             'not_attending' => $number_not_attending,
-            'unknown' => $number_unknown
+            'unknown' => $number_unknown,
         ];
     }
 }
@@ -91,10 +94,10 @@ function get_create_fields(object $dummy): array
 
     foreach ($fillable as $fillable_entry) {
         // TODO: enum
-        if (method_exists($dummy, $fillable_entry) && (($dummy->$fillable_entry() instanceof Illuminate\Database\Eloquent\Relations\BelongsToMany) || ($dummy->$fillable_entry() instanceof Illuminate\Database\Eloquent\Relations\BelongsTo))) {
+        if (method_exists($dummy, $fillable_entry) && (($dummy->$fillable_entry() instanceof BelongsToMany) || ($dummy->$fillable_entry() instanceof BelongsTo))) {
             $belongsToRelation = $dummy->$fillable_entry();
             $relatedClass = $belongsToRelation->getRelated();
-            $isBelongsToMany = ($dummy->$fillable_entry() instanceof Illuminate\Database\Eloquent\Relations\BelongsToMany);
+            $isBelongsToMany = ($dummy->$fillable_entry() instanceof BelongsToMany);
 
             $name = $fillable_entry;
             $type = 'class';
@@ -103,10 +106,9 @@ function get_create_fields(object $dummy): array
             $icon = call_or_default($dummy, 'getIconForAttribute', $name, 'pencil');
             $options = $relatedClass::orderBy('name')
                 ->get();
-        }
-        else {
+        } else {
             $column = $columns->firstWhere('name', $fillable_entry) ?? null;
-            if (!$column) {
+            if (! $column) {
                 continue;
             }
 
@@ -122,13 +124,13 @@ function get_create_fields(object $dummy): array
         $fields[$name] = [
             'label' => ucfirst(str_replace('_', ' ', $name)),
             'type' => $type,
-            'required' => !$nullable,
+            'required' => ! $nullable,
             'icon' => $icon,
             'value' => $dummy->$name,
             'options' => $options,
             'default_option' => null,
             'select_multiple' => $select_multiple,
-            'width' => 12
+            'width' => 12,
         ];
 
         // TODO: populate options and default_option for enum
@@ -137,7 +139,8 @@ function get_create_fields(object $dummy): array
     return $fields;
 }
 
-function call_or_default(Object $object, string $method, mixed $argument, mixed $defaultValue = null): mixed {
+function call_or_default(object $object, string $method, mixed $argument, mixed $defaultValue = null): mixed
+{
     if (method_exists($object, $method) && is_callable([$object, $method])) {
         return $object->$method($argument) ?? $defaultValue;
     }
@@ -145,31 +148,32 @@ function call_or_default(Object $object, string $method, mixed $argument, mixed 
     return $defaultValue;
 }
 
-function map_database_type_to_html(string $name, string $db_type, array $casts): string {
+function map_database_type_to_html(string $name, string $db_type, array $casts): string
+{
     if (in_array($name, $casts)) {
         return $casts[$name];
     }
 
     if ($name == 'image') {
         return 'image';
-    }
-    elseif ($name == 'email') {
+    } elseif ($name == 'email') {
         return 'email';
     }
 
-    $html_type = match(strtolower($db_type)) {
-        'text', 'longtext', 'mediumtext'                    => 'textarea',
+    $html_type = match (strtolower($db_type)) {
+        'text', 'longtext', 'mediumtext' => 'textarea',
         'integer', 'bigint', 'smallint', 'decimal', 'float' => 'number',
-        'boolean', 'tinyint'                                => 'boolean',
-        'date', 'datetime', 'timestamp'                     => 'date',
-        default                                             => 'text'
+        'boolean', 'tinyint' => 'boolean',
+        'date', 'datetime', 'timestamp' => 'date',
+        default => 'text'
         // TODO: deal with enums nicely
     };
 
     return $html_type;
 }
 
-function color_name_to_hex(string $name): string {
+function color_name_to_hex(string $name): ?string
+{
     switch (strtolower($name)) {
         case 'blue': return '#066fd1';
         case 'azure': return '#4299e1';
@@ -184,4 +188,6 @@ function color_name_to_hex(string $name): string {
         case 'teal': return '#0ca678';
         case 'cyan': return '#17a2b8';
     }
+
+    return null;
 }

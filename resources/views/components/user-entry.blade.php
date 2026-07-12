@@ -1,4 +1,4 @@
-@props(['user', 'add_route' => true, 'secondary_info' => null, 'show_setup_group' => false, 'remove_from_ensemble' => null, 'draggable' => false, 'show_seating_position' => false])
+@props(['user', 'add_route' => true, 'secondary_info' => null, 'show_setup_group' => false, 'remove_from_ensemble' => null, 'draggable' => false, 'show_seating_position' => false, 'accent_color' => null])
 
 @php
     if ($secondary_info == null) {
@@ -15,10 +15,16 @@
                 <span class="seating-position-changed" style="display: none;">*</span>
             @endif
         </div>
-        <div class="mt-1 small text-muted">{{ $secondary_info }}</div>
+        <div class="mt-1 small text-muted">
+            @if ($accent_color)
+                <span class="badge badge-dot bg-{{ $accent_color }} me-1"></span>
+            @endif
+            {{ $secondary_info }}
+        </div>
     </div>
     @if ($show_seating_position)
         <div class="ms-auto align-self-center">
+                <span class="badge bg-secondary-lt text-decoration-line-through seating-position-original" style="display: none;"></span>
                 <span class="badge bg-blue-lt seating-position"></span>
         </div>
     @endif

@@ -83,7 +83,9 @@
                                         </div>
                                         <div class="col">
                                             {{ ucfirst($entity->$attribute) }}<br>
-                                            <code>#rrggbb</code> <!-- TODO: Get actual hex code -->
+                                            @if ($hex = color_name_to_hex($entity->$attribute))
+                                                <code>{{ $hex }}</code>
+                                            @endif
                                         </div>
                                     </div>
 
