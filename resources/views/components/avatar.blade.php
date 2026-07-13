@@ -13,14 +13,14 @@
 @if ($user->image)
 	<span class="{{ $classes }}" style="background-image: url({{ $user->image }})">
         @if ($show_setup_group && $user->setup_group != null)
-            <x-setup-group-badge :setup_group="$user->setup_group" />
+            <x-setup-group-badge :setup_group="$user->setup_group" size="sm" />
         @endif
     </span>
 @else
 	<span class="{{ $classes }}">
         {{ $user->initials }}
         @if ($show_setup_group && $user->setup_group != null)
-            <x-setup-group-badge :setup_group="$user->setup_group" />
+            <x-setup-group-badge :setup_group="$user->setup_group" size="sm" />
         @endif
     </span>
 @endif
