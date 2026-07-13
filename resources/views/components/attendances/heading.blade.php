@@ -16,7 +16,9 @@
 			{{ $term_date->start_datetime->format('G:i') }}<br />
 			{{ $term_date->end_datetime->format('G:i') }}<br />
             @if ($term_date->setup_group != null)
-                <x-setup-group-badge :setup_group="$term_date->setup_group" />
+                <div class="mt-2">
+                    <x-setup-group-badge :setup_group="$term_date->setup_group" />
+                </div>
             @endif
 		</th>
 	@endforeach
