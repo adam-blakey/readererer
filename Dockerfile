@@ -87,8 +87,23 @@ RUN printf '{"tag":"%s","hash":"%s","date":"%s"}\n' \
         "$APP_VERSION_TAG" "$APP_VERSION_HASH" "$APP_VERSION_DATE" \
         > version.json
 
-# Laravel needs these writable at runtime (package manifest, cache, logs, sessions).
-RUN chown -R www-data:www-data storage bootstrap/cache \
-    && chmod -R ug+rwX storage bootstrap/cache
+# Laravel needs these writable at runtime (package manifest, cache, logs,
+# sessions). database/ is included because the default sqlite connection
+# stores its database (and journal files) there.
+RUN chown -R www-data:www-data storage bootstrap/cache database \
+    && chmod -R ug+rwX storage bootstrap/cache database
+
+# Log to the container's stderr by default so application errors show up in
+# `docker logs`; override LOG_CHANNEL to change.
+ENV LOG_CHANNEL=stderr
+
+# The entrypoint generates an APP_KEY when none is supplied, creates the
+# sqlite database if needed, and runs migrations before starting Apache —
+# without it every request 500s on a bare `docker run`.
+COPY docker/entrypoint.sh /usr/local/bin/readererer-entrypoint
+RUN chmod +x /usr/local/bin/readererer-entrypoint
 
 EXPOSE 80
+
+ENTRYPOINT ["readererer-entrypoint"]
+CMD ["apache2-foreground"]
