@@ -38,12 +38,48 @@ pushed.
 Multi-stage `Dockerfile`:
 
 1. `node:24-alpine` builds the Vite assets (`npm ci && npm run build`).
-2. `composer:2` installs PHP dependencies (`--no-dev`).
-3. `php:8.2-apache` serves Laravel's `public/` directory.
+2. `php:8.4-cli-bookworm` + Composer installs PHP dependencies (`--no-dev`).
+3. `php:8.4-apache-bookworm` serves Laravel's `public/` directory.
 
 Runtime configuration (`APP_KEY`, `DB_*`, etc.) is supplied by the server as
 environment variables — **nothing sensitive is baked into the image** (`.env` and
 the local SQLite database are excluded via `.dockerignore`).
+
+### Running the image
+
+The entrypoint (`docker/entrypoint.sh`) makes a bare `docker run` work out of
+the box: it generates an ephemeral `APP_KEY` when none is supplied, creates
+the SQLite database file if it's missing, and runs `php artisan migrate
+--force` before starting Apache.
+
+```bash
+# Zero-config dev/QA run (ephemeral key + SQLite inside the container):
+docker run --rm -p 8080:80 ghcr.io/adam-blakey/readererer:dev
+
+# First run with sample data:
+docker run --rm -p 8080:80 -e APP_SEED=true ghcr.io/adam-blakey/readererer:dev
+
+# Durable setup: fixed key, database persisted on a volume:
+docker run -d -p 8080:80 \
+  -e APP_KEY="base64:..." \
+  -e DB_DATABASE=/data/database.sqlite \
+  -v readererer-data:/data \
+  ghcr.io/adam-blakey/readererer:qa
+```
+
+Notes:
+
+- Without `APP_KEY`, sessions and encrypted data do not survive a container
+  restart. Generate a key with `php artisan key:generate --show` and pass it
+  in for anything longer-lived than a throwaway run.
+- `APP_SEED=true` runs the database seeders after migrating. The seeders are
+  not idempotent — only set it on the first start against an empty database.
+- Any other Laravel setting can be passed as an environment variable
+  (`DB_CONNECTION=mysql`, `DB_HOST=...`, etc.). Migrations are retried for
+  ~30 seconds at startup so a database container in the same compose stack
+  has time to come up.
+- Logs go to the container's stderr by default (`LOG_CHANNEL=stderr`), so
+  application errors appear in `docker logs`.
 
 ### Footer version number
 
