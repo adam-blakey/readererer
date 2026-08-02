@@ -85,7 +85,7 @@ ENV LOG_CHANNEL=stderr
 COPY docker/entrypoint.sh /usr/local/bin/readererer-entrypoint
 RUN chmod +x /usr/local/bin/readererer-entrypoint
 
-ENTRYPOINT ["readererer-entrypoint"]
+ENTRYPOINT ["/usr/local/bin/readererer-entrypoint"]
 CMD ["apache2-foreground"]
 
 EXPOSE 80
