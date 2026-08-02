@@ -1,13 +1,14 @@
 #!/bin/sh
 set -e
 
-if [ -z "${APP_KEY}" ]; then
-    echo "readererer: APP_KEY is not set; pass one in (php artisan key:generate --show)." >&2
-    exit 1
+if [ -z "${APP_KEY}" ] && ! grep -qs '^APP_KEY=.' .env; then
+    echo "readererer: APP_KEY is not set; requests will fail until one is provided (php artisan key:generate --show)." >&2
 fi
 
+connection="${DB_CONNECTION:-$(sed -n 's/^DB_CONNECTION=//p' .env 2>/dev/null | tail -1)}"
+
 # SQLite will not create its own file, and it writes journals beside it.
-if [ "${DB_CONNECTION:-sqlite}" = "sqlite" ]; then
+if [ "${connection:-sqlite}" = "sqlite" ]; then
     database="${DB_DATABASE:-/var/www/html/database/database.sqlite}"
 
     if [ ! -f "${database}" ]; then
@@ -17,11 +18,14 @@ if [ "${DB_CONNECTION:-sqlite}" = "sqlite" ]; then
     chown www-data:www-data "$(dirname "${database}")" "${database}"
 fi
 
+# Nothing here may stop Apache starting: a database that is unreachable or a
+# migration that fails should surface per-request, not kill the container.
 if [ "${SKIP_MIGRATIONS:-false}" != "true" ]; then
-    php artisan migrate --force --no-interaction
+    php artisan migrate --force --no-interaction \
+        || echo "readererer: migrations failed; starting anyway." >&2
 fi
 
 # artisan ran as root, so hand back anything it wrote.
-chown -R www-data:www-data storage bootstrap/cache
+chown -R www-data:www-data storage bootstrap/cache || true
 
 exec docker-php-entrypoint "$@"
