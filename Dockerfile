@@ -55,6 +55,12 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
         exif \
     && rm -rf /var/lib/apt/lists/*
 
+# Apache has no hostname to resolve inside a container, so without this it
+# logs AH00558 ("could not reliably determine the server's fully qualified
+# domain name") on every start. The app builds its own URLs from APP_URL.
+RUN echo 'ServerName localhost' > /etc/apache2/conf-available/servername.conf \
+    && a2enconf servername
+
 # Serve Laravel's public/ directory with .htaccess (mod_rewrite) enabled so the
 # front controller handles routing.
 RUN a2enmod rewrite \
@@ -87,8 +93,22 @@ RUN printf '{"tag":"%s","hash":"%s","date":"%s"}\n' \
         "$APP_VERSION_TAG" "$APP_VERSION_HASH" "$APP_VERSION_DATE" \
         > version.json
 
-# Laravel needs these writable at runtime (package manifest, cache, logs, sessions).
-RUN chown -R www-data:www-data storage bootstrap/cache \
-    && chmod -R ug+rwX storage bootstrap/cache
+# Laravel needs these writable at runtime (package manifest, cache, logs,
+# sessions), and the database directory so SQLite can create its journal.
+RUN chown -R www-data:www-data storage bootstrap/cache database \
+    && chmod -R ug+rwX storage bootstrap/cache database
+
+# Log to the container's stderr rather than storage/logs/laravel.log, so
+# application errors show up in `docker logs` instead of being buried in a
+# file inside the container.
+ENV LOG_CHANNEL=stderr
+
+# Creates the database and runs migrations before starting Apache; see the
+# script for the configuration it expects.
+COPY docker/entrypoint.sh /usr/local/bin/readererer-entrypoint
+RUN chmod +x /usr/local/bin/readererer-entrypoint
+
+ENTRYPOINT ["readererer-entrypoint"]
+CMD ["apache2-foreground"]
 
 EXPOSE 80
