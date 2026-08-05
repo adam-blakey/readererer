@@ -90,6 +90,39 @@ test('the ensembles index can include soft-deleted records with with_trashed', f
         ->toBe(collect([$kept->id, $deleted->id])->sort()->values()->all());
 });
 
+test('the ensembles index shows a member count column', function () {
+    $ensemble = Ensemble::factory()->create(['name' => 'Wind Band']);
+    join_ensemble(make_user(UserRole::Member), $ensemble);
+    join_ensemble(make_user(UserRole::Member), $ensemble);
+    join_ensemble(make_user(UserRole::Ensemble), $ensemble);
+
+    $response = $this->actingAs(make_user(UserRole::Admin))->get(route('ensembles.index'));
+
+    $response->assertOk()->assertSee('Members');
+    expect($response->viewData('entities')->first()->number_of_members)->toBe(2);
+});
+
+test('the ensemble show page displays the member count', function () {
+    $ensemble = Ensemble::factory()->create();
+    join_ensemble(make_user(UserRole::Member), $ensemble);
+    join_ensemble(make_user(UserRole::Member), $ensemble);
+
+    $this->actingAs(make_user(UserRole::Admin))
+        ->get(route('ensembles.show', $ensemble))
+        ->assertOk()
+        ->assertSee('2 members');
+});
+
+test('the ensemble show page uses a singular member label for a single member', function () {
+    $ensemble = Ensemble::factory()->create();
+    join_ensemble(make_user(UserRole::Member), $ensemble);
+
+    $this->actingAs(make_user(UserRole::Admin))
+        ->get(route('ensembles.show', $ensemble))
+        ->assertOk()
+        ->assertSee('1 member');
+});
+
 test('a user can be added to an ensemble with an instrument family and seat', function () {
     $ensemble = Ensemble::factory()->create(['seating_plan_enabled' => true]);
     $member = make_user(UserRole::Member);
