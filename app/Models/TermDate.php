@@ -107,14 +107,20 @@ class TermDate extends Model
     /**
      * The ensembles playing at this date: just the concert ensemble for a
      * concert, or every ensemble for a shared rehearsal.
+     *
+     * Pass $ensembles to pick from an already-loaded set of ensembles rather
+     * than query for them again — handy when several dates are being listed
+     * at once.
      */
-    public function playing_ensembles(): Collection
+    public function playing_ensembles(?Collection $ensembles = null): Collection
     {
+        $ensembles ??= Ensemble::orderBy('name')->get();
+
         if ($this->isConcert()) {
-            return collect(array_filter([$this->concert_ensemble]));
+            return $ensembles->where('id', $this->concert_ensemble_id)->values();
         }
 
-        return Ensemble::orderBy('name')->get();
+        return $ensembles->values();
     }
 
     /**

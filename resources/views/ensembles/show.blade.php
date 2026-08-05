@@ -62,11 +62,11 @@
                         </div>
                         <div class="card-body">
                             <div class="card-title">Next rehearsal</div>
-                            <x-rehearsal-entry :term_date="$nextRehearsal" :show_players_link="true" />
+                            <x-rehearsal-entry :term_date="$nextRehearsal" />
                         </div>
                         <div class="card-body">
                             <div class="card-title">Next concert</div>
-                            <x-rehearsal-entry :term_date="$nextConcert" :show_players_link="true" />
+                            <x-rehearsal-entry :term_date="$nextConcert" />
                         </div>
                     </div>
 				</div>

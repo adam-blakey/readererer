@@ -38,9 +38,6 @@ Route::post('/attendance/poll/{ensemble:slug}/{term:slug}', [AttendanceControlle
 Route::get('/playing', [PlayingController::class, 'index'])
     ->name('playing.index')
     ->can('view.playing');
-Route::get('/playing/{termDate}', [PlayingController::class, 'show'])
-    ->name('playing.show')
-    ->can('viewPlayers', 'termDate');
 
 Route::resource('composers', ComposerController::class)->middleware('auth');
 Route::patch('/composers/{composer}/restore', [ComposerController::class, 'restore'])->name('composers.restore')->middleware('auth');

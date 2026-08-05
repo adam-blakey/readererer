@@ -58,32 +58,6 @@ class TermDatePolicy
     }
 
     /**
-     * Determine whether the user can see who else is playing at the model.
-     *
-     * Moderators and above may look at any date. Everybody else has to be
-     * playing at it themselves: a member of the concert's ensemble for a
-     * concert, or a member of any ensemble for a shared rehearsal.
-     */
-    public function viewPlayers(User $user, TermDate $termDate)
-    {
-        if ($user->role->value >= UserRole::Moderator->value) {
-            return Response::allow();
-        }
-
-        if ($user->role->value < UserRole::Member->value) {
-            return Response::deny();
-        }
-
-        if ($termDate->isConcert()) {
-            return $user->ensembles->contains('id', $termDate->concert_ensemble_id)
-                ? Response::allow()
-                : Response::deny();
-        }
-
-        return $user->ensembles->isNotEmpty() ? Response::allow() : Response::deny();
-    }
-
-    /**
      * Determine whether the user can send notification emails for the model.
      */
     public function sendNotifications(User $user, TermDate $termDate)
