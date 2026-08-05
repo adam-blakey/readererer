@@ -1,9 +1,29 @@
 #!/bin/sh
 set -e
 
-if [ -z "${APP_KEY}" ] && ! grep -qs '^APP_KEY=.' .env; then
-    echo "readererer: APP_KEY is not set; requests will fail until one is provided (php artisan key:generate --show)." >&2
-fi
+key_bytes() {
+    case "$1" in
+        base64:*) printf '%s' "${1#base64:}" | base64 -d 2>/dev/null | wc -c ;;
+        *)        printf '%s' "$1" | wc -c ;;
+    esac
+}
+
+app_key="${APP_KEY:-$(sed -n 's/^APP_KEY=//p' .env 2>/dev/null | tail -1 | tr -d '"')}"
+
+# Laravel needs 16 or 32 bytes once any base64: prefix is decoded. A key that
+# is merely non-empty is not enough: an unexpanded "$(...)" from a compose file
+# reaches this point as a literal string and fails on every request.
+case "$(key_bytes "${app_key}")" in
+    16|32)
+        ;;
+    0)
+        echo "readererer: APP_KEY is not set; requests will fail until one is provided." >&2
+        ;;
+    *)
+        echo "readererer: APP_KEY is set but is not a usable key; requests will fail." >&2
+        echo "readererer: run 'php artisan key:generate --show' and pass the base64: value it prints." >&2
+        ;;
+esac
 
 connection="${DB_CONNECTION:-$(sed -n 's/^DB_CONNECTION=//p' .env 2>/dev/null | tail -1)}"
 

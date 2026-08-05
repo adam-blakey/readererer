@@ -133,8 +133,10 @@ docker run -d --name readererer-dev -p 8080:80 \
   ghcr.io/adam-blakey/readererer:dev
 ```
 
-`APP_KEY` is required — generate one with `php artisan key:generate --show`. The
-container creates the SQLite database and runs migrations on start; mount a volume
+`APP_KEY` is required. Run `php artisan key:generate --show` first and paste the
+`base64:` value it prints — pass the literal key, not a `$(...)` substitution, which
+is not expanded inside a compose file or an env-file and reaches the app as a string.
+The container creates the SQLite database and runs migrations on start; mount a volume
 over `/var/www/html/database` to keep it across container replacements, or point
 `DB_CONNECTION`/`DB_HOST`/`DB_DATABASE` at MySQL instead. Set `SKIP_MIGRATIONS=true`
 to leave the schema alone at boot. Application logs go to the container's stderr,
