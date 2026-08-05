@@ -2,6 +2,7 @@
 
 use App\Enums\UserRole;
 use App\Models\Ensemble;
+use Illuminate\Support\Facades\DB;
 
 test('the users relation excludes generic ensemble logins', function () {
     $ensemble = Ensemble::factory()->create();
@@ -30,6 +31,34 @@ test('admins are related through the ensemble_admins table and ordered by first 
     $ensemble->admins()->attach([$walter->id, $brian->id]);
 
     expect($ensemble->admins->pluck('first_name')->all())->toBe(['Brian', 'Walter']);
+});
+
+test('the member count excludes generic ensemble logins', function () {
+    $ensemble = Ensemble::factory()->create();
+    join_ensemble(make_user(UserRole::Member), $ensemble);
+    join_ensemble(make_user(UserRole::Moderator), $ensemble);
+    join_ensemble(make_user(UserRole::Ensemble), $ensemble);
+
+    expect($ensemble->number_of_members)->toBe(2);
+});
+
+test('the member count is zero for an ensemble with no members', function () {
+    expect(Ensemble::factory()->create()->number_of_members)->toBe(0);
+});
+
+test('the member count uses an eager loaded aggregate instead of an extra query', function () {
+    $ensemble = Ensemble::factory()->create();
+    join_ensemble(make_user(UserRole::Member), $ensemble);
+
+    $loaded = Ensemble::withCount('users')->findOrFail($ensemble->id);
+
+    DB::flushQueryLog();
+    DB::enableQueryLog();
+    $count = $loaded->number_of_members;
+    DB::disableQueryLog();
+
+    expect($count)->toBe(1);
+    expect(DB::getQueryLog())->toBeEmpty();
 });
 
 test('ensembles are soft deleted and can be restored', function () {
