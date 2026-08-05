@@ -21,8 +21,14 @@ class Ensemble extends Model
         'slug',
         'show',
         'admins',
+        'number_of_members',
         'created_at',
         'updated_at',
+    ];
+
+    // Friendlier, shorter label for the computed member-count column.
+    public array $column_labels = [
+        'number_of_members' => 'Members',
     ];
 
     public array $sortables = [
@@ -52,6 +58,25 @@ class Ensemble extends Model
         // return $this->hasManyThrough(User::class, EnsembleAdmin::class, 'ensemble_id', 'ensemble_admin_id');
 
         return $this->belongsToMany(User::class, 'ensemble_admins', 'ensemble_id', 'admin_id')->orderBy('first_name');
+    }
+
+    /**
+     * Number of members in the ensemble (excluding the generic ensemble login).
+     *
+     * Prefers an eager-loaded aggregate (`withCount('users')`) or an already
+     * loaded relation so index listings don't fire a query per row.
+     */
+    public function getNumberOfMembersAttribute(): int
+    {
+        if (array_key_exists('users_count', $this->attributes)) {
+            return (int) $this->attributes['users_count'];
+        }
+
+        if ($this->relationLoaded('users')) {
+            return $this->users->count();
+        }
+
+        return $this->users()->count();
     }
 
     public function users(): BelongsToMany

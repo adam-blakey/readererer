@@ -30,7 +30,7 @@ class EnsembleController extends Controller
         } else {
             $query = $query->whereNull('deleted_at');
         }
-        $ensembles = $query->with(['admins'])->autosort()->paginate(10)->appends(request()->only('with_trashed'));
+        $ensembles = $query->with(['admins'])->withCount('users')->autosort()->paginate(10)->appends(request()->only('with_trashed'));
 
         return view('auto-entities.index', [
             'entities' => $ensembles,
