@@ -13,3 +13,4 @@ Envoy.blade.php
 README.md
 tests
 version.json
+bootstrap/cache/*.php
