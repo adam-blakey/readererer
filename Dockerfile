@@ -24,6 +24,8 @@ RUN composer install \
         --optimize-autoloader \
         --no-scripts
 
+RUN php artisan package:discover --ansi
+
 # Pinned to bookworm because the unqualified php:8.4-apache tag floats to trixie.
 FROM php:8.4-apache-bookworm AS runtime
 

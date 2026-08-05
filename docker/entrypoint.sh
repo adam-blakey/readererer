@@ -46,6 +46,14 @@ if [ "${SKIP_MIGRATIONS:-false}" != "true" ]; then
         || echo "readererer: migrations failed; starting anyway." >&2
 fi
 
+# Dev: seeds every time.
+# QA: seeds on flag.
+# Prod: seeds via its own --seed_database.
+if [ "${APP_SEED_DATABASE:-0}" = "1" ]; then
+    php artisan db:seed --force \
+        || echo "readererer: seeding failed; starting anyway." >&2
+fi
+
 # artisan ran as root, so hand back anything it wrote.
 chown -R www-data:www-data storage bootstrap/cache || true
 
