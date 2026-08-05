@@ -46,42 +46,72 @@ function column_label($model, $attribute)
     return clean_attribute_name($attribute);
 }
 
-function member_status_totals($members, $term_date): array
+/**
+ * The status a member last recorded for a term date. Only the most recent
+ * record counts; a member who has never answered is Unknown.
+ */
+function member_attendance_status($member, $term_date): AttendanceStatus
+{
+    $attendance = $member->attendances->where('term_date_id', $term_date->id)->sortByDesc('created_at')->first();
+
+    return $attendance->status ?? AttendanceStatus::Unknown;
+}
+
+/**
+ * Split members into who is playing, who is not, and who has not answered
+ * yet, keyed the same way as member_status_totals(): when
+ * `readererer_assume_attending` is on, unanswered members are folded into
+ * the attending group and there is no `unknown` key at all.
+ *
+ * @return array<string, \Illuminate\Support\Collection>
+ */
+function members_by_attendance($members, $term_date): array
 {
     $assume_attending = config('app.readererer_assume_attending');
 
-    $number_attending = 0;
-    $number_not_attending = 0;
-    $number_unknown = 0;
+    $grouped = collect($members)->groupBy(fn ($member) => member_attendance_status($member, $term_date)->name);
 
-    foreach ($members as $member) {
-        $attendance = $member->attendances->where('term_date_id', $term_date->id)->sortByDesc('created_at')->first();
-        $attendance_value = $attendance->status ?? AttendanceStatus::Unknown;
-
-        switch ($attendance_value) {
-            case AttendanceStatus::Attending:
-                $number_attending++;
-                break;
-            case AttendanceStatus::NotAttending:
-                $number_not_attending++;
-                break;
-            case AttendanceStatus::Unknown:
-                $number_unknown++;
-                break;
-        }
-    }
+    $attending = $grouped->get(AttendanceStatus::Attending->name, collect())->values();
+    $not_attending = $grouped->get(AttendanceStatus::NotAttending->name, collect())->values();
+    $unknown = $grouped->get(AttendanceStatus::Unknown->name, collect())->values();
 
     if ($assume_attending) {
         return [
-            'attending' => $number_attending + $number_unknown,
-            'not_attending' => $number_not_attending];
-    } else {
-        return [
-            'attending' => $number_attending,
-            'not_attending' => $number_not_attending,
-            'unknown' => $number_unknown,
+            'attending' => $attending->concat($unknown)->values(),
+            'not_attending' => $not_attending,
         ];
     }
+
+    return [
+        'attending' => $attending,
+        'not_attending' => $not_attending,
+        'unknown' => $unknown,
+    ];
+}
+
+function member_status_totals($members, $term_date): array
+{
+    return array_map(fn ($group) => $group->count(), members_by_attendance($members, $term_date));
+}
+
+/**
+ * The instrument family a member plays, as a name for grouping and display.
+ *
+ * A specific ensemble pins it to that membership; without one (a rehearsal
+ * everybody shares) the first membership that names an instrument family
+ * wins. Members with no instrument family at all fall back to $fallback.
+ */
+function member_instrument_family_name($member, $ensemble = null, string $fallback = 'No instrument'): string
+{
+    $memberships = $member->ensembles;
+
+    if ($ensemble !== null) {
+        $memberships = $memberships->where('id', $ensemble->id);
+    }
+
+    $membership = $memberships->first(fn ($membership) => $membership->pivot->instrument_family_id !== null);
+
+    return $membership?->pivot->instrumentFamily?->name ?? $fallback;
 }
 
 function get_create_fields(object $dummy): array

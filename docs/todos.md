@@ -39,7 +39,6 @@ How entities split across the phases:
 
 **Attendance**
 - Attendance register (in progress, marked `[~]`).
-- Show who you're playing with for upcoming concerts and rehearsals.
 
 **Notifications / emails**
 - Proper notifications system, with an overview and types: setup-group reminder,
@@ -80,6 +79,10 @@ These touch the shared generic-CRUD layer or general UX and so apply regardless 
   `app/helpers.php:150`: enum columns are not mapped to form inputs; `get_create_fields()`
   needs to populate options/default for enums and `map_database_type_to_html()` needs to
   handle them. This is the known enum gap called out in CLAUDE.md.
+- **Page names are HTML-escaped once per Blade component hop** — a `page_name`
+  passed from a view through `<x-layout>` to `<x-page-header>` is escaped again at
+  each hop, so a plain apostrophe (e.g. an ensemble called "St John's Band") renders
+  as `&amp;#039;`. Pages currently dodge it by using a typographic apostrophe.
 - **Generic form field polish** — `resources/views/components/forms/field.blade.php:13`
   (icon alignment when an error is present), `:20` ("style nice"), `:39` (something
   "apparently isn't working correctly").

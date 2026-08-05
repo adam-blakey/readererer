@@ -2,11 +2,15 @@
 
 namespace App\Models;
 
+use App\Enums\UserRole;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Support\Carbon;
+use Illuminate\Support\Collection;
 
 class TermDate extends Model
 {
@@ -66,6 +70,68 @@ class TermDate extends Model
     public function email_logs(): HasMany
     {
         return $this->hasMany(EmailLog::class)->latest();
+    }
+
+    /**
+     * Dates that have not happened yet, soonest first.
+     */
+    public function scopeUpcoming(Builder $query): Builder
+    {
+        return $query->where('start_datetime', '>', Carbon::now())->orderBy('start_datetime');
+    }
+
+    /**
+     * Dates the given user plays at: their ensembles' concerts, plus every
+     * rehearsal (rehearsals are shared by all ensembles). A user who belongs
+     * to no ensemble plays at nothing.
+     */
+    public function scopeForUser(Builder $query, User $user): Builder
+    {
+        $ensemble_ids = $user->ensembles->pluck('id');
+
+        if ($ensemble_ids->isEmpty()) {
+            return $query->whereRaw('1 = 0');
+        }
+
+        return $query->where(function (Builder $query) use ($ensemble_ids) {
+            $query->whereNull('concert_ensemble_id')
+                ->orWhereIn('concert_ensemble_id', $ensemble_ids);
+        });
+    }
+
+    public function isConcert(): bool
+    {
+        return $this->concert_ensemble_id !== null;
+    }
+
+    /**
+     * The ensembles playing at this date: just the concert ensemble for a
+     * concert, or every ensemble for a shared rehearsal.
+     */
+    public function playing_ensembles(): Collection
+    {
+        if ($this->isConcert()) {
+            return collect(array_filter([$this->concert_ensemble]));
+        }
+
+        return Ensemble::orderBy('name')->get();
+    }
+
+    /**
+     * The members playing at this date, in name order and with everything the
+     * attendance views need (their memberships, attendance and setup group)
+     * already loaded.
+     */
+    public function players(): Collection
+    {
+        $ensemble_ids = $this->playing_ensembles()->pluck('id');
+
+        return User::whereHas('ensembles', fn (Builder $query) => $query->whereIn('ensembles.id', $ensemble_ids))
+            ->where('role', '!=', UserRole::Ensemble)
+            ->with(['attendances', 'ensembles', 'setup_group'])
+            ->orderBy('first_name')
+            ->orderBy('last_name')
+            ->get();
     }
 
     protected function casts(): array

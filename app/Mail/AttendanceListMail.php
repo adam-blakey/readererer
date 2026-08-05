@@ -8,7 +8,6 @@ use Illuminate\Mail\Mailable;
 use Illuminate\Mail\Mailables\Content;
 use Illuminate\Mail\Mailables\Envelope;
 use Illuminate\Queue\SerializesModels;
-use Illuminate\Support\Collection;
 
 class AttendanceListMail extends Mailable
 {
@@ -29,26 +28,8 @@ class AttendanceListMail extends Mailable
             markdown: 'emails.attendance-list',
             with: [
                 'termDate' => $this->termDate,
-                'members' => $this->members(),
+                'members' => $this->termDate->players(),
             ],
         );
-    }
-
-    /**
-     * The members whose attendance is relevant to this date: the concert
-     * ensemble's players for a concert, or every ensemble's players for a
-     * shared rehearsal.
-     */
-    private function members(): Collection
-    {
-        if ($this->termDate->concert_ensemble_id !== null) {
-            return ($this->termDate->concert_ensemble?->users ?? collect())->values();
-        }
-
-        return \App\Models\Ensemble::with('users')
-            ->get()
-            ->flatMap->users
-            ->unique('id')
-            ->values();
     }
 }

@@ -6,6 +6,7 @@ use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\EnsembleController;
 use App\Http\Controllers\InstrumentFamilyController;
 use App\Http\Controllers\PieceController;
+use App\Http\Controllers\PlayingController;
 use App\Http\Controllers\SeatingPlanController;
 use App\Http\Controllers\SetlistController;
 use App\Http\Controllers\SettingController;
@@ -33,6 +34,13 @@ Route::post('/attendance/poll/{ensemble:slug}/{term:slug}', [AttendanceControlle
     ->withoutScopedBindings()
     ->name('attendance.poll-store')
     ->can('create', Attendance::class);
+
+Route::get('/playing', [PlayingController::class, 'index'])
+    ->name('playing.index')
+    ->can('view.playing');
+Route::get('/playing/{termDate}', [PlayingController::class, 'show'])
+    ->name('playing.show')
+    ->can('viewPlayers', 'termDate');
 
 Route::resource('composers', ComposerController::class)->middleware('auth');
 Route::patch('/composers/{composer}/restore', [ComposerController::class, 'restore'])->name('composers.restore')->middleware('auth');
