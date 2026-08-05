@@ -68,6 +68,21 @@ class TermDate extends Model
         return $this->hasMany(EmailLog::class)->latest();
     }
 
+    public function register_entries(): HasMany
+    {
+        return $this->hasMany(RegisterEntry::class);
+    }
+
+    /**
+     * Whether this date applies to the given ensemble: rehearsals are for
+     * everyone, concerts only for the ensemble playing them.
+     */
+    public function appliesToEnsemble(Ensemble $ensemble): bool
+    {
+        return $this->concert_ensemble_id === null
+            || (int) $this->concert_ensemble_id === (int) $ensemble->id;
+    }
+
     protected function casts(): array
     {
         return [

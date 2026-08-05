@@ -1,6 +1,7 @@
 <?php
 
 use App\Enums\AttendanceStatus;
+use App\Enums\RegisterStatus;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Support\Facades\Schema;
@@ -82,6 +83,34 @@ function member_status_totals($members, $term_date): array
             'unknown' => $number_unknown,
         ];
     }
+}
+
+/**
+ * Count each register status across a set of register entries, keyed by the
+ * status name ('present', 'late', 'absent', 'unmarked').
+ *
+ * `$expected_members` is the number of members the register covers, so that
+ * members with no entry at all are counted as unmarked.
+ */
+function register_status_totals($entries, int $expected_members): array
+{
+    $totals = [];
+    foreach (RegisterStatus::cases() as $status) {
+        $totals[$status->key()] = 0;
+    }
+
+    $counted = 0;
+
+    foreach ($entries as $entry) {
+        $status = $entry->status ?? RegisterStatus::Unmarked;
+        $totals[$status->key()]++;
+        $counted++;
+    }
+
+    // Members with no entry at all have not been marked either.
+    $totals['unmarked'] += max(0, $expected_members - $counted);
+
+    return $totals;
 }
 
 function get_create_fields(object $dummy): array

@@ -7,15 +7,6 @@ use App\Models\Term;
 use App\Models\TermDate;
 use App\Models\User;
 
-function make_term_date(?Term $term = null): TermDate
-{
-    return TermDate::forceCreate([
-        'term_id' => ($term ?? Term::factory()->create())->id,
-        'start_datetime' => now()->addDay()->setTime(19, 0),
-        'end_datetime' => now()->addDay()->setTime(21, 0),
-    ]);
-}
-
 function record_attendance(User $member, TermDate $termDate, AttendanceStatus $status, ?Carbon\Carbon $createdAt = null): Attendance
 {
     $attendance = Attendance::create([

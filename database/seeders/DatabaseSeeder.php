@@ -21,5 +21,6 @@ class DatabaseSeeder extends Seeder
         $this->call(SetlistSeeder::class);
         $this->call(TermSeeder::class);
         $this->call(AttendanceSeeder::class);
+        $this->call(RegisterEntrySeeder::class);
     }
 }

@@ -38,8 +38,9 @@ How entities split across the phases:
   index views.
 
 **Attendance**
-- Attendance register (in progress, marked `[~]`).
 - Show who you're playing with for upcoming concerts and rehearsals.
+- Register history: a per-member view of how often they have actually turned up
+  (the register itself is now built; only the reporting on top of it is missing).
 
 **Notifications / emails**
 - Proper notifications system, with an overview and types: setup-group reminder,
