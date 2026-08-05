@@ -118,6 +118,30 @@ php artisan test                 # or ./vendor/bin/pest
 ./vendor/bin/pint --test         # check formatting only
 ```
 
+## Docker
+
+The `Dockerfile` builds a self-contained image (Apache + PHP 8.4, with assets and
+Composer dependencies baked in) that is published to the GitHub Container Registry
+as the `dev` and `qa` tags. No `.env` file is included, so configuration is passed
+in as environment variables:
+
+```bash
+docker run -d --name readererer-dev -p 8080:80 \
+  -e APP_KEY="base64:..." \
+  -e APP_URL="http://localhost:8080" \
+  -v readererer-db:/var/www/html/database \
+  ghcr.io/adam-blakey/readererer:dev
+```
+
+`APP_KEY` is required. Run `php artisan key:generate --show` first and paste the
+`base64:` value it prints — pass the literal key, not a `$(...)` substitution, which
+is not expanded inside a compose file or an env-file and reaches the app as a string.
+The container creates the SQLite database and runs migrations on start; mount a volume
+over `/var/www/html/database` to keep it across container replacements, or point
+`DB_CONNECTION`/`DB_HOST`/`DB_DATABASE` at MySQL instead. Set `SKIP_MIGRATIONS=true`
+to leave the schema alone at boot. Application logs go to the container's stderr,
+so `docker logs readererer-dev` shows any errors.
+
 ## Deployment
 
 Deployment is GitLab-CI driven (`.gitlab-ci.yml`) using Laravel Envoy (`Envoy.blade.php`)
