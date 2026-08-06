@@ -8,6 +8,18 @@ test('login screen can be rendered', function () {
     $response->assertStatus(200);
 });
 
+test('login screen skips the forgotten password link in the tab order', function () {
+    $response = $this->get('/login');
+
+    $response->assertStatus(200);
+    $response->assertSeeInOrder([
+        'href="'.route('password.request').'"',
+        'tabindex="-1"',
+        'I forgot password',
+    ], false);
+    $response->assertDontSee('tabindex="9999"', false);
+});
+
 test('users can authenticate using the login screen', function () {
     $user = User::factory()->create();
 

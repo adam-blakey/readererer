@@ -100,9 +100,9 @@
 @endphp
 
 @if ($url && $allowed)
-    <a href="{{ $url }}" {{ $attributes->merge(['class' => $baseClasses]) }} tabindex="{{ $tabindex }}">{{ $slot }}</a>
+    <a href="{{ $url }}" {{ $attributes->merge(['class' => $baseClasses]) }} @isset($tabindex) tabindex="{{ $tabindex }}" @endisset>{{ $slot }}</a>
 @elseif ($url && !$allowed)
-    <span aria-disabled="true" {{ $attributes->merge(['class' => $disabledClasses]) }} tabindex="{{ $tabindex }}">{{ $slot }}</span>
+    <span aria-disabled="true" {{ $attributes->merge(['class' => $disabledClasses]) }} @isset($tabindex) tabindex="{{ $tabindex }}" @endisset>{{ $slot }}</span>
 @else
-    <span {{ $attributes->merge(['class' => $baseClasses]) }} tabindex="{{ $tabindex }}">{{ $slot }}</span>
+    <span {{ $attributes->merge(['class' => $baseClasses]) }} @isset($tabindex) tabindex="{{ $tabindex }}" @endisset>{{ $slot }}</span>
 @endif

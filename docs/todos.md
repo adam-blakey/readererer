@@ -46,9 +46,6 @@ How entities split across the phases:
 **Dashboard**
 - Show the next date against each setup group.
 
-**Login**
-- Tab ordering should skip the "forgotten password" link.
-
 ---
 
 ## Phase 2 — Digital sheet music
