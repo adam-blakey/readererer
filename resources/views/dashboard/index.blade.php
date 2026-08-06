@@ -34,19 +34,17 @@
 					</div>
 					<x-card-body>
 						<div class="card-title">Next rehearsal</div>
-						<x-rehearsal-entry :term_date="$nextRehearsal" />
+						<x-rehearsal-entry :ensembles="$ensembles" :term_date="$nextRehearsal" />
 					</x-card-body>
 					<x-card-body>
 						<div class="card-title">Your next concerts</div>
 						@if($nextConcerts->count() === 0)
-                            <div class="d-none d-xl-block ps-2">
-                                <div class="text-muted">Nothing found.</div>
-                            </div>
+							<x-rehearsal-entry :term_date="null" />
 						@else
 							@foreach($nextConcerts as $concert)
 								<div class="d-flex align-items-center justify-content-between py-1">
 									<div>
-										<x-rehearsal-entry :term_date="$concert" />
+										<x-rehearsal-entry :ensembles="collect([$concert->concert_ensemble])" :term_date="$concert" />
 									</div>
 									<div class="ms-2 small text-muted">{{ optional($concert->concert_ensemble)->name }}</div>
 								</div>
@@ -77,11 +75,7 @@
 						<h2 class="mb-0 card-heading">Next time you're driving the van</h2>
 					</div>
 					<x-card-body>
-						@if($nextVanDrive)
-							<x-rehearsal-entry :term_date="$nextVanDrive" />
-						@else
-							<div class="text-muted">Nothing found.</div>
-						@endif
+						<x-rehearsal-entry :term_date="$nextVanDrive" />
 					</x-card-body>
 				</x-card>
 			</div>

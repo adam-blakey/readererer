@@ -10,7 +10,8 @@
         "fakerphp/faker": "1.23",
         "laravel/framework": "^13.0",
         "laravel/tinker": "^3.0",
-        "s-damian/larasort": "^1.0"
+        "s-damian/larasort": "^1.0",
+        "ext-pdo": "^8.4.24"
     },
     "require-dev": {
         "barryvdh/laravel-debugbar": "^4.0",

@@ -21,5 +21,6 @@ class DatabaseSeeder extends Seeder
         $this->call(TermSeeder::class);
         $this->call(AttendanceSeeder::class);
         $this->call(EmailLogSeeder::class);
+        $this->call(RegisterEntrySeeder::class);
     }
 }

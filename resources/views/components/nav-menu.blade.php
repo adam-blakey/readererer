@@ -13,6 +13,12 @@
 	        'auth' => Auth::user()?->can('viewAny', App\Models\Attendance::class),
 	    ],
 	    [
+	        'title' => 'Attendance register',
+	        'icon' => 'list-check',
+	        'route' => 'attendance.register.index',
+	        'auth' => Auth::user()?->can('viewAny', App\Models\RegisterEntry::class),
+	    ],
+	    [
 	        'title' => 'Composers',
 	        'icon' => 'old',
 	        'route' => 'composers.index',

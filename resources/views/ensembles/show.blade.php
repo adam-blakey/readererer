@@ -1,6 +1,7 @@
 @props(['ensemble', 'page_name'])
 
 @use('App\Enums\UserRole')
+@use('Illuminate\Support\Str')
 
 @php
 	$currentUser = auth()->user();
@@ -17,9 +18,14 @@
 				</div>
 				<div class="col">
 					<h1 class="my-0 font-bold">{{ $ensemble->name }}</h1>
-					@if ($isMember)
-						<span class="badge bg-blue text-blue-fg">You're a member!</span>
-					@endif
+					<div class="mt-1 list-inline list-inline-dots text-muted">
+						<span class="list-inline-item">
+							<x-icon name="users" />{{ $ensemble->number_of_members }} {{ Str::plural('member', $ensemble->number_of_members) }}
+						</span>
+						@if ($isMember)
+							<span class="list-inline-item"><span class="badge bg-blue text-blue-fg">You're a member!</span></span>
+						@endif
+					</div>
 				</div>
 				@if ($canManage)
 					<div class="col-auto ms-auto">
@@ -62,11 +68,11 @@
                         </div>
                         <div class="card-body">
                             <div class="card-title">Next rehearsal</div>
-                            <x-rehearsal-entry :term_date="$nextRehearsal" />
+                            <x-rehearsal-entry :ensembles="collect([$ensemble])" :term_date="$nextRehearsal" />
                         </div>
                         <div class="card-body">
                             <div class="card-title">Next concert</div>
-                            <x-rehearsal-entry :term_date="$nextConcert" />
+                            <x-rehearsal-entry :ensembles="collect([$ensemble])" :term_date="$nextConcert" />
                         </div>
                     </div>
 				</div>
@@ -85,7 +91,7 @@
 									</div>
 									<div class="mb-2">
                                         <x-icon name="users" />
-										Members ({{ $ensemble->users->count() }}):
+										Members ({{ $ensemble->number_of_members }}):
 										@foreach ($ensemble->users as $user)
                                             <x-user-entry :user="$user" :add_route="false" :secondary_info="$user->membership($ensemble)" />
 										@endforeach

@@ -5,6 +5,7 @@
     // Only ensembles that run a seating plan offer a plan to download.
     $seating_plan_ensembles = $ensembles->filter(fn ($ensemble) => $ensemble->seating_plan_enabled);
     $dates = ($term_dates ?? collect())->sortBy('start_datetime');
+    $can_take_registers = Gate::allows('viewAny', App\Models\RegisterEntry::class);
 @endphp
 
 <div class="table-responsive">
@@ -118,6 +119,14 @@
                                         </form>
                                     @endif
                                 @endcan
+                                @if ($can_take_registers)
+                                    @foreach ($ensembles->filter(fn ($ensemble) => $td->appliesToEnsemble($ensemble)) as $ensemble)
+                                        <x-a class="btn btn-sm" href="{{ route('attendance.register.show', ['ensemble' => $ensemble, 'termDate' => $td]) }}">
+                                            <x-icon name="list-check" />
+                                            Register: {{ $ensemble->name }}
+                                        </x-a>
+                                    @endforeach
+                                @endif
                                 @foreach ($seating_plan_ensembles as $ensemble)
                                     <x-a class="btn btn-sm bg-orange text-orange-fg" href="{{ route('seating-plan.download', ['ensemble' => $ensemble, 'termDate' => $td]) }}" target="_blank">
                                         <x-icon name="armchair" />

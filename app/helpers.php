@@ -1,9 +1,11 @@
 <?php
 
 use App\Enums\AttendanceStatus;
+use App\Enums\RegisterStatus;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Support\Facades\Schema;
+use Illuminate\Support\Str;
 
 function get_route_name_from_model($model, $route = 'show')
 {
@@ -84,11 +86,41 @@ function member_status_totals($members, $term_date): array
     }
 }
 
+/**
+ * Count each register status across a set of register entries, keyed by the
+ * status name ('present', 'late', 'absent', 'unmarked').
+ *
+ * `$expected_members` is the number of members the register covers, so that
+ * members with no entry at all are counted as unmarked.
+ */
+function register_status_totals($entries, int $expected_members): array
+{
+    $totals = [];
+    foreach (RegisterStatus::cases() as $status) {
+        $totals[$status->key()] = 0;
+    }
+
+    $counted = 0;
+
+    foreach ($entries as $entry) {
+        $status = $entry->status ?? RegisterStatus::Unmarked;
+        $totals[$status->key()]++;
+        $counted++;
+    }
+
+    // Members with no entry at all have not been marked either.
+    $totals['unmarked'] += max(0, $expected_members - $counted);
+
+    return $totals;
+}
+
 function get_create_fields(object $dummy): array
 {
     $columns = collect(Schema::getColumns($dummy->getTable()));
     $fillable = $dummy->getFillable();
-    $casts = $dummy->casts();
+    // getCasts() rather than casts(), so models declaring a `$casts` property
+    // are covered too — and it is public on every model.
+    $casts = $dummy->getCasts();
 
     $fields = [];
 
@@ -114,18 +146,17 @@ function get_create_fields(object $dummy): array
 
             $name = $column['name'];
             $type_name = $column['type_name'];
-            $enumClass = (property_exists($dummy, 'enums') && array_key_exists($name, $dummy->enums)) ? $dummy->enums[$name] : null;
-            if ($enumClass && enum_exists($enumClass)) {
-                $type = 'enum';
-                $default_option = $column['default'] ?? null;
-                $options = collect($enumClass::cases())
-                    ->mapWithKeys(fn ($case) => [$case->value => method_exists($case, 'label') ? $case->label() : $case->name])
-                    ->all();
+            $type = map_database_type_to_html($name, $type_name, $casts);
+
+            if ($type === 'enum') {
+                $enum_class = get_enum_class_for_attribute($casts, $name);
+                $options = get_enum_options($enum_class);
+                $default_option = get_enum_default($enum_class, $column['default'] ?? null);
             } else {
-                $type = map_database_type_to_html($name, $type_name, $casts);
-                $default_option = $column['default'] ?? null;
                 $options = [];
+                $default_option = $column['default'] ?? null;
             }
+
             $nullable = $column['nullable'];
             $select_multiple = false;
             $icon = call_or_default($dummy, 'getIconForAttribute', $name, 'pencil');
@@ -157,10 +188,79 @@ function call_or_default(object $object, string $method, mixed $argument, mixed 
     return $defaultValue;
 }
 
+/**
+ * Resolve the enum class backing an attribute, or null when it has none.
+ *
+ * Enum columns are declared the way they are anywhere else in Laravel — as an
+ * enum cast on the model — so the generic form picks them up without needing
+ * any extra annotation.
+ */
+function get_enum_class_for_attribute(array $casts, string $attribute): ?string
+{
+    $cast = $casts[$attribute] ?? null;
+
+    return (is_string($cast) && enum_exists($cast)) ? $cast : null;
+}
+
+/**
+ * Build the options for an enum field, keyed by the value the form posts
+ * (the backing value, or the case name for a pure enum).
+ */
+function get_enum_options(string $enum_class): array
+{
+    $options = [];
+
+    foreach ($enum_class::cases() as $case) {
+        $options[enum_case_value($case)] = enum_case_label($case);
+    }
+
+    return $options;
+}
+
+function enum_case_value(UnitEnum $case): string|int
+{
+    return ($case instanceof BackedEnum) ? $case->value : $case->name;
+}
+
+/**
+ * The label to show for an enum case: whatever the enum's own label() returns,
+ * otherwise the case name split into words ("NotAttending" -> "Not attending").
+ */
+function enum_case_label(UnitEnum $case): string
+{
+    if (method_exists($case, 'label')) {
+        return $case->label();
+    }
+
+    return clean_attribute_name(Str::snake($case->name));
+}
+
+/**
+ * Coerce a column's database default into the matching enum option value so
+ * the generic form can pre-select it. Null when the default matches no case.
+ */
+function get_enum_default(string $enum_class, mixed $default): string|int|null
+{
+    if ($default === null || $default === '') {
+        return null;
+    }
+
+    // Database defaults come back as strings, and sqlite quotes the string ones.
+    $default = trim((string) $default, "'\"");
+
+    foreach ($enum_class::cases() as $case) {
+        if ((string) enum_case_value($case) === $default) {
+            return enum_case_value($case);
+        }
+    }
+
+    return null;
+}
+
 function map_database_type_to_html(string $name, string $db_type, array $casts): string
 {
-    if (in_array($name, $casts)) {
-        return $casts[$name];
+    if (get_enum_class_for_attribute($casts, $name) !== null) {
+        return 'enum';
     }
 
     if ($name == 'image') {

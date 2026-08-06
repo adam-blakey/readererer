@@ -3,6 +3,8 @@
 use App\Enums\UserRole;
 use App\Models\Ensemble;
 use App\Models\InstrumentFamily;
+use App\Models\Term;
+use App\Models\TermDate;
 use App\Models\User;
 
 /*
@@ -63,6 +65,20 @@ function join_ensemble(User $user, Ensemble $ensemble, ?InstrumentFamily $instru
         'instrument_family_id' => $instrumentFamily?->id ?? make_instrument_family()->id,
         'seat_row' => $seatRow,
         'seat_column' => $seatColumn,
+    ]);
+}
+
+/**
+ * A term date: a rehearsal by default, or that ensemble's concert when one is
+ * given. `term_id` is not fillable, hence the forceCreate().
+ */
+function make_term_date(?Term $term = null, ?Ensemble $concertEnsemble = null): TermDate
+{
+    return TermDate::forceCreate([
+        'term_id' => ($term ?? Term::factory()->create())->id,
+        'start_datetime' => now()->addDay()->setTime(19, 0),
+        'end_datetime' => now()->addDay()->setTime(21, 0),
+        'concert_ensemble_id' => $concertEnsemble?->id,
     ]);
 }
 

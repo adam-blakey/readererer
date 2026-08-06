@@ -1,5 +1,8 @@
 <?php
 
+use App\Enums\AttendanceStatus;
+use App\Enums\Color;
+use App\Enums\UserRole;
 use App\Models\Composer;
 use App\Models\Ensemble;
 use App\Models\SetupGroup;
@@ -71,10 +74,18 @@ test('call_or_default falls back to the default when the method returns null', f
 
 // map_database_type_to_html
 
-test('map_database_type_to_html ignores casts keyed by column name and falls back to the database type', function () {
-    // The cast check uses in_array() against the cast *values*, so a cast keyed
-    // by the column name never matches and the database type wins.
+test('map_database_type_to_html ignores casts that are not enums and falls back to the database type', function () {
     expect(map_database_type_to_html('status', 'integer', ['status' => 'boolean']))->toBe('number');
+    expect(map_database_type_to_html('status', 'varchar', ['other_column' => AttendanceStatus::class]))->toBe('text');
+});
+
+test('map_database_type_to_html maps a column with an enum cast to an enum field', function () {
+    expect(map_database_type_to_html('status', 'integer', ['status' => AttendanceStatus::class]))->toBe('enum');
+    expect(map_database_type_to_html('color', 'varchar', ['color' => Color::class]))->toBe('enum');
+});
+
+test('an enum cast beats the image and email column name special cases', function () {
+    expect(map_database_type_to_html('email', 'varchar', ['email' => Color::class]))->toBe('enum');
 });
 
 test('map_database_type_to_html special-cases image and email column names', function () {
@@ -101,6 +112,53 @@ test('map_database_type_to_html maps database types to html input types', functi
     ['varchar', 'text'],
     ['VARCHAR', 'text'],
 ]);
+
+// get_enum_class_for_attribute / get_enum_options / enum_case_label / get_enum_default
+
+test('get_enum_class_for_attribute returns the enum class behind an enum cast', function () {
+    expect(get_enum_class_for_attribute(['color' => Color::class], 'color'))->toBe(Color::class);
+});
+
+test('get_enum_class_for_attribute returns null for missing and non-enum casts', function () {
+    expect(get_enum_class_for_attribute([], 'color'))->toBeNull();
+    expect(get_enum_class_for_attribute(['created_at' => 'datetime'], 'created_at'))->toBeNull();
+    expect(get_enum_class_for_attribute(['name' => 'App\Models\Composer'], 'name'))->toBeNull();
+});
+
+test('get_enum_options keys the options by backing value', function () {
+    expect(get_enum_options(UserRole::class))->toBe([
+        0 => 'Guest',
+        1 => 'Ensemble',
+        2 => 'Member',
+        3 => 'Moderator',
+        4 => 'Admin',
+    ]);
+});
+
+test('enum_case_label humanises multi-word case names', function () {
+    expect(enum_case_label(AttendanceStatus::NotAttending))->toBe('Not attending');
+    expect(enum_case_label(AttendanceStatus::Unknown))->toBe('Unknown');
+});
+
+test('enum_case_label prefers the enum\'s own label method', function () {
+    expect(enum_case_label(Color::Teal))->toBe(Color::Teal->label());
+});
+
+test('get_enum_default resolves a database default to the matching case value', function () {
+    expect(get_enum_default(UserRole::class, '2'))->toBe(UserRole::Member->value);
+    expect(get_enum_default(Color::class, 'teal'))->toBe(Color::Teal->value);
+});
+
+test('get_enum_default unquotes string defaults', function () {
+    expect(get_enum_default(Color::class, "'teal'"))->toBe(Color::Teal->value);
+});
+
+test('get_enum_default returns null when there is no matching case', function () {
+    expect(get_enum_default(Color::class, null))->toBeNull();
+    expect(get_enum_default(Color::class, ''))->toBeNull();
+    expect(get_enum_default(Color::class, 'beige'))->toBeNull();
+    expect(get_enum_default(UserRole::class, '99'))->toBeNull();
+});
 
 // color_name_to_hex
 
