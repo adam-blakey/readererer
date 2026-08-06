@@ -10,7 +10,12 @@
 			<div class="col-md-12">
 				<div class="container py-4 container-tight">
 					<div class="mb-4 text-center">
-						<x-a class="autodark" :route="'home'">
+						{{-- Tab order on this page is set explicitly (1..7) so that the "I forgot
+						     password" link is reached last, after "Login with Google", despite
+						     sitting next to the password field in the markup. A positive tabindex
+						     always precedes elements in natural order, so every focusable element
+						     in the form has to be numbered for the ordering to hold. --}}
+						<x-a class="autodark" :route="'home'" tabindex="1">
 							<img src="{{ Vite::asset('resources/images/readererer-long-logo.svg') }}">
 						</x-a>
 					</div>
@@ -22,18 +27,18 @@
 
 								<div class="mb-3">
 									<label class="form-label" for="username">{{ __('Username') }}</label>
-									<input autocomplete="username" class="form-control" id="username" name="username" placeholder="Your username" required type="text" value="{{ old('username') }}">
+									<input autocomplete="username" class="form-control" id="username" name="username" placeholder="Your username" required tabindex="2" type="text" value="{{ old('username') }}">
 									<x-forms.input-error :messages="$errors->get('username')" />
 								</div>
 								<div class="mb-2">
 									<label class="form-label" for="password">
 										{{ __('Password') }}
 										<span class="form-label-description">
- 										<x-a :route="'password.request'" tabindex="-1">{{ __('I forgot password') }}</x-a>
+ 										<x-a :route="'password.request'" tabindex="7">{{ __('I forgot password') }}</x-a>
 										</span>
 									</label>
 									<div class="input-group input-group-flat">
-										<input autocomplete="current-password" class="form-control" id="password" name="password" placeholder="Your password" required type="password">
+										<input autocomplete="current-password" class="form-control" id="password" name="password" placeholder="Your password" required tabindex="3" type="password">
 										<span class="input-group-text">
 											<a aria-label="Show password" class="cursor-pointer link-secondary" data-bs-original-title="Show password" data-bs-toggle="tooltip" id="toggle-password-show" onclick="togglePasswordVisibility('password', 'toggle-password-show', 'toggle-password-hide')">
 												<x-icon name="eye" />
@@ -47,12 +52,12 @@
 								</div>
 								<div class="mb-2">
 									<label class="form-check" for="remember_me">
-										<input class="form-check-input" id="remember_me" name="remember_me" type="checkbox">
+										<input class="form-check-input" id="remember_me" name="remember_me" tabindex="4" type="checkbox">
 										<span class="form-check-label">{{ __('Remember me on this device') }}</span>
 									</label>
 								</div>
 								<div class="form-footer">
-									<button class="btn btn-primary w-100" type="submit">
+									<button class="btn btn-primary w-100" tabindex="5" type="submit">
 										<x-icon name="login" />
 										{{ __('Login') }}
 									</button>
@@ -63,7 +68,7 @@
 						<div class="card-body">
 							<div class="row">
 								<div class="col">
-									<a class="btn w-100" href="#">
+									<a class="btn w-100" href="#" tabindex="6">
 										<x-icon name="google" />
 										Login with Google
 									</a>
