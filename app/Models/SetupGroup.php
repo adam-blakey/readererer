@@ -31,10 +31,6 @@ class SetupGroup extends Model
         'updated_at',
     ];
 
-    public array $enums = [
-        'color' => \App\Enums\Color::class,
-    ];
-
     public array $sortables = [
         'name',
         'week',

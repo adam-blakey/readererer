@@ -1,6 +1,10 @@
 <?php
 
+use App\Enums\Color;
+use App\Enums\UserRole;
+use App\Models\EmailLog;
 use App\Models\Ensemble;
+use App\Models\InstrumentFamily;
 use App\Models\SetupGroup;
 use App\Models\Term;
 use App\Models\User;
@@ -65,4 +69,61 @@ test('an integer column becomes a number field', function () {
     $fields = get_create_fields(new SetupGroup);
 
     expect($fields['week']['type'])->toBe('number');
+});
+
+test('a column with an enum cast becomes an enum field', function () {
+    // users.role is an integer column; the UserRole cast is what makes it a select.
+    $fields = get_create_fields(new User);
+
+    expect($fields['role']['type'])->toBe('enum');
+    expect($fields['role']['required'])->toBeTrue();
+    expect($fields['role']['select_multiple'])->toBeFalse();
+});
+
+test('enum options are keyed by backing value and labelled by case name', function () {
+    $fields = get_create_fields(new User);
+
+    expect($fields['role']['options'])->toBe([
+        0 => 'Guest',
+        1 => 'Ensemble',
+        2 => 'Member',
+        3 => 'Moderator',
+        4 => 'Admin',
+    ]);
+});
+
+test('enum options use the enum label() method when it defines one', function () {
+    $fields = get_create_fields(new SetupGroup);
+
+    expect($fields['color']['type'])->toBe('enum');
+    expect($fields['color']['options'])->toHaveCount(count(Color::cases()));
+    expect($fields['color']['options']['teal'])->toBe(Color::Teal->label());
+});
+
+test('the enum default option comes from the database default', function () {
+    // users.role defaults to UserRole::Member, instrument_families.color to 'blue'.
+    expect(get_create_fields(new User)['role']['default_option'])->toBe(UserRole::Member->value);
+    expect(get_create_fields(new InstrumentFamily)['color']['default_option'])->toBe(Color::Blue->value);
+});
+
+test('an enum column without a database default has no default option', function () {
+    expect(get_create_fields(new SetupGroup)['color']['default_option'])->toBeNull();
+});
+
+test('enum casts are picked up from a $casts property as well as a casts() method', function () {
+    // EmailLog declares its casts as a property rather than overriding casts().
+    $fields = get_create_fields(new EmailLog);
+
+    expect($fields['status']['type'])->toBe('enum');
+    expect($fields['status']['options'])->toBe([
+        0 => 'Pending',
+        1 => 'Sent',
+        2 => 'Failed',
+    ]);
+});
+
+test('the value of an enum field is the model\'s current case', function () {
+    $instrumentFamily = new InstrumentFamily(['name' => 'Bassoons', 'color' => Color::Teal]);
+
+    expect(get_create_fields($instrumentFamily)['color']['value'])->toBe(Color::Teal);
 });
