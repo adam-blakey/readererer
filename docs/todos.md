@@ -38,12 +38,6 @@ How entities split across the phases:
 - Register history: a per-member view of how often they have actually turned up
   (the register itself is now built; only the reporting on top of it is missing).
 
-**Notifications / emails**
-- Proper notifications system, with an overview and types: setup-group reminder,
-  van-driver reminder, and "groups/drivers changed" alerts.
-- Emails (general).
-- Useful logging.
-
 **Dashboard**
 - Show the next date against each setup group.
 
