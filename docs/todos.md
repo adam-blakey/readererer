@@ -33,10 +33,6 @@ How entities split across the phases:
 
 ### Planning TODOs (from `docs/development-plan.md`)
 
-**Ensembles**
-- Calculate the number of members in each ensemble and show this in the show and
-  index views.
-
 **Attendance**
 - Show who you're playing with for upcoming concerts and rehearsals.
 - Register history: a per-member view of how often they have actually turned up
