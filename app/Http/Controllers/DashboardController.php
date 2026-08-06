@@ -3,9 +3,11 @@
 namespace App\Http\Controllers;
 
 use App\Enums\UserRole;
+use App\Models\Ensemble;
 use App\Models\TermDate;
 use App\Traits\ShowEnsemble;
 use Illuminate\Support\Carbon;
+use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Auth;
 
 class DashboardController extends Controller
@@ -62,6 +64,38 @@ class DashboardController extends Controller
             'nextRehearsal' => $nextRehearsal,
             'nextConcerts' => $nextConcerts,
             'nextVanDrive' => $nextVanDrive,
+            'playingWith' => $this->playingWith(collect([$nextRehearsal])->concat($nextConcerts), $ensembleIds),
+        ]);
+    }
+
+    /**
+     * The ensembles the user will be playing with at each of the given dates,
+     * keyed by term date id: just the concert ensemble for a concert, or
+     * every ensemble for a shared rehearsal. Each entry carries that
+     * ensemble's attendance totals and whether the user belongs to it.
+     * Ensembles with no members are left out — you cannot play with nobody.
+     */
+    private function playingWith(Collection $termDates, Collection $ensembleIds): Collection
+    {
+        $termDates = $termDates->filter();
+
+        if ($termDates->isEmpty()) {
+            return collect();
+        }
+
+        // Every ensemble that could be playing, loaded once and then picked
+        // over per date rather than queried for again and again.
+        $allEnsembles = Ensemble::with('users.attendances')->orderBy('name')->get();
+
+        return $termDates->mapWithKeys(fn (TermDate $termDate) => [
+            $termDate->id => $termDate->playing_ensembles($allEnsembles)
+                ->filter(fn (Ensemble $ensemble) => $ensemble->users->isNotEmpty())
+                ->map(fn (Ensemble $ensemble) => [
+                    'ensemble' => $ensemble,
+                    'totals' => member_status_totals($ensemble->users, $termDate),
+                    'is_yours' => $ensembleIds->contains($ensemble->id),
+                ])
+                ->values(),
         ]);
     }
 }

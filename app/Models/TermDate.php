@@ -9,7 +9,6 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
-use Illuminate\Support\Carbon;
 use Illuminate\Support\Collection;
 
 class TermDate extends Model
@@ -70,33 +69,6 @@ class TermDate extends Model
     public function email_logs(): HasMany
     {
         return $this->hasMany(EmailLog::class)->latest();
-    }
-
-    /**
-     * Dates that have not happened yet, soonest first.
-     */
-    public function scopeUpcoming(Builder $query): Builder
-    {
-        return $query->where('start_datetime', '>', Carbon::now())->orderBy('start_datetime');
-    }
-
-    /**
-     * Dates the given user plays at: their ensembles' concerts, plus every
-     * rehearsal (rehearsals are shared by all ensembles). A user who belongs
-     * to no ensemble plays at nothing.
-     */
-    public function scopeForUser(Builder $query, User $user): Builder
-    {
-        $ensemble_ids = $user->ensembles->pluck('id');
-
-        if ($ensemble_ids->isEmpty()) {
-            return $query->whereRaw('1 = 0');
-        }
-
-        return $query->where(function (Builder $query) use ($ensemble_ids) {
-            $query->whereNull('concert_ensemble_id')
-                ->orWhereIn('concert_ensemble_id', $ensemble_ids);
-        });
     }
 
     public function isConcert(): bool

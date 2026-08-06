@@ -13,12 +13,6 @@
 	        'auth' => Auth::user()?->can('viewAny', App\Models\Attendance::class),
 	    ],
 	    [
-	        'title' => "Who's playing",
-	        'icon' => 'users-group',
-	        'route' => 'playing.index',
-	        'auth' => Gate::inspect('view.playing')->allowed(),
-	    ],
-	    [
 	        'title' => 'Composers',
 	        'icon' => 'old',
 	        'route' => 'composers.index',

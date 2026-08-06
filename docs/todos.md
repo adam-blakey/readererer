@@ -82,7 +82,7 @@ These touch the shared generic-CRUD layer or general UX and so apply regardless 
 - **Page names are HTML-escaped once per Blade component hop** — a `page_name`
   passed from a view through `<x-layout>` to `<x-page-header>` is escaped again at
   each hop, so a plain apostrophe (e.g. an ensemble called "St John's Band") renders
-  as `&amp;#039;`. Pages currently dodge it by using a typographic apostrophe.
+  as `&amp;#039;` in the page heading.
 - **Generic form field polish** — `resources/views/components/forms/field.blade.php:13`
   (icon alignment when an error is present), `:20` ("style nice"), `:39` (something
   "apparently isn't working correctly").

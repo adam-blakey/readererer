@@ -2,7 +2,6 @@
 
 namespace App\Providers;
 
-use App\Enums\UserRole;
 use Illuminate\Auth\Notifications\ResetPassword;
 use Illuminate\Pagination\Paginator;
 use Illuminate\Support\ServiceProvider;
@@ -48,12 +47,6 @@ class AppServiceProvider extends ServiceProvider
 
         Gate::define('view.dashboard', function (User $user) {
             return true;
-        });
-
-        // Only actual players get to see who they are playing with; the shared
-        // ensemble login exists to fill polls in, not to browse the register.
-        Gate::define('view.playing', function (User $user) {
-            return $user->role->value >= UserRole::Member->value;
         });
 
         Model::preventSilentlyDiscardingAttributes(config('app.env') == 'local');

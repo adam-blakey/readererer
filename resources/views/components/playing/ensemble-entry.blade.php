@@ -1,7 +1,7 @@
 @props(['ensemble', 'totals', 'is_yours' => false])
 
-<div class="py-2 d-flex align-items-center border-bottom">
-	<span class="rounded avatar" style="background-image: url({{ $ensemble->image }})"></span>
+<div class="py-1 d-flex align-items-center">
+	<span class="rounded avatar avatar-sm" style="background-image: url({{ $ensemble->image }})"></span>
 	<div class="ps-2">
 		<div>
 			{{ $ensemble->name }}
