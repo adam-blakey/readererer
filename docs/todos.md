@@ -24,8 +24,8 @@ How entities split across the phases:
 
 > Note: `InstrumentFamily`, `Part` and the seating plan straddle both phases — parts
 > belong to the Phase 2 sheet-music library but are keyed by instrument family, the
-> same dimension Phase 1 uses for seating. The generic "auto-entities" CRUD layer and
-> its enum gap (see Cross-cutting) affect entities in both phases.
+> same dimension Phase 1 uses for seating. The generic "auto-entities" CRUD layer
+> affects entities in both phases.
 
 ---
 
@@ -71,10 +71,9 @@ How entities split across the phases:
 
 These touch the shared generic-CRUD layer or general UX and so apply regardless of phase.
 
-- **Enum support in the generic form** — `app/helpers.php:77`, `app/helpers.php:118`,
-  `app/helpers.php:150`: enum columns are not mapped to form inputs; `get_create_fields()`
-  needs to populate options/default for enums and `map_database_type_to_html()` needs to
-  handle them. This is the known enum gap called out in CLAUDE.md.
+- ~~**Enum support in the generic form**~~ — done: a column with an enum cast is
+  rendered as a select of the enum's cases, labelled by the enum's `label()` method
+  where it has one and defaulting to the column's database default.
 - **Generic form field polish** — `resources/views/components/forms/field.blade.php:13`
   (icon alignment when an error is present), `:20` ("style nice"), `:39` (something
   "apparently isn't working correctly").

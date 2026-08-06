@@ -49,9 +49,6 @@ class UserController extends Controller
         $fields['last_name']['width'] = 6;
         unset($fields['password']);
         unset($fields['image']);
-        $fields['role']['type'] = 'enum';
-        $fields['role']['options'] = UserRole::cases();
-        $fields['role']['default_option'] = UserRole::Member;
 
         return view('auto-entities.form', [
             'page_name' => 'Users',

@@ -43,7 +43,10 @@
                 @break
             @case('enum')
                 @php
+                    // The value may be an enum instance off the model, or the raw
+                    // backing value coming back from old input.
                     $selected = $value ?: $data['default_option'];
+                    $selected = $selected instanceof \UnitEnum ? enum_case_value($selected) : $selected;
                 @endphp
                 <select
                     name="{{ $name }}"
@@ -51,15 +54,16 @@
                     @class(['form-select', 'is-invalid' => $has_error])
                     @required($data['required'])
                 >
+                    @unless($data['required'])
+                        <option value="" {{ $selected === null ? 'selected' : '' }}>—</option>
+                    @endunless
                     @foreach($data['options'] as $optionValue => $optionLabel)
                         @php
-                            $valSelected = $selected instanceof \UnitEnum ? ($selected instanceof \BackedEnum ? $selected->value : $selected->name) : $selected;
-                            $valOptionValue = $optionValue instanceof \UnitEnum ? ($optionValue instanceof \BackedEnum ? $optionValue->value : $optionValue->name) : $optionValue;
-                            $optionColorClass = $has_color_preview ? (color_name_to_css_class((string) $valOptionValue) ?? 'secondary') : null;
+                            $optionColorClass = $has_color_preview ? (color_name_to_css_class((string) $optionValue) ?? 'secondary') : null;
                         @endphp
                         <option
-                            value="{{ $valOptionValue }}"
-                            {{ (string) $valSelected === (string) $valOptionValue ? 'selected' : '' }}
+                            value="{{ $optionValue }}"
+                            {{ $selected !== null && (string) $selected === (string) $optionValue ? 'selected' : '' }}
                             @if ($has_color_preview)
                                 data-color-class="{{ $optionColorClass }}"
                             @endif
