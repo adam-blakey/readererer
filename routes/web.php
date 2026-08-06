@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\AttendanceController;
+use App\Http\Controllers\AttendanceRegisterController;
 use App\Http\Controllers\ComposerController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\EnsembleController;
@@ -14,6 +15,7 @@ use App\Http\Controllers\TermController;
 use App\Http\Controllers\TermDateNotificationController;
 use App\Http\Controllers\UserController;
 use App\Models\Attendance;
+use App\Models\RegisterEntry;
 use Illuminate\Support\Facades\Route;
 
 Route::view('/', 'home', ['page_name' => config('app.name')])
@@ -33,6 +35,18 @@ Route::post('/attendance/poll/{ensemble:slug}/{term:slug}', [AttendanceControlle
     ->withoutScopedBindings()
     ->name('attendance.poll-store')
     ->can('create', Attendance::class);
+
+Route::get('/attendance/register', [AttendanceRegisterController::class, 'index'])
+    ->name('attendance.register.index')
+    ->can('viewAny', RegisterEntry::class);
+Route::get('/attendance/register/{ensemble:slug}/{termDate}', [AttendanceRegisterController::class, 'show'])
+    ->withoutScopedBindings()
+    ->name('attendance.register.show')
+    ->can('viewAny', RegisterEntry::class);
+Route::post('/attendance/register/{ensemble:slug}/{termDate}', [AttendanceRegisterController::class, 'store'])
+    ->withoutScopedBindings()
+    ->name('attendance.register.store')
+    ->can('create', RegisterEntry::class);
 
 Route::resource('composers', ComposerController::class)->middleware('auth');
 Route::patch('/composers/{composer}/restore', [ComposerController::class, 'restore'])->name('composers.restore')->middleware('auth');

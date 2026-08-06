@@ -35,14 +35,37 @@
 
     $term_dates = $term
         ->term_dates
-        ->filter(function(TermDate $td) use ($ensemble) {
-            return
-                $td->concert_ensemble_id == null ||
-                $td->concert_ensemble_id == $ensemble->id;
-        });
+        ->filter(fn (TermDate $td) => $td->appliesToEnsemble($ensemble));
 
 	$spans_multiple_years = $term->earliest_date->year != $term->latest_date->year;
+
+	// Whoever takes the register can jump straight to it for any of this term's dates.
+	$can_take_registers = Gate::allows('viewAny', App\Models\RegisterEntry::class);
 @endphp
+
+@if ($can_take_registers and $term_dates->isNotEmpty())
+	<div class="card-header d-print-none">
+		<h2 class="mb-0 card-title">{{ $ensemble->name }}: {{ $term->name }}</h2>
+		<div class="ms-auto btn-list">
+			<div class="dropdown">
+				<button aria-expanded="false" class="btn btn-sm dropdown-toggle" data-bs-toggle="dropdown" type="button">
+					<x-icon name="list-check" />
+					Register
+				</button>
+				<div class="dropdown-menu dropdown-menu-end">
+					@foreach ($term_dates as $term_date)
+						<a class="dropdown-item" href="{{ route('attendance.register.show', ['ensemble' => $ensemble, 'termDate' => $term_date]) }}">
+							{{ $term_date->date_label }}
+							@if ($term_date->concert_ensemble_id)
+								<span class="ms-1 badge bg-green-lt">Concert</span>
+							@endif
+						</a>
+					@endforeach
+				</div>
+			</div>
+		</div>
+	</div>
+@endif
 
 <div class="table-responsive">
 	<form action="{{ route('attendance.poll-store', ['ensemble' => $ensemble, 'term' => $term]) }}" method="POST">

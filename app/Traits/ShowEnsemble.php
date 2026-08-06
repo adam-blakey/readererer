@@ -18,14 +18,14 @@ trait ShowEnsemble
 
         $next_rehearsal = $upcoming_terms
             ->flatMap(fn ($term) => $term->term_dates)
-            ->filter(fn ($term_date) => $term_date->ensemble_id === null)
+            ->filter(fn ($term_date) => $term_date->concert_ensemble_id === null)
             ->where('start_datetime', '>', Carbon::now())
             ->sortBy('start_datetime')
             ->first();
 
         $next_concert = $upcoming_terms
             ->flatMap(fn ($term) => $term->term_dates)
-            ->filter(fn ($term_date) => (int)$term_date->ensemble_id === (int)$ensemble->id)
+            ->filter(fn ($term_date) => (int)$term_date->concert_ensemble_id === (int)$ensemble->id)
             ->where('start_datetime', '>', Carbon::now())
             ->sortBy('start_datetime')
             ->first();
