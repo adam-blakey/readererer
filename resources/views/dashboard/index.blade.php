@@ -1,4 +1,4 @@
-@props(['page_name', 'ensembles' => collect(), 'setupGroup' => null, 'nextRehearsal' => null, 'nextConcerts' => collect(), 'nextVanDrive' => null])
+@props(['page_name', 'ensembles' => collect(), 'setupGroup' => null, 'setupGroups' => collect(), 'nextSetupGroupDates' => collect(), 'nextRehearsal' => null, 'nextConcerts' => collect(), 'nextVanDrive' => null])
 
 <x-layout :$page_name page_subname="Dashboard">
 	<div class="container-xl">
@@ -56,18 +56,35 @@
 			<div class="col-md-4">
 				<x-card>
 					<div class="card-header">
-						<h2 class="mb-0 card-heading">Your setup group</h2>
+						<h2 class="mb-0 card-heading">Setup groups</h2>
 					</div>
-					<x-card-body>
-						@if($setupGroup)
-							<div class="d-flex align-items-center">
-								<x-setup-group-badge :setup_group="$setupGroup" />
-								<span class="ms-2">{{ $setupGroup->name }}</span>
-							</div>
-						@else
-							<p class="text-muted">You are not assigned to a setup group.</p>
-						@endif
-					</x-card-body>
+					@if(!$setupGroup)
+						<x-card-body>
+							<p class="mb-0 text-muted">You are not assigned to a setup group.</p>
+						</x-card-body>
+					@endif
+					@if($setupGroups->count() === 0)
+						<x-card-body>
+							<p class="mb-0 text-muted">There are no setup groups.</p>
+						</x-card-body>
+					@else
+						<div class="list-group list-group-flush">
+							@foreach($setupGroups as $group)
+								<div class="list-group-item">
+									<div class="d-flex align-items-center">
+										<x-setup-group-badge :setup_group="$group" />
+										<span class="ms-2">{{ $group->name }}</span>
+										@if($setupGroup && $setupGroup->id === $group->id)
+											<span class="badge bg-secondary-lt ms-2">You</span>
+										@endif
+									</div>
+									<div class="mt-1">
+										<x-rehearsal-entry :term_date="$nextSetupGroupDates->get($group->id)" empty_message="No upcoming dates." />
+									</div>
+								</div>
+							@endforeach
+						</div>
+					@endif
 				</x-card>
 
 				<x-card class="mt-3">

@@ -43,9 +43,6 @@ How entities split across the phases:
 - Emails (general).
 - Useful logging.
 
-**Dashboard**
-- Show the next date against each setup group.
-
 **Login**
 - Tab ordering should skip the "forgotten password" link.
 

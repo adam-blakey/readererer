@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Enums\UserRole;
+use App\Models\SetupGroup;
 use App\Models\TermDate;
 use App\Traits\ShowEnsemble;
 use Illuminate\Support\Carbon;
@@ -41,6 +42,15 @@ class DashboardController extends Controller
             ->limit(3)
             ->get();
 
+        // The next date each setup group is on duty for, keyed by setup group id
+        $setupGroups = SetupGroup::orderBy('week')->orderBy('name')->get();
+        $nextSetupGroupDates = TermDate::whereNotNull('setup_group_id')
+            ->where('start_datetime', '>', Carbon::now())
+            ->orderBy('start_datetime')
+            ->get()
+            ->unique('setup_group_id')
+            ->keyBy('setup_group_id');
+
         // Next time the user will be driving the van
         $nextVanDrive = null;
         if ($setupGroup) {
@@ -59,6 +69,8 @@ class DashboardController extends Controller
             'page_name' => config('app.name') . ' dashboard',
             'ensembles' => $ensembles,
             'setupGroup' => $setupGroup,
+            'setupGroups' => $setupGroups,
+            'nextSetupGroupDates' => $nextSetupGroupDates,
             'nextRehearsal' => $nextRehearsal,
             'nextConcerts' => $nextConcerts,
             'nextVanDrive' => $nextVanDrive,

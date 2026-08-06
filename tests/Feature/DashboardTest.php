@@ -102,6 +102,66 @@ test('ensemble logins are shown their ensemble page instead of the dashboard', f
     expect($response->viewData('ensemble')->id)->toBe($ensemble->id);
 });
 
+test('the dashboard shows the next date against each setup group', function () {
+    $groupA = SetupGroup::create(['name' => 'Group A', 'week' => 1, 'color' => 'blue']);
+    $groupB = SetupGroup::create(['name' => 'Group B', 'week' => 2, 'color' => 'green']);
+    $member = make_user(UserRole::Member, ['setup_group_id' => $groupA->id]);
+
+    $term = Term::factory()->create();
+    // The one further out should not win over the group's nearest upcoming date.
+    TermDate::forceCreate([
+        'term_id' => $term->id,
+        'start_datetime' => now()->addWeeks(3),
+        'end_datetime' => now()->addWeeks(3)->addHours(2),
+        'setup_group_id' => $groupA->id,
+    ]);
+    $nextForA = TermDate::forceCreate([
+        'term_id' => $term->id,
+        'start_datetime' => now()->addWeek(),
+        'end_datetime' => now()->addWeek()->addHours(2),
+        'setup_group_id' => $groupA->id,
+    ]);
+    $nextForB = TermDate::forceCreate([
+        'term_id' => $term->id,
+        'start_datetime' => now()->addWeeks(2),
+        'end_datetime' => now()->addWeeks(2)->addHours(2),
+        'setup_group_id' => $groupB->id,
+    ]);
+
+    $response = $this->actingAs($member)->get('/dashboard');
+
+    $response->assertOk();
+    expect($response->viewData('setupGroups')->pluck('id')->all())->toBe([$groupA->id, $groupB->id]);
+
+    $nextDates = $response->viewData('nextSetupGroupDates');
+    expect($nextDates->get($groupA->id)->id)->toBe($nextForA->id);
+    expect($nextDates->get($groupB->id)->id)->toBe($nextForB->id);
+
+    $response->assertSee('Group A');
+    $response->assertSee('Group B');
+    $response->assertSee($nextForA->schedule_label);
+    $response->assertSee($nextForB->schedule_label);
+});
+
+test('a setup group with only past dates has no next date on the dashboard', function () {
+    $group = SetupGroup::create(['name' => 'Group A', 'week' => 1, 'color' => 'blue']);
+    $member = make_user(UserRole::Member, ['setup_group_id' => $group->id]);
+
+    $term = Term::factory()->create();
+    TermDate::forceCreate([
+        'term_id' => $term->id,
+        'start_datetime' => now()->subWeek(),
+        'end_datetime' => now()->subWeek()->addHours(2),
+        'setup_group_id' => $group->id,
+    ]);
+
+    $response = $this->actingAs($member)->get('/dashboard');
+
+    $response->assertOk();
+    expect($response->viewData('nextSetupGroupDates')->get($group->id))->toBeNull();
+    $response->assertSee('No upcoming dates.');
+});
+
 test('the dashboard shows the user\'s next van drive from the setup group rotation', function () {
     $setupGroup = SetupGroup::create(['name' => 'Group A', 'week' => 1, 'color' => 'blue']);
     $driver = make_user(UserRole::Member, ['setup_group_id' => $setupGroup->id]);
