@@ -80,10 +80,10 @@ class TermDate extends Model
     public function getNameAttribute(): string
     {
         if ($this->start_datetime->isSameDay($this->end_datetime)) {
-            return $this->start_datetime->format('l, jS F Y').'  '.$this->start_datetime->format('H:i').'-'.$this->end_datetime->format('H:i');
+            return $this->start_datetime->format('l, jS F Y').', '.$this->start_datetime->format('H:i').'–'.$this->end_datetime->format('H:i');
         }
 
-        return $this->start_datetime->format('l, jS F Y H:i').' - '.$this->end_datetime->format('l, jS F Y H:i');
+        return $this->start_datetime->format('l, jS F Y, H:i').' – '.$this->end_datetime->format('l, jS F Y, H:i');
     }
 
     /**
@@ -105,5 +105,38 @@ class TermDate extends Model
     public function getTimeLabelAttribute(): string
     {
         return $this->start_datetime->format('H:i').'–'.$this->end_datetime->format('H:i');
+    }
+
+    /**
+     * Date and time together, on one line. Single-day dates read as
+     * "Wed, 12 Aug 2026, 19:30–21:30"; multi-day dates spell out both ends.
+     */
+    public function getScheduleLabelAttribute(): string
+    {
+        if ($this->start_datetime->isSameDay($this->end_datetime)) {
+            return $this->date_label.', '.$this->time_label;
+        }
+
+        return $this->start_datetime->format('D, j M Y, H:i').' – '.$this->end_datetime->format('D, j M Y, H:i');
+    }
+
+    /**
+     * How far off the date is, in words — "Today", "In 3 days", "2 months ago" —
+     * for showing alongside the absolute date.
+     */
+    public function getRelativeLabelAttribute(): string
+    {
+        // Rounded, so a day that is an hour short either side of a DST change
+        // still counts as a whole day.
+        $days = (int) round(now()->startOfDay()->diffInDays($this->start_datetime->copy()->startOfDay(), false));
+
+        return match (true) {
+            $days === 0 => 'Today',
+            $days === 1 => 'Tomorrow',
+            $days === -1 => 'Yesterday',
+            $days > 1 && $days < 14 => 'In '.$days.' days',
+            $days < -1 && $days > -14 => abs($days).' days ago',
+            default => ucfirst($this->start_datetime->diffForHumans(['parts' => 1])),
+        };
     }
 }

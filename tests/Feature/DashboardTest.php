@@ -33,6 +33,27 @@ test('members see the dashboard with their ensembles and upcoming dates', functi
     expect($response->viewData('nextConcerts')->pluck('id')->all())->toBe([$concert->id]);
 });
 
+test('the dashboard renders upcoming dates in words rather than raw datetimes', function () {
+    $ensemble = Ensemble::factory()->create();
+    $member = make_user(UserRole::Member);
+    join_ensemble($member, $ensemble);
+
+    $term = Term::factory()->create();
+    $start = now()->addDays(5)->setTime(19, 0);
+    $rehearsal = TermDate::forceCreate([
+        'term_id' => $term->id,
+        'start_datetime' => $start,
+        'end_datetime' => $start->copy()->setTime(21, 30),
+    ]);
+
+    $response = $this->actingAs($member)->get('/dashboard');
+
+    $response->assertOk();
+    $response->assertSee($rehearsal->schedule_label);
+    $response->assertSee('In 5 days');
+    $response->assertDontSee($start->format('Y-m-d H:i:s'));
+});
+
 test('concerts for other ensembles are not shown as the member\'s next concerts', function () {
     $ensemble = Ensemble::factory()->create();
     $otherEnsemble = Ensemble::factory()->create();
