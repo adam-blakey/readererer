@@ -42,9 +42,15 @@
 		</div>
 	</div>
 	<div class="ms-auto btn-list">
-		@foreach ($sort_options as $option => $label)
-			<x-a class="btn btn-sm {{ $sortby === $option ? 'active' : '' }}" href="{{ route('attendance.register.show', ['ensemble' => $ensemble, 'termDate' => $term_date, 'sortby' => $option]) }}">{{ $label }}</x-a>
-		@endforeach
+		<x-a class="btn btn-sm" href="{{ route('attendance.poll', ['ensemble' => $ensemble, 'term' => $term_date->term]) }}">
+			<x-icon name="square-check" />
+			Poll
+		</x-a>
+		<div aria-label="Sort members by" class="btn-group" role="group">
+			@foreach ($sort_options as $option => $label)
+				<x-a class="btn btn-sm {{ $sortby === $option ? 'active' : '' }}" href="{{ route('attendance.register.show', ['ensemble' => $ensemble, 'termDate' => $term_date, 'sortby' => $option]) }}">{{ $label }}</x-a>
+			@endforeach
+		</div>
 	</div>
 </div>
 

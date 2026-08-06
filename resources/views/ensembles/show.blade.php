@@ -68,11 +68,11 @@
                         </div>
                         <div class="card-body">
                             <div class="card-title">Next rehearsal</div>
-                            <x-rehearsal-entry :term_date="$nextRehearsal" />
+                            <x-rehearsal-entry :ensembles="collect([$ensemble])" :term_date="$nextRehearsal" />
                         </div>
                         <div class="card-body">
                             <div class="card-title">Next concert</div>
-                            <x-rehearsal-entry :term_date="$nextConcert" />
+                            <x-rehearsal-entry :ensembles="collect([$ensemble])" :term_date="$nextConcert" />
                         </div>
                     </div>
 				</div>
