@@ -62,7 +62,7 @@ class EmailLogSeeder extends Seeder
             recipients: $users->take(1)->map(fn ($user) => [$user, EmailStatus::Failed, 'Connection could not be established with host "smtp.example.com:587": stream_socket_client(): Unable to connect (Connection refused)']),
         );
 
-        // A recent, successful "groups/drivers changed" alert.
+        // A recent, successful "setup groups/driver changed" alert.
         $this->seedLog(
             termDate: $termDates[3] ?? $termDates[0],
             mailable: RosterChangedMail::class,

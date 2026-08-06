@@ -35,7 +35,7 @@ class EmailLog extends Model
         AttendanceListMail::class => 'Attendance list',
         SetupReminderMail::class => 'Setup-group reminder',
         VanDriverReminderMail::class => 'Van-driver reminder',
-        RosterChangedMail::class => 'Groups/drivers changed',
+        RosterChangedMail::class => 'Setup groups/driver changed',
     ];
 
     public function getTypeLabelAttribute(): string

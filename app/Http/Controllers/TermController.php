@@ -94,8 +94,10 @@ class TermController extends Controller
             ];
 
             if (! empty($term_date['id'])) {
-                // Update existing by ID, scoped to this term. Saved through the
-                // model so TermDateObserver can send "groups/drivers changed" alerts.
+                // Update existing by ID, scoped to this term. Retrieved first so the
+                // save goes through the model: a query-builder update() writes straight
+                // to the database without firing Eloquent events, which would stop
+                // TermDateObserver sending setup group / van driver change alerts.
                 $term->term_dates()->whereKey($term_date['id'])->first()?->update($payload);
             } else {
                 // Create new
@@ -174,8 +176,10 @@ class TermController extends Controller
             ];
 
             if (! empty($term_date['id'])) {
-                // Update existing by ID, scoped to this term. Saved through the
-                // model so TermDateObserver can send "groups/drivers changed" alerts.
+                // Update existing by ID, scoped to this term. Retrieved first so the
+                // save goes through the model: a query-builder update() writes straight
+                // to the database without firing Eloquent events, which would stop
+                // TermDateObserver sending setup group / van driver change alerts.
                 $term->term_dates()->whereKey($term_date['id'])->first()?->update($payload);
             } else {
                 // Create new
