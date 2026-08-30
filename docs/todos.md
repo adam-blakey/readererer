@@ -70,7 +70,9 @@ These touch the shared generic-CRUD layer or general UX and so apply regardless 
   (icon alignment when an error is present), `:20` ("style nice"), `:39` (something
   "apparently isn't working correctly").
 - **Auto-entity show view button alignment** — `resources/views/auto-entities/show.blade.php:22`.
-- **Proper colour picker** — recurring item in the plan (used by setup groups, etc.).
+- ~~**Proper colour picker**~~ — done: a column cast to the `Color` palette is
+  rendered by the generic form as a swatch picker (`<x-forms.color-picker>`), a
+  plain radio group needing no JavaScript.
 - **Canonical breadcrumb navigation** — recurring item; plan suggests
   `diglactic/laravel-breadcrumbs`.
 - **Translation strings** — i18n not yet extracted.
