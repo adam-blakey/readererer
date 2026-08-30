@@ -126,7 +126,7 @@
 										$input_id = 'status-'.$member->id.'-'.$choice->value;
 									@endphp
 									<input autocomplete="off" class="btn-check register-status" id="{{ $input_id }}" name="status[{{ $member->id }}]" type="radio" value="{{ $choice->value }}" @checked($status === $choice) />
-									<label class="btn btn-sm btn-outline-{{ $choice->color() }}" for="{{ $input_id }}" title="{{ $choice->label() }}">
+									<label class="btn btn-sm btn-outline-{{ $choice->color() }}" for="{{ $input_id }}" @if ($choice === RegisterStatus::Unmarked) data-bs-toggle="tooltip" title="{{ $choice->label() }} — no attendance recorded" @else title="{{ $choice->label() }}" @endif>
 										@if ($choice === RegisterStatus::Unmarked)
 											—
 										@else
