@@ -9,9 +9,6 @@
 	    }
 	}
 
-	// An avatar is initials or a picture, and the name beside it is hidden on
-	// narrow screens, so hovering it should say who this is — and, when the
-	// setup group badge is riding on it, which group they set up with.
 	$show_group_badge = $show_setup_group && $user->setup_group != null;
 
 	$tooltip_text = $user->name;

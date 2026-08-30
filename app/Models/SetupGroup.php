@@ -56,11 +56,6 @@ class SetupGroup extends Model
         'van_drivers',
     ];
 
-    /**
-     * What to call this group in prose — on hover tooltips, in emails, and
-     * anywhere the badge's bare week number needs spelling out. Falls back to
-     * the week number when a group has been created without a name.
-     */
     public function getLabelAttribute(): string
     {
         return trim((string) $this->name) !== ''

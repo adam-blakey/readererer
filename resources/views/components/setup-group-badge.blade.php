@@ -2,8 +2,6 @@
 @props(['setup_group', 'show_as_dot' => false, 'show_with_van' => false, 'size' => 'lg', 'tooltip' => true])
 
 @php
-	// The badge shows a bare week number — or, as a dot, nothing at all — so the
-	// hover text is the only place it says what it stands for.
 	$tooltip_text = $setup_group->label;
 
 	if ($show_with_van) {

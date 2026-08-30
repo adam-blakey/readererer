@@ -6,9 +6,6 @@
 		@php
 			$highlight = $ensemble ? ((int)($term_date->concert_ensemble_id) === (int)($ensemble->id)) : ($term_date->concert_ensemble_id !== null);
 
-			// The column is stacked abbreviations — "Aug / 6 / Wed / 19:30 / 21:30"
-			// — so spell the date out in full, and say whether it is a concert,
-			// on hover.
 			$heading_tooltip = ($term_date->concert_ensemble_id ? 'Concert' : 'Rehearsal') . ': ' . $term_date->schedule_label;
 
 			if ($term_date->concert_ensemble) {
