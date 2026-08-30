@@ -88,9 +88,10 @@ test('an enum cast beats the image and email column name special cases', functio
     expect(map_database_type_to_html('email', 'varchar', ['email' => Color::class]))->toBe('enum');
 });
 
-test('map_database_type_to_html special-cases image and email column names', function () {
+test('map_database_type_to_html special-cases image, email and password column names', function () {
     expect(map_database_type_to_html('image', 'varchar', []))->toBe('image');
     expect(map_database_type_to_html('email', 'varchar', []))->toBe('email');
+    expect(map_database_type_to_html('password', 'varchar', []))->toBe('password');
 });
 
 test('map_database_type_to_html maps database types to html input types', function (string $dbType, string $expected) {
@@ -107,8 +108,8 @@ test('map_database_type_to_html maps database types to html input types', functi
     ['boolean', 'boolean'],
     ['tinyint', 'boolean'],
     ['date', 'date'],
-    ['datetime', 'date'],
-    ['timestamp', 'date'],
+    ['datetime', 'datetime'],
+    ['timestamp', 'datetime'],
     ['varchar', 'text'],
     ['VARCHAR', 'text'],
 ]);

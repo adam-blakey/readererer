@@ -66,9 +66,10 @@ These touch the shared generic-CRUD layer or general UX and so apply regardless 
 - ~~**Enum support in the generic form**~~ — done: a column with an enum cast is
   rendered as a select of the enum's cases, labelled by the enum's `label()` method
   where it has one and defaulting to the column's database default.
-- **Generic form field polish** — `resources/views/components/forms/field.blade.php:13`
-  (icon alignment when an error is present), `:20` ("style nice"), `:39` (something
-  "apparently isn't working correctly").
+- ~~**Generic form field polish**~~ — done: the validation message now sits outside
+  the icon wrapper (so the icon stays centred on the control), selects are padded
+  clear of the icon, and the field types the form can produce but never rendered
+  (booleans, dates, datetimes) render proper controls.
 - **Auto-entity show view button alignment** — `resources/views/auto-entities/show.blade.php:22`.
 - **Proper colour picker** — recurring item in the plan (used by setup groups, etc.).
 - **Canonical breadcrumb navigation** — recurring item; plan suggests

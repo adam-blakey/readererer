@@ -94,3 +94,17 @@
     z-index: 1;
     background: var(--tblr-bg-surface, #fff);
 }
+
+/* Tabler only pads a .form-select away from a leading .input-icon-addon while
+   the select is not the last child of the wrapper, so pad it here on the same
+   terms as .form-control — otherwise the icon sits on top of the select's text. */
+.input-icon .form-select:not(:first-child) {
+    padding-left: 2.5rem;
+}
+
+/* Controls taller than a single row (textareas, multi-selects) want the icon
+   against their first row rather than centred on the whole control. */
+.input-icon-top .input-icon-addon {
+    bottom: auto;
+    height: calc(1.25rem + 1.125rem + (var(--tblr-border-width) * 2));
+}
