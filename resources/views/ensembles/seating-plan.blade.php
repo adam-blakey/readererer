@@ -14,18 +14,18 @@
                                 <div class="dropdown">
                                     <button class="btn dropdown-toggle" type="button" data-bs-toggle="dropdown" data-bs-auto-close="outside" aria-expanded="false">
                                         <x-icon name="file-type-pdf" />
-                                        Download
+                                        {{ __('Download') }}
                                     </button>
                                     <div class="dropdown-menu download-menu" id="download-menu">
                                         <div class="download-menu-filters p-2">
-                                            <input type="search" class="form-control form-control-sm mb-2" id="download-search" placeholder="Search dates…" autocomplete="off">
+                                            <input type="search" class="form-control form-control-sm mb-2" id="download-search" placeholder="{{ __('Search dates…') }}" autocomplete="off">
                                             <div class="btn-group w-100" role="group">
                                                 <input type="radio" class="btn-check" name="download-scope" id="download-scope-upcoming" value="upcoming" checked>
-                                                <label class="btn btn-sm" for="download-scope-upcoming">Upcoming</label>
+                                                <label class="btn btn-sm" for="download-scope-upcoming">{{ __('Upcoming') }}</label>
                                                 <input type="radio" class="btn-check" name="download-scope" id="download-scope-past" value="past">
-                                                <label class="btn btn-sm" for="download-scope-past">Past</label>
+                                                <label class="btn btn-sm" for="download-scope-past">{{ __('Past') }}</label>
                                                 <input type="radio" class="btn-check" name="download-scope" id="download-scope-all" value="all">
-                                                <label class="btn btn-sm" for="download-scope-all">All</label>
+                                                <label class="btn btn-sm" for="download-scope-all">{{ __('All') }}</label>
                                             </div>
                                         </div>
                                         <div class="dropdown-divider mt-0"></div>
@@ -34,17 +34,17 @@
                                                 <x-a class="dropdown-item download-option" data-when="{{ $when }}" data-search="{{ strtolower($term_date->name) }}" href="{{ route('seating-plan.download', ['ensemble' => $ensemble, 'termDate' => $term_date]) }}" target="_blank">
                                                     {{ $term_date->name }}
                                                     @if($term_date->concert_ensemble_id)
-                                                        <span class="badge bg-green text-green-fg ms-2">Concert</span>
+                                                        <span class="badge bg-green text-green-fg ms-2">{{ __('Concert') }}</span>
                                                     @endif
                                                 </x-a>
                                             @endforeach
                                         @endforeach
-                                        <div class="dropdown-item disabled" id="download-no-results" style="display: none;">No matching dates.</div>
+                                        <div class="dropdown-item disabled" id="download-no-results" style="display: none;">{{ __('No matching dates.') }}</div>
                                     </div>
                                 </div>
                             @endif
                             <button class="btn btn-primary" id="save-seating-plan">
-                                Save
+                                {{ __('Save') }}
                             </button>
                         </div>
                     </div>
@@ -64,7 +64,7 @@
 
                         <div class="card mb-3 seating-row" data-row="unassigned">
                             <div class="card-header">
-                                <h2 class="card-title">Unassigned</h2>
+                                <h2 class="card-title">{{ __('Unassigned') }}</h2>
                             </div>
                             <div class="card-body">
                                 @foreach($unassigned_users as $instrument => $users)
@@ -90,7 +90,7 @@
                             @foreach($grouped_users as $row => $users)
                                 <div class="card mb-3 seating-row" data-row="{{ $row }}">
                                     <div class="card-header">
-                                        <h2 class="card-title">Row {{ $row }}</h2>
+                                        <h2 class="card-title">{{ __('Row :number', ['number' => $row]) }}</h2>
                                     </div>
                                     <div class="card-body">
                                         <div class="row min-h-2 drop-container">

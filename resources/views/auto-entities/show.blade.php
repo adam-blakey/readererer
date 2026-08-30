@@ -16,24 +16,24 @@
                         <div class="card-actions">
                             @if ($edit_route)
                                 <x-a :route="$edit_route" :model="$entity" class="btn">
-                                    Edit
+                                    {{ __('Edit') }}
                                 </x-a>
                             @endif
 {{--                            TODO: Button alignment --}}
                             @if ($entity->deleted_at != null)
                                 @if ($restore_route)
-                                    <form method="POST" action="{{ route($restore_route, $entity) }}" onsubmit="return confirm('Are you sure you want to unarchive this record?');">
+                                    <form method="POST" action="{{ route($restore_route, $entity) }}" onsubmit="return confirm('{{ __('Are you sure you want to unarchive this record?') }}');">
                                         @csrf
                                         @method('PATCH')
-                                        <button type="submit" class="btn btn-success">Unarchive</button>
+                                        <button type="submit" class="btn btn-success">{{ __('Unarchive') }}</button>
                                     </form>
                                 @endif
                             @else
                                 @if ($destroy_route)
-                                    <form method="POST" action="{{ route($destroy_route, $entity) }}" onsubmit="return confirm('Are you sure you want to archive this record?');">
+                                    <form method="POST" action="{{ route($destroy_route, $entity) }}" onsubmit="return confirm('{{ __('Are you sure you want to archive this record?') }}');">
                                         @csrf
                                         @method('DELETE')
-                                        <button type="submit" class="btn btn-danger">Archive</button>
+                                        <button type="submit" class="btn btn-danger">{{ __('Archive') }}</button>
                                     </form>
                                 @endif
                             @endif

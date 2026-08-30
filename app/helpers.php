@@ -24,12 +24,19 @@ function get_class_name_from_model($model)
     return $class_name;
 }
 
+/**
+ * Turn a column name into a human label ("setup_group" -> "Setup group").
+ *
+ * The label is passed through the translator, so a locale can override any of
+ * them in its message file; untranslated labels fall through as the English
+ * text they already were.
+ */
 function clean_attribute_name($dirty_attribute)
 {
     $clean_attribute = str_replace('_', ' ', $dirty_attribute);
     $clean_attribute = ucfirst($clean_attribute);
 
-    return $clean_attribute;
+    return __($clean_attribute);
 }
 
 /**
@@ -42,7 +49,7 @@ function clean_attribute_name($dirty_attribute)
 function column_label($model, $attribute)
 {
     if (property_exists($model, 'column_labels') && array_key_exists($attribute, $model->column_labels)) {
-        return $model->column_labels[$attribute];
+        return __($model->column_labels[$attribute]);
     }
 
     return clean_attribute_name($attribute);
@@ -163,7 +170,7 @@ function get_create_fields(object $dummy): array
         }
 
         $fields[$name] = [
-            'label' => ucfirst(str_replace('_', ' ', $name)),
+            'label' => clean_attribute_name($name),
             'type' => $type,
             'required' => ! $nullable,
             'icon' => $icon,

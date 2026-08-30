@@ -1,4 +1,4 @@
-<x-layout :show_page_header="false" page_name="{{ app()->view->getSections()['error_code'] }} error">
+<x-layout :show_page_header="false" :page_name="__(':code error', ['code' => app()->view->getSections()['error_code']])">
 	<div class="container-xl">
 		<x-card-row>
 			<div class="col-md-12">

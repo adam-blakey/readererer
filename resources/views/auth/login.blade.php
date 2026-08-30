@@ -21,13 +21,13 @@
 					</div>
 					<div class="card card-md">
 						<div class="card-body">
-							<h2 class="mb-4 text-center h2">Login to your account</h2>
+							<h2 class="mb-4 text-center h2">{{ __('Login to your account') }}</h2>
 							<form action="{{ route('login') }}" method="POST">
 								@csrf
 
 								<div class="mb-3">
 									<label class="form-label" for="username">{{ __('Username') }}</label>
-									<input autocomplete="username" class="form-control" id="username" name="username" placeholder="Your username" required tabindex="2" type="text" value="{{ old('username') }}">
+									<input autocomplete="username" class="form-control" id="username" name="username" placeholder="{{ __('Your username') }}" required tabindex="2" type="text" value="{{ old('username') }}">
 									<x-forms.input-error :messages="$errors->get('username')" />
 								</div>
 								<div class="mb-2">
@@ -38,12 +38,12 @@
 										</span>
 									</label>
 									<div class="input-group input-group-flat">
-										<input autocomplete="current-password" class="form-control" id="password" name="password" placeholder="Your password" required tabindex="3" type="password">
+										<input autocomplete="current-password" class="form-control" id="password" name="password" placeholder="{{ __('Your password') }}" required tabindex="3" type="password">
 										<span class="input-group-text">
-											<a aria-label="Show password" class="cursor-pointer link-secondary" data-bs-original-title="Show password" data-bs-toggle="tooltip" id="toggle-password-show" onclick="togglePasswordVisibility('password', 'toggle-password-show', 'toggle-password-hide')">
+											<a aria-label="{{ __('Show password') }}" class="cursor-pointer link-secondary" data-bs-original-title="{{ __('Show password') }}" data-bs-toggle="tooltip" id="toggle-password-show" onclick="togglePasswordVisibility('password', 'toggle-password-show', 'toggle-password-hide')">
 												<x-icon name="eye" />
 											</a>
-											<a aria-label="Hide password" class="hidden cursor-pointer link-secondary" data-bs-original-title="Hide password" data-bs-toggle="tooltip" id="toggle-password-hide" onclick="togglePasswordVisibility('password', 'toggle-password-show', 'toggle-password-hide')">
+											<a aria-label="{{ __('Hide password') }}" class="hidden cursor-pointer link-secondary" data-bs-original-title="{{ __('Hide password') }}" data-bs-toggle="tooltip" id="toggle-password-hide" onclick="togglePasswordVisibility('password', 'toggle-password-show', 'toggle-password-hide')">
 												<x-icon name="eye-closed" />
 											</a>
 										</span>
@@ -64,20 +64,20 @@
 								</div>
 							</form>
 						</div>
-						<div class="hr-text">or</div>
+						<div class="hr-text">{{ __('or') }}</div>
 						<div class="card-body">
 							<div class="row">
 								<div class="col">
 									<a class="btn w-100" href="#" tabindex="6">
 										<x-icon name="google" />
-										Login with Google
+										{{ __('Login with Google') }}
 									</a>
 								</div>
 							</div>
 						</div>
 					</div>
 					<div class="mt-3 text-center text-secondary">
-						Don't have account yet? <a href="./sign-up.html" tabindex="7">Sign up</a>
+						{{ __("Don't have an account yet?") }} <a href="./sign-up.html" tabindex="7">{{ __('Sign up') }}</a>
 					</div>
 				</div>
 			</div>

@@ -13,9 +13,9 @@
 				</div>
 				<div class="col-auto ms-auto">
 					<div class="btn-list">
-						<x-a href="{{ route('ensembles.show', ['ensemble' => $ensemble]) }}" class="btn"><x-icon name="arrow-left" />Back to ensemble</x-a>
+						<x-a href="{{ route('ensembles.show', ['ensemble' => $ensemble]) }}" class="btn"><x-icon name="arrow-left" />{{ __('Back to ensemble') }}</x-a>
 						@can('update', $ensemble)
-							<a href="#" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#modal-add-user-ensemble"><x-icon name="user-plus" />Add user</a>
+							<a href="#" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#modal-add-user-ensemble"><x-icon name="user-plus" />{{ __('Add user') }}</a>
 						@endcan
 					</div>
 				</div>
@@ -27,19 +27,19 @@
 		<div class="container-xl">
 			<div class="card">
 				<div class="card-header">
-					<h2 class="mb-0 card-heading">Members ({{ $ensemble->users->count() }})</h2>
+					<h2 class="mb-0 card-heading">{{ __('Members (:count)', ['count' => $ensemble->users->count()]) }}</h2>
 				</div>
 				<div class="table-responsive">
 					@if ($ensemble->users->isEmpty())
-						<p class="p-5 mb-0 text-muted">This ensemble has no members yet.</p>
+						<p class="p-5 mb-0 text-muted">{{ __('This ensemble has no members yet.') }}</p>
 					@else
 						<table class="table table-vcenter card-table">
 							<thead>
 								<tr>
-									<th>Member</th>
-									<th>Instrument family</th>
-									<th>Seat</th>
-									<th>Setup group</th>
+									<th>{{ __('Member') }}</th>
+									<th>{{ __('Instrument family') }}</th>
+									<th>{{ __('Seat') }}</th>
+									<th>{{ __('Setup group') }}</th>
 									@can('update', $ensemble)
 										<th class="w-1"></th>
 									@endcan
@@ -68,9 +68,9 @@
 										</td>
 										@can('update', $ensemble)
 											<td>
-												<form method="POST" action="{{ route('ensembles.remove_user', [$ensemble, $member]) }}" onsubmit="return confirm('Remove {{ $member->name }} from {{ $ensemble->name }}?');">
+												<form method="POST" action="{{ route('ensembles.remove_user', [$ensemble, $member]) }}" onsubmit="return confirm('{{ __('Remove :member from :ensemble?', ['member' => $member->name, 'ensemble' => $ensemble->name]) }}');">
 													@csrf
-													<button type="submit" class="btn btn-outline-danger btn-sm">Remove</button>
+													<button type="submit" class="btn btn-outline-danger btn-sm">{{ __('Remove') }}</button>
 												</form>
 											</td>
 										@endcan

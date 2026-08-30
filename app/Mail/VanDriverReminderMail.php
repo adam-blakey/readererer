@@ -19,7 +19,7 @@ class VanDriverReminderMail extends Mailable
     public function envelope(): Envelope
     {
         return new Envelope(
-            subject: 'Van driver reminder — '.$this->termDate->name,
+            subject: __('Van driver reminder — :name', ['name' => $this->termDate->name]),
         );
     }
 

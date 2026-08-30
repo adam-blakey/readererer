@@ -73,7 +73,9 @@ These touch the shared generic-CRUD layer or general UX and so apply regardless 
 - **Proper colour picker** — recurring item in the plan (used by setup groups, etc.).
 - **Canonical breadcrumb navigation** — recurring item; plan suggests
   `diglactic/laravel-breadcrumbs`.
-- **Translation strings** — i18n not yet extracted.
+- ~~**Translation strings**~~ — done: user-facing text goes through `__()` /
+  `trans_choice()`, and `lang/en.json` holds the catalogue a locale is translated
+  from. See `lang/README.md`.
 - **Grey out the Save button when no changes have been made.**
 - **Quantify/triage rough edges** — form error handling; "resizing text disappearing"
   issue; automated tests; possible Laravel Boost setup.

@@ -30,10 +30,10 @@
     @endif
     @if ($remove_from_ensemble != null)
         <div class="ms-auto align-self-center">
-            <form method="POST" action="{{ route('ensembles.remove_user', [$remove_from_ensemble, $user]) }}" onsubmit="return confirm('Are you sure you want to archive this record?');" onclick="event.stopPropagation()">
+            <form method="POST" action="{{ route('ensembles.remove_user', [$remove_from_ensemble, $user]) }}" onsubmit="return confirm('{{ __('Are you sure you want to archive this record?') }}');" onclick="event.stopPropagation()">
                 @csrf
                 @method('POST')
-                <button type="submit" class="btn btn-outline-danger btn-sm">Remove</button>
+                <button type="submit" class="btn btn-outline-danger btn-sm">{{ __('Remove') }}</button>
             </form>
         </div>
     @endif

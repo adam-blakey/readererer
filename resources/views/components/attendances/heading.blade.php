@@ -1,7 +1,7 @@
 @props(['term_dates', 'show_year' => false, 'ensemble' => null])
 
 <tr>
-	<th>Members</th>
+	<th>{{ __('Members') }}</th>
 	@foreach ($term_dates as $term_date)
 		@php
 			$highlight = $ensemble ? ((int)($term_date->concert_ensemble_id) === (int)($ensemble->id)) : ($term_date->concert_ensemble_id !== null);

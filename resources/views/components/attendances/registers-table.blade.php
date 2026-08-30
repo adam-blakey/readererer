@@ -6,11 +6,11 @@
 	<table class="table table-vcenter card-table">
 		<thead>
 			<tr>
-				<th>Date</th>
-				<th>Time</th>
-				<th>Type</th>
-				<th>Term</th>
-				<th>Registers</th>
+				<th>{{ __('Date') }}</th>
+				<th>{{ __('Time') }}</th>
+				<th>{{ __('Type') }}</th>
+				<th>{{ __('Term') }}</th>
+				<th>{{ __('Registers') }}</th>
 			</tr>
 		</thead>
 		<tbody>
@@ -20,9 +20,9 @@
 					<td class="text-nowrap">{{ $term_date->time_label }}</td>
 					<td>
 						@if ($term_date->concert_ensemble_id)
-							<span class="badge bg-green text-green-fg">Concert @if ($term_date->concert_ensemble) ({{ $term_date->concert_ensemble->name }}) @endif</span>
+							<span class="badge bg-green text-green-fg">{{ __('Concert') }} @if ($term_date->concert_ensemble) ({{ $term_date->concert_ensemble->name }}) @endif</span>
 						@else
-							<span class="badge bg-gray text-muted">Rehearsal</span>
+							<span class="badge bg-gray text-muted">{{ __('Rehearsal') }}</span>
 						@endif
 					</td>
 					<td>{{ $term_date->term?->name }}</td>
@@ -43,9 +43,9 @@
 										<x-icon name="list-check" />
 										{{ $ensemble->name }}
 										@if ($entries->isNotEmpty())
-											<span class="ms-1 badge bg-green-lt">{{ $present }} present</span>
+											<span class="ms-1 badge bg-green-lt">{{ __(':count present', ['count' => $present]) }}</span>
 										@else
-											<span class="ms-1 badge bg-secondary-lt">Not taken</span>
+											<span class="ms-1 badge bg-secondary-lt">{{ __('Not taken') }}</span>
 										@endif
 									</x-a>
 								@endforeach
@@ -55,7 +55,7 @@
 				</tr>
 			@empty
 				<tr>
-					<td colspan="5">No rehearsals or concerts have been scheduled yet.</td>
+					<td colspan="5">{{ __('No rehearsals or concerts have been scheduled yet.') }}</td>
 				</tr>
 			@endforelse
 		</tbody>

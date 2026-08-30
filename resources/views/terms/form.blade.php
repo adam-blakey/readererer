@@ -5,12 +5,12 @@
 		<div class="container">
 			<div class="row align-items-center">
 				<div class="col">
-					<h1 class="my-0 font-bold">Edit term: {{ $term->name }}</h1>
+					<h1 class="my-0 font-bold">{{ __('Edit term: :name', ['name' => $term->name]) }}</h1>
 				</div>
 				<div class="col-auto ms-auto">
 					<div class="btn-list">
-						<button aria-label="Save" class="btn btn-primary" form="term-edit-form" type="submit">
-							Save
+						<button aria-label="{{ __('Save') }}" class="btn btn-primary" form="term-edit-form" type="submit">
+							{{ __('Save') }}
 						</button>
 					</div>
 				</div>
@@ -24,7 +24,7 @@
 				<div class="col-lg-12">
 					<div class="mb-3 card">
 						<div class="card-header">
-							<h2 class="mb-0 card-heading">Edit term details</h2>
+							<h2 class="mb-0 card-heading">{{ __('Edit term details') }}</h2>
 						</div>
 						<div class="card-body">
 							<form action="{{ $form_route }}" id="term-edit-form" method="POST">
@@ -34,18 +34,18 @@
 								<div class="row g-5">
 									<div class="col-xl-12">
 										<div class="mb-3">
-											<label class="form-label">ID</label>
+											<label class="form-label">{{ __('ID') }}</label>
 											<input class="form-control" disabled id="id" name="id" type="text" value="{{ $term->id }}">
 										</div>
 										<div class="mb-3">
-											<label class="form-label" for="name">Name</label>
-   								            <input class="form-control" id="name" name="name" placeholder="Term name" type="text" value="{{ old('name', $term->name) }}" data-initial="{{ $term->name }}">
+											<label class="form-label" for="name">{{ __('Name') }}</label>
+   								            <input class="form-control" id="name" name="name" placeholder="{{ __('Term name') }}" type="text" value="{{ old('name', $term->name) }}" data-initial="{{ $term->name }}">
 											@error('name')
 												<x-forms.input-error :messages="$message" />
 											@enderror
 										</div>
 										<div class="mb-3">
-											<label class="form-label" for="slug">Slug</label>
+											<label class="form-label" for="slug">{{ __('Slug') }}</label>
    								            <input class="form-control" id="slug" name="slug" placeholder="term-slug" type="text" value="{{ old('slug', $term->slug) }}" data-initial="{{ $term->slug }}">
 											@error('slug')
 												<x-forms.input-error :messages="$message" />
@@ -53,7 +53,7 @@
 										</div>
                                         <hr />
 										<div class="mb-3">
-    							            <label class="card-title">Term dates</label>
+    							            <label class="card-title">{{ __('Term dates') }}</label>
 
                                             {{--
                                                 A single source of truth for a term-date row. The server-rendered
@@ -65,35 +65,35 @@
                                             <template id="term-date-row-template">
                                                 <div class="row g-2 align-items-end term-date-row mb-2" data-index="__INDEX__">
                                                     <div class="col-6 col-md-4 col-lg-2">
-                                                        <label class="form-label">Start</label>
+                                                        <label class="form-label">{{ __('Start') }}</label>
                                                         <input class="form-control" name="term_dates[__INDEX__][start_datetime]" type="datetime-local" data-initial="" required>
                                                     </div>
                                                     <div class="col-6 col-md-4 col-lg-2">
-                                                        <label class="form-label">End</label>
+                                                        <label class="form-label">{{ __('End') }}</label>
                                                         <input class="form-control" name="term_dates[__INDEX__][end_datetime]" type="datetime-local" data-initial="" required>
                                                     </div>
                                                     <div class="col-6 col-md-4 col-lg-2">
-                                                        <label class="form-label">Concert</label>
+                                                        <label class="form-label">{{ __('Concert') }}</label>
                                                         <select class="form-select" name="term_dates[__INDEX__][ensemble_id]" data-initial="">
-                                                            <option value="">Not a concert</option>
+                                                            <option value="">{{ __('Not a concert') }}</option>
                                                             @foreach(($ensembles ?? collect()) as $ens)
                                                                 <option value="{{ $ens->id }}">{{ $ens->name }}</option>
                                                             @endforeach
                                                         </select>
                                                     </div>
                                                     <div class="col-6 col-md-4 col-lg-2">
-                                                        <label class="form-label">Setup group</label>
+                                                        <label class="form-label">{{ __('Setup group') }}</label>
                                                         <select class="form-select" name="term_dates[__INDEX__][setup_group_id]" data-initial="">
-                                                            <option value="">No setup group</option>
+                                                            <option value="">{{ __('No setup group') }}</option>
                                                             @foreach(($setup_groups ?? collect()) as $setup_group)
                                                                 <option value="{{ $setup_group->id }}">{{ $setup_group->name }}</option>
                                                             @endforeach
                                                         </select>
                                                     </div>
                                                     <div class="col-6 col-md-4 col-lg-2">
-                                                        <label class="form-label">Van driver override</label>
+                                                        <label class="form-label">{{ __('Van driver override') }}</label>
                                                         <select class="form-select" name="term_dates[__INDEX__][van_driver_id]" data-initial="">
-                                                            <option value="">Infer van driver</option>
+                                                            <option value="">{{ __('Infer van driver') }}</option>
                                                             @foreach(($van_drivers ?? collect()) as $van_driver)
                                                                 <option value="{{ $van_driver->id }}">{{ $van_driver->name }}</option>
                                                             @endforeach
@@ -101,8 +101,8 @@
                                                     </div>
                                                     <div class="col-12 col-lg-2">
                                                         <div class="btn-list">
-                                                            <button class="btn btn-outline-secondary duplicate-term-date" type="button">Duplicate</button>
-                                                            <button class="btn btn-outline-danger remove-term-date" type="button">Remove</button>
+                                                            <button class="btn btn-outline-secondary duplicate-term-date" type="button">{{ __('Duplicate') }}</button>
+                                                            <button class="btn btn-outline-danger remove-term-date" type="button">{{ __('Remove') }}</button>
                                                         </div>
                                                     </div>
                                                 </div>
@@ -141,41 +141,41 @@
                                                             <input type="hidden" name="term_dates[{{ $i }}][id]" value="{{ $date['id'] }}">
                                                         @endif
                                                         <div class="col-6 col-md-4 col-lg-2">
-                                                            <label class="form-label">Start</label>
+                                                            <label class="form-label">{{ __('Start') }}</label>
                                                             @error('term_dates.' . $i . '.start_datetime')
                                                                 <x-forms.input-error :messages="$message" />
                                                             @enderror
                                                             <input class="form-control @error('term_dates.' . $i . '.start_datetime') is-invalid @enderror" name="term_dates[{{ $i }}][start_datetime]" type="datetime-local" value="{{ $date['start_datetime'] ?? '' }}" data-initial="{{ $initialStart }}" required>
                                                         </div>
                                                         <div class="col-6 col-md-4 col-lg-2">
-                                                            <label class="form-label">End</label>
+                                                            <label class="form-label">{{ __('End') }}</label>
                                                             @error('term_dates.' . $i . '.end_datetime')
                                                                 <x-forms.input-error :messages="$message" />
                                                             @enderror
                                                             <input class="form-control @error('term_dates.' . $i . '.end_datetime') is-invalid @enderror" name="term_dates[{{ $i }}][end_datetime]" type="datetime-local" value="{{ $date['end_datetime'] ?? '' }}" data-initial="{{ $initialEnd }}" required>
                                                         </div>
                                                         <div class="col-6 col-md-4 col-lg-2">
-                                                            <label class="form-label">Concert</label>
+                                                            <label class="form-label">{{ __('Concert') }}</label>
                                                             <select class="form-select" name="term_dates[{{ $i }}][ensemble_id]" data-initial="{{ $orig?->concert_ensemble_id ?? '' }}">
-                                                                <option value="" {{ empty($selectedEnsemble) ? 'selected' : '' }}>Not a concert</option>
+                                                                <option value="" {{ empty($selectedEnsemble) ? 'selected' : '' }}>{{ __('Not a concert') }}</option>
                                                                 @foreach(($ensembles ?? collect()) as $ens)
                                                                     <option value="{{ $ens->id }}" {{ (int)$selectedEnsemble === (int)$ens->id ? 'selected' : '' }}>{{ $ens->name }}</option>
                                                                 @endforeach
                                                             </select>
                                                         </div>
                                                         <div class="col-6 col-md-4 col-lg-2">
-                                                            <label class="form-label">Setup group</label>
+                                                            <label class="form-label">{{ __('Setup group') }}</label>
                                                             <select class="form-select" name="term_dates[{{ $i }}][setup_group_id]" data-initial="{{ $orig?->setup_group_id ?? '' }}">
-                                                                <option value="" {{ empty($selectedSetupGroup) ? 'selected' : '' }}>No setup group</option>
+                                                                <option value="" {{ empty($selectedSetupGroup) ? 'selected' : '' }}>{{ __('No setup group') }}</option>
                                                                 @foreach(($setup_groups ?? collect()) as $setup_group)
                                                                     <option value="{{ $setup_group->id }}" {{ (int)$selectedSetupGroup === (int)$setup_group->id ? 'selected' : '' }}>{{ $setup_group->name }}</option>
                                                                 @endforeach
                                                             </select>
                                                         </div>
                                                         <div class="col-6 col-md-4 col-lg-2">
-                                                            <label class="form-label">Van driver override</label>
+                                                            <label class="form-label">{{ __('Van driver override') }}</label>
                                                             <select class="form-select" name="term_dates[{{ $i }}][van_driver_id]" data-initial="{{ $orig?->van_driver_id ?? '' }}">
-                                                                <option value="" {{ empty($selectedVanDriver) ? 'selected' : '' }}>Infer van driver</option>
+                                                                <option value="" {{ empty($selectedVanDriver) ? 'selected' : '' }}>{{ __('Infer van driver') }}</option>
                                                                 @foreach(($van_drivers ?? collect()) as $van_driver)
                                                                     <option value="{{ $van_driver->id }}" {{ (int)$selectedVanDriver === (int)$van_driver->id ? 'selected' : '' }}>{{ $van_driver->name }}</option>
                                                                 @endforeach
@@ -183,15 +183,15 @@
                                                         </div>
                                                         <div class="col-12 col-lg-2">
                                                             <div class="btn-list">
-                                                                <button class="btn btn-outline-secondary duplicate-term-date" type="button">Duplicate</button>
-                                                                <button class="btn btn-outline-danger remove-term-date" type="button">Remove</button>
+                                                                <button class="btn btn-outline-secondary duplicate-term-date" type="button">{{ __('Duplicate') }}</button>
+                                                                <button class="btn btn-outline-danger remove-term-date" type="button">{{ __('Remove') }}</button>
                                                             </div>
                                                         </div>
                                                     </div>
                                                 @endforeach
 											</div>
 											<div class="mt-2">
-												<button class="btn btn-outline-primary" id="add-term-date" type="button">Add date</button>
+												<button class="btn btn-outline-primary" id="add-term-date" type="button">{{ __('Add date') }}</button>
 											</div>
 										</div>
 									</div>

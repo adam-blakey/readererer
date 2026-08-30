@@ -16,8 +16,8 @@
 				</div>
 				<div class="col-auto ms-auto">
 					<div class="btn-list">
-						<button aria-label="Save" class="btn btn-primary" form="ensemble-edit-form" type="submit">
-							Save
+						<button aria-label="{{ __('Save') }}" class="btn btn-primary" form="ensemble-edit-form" type="submit">
+							{{ __('Save') }}
 						</button>
 					</div>
 				</div>
@@ -31,7 +31,7 @@
 				<div class="col-lg-6">
 					<div class="mb-3 card">
 						<div class="card-header">
-							<h2 class="mb-0 card-heading">Edit ensemble details</h2>
+							<h2 class="mb-0 card-heading">{{ __('Edit ensemble details') }}</h2>
 						</div>
 						<div class="card-body">
 							<form action="{{ route('ensembles.update', ['ensemble' => $ensemble]) }}" id="ensemble-edit-form" method="POST">
@@ -41,12 +41,12 @@
 								<div class="row g-5">
 									<div class="col-xl-6">
 										<div class="mb-3">
-											<label class="form-label">ID</label>
+											<label class="form-label">{{ __('ID') }}</label>
 											<input class="form-control" disabled id="id" name="id" type="text" value="{{ $ensemble->id }}">
 										</div>
 										<div class="mb-3">
-											<label class="form-label" for="name">Name</label>
-											<input class="form-control @error('name') is-invalid @enderror" id="name" name="name" placeholder="Ensemble name" type="text" value="{{ old('name', $ensemble->name) }}">
+											<label class="form-label" for="name">{{ __('Name') }}</label>
+											<input class="form-control @error('name') is-invalid @enderror" id="name" name="name" placeholder="{{ __('Ensemble name') }}" type="text" value="{{ old('name', $ensemble->name) }}">
 											@error('name')
 												<x-forms.input-error :messages="$message" />
 											@enderror
@@ -55,9 +55,9 @@
 										<div class="mb-3">
 											<label class="form-check form-switch">
 												<input class="form-check-input" type="checkbox" name="seating_plan_enabled" value="1" @checked(old('seating_plan_enabled', $ensemble->seating_plan_enabled))>
-												<span class="form-check-label">Seating plan enabled</span>
+												<span class="form-check-label">{{ __('Seating plan enabled') }}</span>
 											</label>
-											<div class="form-hint">When off, this ensemble has no seating plan and members are added without a seat.</div>
+											<div class="form-hint">{{ __('When off, this ensemble has no seating plan and members are added without a seat.') }}</div>
 										</div>
 									</div>
 								</div>
@@ -68,10 +68,10 @@
 				<div class="col-lg-6">
 					<div class="mb-3 card">
                         <div class="card-header">
-                            <h2 class="mb-0 card-heading">Edit members ({{ count($ensemble->users) }})</h2>
+                            <h2 class="mb-0 card-heading">{{ __('Edit members (:count)', ['count' => count($ensemble->users)]) }}</h2>
                             <div class="card-actions">
                                 <a href="#" class="btn btn-primary btn-3" data-bs-toggle="modal" data-bs-target="#modal-add-user-ensemble">
-                                    Add user
+                                    {{ __('Add user') }}
                                 </a>
                             </div>
                         </div>

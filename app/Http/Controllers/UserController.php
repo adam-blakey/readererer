@@ -33,11 +33,11 @@ class UserController extends Controller
 
         return view('auto-entities.index', [
             'entities' => $users,
-            'page_name' => 'Users',
-            'page_subname' => 'Users overview',
+            'page_name' => __('Users'),
+            'page_subname' => __('Users overview'),
             'create_entity' => [
                 'route' => 'users.create',
-                'name' => 'user',
+                'name' => __('user'),
             ],
         ]);
     }
@@ -51,8 +51,8 @@ class UserController extends Controller
         unset($fields['image']);
 
         return view('auto-entities.form', [
-            'page_name' => 'Users',
-            'page_subname' => 'Create new user',
+            'page_name' => __('Users'),
+            'page_subname' => __('Create new user'),
             'update' => false,
             'fields' => $fields,
             'form_route' => route('users.store'),
@@ -89,7 +89,7 @@ class UserController extends Controller
             'ensembles' => Ensemble::orderBy('name')->get(),
             'allInstrumentFamilies' => InstrumentFamily::orderBy('name')->get(),
             'instrumentFamilies' => $instrumentFamilies,
-            'page_name' => 'Edit '.$user->name,
+            'page_name' => __('Edit :name', ['name' => $user->name]),
         ]);
     }
 
@@ -126,7 +126,7 @@ class UserController extends Controller
     {
         $user->delete();
 
-        return redirect()->back()->with('status', 'Record deleted.');
+        return redirect()->back()->with('status', __('Record deleted.'));
     }
 
     public function restore(int $userId)
@@ -134,7 +134,7 @@ class UserController extends Controller
         $user = User::withTrashed()->findOrFail($userId);
         $user->restore();
 
-        return redirect()->back()->with('status', 'User restored.');
+        return redirect()->back()->with('status', __('User restored.'));
     }
 
     /**
@@ -150,7 +150,7 @@ class UserController extends Controller
         ]);
 
         if ($user->ensembles()->where('ensembles.id', $validated['ensemble_id'])->exists()) {
-            return redirect()->back()->with('status', 'User is already a member of that ensemble.');
+            return redirect()->back()->with('status', __('User is already a member of that ensemble.'));
         }
 
         // A seat is only meaningful for ensembles that run a seating plan.
@@ -163,7 +163,7 @@ class UserController extends Controller
             'instrument_family_id' => $validated['instrument_family_id'],
         ], $seat));
 
-        return redirect()->back()->with('status', 'User added to ensemble.');
+        return redirect()->back()->with('status', __('User added to ensemble.'));
     }
 
     /**
@@ -177,6 +177,6 @@ class UserController extends Controller
 
         $pivot->delete();
 
-        return redirect()->back()->with('status', 'User removed from ensemble.');
+        return redirect()->back()->with('status', __('User removed from ensemble.'));
     }
 }

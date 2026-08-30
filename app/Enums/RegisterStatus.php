@@ -25,10 +25,10 @@ enum RegisterStatus: int
     public function label(): string
     {
         return match ($this) {
-            self::Unmarked => 'Not marked',
-            self::Present => 'Present',
-            self::Absent => 'Absent',
-            self::Late => 'Late',
+            self::Unmarked => __('Not marked'),
+            self::Present => __('Present'),
+            self::Absent => __('Absent'),
+            self::Late => __('Late'),
         };
     }
 

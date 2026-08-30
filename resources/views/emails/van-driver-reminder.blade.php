@@ -1,24 +1,24 @@
 <x-mail::message>
-# Van driver reminder
+# {{ __('Van driver reminder') }}
 
-Hi {{ $vanDriver->first_name ?? $vanDriver->name }},
+{{ __('Hi :name,', ['name' => $vanDriver->first_name ?? $vanDriver->name]) }}
 
-This is a reminder that **you are down to drive the van** for:
+{{ __('This is a reminder that') }} **{{ __('you are down to drive the van') }}** {{ __('for') }}:
 
 **{{ $termDate->name }}**
 
 @if($termDate->concert_ensemble)
-This is a concert for **{{ $termDate->concert_ensemble->name }}**.
+{{ __('This is a concert for') }} **{{ $termDate->concert_ensemble->name }}**.
 @else
-This is a rehearsal.
+{{ __('This is a rehearsal.') }}
 @endif
 
 @if($termDate->setup_group)
-**{{ $termDate->setup_group->name }}** is on setup duty for this date.
+**{{ $termDate->setup_group->name }}** {{ __('is on setup duty for this date.') }}
 @endif
 
-Please make sure the van (and everything in it) arrives in good time.
+{{ __('Please make sure the van (and everything in it) arrives in good time.') }}
 
-Thanks,<br>
+{{ __('Thanks,') }}<br>
 {{ config('app.name') }}
 </x-mail::message>

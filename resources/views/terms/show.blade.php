@@ -8,25 +8,25 @@
 					<h1 class="my-0 font-bold">
 						{{ $term->name }}
 						@if($term->term_dates_count ?? $term->term_dates?->count())
-							<span class="badge bg-blue text-blue-fg align-middle">{{ $term->term_dates_count ?? $term->term_dates->count() }} dates</span>
+							<span class="badge bg-blue text-blue-fg align-middle">{{ trans_choice(':count date|:count dates', $term->term_dates_count ?? $term->term_dates->count()) }}</span>
 						@endif
 					</h1>
 					<div class="list-inline list-inline-dots text-secondary mt-1 mb-0">
 						<span class="list-inline-item"><x-icon name="calendar" />{{ $term->formattedTermDateRange }}</span>
 						<span class="list-inline-item"><x-icon name="link" />{{ $term->slug }}</span>
-						<span class="list-inline-item">Created {{ $term->created_at?->diffForHumans() }}</span>
-						<span class="list-inline-item">Updated {{ $term->updated_at?->diffForHumans() }}</span>
+						<span class="list-inline-item">{{ __('Created :time', ['time' => $term->created_at?->diffForHumans()]) }}</span>
+						<span class="list-inline-item">{{ __('Updated :time', ['time' => $term->updated_at?->diffForHumans()]) }}</span>
 					</div>
 				</div>
 				<div class="col-auto ms-auto">
 					<div class="btn-list">
-						<a aria-label="Edit" class="btn" href="{{ route('terms.edit', ['term' => $term]) }}">
+						<a aria-label="{{ __('Edit') }}" class="btn" href="{{ route('terms.edit', ['term' => $term]) }}">
 							<svg class="icon icon-tabler icons-tabler-outline icon-tabler-pencil" fill="none" height="24" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" stroke="currentColor" viewBox="0 0 24 24" width="24" xmlns="http://www.w3.org/2000/svg">
 								<path d="M0 0h24v24H0z" fill="none" stroke="none" />
 								<path d="M4 20h4l10.5 -10.5a2.828 2.828 0 1 0 -4 -4l-10.5 10.5v4" />
 								<path d="M13.5 6.5l4 4" />
 							</svg>
-							Edit
+							{{ __('Edit') }}
 						</a>
 					</div>
 				</div>
@@ -40,7 +40,7 @@
 				<div class="col">
 					<div class="mb-3 card">
 						<div class="card-header">
-							<h2 class="mb-0 card-heading">All dates</h2>
+							<h2 class="mb-0 card-heading">{{ __('All dates') }}</h2>
 						</div>
 						<x-term-dates-table :term_dates="$term->term_dates" :ensembles="$ensembles" />
 					</div>

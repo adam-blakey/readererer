@@ -1,26 +1,26 @@
 <x-mail::message>
-# Attendance list
+# {{ __('Attendance list') }}
 
-Here is the current attendance for **{{ $termDate->name }}**.
+{{ __('Here is the current attendance for') }} **{{ $termDate->name }}**.
 
 @php($totals = member_status_totals($members, $termDate))
-- **Attending:** {{ $totals['attending'] }}
-- **Not attending:** {{ $totals['not_attending'] }}
+- **{{ __('Attending') }}:** {{ $totals['attending'] }}
+- **{{ __('Not attending') }}:** {{ $totals['not_attending'] }}
 @isset($totals['unknown'])
-- **Not yet responded:** {{ $totals['unknown'] }}
+- **{{ __('Not yet responded') }}:** {{ $totals['unknown'] }}
 @endisset
 
 @if($members->isNotEmpty())
 <x-mail::table>
-| Member | Status |
+| {{ __('Member') }} | {{ __('Status') }} |
 | :----- | :----- |
 @foreach($members as $member)
 @php($attendance = $member->attendances->where('term_date_id', $termDate->id)->sortByDesc('created_at')->first())
-| {{ $member->name }} | {{ $attendance?->status_text ?? 'No response yet' }} |
+| {{ $member->name }} | {{ $attendance?->status_text ?? __('No response yet') }} |
 @endforeach
 </x-mail::table>
 @endif
 
-Thanks,<br>
+{{ __('Thanks,') }}<br>
 {{ config('app.name') }}
 </x-mail::message>
