@@ -26,7 +26,7 @@
 <div class="card-header d-print-none">
 	<div>
 		<h2 class="mb-1 card-title">{{ $term_date->name }}</h2>
-		<div class="list-inline list-inline-dots mb-0 text-secondary">
+		<div class="list-inline list-inline-dots mb-0 text-secondary d-flex flex-wrap align-items-center">
 			<span class="list-inline-item">
 				@if ($term_date->concert_ensemble_id)
 					<span class="badge bg-green text-green-fg">Concert</span>
@@ -37,7 +37,7 @@
 			<span class="list-inline-item">{{ $ensemble->name }}</span>
 			<span class="list-inline-item">{{ $term_date->term->name }}</span>
 			@if ($term_date->setup_group != null)
-				<span class="list-inline-item"><x-setup-group-badge :setup_group="$term_date->setup_group" /></span>
+				<span class="list-inline-item"><x-setup-group-badge :setup_group="$term_date->setup_group" :size="false" /></span>
 			@endif
 		</div>
 	</div>

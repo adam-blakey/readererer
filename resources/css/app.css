@@ -94,3 +94,10 @@
     z-index: 1;
     background: var(--tblr-bg-surface, #fff);
 }
+
+/* Colour picker swatches: a little larger than Tabler's default so they are
+   comfortable to hit on a form. */
+.color-picker .form-colorinput-color {
+    width: 2rem;
+    height: 2rem;
+}

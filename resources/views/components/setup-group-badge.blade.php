@@ -1,3 +1,4 @@
+{{-- Pass a falsy $size to render the badge at the default badge size, so it lines up with neighbouring badges. --}}
 @props(['setup_group', 'show_as_dot' => false, 'show_with_van' => false, 'size' => 'lg', 'tooltip' => true])
 
 @php
@@ -15,5 +16,5 @@
 @elseif ($show_as_dot)
     <span class="badge badge-dot bg-{{ $setup_group->color }} badge-notification" @if ($tooltip) aria-label="{{ $tooltip_text }}" data-bs-toggle="tooltip" title="{{ $tooltip_text }}" @endif></span>
 @else
-    <span class="badge badge-{{ $size }} bg-{{ $setup_group->color }} text-{{ $setup_group->color }}-fg" @if ($tooltip) aria-label="{{ $tooltip_text }}" data-bs-toggle="tooltip" title="{{ $tooltip_text }}" @endif>{{ $setup_group->week }}</span>
+    <span @class(['badge', 'badge-'.$size => $size, 'bg-'.$setup_group->color->cssClass(), 'text-'.$setup_group->color->cssClass().'-fg']) @if ($tooltip) aria-label="{{ $tooltip_text }}" data-bs-toggle="tooltip" title="{{ $tooltip_text }}" @endif>{{ $setup_group->week }}</span>
 @endif
