@@ -69,7 +69,9 @@ These touch the shared generic-CRUD layer or general UX and so apply regardless 
 - **Generic form field polish** — `resources/views/components/forms/field.blade.php:13`
   (icon alignment when an error is present), `:20` ("style nice"), `:39` (something
   "apparently isn't working correctly").
-- **Auto-entity show view button alignment** — `resources/views/auto-entities/show.blade.php:22`.
+- ~~**Auto-entity show view button alignment**~~ — done: the card header's actions are
+  now a `btn-list`, so the Edit link and the Archive/Unarchive form sit side by side
+  with the standard gap instead of the form block dropping onto its own line.
 - **Proper colour picker** — recurring item in the plan (used by setup groups, etc.).
 - **Canonical breadcrumb navigation** — recurring item; plan suggests
   `diglactic/laravel-breadcrumbs`.
