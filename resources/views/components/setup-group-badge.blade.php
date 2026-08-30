@@ -6,5 +6,5 @@
 @elseif ($show_as_dot)
     <span class="badge badge-dot bg-{{ $setup_group->color }} badge-notification"></span>
 @else
-    <span @class(['badge', 'badge-'.$size => $size, 'bg-'.$setup_group->color, 'text-'.$setup_group->color.'-fg'])>{{ $setup_group->week }}</span>
+    <span @class(['badge', 'badge-'.$size => $size, 'bg-'.$setup_group->color->cssClass(), 'text-'.$setup_group->color->cssClass().'-fg'])>{{ $setup_group->week }}</span>
 @endif
