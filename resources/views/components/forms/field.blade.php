@@ -4,16 +4,20 @@
 @php
     $error_message = $errors->first($name);
     $has_error = $error_message != null || $error_message != '';
-    $value = (isset($data['value'])) ? old($name, $data['value']) : null;
+    // Old input wins over the model's value, so a form that comes back from a
+    // failed validation keeps what was submitted — including on a create form,
+    // where the model's value is null.
+    $value = old($name, $data['value'] ?? null);
     $classes = ['form-control', 'is-invalid' => $has_error, 'required' => $data['required']];
-    $has_color_preview = $data['type'] === 'enum' && ($name === 'color');
-    $selected_color_class = $has_color_preview ? (color_name_to_css_class($value ?: ($data['default_option'] ?? null)) ?? 'secondary') : null;
+    // The colour picker is a swatch grid rather than a single input, so it sits
+    // outside the input-icon wrapper the other field types use.
+    $is_color = $data['type'] === 'color';
 @endphp
 
 <div @class(['col-md-'.$data['width']])>
     <label @class(['col-3', 'col-form-label', 'required' => $data['required']])>{{ $data['label'] }}</label>
     <!-- TODO: fix alignment of icon when there is an error present -->
-    @if (!$has_color_preview)
+    @if (!$is_color)
     <div class="input-icon">
         <span class="input-icon-addon">
             <x-icon :name="$data['icon']" />
@@ -41,6 +45,16 @@
                 @break
             @case('date')
                 @break
+            @case('color')
+                <x-forms.color-picker
+                    :name="$name"
+                    :options="$data['options']"
+                    :value="$value ?: $data['default_option']"
+                    :required="$data['required']"
+                    :label="$data['label']"
+                    :has_error="$has_error"
+                />
+                @break
             @case('enum')
                 @php
                     // The value may be an enum instance off the model, or the raw
@@ -58,51 +72,22 @@
                         <option value="" {{ $selected === null ? 'selected' : '' }}>—</option>
                     @endunless
                     @foreach($data['options'] as $optionValue => $optionLabel)
-                        @php
-                            $optionColorClass = $has_color_preview ? (color_name_to_css_class((string) $optionValue) ?? 'secondary') : null;
-                        @endphp
                         <option
                             value="{{ $optionValue }}"
                             {{ $selected !== null && (string) $selected === (string) $optionValue ? 'selected' : '' }}
-                            @if ($has_color_preview)
-                                data-color-class="{{ $optionColorClass }}"
-                            @endif
                         >
                             {{ $optionLabel }}
                         </option>
                     @endforeach
                 </select>
-                @if ($has_color_preview)
-                    <script type="module">
-                        document.addEventListener('DOMContentLoaded', function () {
-                            if (window.TomSelect) {
-                                new TomSelect('select[name="{{ $name }}"]', {
-                                    copyClassesToDropdown: false,
-                                    dropdownParent: 'body',
-                                    controlInput: '<input>',
-                                    render: {
-                                        option: function(data, escape) {
-                                            var colorClass = data.$option.getAttribute('data-color-class') || 'secondary';
-                                            return '<div><span class="dropdown-item-indicator"><span class="avatar avatar-xs bg-' + escape(colorClass) + '"></span></span>' + escape(data.text) + '</div>';
-                                        },
-                                        item: function(data, escape) {
-                                            var colorClass = data.$option.getAttribute('data-color-class') || 'secondary';
-                                            return '<div><span class="dropdown-item-indicator"><span class="avatar avatar-xs bg-' + escape(colorClass) + '"></span></span>' + escape(data.text) + '</div>';
-                                        }
-                                    }
-                                });
-                            }
-                        });
-                    </script>
-                @endif
                 @break
             @default
                 <input type="text" name="{{ $name }}" value="{{ $value }}" @class($classes) placeholder="{{ $data['label'] }}" @required($data['required'])>
         @endswitch
         @if($has_error)
-            <div class="invalid-feedback">{{ $error_message }}</div>
+            <div @class(['invalid-feedback', 'd-block' => $is_color])>{{ $error_message }}</div>
         @endif
-    @if (!$has_color_preview)
+    @if (!$is_color)
     </div>
     @endif
 </div>
