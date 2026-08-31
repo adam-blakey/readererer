@@ -12,7 +12,7 @@
         <div>
             {{ $user->name }}
             @if ($draggable)
-                <span class="seating-position-changed" style="display: none;">*</span>
+                <span class="seating-position-changed" data-bs-toggle="tooltip" style="display: none;" title="Moved since the seating plan was last saved">*</span>
             @endif
         </div>
         <div class="mt-1 small text-muted">
@@ -24,8 +24,8 @@
     </div>
     @if ($show_seating_position)
         <div class="ms-auto align-self-center">
-                <span class="badge bg-secondary-lt text-decoration-line-through seating-position-original" style="display: none;"></span>
-                <span class="badge bg-blue-lt seating-position"></span>
+                <span class="badge bg-secondary-lt text-decoration-line-through seating-position-original" data-bs-toggle="tooltip" style="display: none;" title="Seat as last saved"></span>
+                <span class="badge bg-blue-lt seating-position" data-bs-toggle="tooltip" title="Seat: row letter and place in the row"></span>
         </div>
     @endif
     @if ($remove_from_ensemble != null)

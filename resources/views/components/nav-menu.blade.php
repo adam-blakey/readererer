@@ -105,7 +105,7 @@
 				@endguest
 				@auth
 					<a aria-label="Open user menu" class="p-0 nav-link d-flex lh-1 text-reset" data-bs-toggle="dropdown" href="#">
-						<x-avatar :user="Auth::user()" size="sm" />
+						<x-avatar :user="Auth::user()" size="sm" :tooltip="false" />
 						<x-name-and-role :user="Auth::user()" />
 					</a>
 					<div class="dropdown-menu dropdown-menu-end dropdown-menu-arrow">

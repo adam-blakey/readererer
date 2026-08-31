@@ -81,11 +81,19 @@ test('map_database_type_to_html ignores casts that are not enums and falls back 
 
 test('map_database_type_to_html maps a column with an enum cast to an enum field', function () {
     expect(map_database_type_to_html('status', 'integer', ['status' => AttendanceStatus::class]))->toBe('enum');
-    expect(map_database_type_to_html('color', 'varchar', ['color' => Color::class]))->toBe('enum');
+});
+
+test('a column cast to the palette enum maps to the colour picker, whatever it is called', function () {
+    expect(map_database_type_to_html('color', 'varchar', ['color' => Color::class]))->toBe('color');
+    expect(map_database_type_to_html('highlight', 'varchar', ['highlight' => Color::class]))->toBe('color');
+});
+
+test('a column named color without the palette cast is not a colour field', function () {
+    expect(map_database_type_to_html('color', 'varchar', []))->toBe('text');
 });
 
 test('an enum cast beats the image and email column name special cases', function () {
-    expect(map_database_type_to_html('email', 'varchar', ['email' => Color::class]))->toBe('enum');
+    expect(map_database_type_to_html('email', 'varchar', ['email' => Color::class]))->toBe('color');
 });
 
 test('map_database_type_to_html special-cases image and email column names', function () {

@@ -95,7 +95,7 @@ test('enum options are keyed by backing value and labelled by case name', functi
 test('enum options use the enum label() method when it defines one', function () {
     $fields = get_create_fields(new SetupGroup);
 
-    expect($fields['color']['type'])->toBe('enum');
+    expect($fields['color']['type'])->toBe('color');
     expect($fields['color']['options'])->toHaveCount(count(Color::cases()));
     expect($fields['color']['options']['teal'])->toBe(Color::Teal->label());
 });
