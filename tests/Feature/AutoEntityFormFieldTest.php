@@ -138,15 +138,18 @@ test('an email column renders an email input and a password column never echoes 
     expect($password)->toContain('type="password"')->not->toContain('hashed-secret');
 });
 
-test('a colour select is rendered without an icon addon so TomSelect can take it over', function () {
+test('a colour column is rendered outside the icon wrapper, being a swatch grid rather than one control', function () {
     $html = render_field('color', [
-        'type' => 'enum',
+        'type' => 'color',
         'options' => get_enum_options(Color::class),
         'value' => Color::Teal,
     ]);
 
-    expect($html)->not->toContain('input-icon-addon');
-    expect($html)->toContain('new TomSelect(\'#field-color\'');
+    // The picker is a radio group, so there is no single control for the icon
+    // addon to sit against, and none for the label's `for` to point at.
+    expect($html)->not->toContain('input-icon')
+        ->not->toContain('for="field-color"')
+        ->toContain('color-picker');
 });
 
 test('a select keeps the submitted value after a failed validation pass', function () {

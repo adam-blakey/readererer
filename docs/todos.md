@@ -73,7 +73,9 @@ These touch the shared generic-CRUD layer or general UX and so apply regardless 
 - ~~**Auto-entity show view button alignment**~~ — done: the card header's actions are
   now a `btn-list`, so the Edit link and the Archive/Unarchive form sit side by side
   with the standard gap instead of the form block dropping onto its own line.
-- **Proper colour picker** — recurring item in the plan (used by setup groups, etc.).
+- ~~**Proper colour picker**~~ — done: a column cast to the `Color` palette is
+  rendered by the generic form as a swatch picker (`<x-forms.color-picker>`), a
+  plain radio group needing no JavaScript.
 - **Canonical breadcrumb navigation** — recurring item; plan suggests
   `diglactic/laravel-breadcrumbs`.
 - **Translation strings** — i18n not yet extracted.

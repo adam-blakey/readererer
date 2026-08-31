@@ -108,3 +108,10 @@
     bottom: auto;
     height: calc(1.25rem + 1.125rem + (var(--tblr-border-width) * 2));
 }
+
+/* Colour picker swatches: a little larger than Tabler's default so they are
+   comfortable to hit on a form. */
+.color-picker .form-colorinput-color {
+    width: 2rem;
+    height: 2rem;
+}

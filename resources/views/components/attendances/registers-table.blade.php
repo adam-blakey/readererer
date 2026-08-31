@@ -31,7 +31,7 @@
 							$applicable_ensembles = $ensembles->filter(fn ($ensemble) => $term_date->appliesToEnsemble($ensemble));
 						@endphp
 						@if ($applicable_ensembles->isEmpty())
-							<span class="text-muted">—</span>
+							<span class="text-muted" data-bs-toggle="tooltip" title="No ensemble rehearses or performs on this date, so there is no register to take">—</span>
 						@else
 							<div class="btn-list">
 								@foreach ($applicable_ensembles as $ensemble)
