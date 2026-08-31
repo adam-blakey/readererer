@@ -36,11 +36,16 @@ php artisan test
 ./vendor/bin/pint --test    # check only, no changes
 ```
 
-Tests run with `APP_ENV=testing` (see `phpunit.xml`); the SQLite-in-memory env lines are currently commented out, so tests hit the configured DB connection.
+Tests run with `APP_ENV=testing` against an in-memory SQLite database (see `phpunit.xml`), so they never touch
+`database/database.sqlite`. `tests/Unit/IconComponentTest.php` asserts against `public/build/icons/*.svg`, so
+the suite needs `npm run build` to have been run at least once — without it, 9 tests fail on a clean checkout.
 
 ## Deployment
 
-Deploys are GitLab-CI driven (`.gitlab-ci.yml`) via Laravel Envoy (`Envoy.blade.php`), SSH to a Krystal host. Pushing tags (`v*`) deploys `main` to the demo server; the `develop` branch deploys to the test server. The Envoy `deploy` story does git reset, npm install, asset compile, composer install, `migrate`, optionally seed, then brings the app back up. Do not invoke deploys yourself.
+Deploys are GitHub-Actions driven (`.github/workflows/`, documented in `.github/DEPLOYMENTS.md`). Pull requests
+build a Docker image tagged `dev` (`deploy-dev.yml`); pushes to `main` build the QA image (`deploy-qa.yml`);
+publishing a GitHub release deploys production over SSH with Laravel Envoy (`deploy-production.yml`, running the
+`deploy` story in `Envoy.blade.php`). Do not invoke deploys yourself.
 
 ## Architecture
 
@@ -82,5 +87,7 @@ Blade components live in `resources/views/components/` (Tabler-based: `card`, `t
 
 - `Model::preventSilentlyDiscardingAttributes()` is enabled in local env (`AppServiceProvider`) — mass-assignment of non-fillable attributes throws, so keep `$fillable` accurate.
 - Helper functions in `app/helpers.php` are global (snake_case); Blade leans on them heavily. Check there before writing new view-logic helpers.
-- `docs/development-plan.md` is the running TODO / priorities list — consult it for intended direction and known bugs (e.g. seating-plan row bugs, missing edit views).
+- `docs/todos.md` is the running TODO / priorities list, split by delivery phase — consult it for intended
+  direction and known bugs. `docs/rough-edges-triage.md` measures the cross-cutting rough edges (generic-form
+  error handling, responsive text, test/CI gaps) and sizes the follow-up work.
 - Tabler icons are referenced by name through the `<x-icon>` component / `Icon` attribute, not raw SVG.
