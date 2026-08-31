@@ -8,21 +8,26 @@ This document **measures** each of the four strands and turns them into concrete
 sized follow-up work. It deliberately contains no fixes — the point of the
 exercise was to find out how big each pile actually is before committing to it.
 
-Measured against `46e72cc` (2026-08-06) on PHP 8.4.19, Laravel 13, Pest 4.
-Every number below is reproducible; see [How the numbers were
+Measured on PHP 8.4.19, Laravel 13, Pest 4, against this branch merged with
+`95028fc` — i.e. including the colour picker (#87), the hover-details work (#88)
+and the generic-form old-input fix that landed while this triage was being
+written. Every number below is reproducible; see [How the numbers were
 measured](#how-the-numbers-were-measured).
 
 ## Summary
 
 | # | Strand | Verdict | Size |
 | --- | --- | --- | --- |
-| 1 | [Form error handling](#1-form-error-handling) | **Real bug**, not just polish: every generic *create* form silently discards what the user typed when validation fails | ~half a day |
+| 1 | [Form error handling](#1-form-error-handling) | **Smaller than it was.** The big one (create forms discarding input) landed on `main` mid-triage; what remains is the relationship select, which still loses its choice, plus three unrendered field types | ~3–4 hours |
 | 2 | ["Resizing text disappearing"](#2-resizing-text-disappearing) | **Reproduced and located.** Three components hide their text below 1200px; one renders an empty link | ~1–2 hours |
-| 3 | [Automated tests](#3-automated-tests) | **Healthier than it looks** (371 passing) but nothing runs them — no CI job executes the suite or Pint | ~half a day |
+| 3 | [Automated tests](#3-automated-tests) | **Healthier than it looks** (389 passing) but nothing runs them — no CI job executes the suite or Pint | ~half a day |
 | 4 | [Laravel Boost](#4-laravel-boost) | **Compatible, low cost, genuinely useful here** — recommend adopting | ~1 hour |
 
 Suggested order: 2 (cheapest, most visible), 3 (protects everything after it),
-1, 4.
+then 1 and 4. Strand 1 shrank while this was being written — see F1 — which is
+itself an argument for doing 3 first: the fix that landed was not covered by a
+test, and the half of it that was missed (F1's relationship select) would have
+been caught by one.
 
 ---
 
@@ -30,43 +35,44 @@ Suggested order: 2 (cheapest, most visible), 3 (protects everything after it),
 
 The per-field error display itself works: a failed rule adds `is-invalid` to the
 input and renders the message in an `invalid-feedback` div
-(`resources/views/components/forms/field.blade.php:102-104`), and the redirect
+(`resources/views/components/forms/field.blade.php:87-89`), and the redirect
 lands back on the form. The problems are around it.
 
-### F1 — Create forms discard everything the user typed (highest severity)
+### F1 — Fixed on `main` mid-triage, except for relationship selects
 
-`field.blade.php:7`:
+The original finding here was that *every* generic create form discarded what the
+user typed, because `field.blade.php` guarded `old()` behind
+`isset($data['value'])` and a fresh model's attributes are all `null`. **That was
+fixed on `main` while this triage was being written** — the line now reads:
 
 ```php
-$value = (isset($data['value'])) ? old($name, $data['value']) : null;
+$value = old($name, $data['value'] ?? null);
 ```
 
-`$data['value']` is `$dummy->$name` (`app/helpers.php:171`). On a **create** form
-`$dummy` is a fresh unsaved model, so every attribute is `null`, so
-`isset()` is `false`, so `old()` is **never consulted** and the field renders
-empty.
+Re-measured against the merged head, text, number and colour fields all come back
+populated after a failed validation (`week` returns as `3`, the colour swatch
+returns as `red`).
 
-Measured on `setupgroups.create` — submit `name=""` (invalid), `week=3`,
-`color=red`, then follow the redirect back:
+**What the fix missed:** the `class` branch — the select rendered for a
+`BelongsTo`/`BelongsToMany` relationship — never reads `$value`. It still compares
+against `$data['value']`, the model's own value (`field.blade.php:32`):
 
-```
-name:   value="" class="form-control is-invalid required"   <- error shown correctly
-week:   value=""                                            <- user typed 3
-colour: (nothing selected)                                  <- user chose red
+```php
+$selected = ($data['value'] instanceof Collection) ? $data['value']->contains($option->id) : $data['value'] == $option;
 ```
 
-The same submission against the **edit** form keeps its input (`week` comes back
-as `9`, the colour select comes back as `green`), because there the stored values
-are non-null and `isset()` passes. So the bug is specifically: *create* forms,
-plus any *edit* field whose stored value is `null`.
+So the relationship select still loses the user's choice. Measured on
+`users.create` — submit a valid `setup_group` of "Group B" with an invalid email:
 
-Fix is one line — drop the `isset()` guard and let `old()` do its job
-(`old($name, $data['value'] ?? null)`) — but it needs a regression test per field
-type, because the `class` and `enum` branches read `$data['value']` and
-`$value` inconsistently.
+```
+first_name: value="Ada"          <- kept, per the fix above
+setup_group: option 1 "Group A"
+             option 2 "Group B"  <- neither is selected; the user picked Group B
+```
 
-**Affects:** every entity rendered through `auto-entities/form.blade.php` —
-`ensembles`, `setupgroups`, `users`, `instrumentfamilies`.
+**Affects:** `users.setup_group` and `setupgroups.van_drivers`. The fix is to use
+`$value` in that branch as the other branches now do, being careful that
+`old()` returns ids as strings and, for a `select_multiple`, an array.
 
 ### F2 — The form's `required` markers are derived from the schema, not the rules
 
@@ -76,7 +82,7 @@ disagree in both directions:
 
 | Field | Form says | Request says | Result |
 | --- | --- | --- | --- |
-| `users.email` | optional (column is nullable) | `required` (`StoreUserRequest`) | Submit is allowed through, then bounced — and with F1 the whole form is blank on return |
+| `users.email` | optional (column is nullable) | `required` (`StoreUserRequest`) | The browser lets the submission through, then the server bounces it |
 | `setupgroups.week` | `required` (column is `NOT NULL`) | `nullable` (`StoreSetupGroupRequest`) | The browser blocks a submission the server would have accepted |
 
 2 of the 4 live generic forms disagree with their own validation rules.
@@ -84,13 +90,13 @@ disagree in both directions:
 ### F3 — Three field types render nothing usable
 
 `map_database_type_to_html()` emits `text`, `textarea`, `number`, `boolean`,
-`date`, `enum`, `class`, `image` and `email`. `field.blade.php` handles `class`,
-`textarea`, `number`, `enum`, a dead `checkbox` case (never emitted), and a
-`default` text input. So:
+`date`, `enum`, `color`, `class`, `image` and `email`. `field.blade.php` handles
+`class`, `textarea`, `number`, `color`, `enum`, a dead `checkbox` case (never
+emitted), and a `default` text input. So:
 
 | Emitted type | Rendered as | Note |
 | --- | --- | --- |
-| `date` | **nothing at all** — `@case('date')` is an empty `@break` (`field.blade.php:42-43`) | Latent: no entity currently on the generic form has a date column, but `TermDate` would hit it immediately |
+| `date` | **nothing at all** — `@case('date')` is an empty `@break` (`field.blade.php:46-47`) | Latent: no entity currently on the generic form has a date column, but `TermDate` (`start_datetime`, `end_datetime`, both `NOT NULL`) would hit it immediately |
 | `boolean` | plain text input | Latent — no live entity has one |
 | `email` | plain text input, no `type="email"` | Live on `users` |
 | `image` | plain text input (free-text URL) | Live on `users`, though the controller `unset()`s it on create |
@@ -106,8 +112,8 @@ user is bounced back to an apparently fine form with no explanation.
 
 ### F5 — Cosmetic, pre-existing `// TODO`s
 
-- `field.blade.php:15` — icon alignment when an error is present.
-- `field.blade.php:24` — "style nice" on the `class` select.
+- `field.blade.php:19` — icon alignment when an error is present.
+- `field.blade.php:28` — "style nice" on the `class` select.
 - `field.blade.php:6` — `$error_message != null || $error_message != ''` should
   be `&&`. It happens to give the right answer for every value `$errors->first()`
   can return, so it is a readability fix, not a bug.
@@ -154,8 +160,8 @@ the genuine Tabler idiom and is fine.
 
 ## 3. Automated tests
 
-Better than the item's tone suggests. **371 tests / 883 assertions across 35 test
-files, all passing** in ~8s. The gaps are about what *isn't* covered and, more
+Better than the item's tone suggests. **389 tests / 929 assertions across 37 test
+files, all passing** in ~10s. The gaps are about what *isn't* covered and, more
 importantly, about nothing running them.
 
 ### T1 — No CI job runs the tests or Pint (highest severity)
@@ -212,14 +218,14 @@ Consequently tests hand-roll `SetupGroup::create([...])` in at least 6 places.
 `ComposerFactory`, `PieceFactory`, `SetlistFactory` and `PartFactory` are
 present but near-empty (0–2 attributes).
 
-### T6 — Pint has never been run: 131 of 227 files fail
+### T6 — Pint has never been run: 131 of 229 files fail
 
-`./vendor/bin/pint --test` fails on **131 files** (58%). Top fixers:
+`./vendor/bin/pint --test` fails on **131 of 229 files** (57%). Top fixers:
 `ordered_imports` (87 files), `fully_qualified_strict_types` (60),
 `single_blank_line_at_eof` (40), `braces_position` (32), `class_definition` (21),
 `no_unused_imports` (20).
 
-Running `./vendor/bin/pint` fixes all 131 and **the suite still passes (371)** —
+Running `./vendor/bin/pint` fixes all 131 and **the suite still passes** —
 verified. It is a safe one-shot, but it should land as its own commit, before
 the T1 CI job starts enforcing it, so it doesn't pollute a feature diff.
 
@@ -266,7 +272,8 @@ guidelines file duplicates or replaces parts of `CLAUDE.md`.
 | Show member names below 1200px | R: `user-entry`, `poll-entry` (+ decide on `name-and-role`) | 1–2 h |
 | Run the test suite and Pint in CI | T1, T2 | 1–2 h |
 | Format the codebase with Pint | T6 | 30 min |
-| Keep generic-form input on a failed validation | F1, F4 | 3–4 h |
+| Keep the relationship select's choice on a failed validation | F1 | 1–2 h |
+| Show a form-level summary for errors with no visible field | F4 | 1–2 h |
 | Align generic-form `required` with the FormRequest rules | F2 | 2 h |
 | Render date/boolean/email/image fields in the generic form | F3, F5 | 3 h |
 | Fill in the model factories | T5 | 2 h |
@@ -286,9 +293,9 @@ npm install && npm run build                     # see T2
 php artisan key:generate
 
 # Strand 3
-php artisan test                                 # 371 passed
+php artisan test                                 # 389 passed
 ./vendor/bin/pint --test                         # 131 files
-find app config database routes tests bootstrap -name '*.php' | wc -l   # 227
+find app config database routes tests bootstrap -name '*.php' | wc -l   # 229
 php artisan route:list --json                    # 100 app routes
 ```
 

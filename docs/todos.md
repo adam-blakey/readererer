@@ -82,15 +82,15 @@ These touch the shared generic-CRUD layer or general UX and so apply regardless 
 - ~~**Quantify/triage rough edges**~~ — done: measured in
   [`docs/rough-edges-triage.md`](rough-edges-triage.md), which sizes each of the
   four strands and proposes the follow-up work. Headlines:
-  - **Form error handling** — every generic *create* form silently discards the
-    user's input when validation fails; the form's `required` markers are derived
-    from the schema rather than the FormRequest rules; `date` fields render
-    nothing at all.
+  - **Form error handling** — the relationship (`class`) select still loses the
+    user's choice when validation fails, because it was missed by the old-input
+    fix; the form's `required` markers are derived from the schema rather than
+    the FormRequest rules; `date` fields render nothing at all.
   - **"Resizing text disappearing"** — reproduced and located: `user-entry`,
     `name-and-role` and `poll-entry` hide their text below 1200px, and
     `poll-entry` renders an empty link.
-  - **Automated tests** — 371 tests pass, but no CI job runs them or Pint; Pint
-    fails on 131 of 227 files; 3 of 9 model factories cannot create a model.
+  - **Automated tests** — 389 tests pass, but no CI job runs them or Pint; Pint
+    fails on 131 of 229 files; 3 of 9 model factories cannot create a model.
   - **Laravel Boost** — compatible with Laravel 13 / PHP 8.4 and recommended.
 
 ---
