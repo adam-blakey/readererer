@@ -71,8 +71,10 @@ These touch the shared generic-CRUD layer or general UX and so apply regardless 
   "apparently isn't working correctly").
 - **Auto-entity show view button alignment** — `resources/views/auto-entities/show.blade.php:22`.
 - **Proper colour picker** — recurring item in the plan (used by setup groups, etc.).
-- **Canonical breadcrumb navigation** — recurring item; plan suggests
-  `diglactic/laravel-breadcrumbs`.
+- ~~**Canonical breadcrumb navigation**~~ — done: `diglactic/laravel-breadcrumbs`
+  is wired up, with a trail per named page in `routes/breadcrumbs.php` and Tabler
+  markup in `resources/views/vendor/breadcrumbs/tabler.blade.php`, rendered by the
+  page header.
 - **Translation strings** — i18n not yet extracted.
 - **Grey out the Save button when no changes have been made.**
 - **Quantify/triage rough edges** — form error handling; "resizing text disappearing"

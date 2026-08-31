@@ -6,12 +6,13 @@
     "license": "MIT",
     "require": {
         "php": "^8.4",
+        "ext-pdo": "^8.4.24",
         "barryvdh/laravel-dompdf": "^3.1",
+        "diglactic/laravel-breadcrumbs": "^10.1",
         "fakerphp/faker": "1.23",
         "laravel/framework": "^13.0",
         "laravel/tinker": "^3.0",
-        "s-damian/larasort": "^1.0",
-        "ext-pdo": "^8.4.24"
+        "s-damian/larasort": "^1.0"
     },
     "require-dev": {
         "barryvdh/laravel-debugbar": "^4.0",

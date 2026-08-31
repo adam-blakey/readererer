@@ -3,6 +3,7 @@
 <x-layout :$page_name :show_page_header="0">
 	<div class="page-header">
 		<div class="container">
+			<x-breadcrumbs />
 			<div class="row align-items-center">
 				<div class="col-auto">
 					<span class="rounded avatar avatar-lg" style="background-image: url({{ $ensemble->image }})"></span>
