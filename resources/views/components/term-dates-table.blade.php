@@ -55,7 +55,7 @@
                             @if ($td->setup_group != null)
                                 <x-setup-group-badge :setup_group="$td->setup_group" />
                             @else
-                                <span class="text-muted">—</span>
+                                <span class="text-muted" data-bs-toggle="tooltip" title="No setup group is on duty for this date">—</span>
                             @endif
                         </td>
                         <td>
@@ -71,8 +71,11 @@
                                 <span class="text-muted">No emails sent yet.</span>
                             @else
                                 @php $latest = $logs->first(); $rest = $logs->slice(1); @endphp
+                                @php $latest_failed = $latest->status === \App\Enums\EmailStatus::Failed; @endphp
                                 <div>
-                                    <x-icon name="{{ $latest->status === \App\Enums\EmailStatus::Failed ? 'alert-square' : 'check' }}" />
+                                    <span data-bs-toggle="tooltip" title="{{ $latest_failed ? 'This email failed to send' : 'This email was sent' }}">
+                                        <x-icon name="{{ $latest_failed ? 'alert-square' : 'check' }}" />
+                                    </span>
                                     {{ $latest->subject }} — {{ $latest->recipients->count() }} recipient(s), {{ $latest->created_at->diffForHumans() }}
                                 </div>
                                 @if ($rest->isNotEmpty())
@@ -81,8 +84,11 @@
                                     </a>
                                     <div class="collapse" id="email-history-{{ $td->id }}">
                                         @foreach ($rest as $log)
+                                            @php $log_failed = $log->status === \App\Enums\EmailStatus::Failed; @endphp
                                             <div class="text-secondary">
-                                                <x-icon name="{{ $log->status === \App\Enums\EmailStatus::Failed ? 'alert-square' : 'check' }}" />
+                                                <span data-bs-toggle="tooltip" title="{{ $log_failed ? 'This email failed to send' : 'This email was sent' }}">
+                                                    <x-icon name="{{ $log_failed ? 'alert-square' : 'check' }}" />
+                                                </span>
                                                 {{ $log->subject }} — {{ $log->recipients->count() }} recipient(s), {{ $log->created_at->diffForHumans() }}
                                             </div>
                                         @endforeach

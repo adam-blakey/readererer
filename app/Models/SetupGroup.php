@@ -56,6 +56,13 @@ class SetupGroup extends Model
         'van_drivers',
     ];
 
+    public function getLabelAttribute(): string
+    {
+        return trim((string) $this->name) !== ''
+            ? $this->name
+            : 'Setup group '.$this->week;
+    }
+
     #[Icon('users')]
     public function members(): HasMany
     {
