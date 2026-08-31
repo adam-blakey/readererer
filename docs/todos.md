@@ -74,7 +74,9 @@ These touch the shared generic-CRUD layer or general UX and so apply regardless 
 - **Canonical breadcrumb navigation** — recurring item; plan suggests
   `diglactic/laravel-breadcrumbs`.
 - **Translation strings** — i18n not yet extracted.
-- **Grey out the Save button when no changes have been made.**
+- ~~**Grey out the Save button when no changes have been made**~~ — done: a form
+  opts in with `data-dirty-check` and `resources/js/form-dirty.js` keeps its submit
+  buttons disabled until the form's values differ from the ones it was rendered with.
 - **Quantify/triage rough edges** — form error handling; "resizing text disappearing"
   issue; automated tests; possible Laravel Boost setup.
 

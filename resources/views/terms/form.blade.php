@@ -27,7 +27,7 @@
 							<h2 class="mb-0 card-heading">Edit term details</h2>
 						</div>
 						<div class="card-body">
-							<form action="{{ $form_route }}" id="term-edit-form" method="POST">
+							<form action="{{ $form_route }}" id="term-edit-form" method="POST" data-dirty-check>
 								@csrf
                                 @method($form_method)
 
