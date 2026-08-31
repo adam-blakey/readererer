@@ -155,7 +155,7 @@ function get_create_fields(object $dummy): array
             $type_name = $column['type_name'];
             $type = map_database_type_to_html($name, $type_name, $casts);
 
-            if ($type === 'enum') {
+            if ($type === 'enum' || $type === 'color') {
                 $enum_class = get_enum_class_for_attribute($casts, $name);
                 $options = get_enum_options($enum_class);
                 $default_option = get_enum_default($enum_class, $column['default'] ?? null);
@@ -266,8 +266,12 @@ function get_enum_default(string $enum_class, mixed $default): string|int|null
 
 function map_database_type_to_html(string $name, string $db_type, array $casts): string
 {
-    if (get_enum_class_for_attribute($casts, $name) !== null) {
-        return 'enum';
+    $enum_class = get_enum_class_for_attribute($casts, $name);
+
+    if ($enum_class !== null) {
+        // The palette enum gets the colour picker rather than a plain select,
+        // whatever the column happens to be called.
+        return ($enum_class === \App\Enums\Color::class) ? 'color' : 'enum';
     }
 
     if ($name == 'image') {

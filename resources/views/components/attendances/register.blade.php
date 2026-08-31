@@ -26,7 +26,7 @@
 <div class="card-header d-print-none">
 	<div>
 		<h2 class="mb-1 card-title">{{ $term_date->name }}</h2>
-		<div class="list-inline list-inline-dots mb-0 text-secondary">
+		<div class="list-inline list-inline-dots mb-0 text-secondary d-flex flex-wrap align-items-center">
 			<span class="list-inline-item">
 				@if ($term_date->concert_ensemble_id)
 					<span class="badge bg-green text-green-fg">{{ __('Concert') }}</span>
@@ -37,7 +37,7 @@
 			<span class="list-inline-item">{{ $ensemble->name }}</span>
 			<span class="list-inline-item">{{ $term_date->term->name }}</span>
 			@if ($term_date->setup_group != null)
-				<span class="list-inline-item"><x-setup-group-badge :setup_group="$term_date->setup_group" /></span>
+				<span class="list-inline-item"><x-setup-group-badge :setup_group="$term_date->setup_group" :size="false" /></span>
 			@endif
 		</div>
 	</div>
@@ -126,7 +126,7 @@
 										$input_id = 'status-'.$member->id.'-'.$choice->value;
 									@endphp
 									<input autocomplete="off" class="btn-check register-status" id="{{ $input_id }}" name="status[{{ $member->id }}]" type="radio" value="{{ $choice->value }}" @checked($status === $choice) />
-									<label class="btn btn-sm btn-outline-{{ $choice->color() }}" for="{{ $input_id }}" title="{{ $choice->label() }}">
+									<label class="btn btn-sm btn-outline-{{ $choice->color() }}" for="{{ $input_id }}" @if ($choice === RegisterStatus::Unmarked) data-bs-toggle="tooltip" title="{{ $choice->label() }} — no attendance recorded" @else title="{{ $choice->label() }}" @endif>
 										@if ($choice === RegisterStatus::Unmarked)
 											—
 										@else

@@ -1,9 +1,7 @@
 <?php
 
 use App\Enums\AttendanceStatus;
-use App\Enums\Color;
 use App\Enums\UserRole;
-use App\Models\InstrumentFamily;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Blade;
 use Illuminate\Support\Facades\View;
@@ -12,6 +10,8 @@ use Illuminate\Support\ViewErrorBag;
 /**
  * Enum columns are rendered by the generic auto-entity form as a select built
  * from the enum's cases; these cover the markup that ends up on the page.
+ * Columns cast to the Color palette get the colour picker instead — see
+ * ColorPickerTest.
  *
  * Returns one row per option: ['value' => ..., 'label' => ..., 'selected' => ...].
  */
@@ -47,16 +47,16 @@ test('a create form pre-selects the column\'s database default', function () {
 });
 
 test('an edit form pre-selects the record\'s current case', function () {
-    $instrumentFamily = InstrumentFamily::create(['name' => 'Bassoons', 'color' => Color::Teal]);
+    $user = make_user(UserRole::Moderator);
 
-    $options = enum_select_options($this->actingAs(make_user(UserRole::Moderator))
-        ->get(route('instrumentfamilys.edit', $instrumentFamily))
+    $options = enum_select_options($this->actingAs(make_user(UserRole::Admin))
+        ->get(route('users.edit', $user))
         ->assertOk()
-        ->getContent(), 'color');
+        ->getContent(), 'role');
 
-    expect($options)->toHaveCount(count(Color::cases()));
-    expect($options->where('selected')->pluck('value')->all())->toBe([Color::Teal->value]);
-    expect($options->pluck('label')->all())->toContain(Color::Teal->label());
+    expect($options)->toHaveCount(count(UserRole::cases()));
+    expect($options->where('selected')->pluck('value')->all())->toBe([(string) UserRole::Moderator->value]);
+    expect($options->pluck('label')->all())->toContain('Moderator');
 });
 
 test('a nullable enum select offers an empty option that is selected when there is no value', function () {
@@ -86,12 +86,11 @@ test('a nullable enum select offers an empty option that is selected when there 
 });
 
 test('a required enum select offers no empty option', function () {
-    $instrumentFamily = InstrumentFamily::create(['name' => 'Bassoons', 'color' => Color::Teal]);
-
-    $options = enum_select_options($this->actingAs(make_user(UserRole::Moderator))
-        ->get(route('instrumentfamilys.edit', $instrumentFamily))
+    // users.role is not nullable, so its select has no "—" option.
+    $options = enum_select_options($this->actingAs(make_user(UserRole::Admin))
+        ->get(route('users.create'))
         ->assertOk()
-        ->getContent(), 'color');
+        ->getContent(), 'role');
 
     expect($options->pluck('value')->all())->not->toContain('');
 });

@@ -47,7 +47,7 @@
 								@elseif (array_key_exists($attribute, $casts))
 									@switch($casts[$attribute])
 										@case('boolean')
-											{{ $entity->$attribute ? __('Y') : __('N') }}
+											<span data-bs-toggle="tooltip" title="{{ $entity->$attribute ? __('Yes') : __('No') }}">{{ $entity->$attribute ? __('Y') : __('N') }}</span>
 										@break
 
 										@case('datetime')
