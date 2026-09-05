@@ -10,7 +10,7 @@
 <div class="modal modal-blur fade" id="modal-add-user-ensemble" tabindex="-1" role="dialog" aria-hidden="true">
     <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
         <div class="modal-content">
-            <form action="{{ route('ensembles.add_user', ['ensemble' => $ensemble]) }}" method="POST">
+            <form action="{{ route('ensembles.add-user', ['ensemble' => $ensemble]) }}" method="POST">
                 @csrf
                 <div class="modal-header">
                     <h4 class="modal-title">Add user to {{ $ensemble->name }}</h4>

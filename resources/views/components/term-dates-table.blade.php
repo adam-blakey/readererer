@@ -134,7 +134,7 @@
                                     @endforeach
                                 @endif
                                 @foreach ($seating_plan_ensembles as $ensemble)
-                                    <x-a class="btn btn-sm bg-orange text-orange-fg" href="{{ route('seating-plan.download', ['ensemble' => $ensemble, 'termDate' => $td]) }}" target="_blank">
+                                    <x-a class="btn btn-sm bg-orange text-orange-fg" href="{{ route('ensembles.seating-plan.download', ['ensemble' => $ensemble, 'termDate' => $td]) }}" target="_blank">
                                         <x-icon name="armchair" />
                                         Seating plan: {{ $ensemble->name }}
                                     </x-a>
