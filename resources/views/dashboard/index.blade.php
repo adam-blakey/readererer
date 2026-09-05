@@ -17,7 +17,7 @@
 									<div class="col-12 col-sm-6 col-md-4">
 										<x-a route="ensembles.show" :$ensemble class="card text-center">
 											<div class="card-body p-3">
-												<span class="avatar avatar-xl mb-2" style="background-image: url({{ $ensemble->image }})"></span>
+												<span class="avatar avatar-xl mb-2" style="background-image: url({{ $ensemble->image_url }})"></span>
 												<div class="fw-medium">{{ $ensemble->name }}</div>
 											</div>
 										</x-a>
