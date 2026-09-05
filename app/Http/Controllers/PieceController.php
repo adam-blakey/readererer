@@ -28,8 +28,8 @@ class PieceController extends Controller
 
         return view('auto-entities.index', [
             'entities' => $pieces,
-            'page_name' => 'Pieces',
-            'page_subname' => 'Pieces overview'
+            'page_name' => __('Pieces'),
+            'page_subname' => __('Pieces overview')
         ]);
     }
 
@@ -82,7 +82,7 @@ class PieceController extends Controller
     public function destroy(Piece $piece)
     {
         $piece->delete();
-        return redirect()->back()->with('status', 'Record deleted.');
+        return redirect()->back()->with('status', __('Record deleted.'));
     }
 
     public function purgeTrashed()
@@ -90,13 +90,13 @@ class PieceController extends Controller
         Piece::onlyTrashed()->get()->each(function ($model) {
             $model->forceDelete();
         });
-        return redirect()->back()->with('status', 'All soft-deleted records permanently removed.');
+        return redirect()->back()->with('status', __('All soft-deleted records permanently removed.'));
     }
 
     public function restore(int $id)
     {
         $entity = Piece::withTrashed()->findOrFail($id)->restore();
 
-        return redirect()->back()->with('status', 'Restored.');
+        return redirect()->back()->with('status', __('Restored.'));
     }
 }

@@ -134,20 +134,7 @@ class User extends Authenticatable
 
     public function getRoleDescriptionAttribute(): string
     {
-        switch ($this->role) {
-            case UserRole::Admin:
-                return 'Admin';
-            case UserRole::Moderator:
-                return 'Moderator';
-            case UserRole::Member:
-                return 'Member';
-            case UserRole::Ensemble:
-                return 'Ensemble';
-            case UserRole::Guest:
-                return 'Guest';
-            default:
-                return 'Unknown';
-        }
+        return $this->role?->label() ?? __('Unknown');
     }
 
     public function getFullAddressAttribute(): string
@@ -235,7 +222,7 @@ class User extends Authenticatable
     public function membership($ensemble): string {
         $membership = $this->ensembles->firstWhere('id', $ensemble->id);
         if (!$membership) {
-            return "Not a member";
+            return __('Not a member');
         }
 
         $pivot = $membership->pivot;
@@ -243,7 +230,7 @@ class User extends Authenticatable
         $seat_name = $pivot->seat_row . $pivot->seat_column;
 
         if (!$instrument_name && !$seat_name) {
-            return "No membership information";
+            return __('No membership information');
         }
         elseif ($instrument_name && !$seat_name) {
             return $instrument_name;

@@ -34,11 +34,11 @@ class EnsembleController extends Controller
 
         return view('auto-entities.index', [
             'entities' => $ensembles,
-            'page_name' => 'Ensembles',
-            'page_subname' => 'Ensemble overview',
+            'page_name' => __('Ensembles'),
+            'page_subname' => __('Ensemble overview'),
             'create_entity' => [
                 'route' => 'ensembles.create',
-                'name' => 'ensemble',
+                'name' => __('ensemble'),
             ],
         ]);
     }
@@ -51,8 +51,8 @@ class EnsembleController extends Controller
         $fields = get_create_fields(new Ensemble);
 
         return view('auto-entities.form', [
-            'page_name' => 'Ensembles',
-            'page_subname' => 'Create new ensemble',
+            'page_name' => __('Ensembles'),
+            'page_subname' => __('Create new ensemble'),
             'update' => false,
             'fields' => $fields,
             'form_route' => route('ensembles.store'),
@@ -82,7 +82,7 @@ class EnsembleController extends Controller
     {
         return view('ensembles.edit', [
             'ensemble' => $ensemble,
-            'page_name' => 'Edit '.$ensemble->name,
+            'page_name' => __('Edit :name', ['name' => $ensemble->name]),
         ]);
     }
 
@@ -105,7 +105,7 @@ class EnsembleController extends Controller
     {
         $ensemble->delete();
 
-        return redirect()->back()->with('status', 'Record deleted.');
+        return redirect()->back()->with('status', __('Record deleted.'));
     }
 
     public function purgeTrashed()
@@ -114,7 +114,7 @@ class EnsembleController extends Controller
             $model->forceDelete();
         });
 
-        return redirect()->back()->with('status', 'All soft-deleted records permanently removed.');
+        return redirect()->back()->with('status', __('All soft-deleted records permanently removed.'));
     }
 
     public function restore(int $id)
@@ -122,7 +122,7 @@ class EnsembleController extends Controller
         $entity = Ensemble::withTrashed()->findOrFail($id);
         $entity->restore();
 
-        return redirect()->back()->with('status', 'Restored.');
+        return redirect()->back()->with('status', __('Restored.'));
     }
 
     /**
@@ -135,7 +135,7 @@ class EnsembleController extends Controller
         return view('ensembles.members', [
             'ensemble' => $ensemble,
             'page_name' => $ensemble->name,
-            'page_subname' => 'Members',
+            'page_subname' => __('Members'),
         ]);
     }
 
@@ -157,7 +157,7 @@ class EnsembleController extends Controller
             'instrument_family_id' => $validated['instrument_family_id'],
         ], $seat));
 
-        return redirect()->back()->with('status', 'User added to ensemble.');
+        return redirect()->back()->with('status', __('User added to ensemble.'));
     }
 
     public function remove_user(Ensemble $ensemble, User $user)
@@ -168,6 +168,6 @@ class EnsembleController extends Controller
 
         $pivot->delete();
 
-        return redirect()->back()->with('status', 'User removed from ensemble.');
+        return redirect()->back()->with('status', __('User removed from ensemble.'));
     }
 }

@@ -8,13 +8,13 @@
             </div>
             <div class="col">
                 <h1 class="my-0 font-bold">{{ $piece->name }}</h1>
-                <span class="badge bg-blue text-blue-fg">Wow</span>
+                <span class="badge bg-blue text-blue-fg">{{ __('Wow') }}</span>
             </div>
             <div class="col-auto ms-auto">
                 <div class="btn-list">
-                    <a aria-label="Button" class="btn" href="{{ route('pieces.edit', ['piece' => $piece]) }}">
+                    <a aria-label="{{ __('Edit') }}" class="btn" href="{{ route('pieces.edit', ['piece' => $piece]) }}">
                         <x-icon name="pencil" />
-                        Edit
+                        {{ __('Edit') }}
                     </a>
                 </div>
             </div>
@@ -27,7 +27,7 @@
 				<div class="col">
 					<div class="mb-3 card">
 						<div class="card-header">
-							<h2 class="mb-0 card-heading">Parts ({{ $piece->parts->count() }})</h2>
+							<h2 class="mb-0 card-heading">{{ __('Parts (:count)', ['count' => $piece->parts->count()]) }}</h2>
 						</div>
 						<div class="card-body">
 							<ul>
@@ -41,7 +41,7 @@
 				<div class="col">
 					<div class="mb-3 card">
 						<div class="card-header">
-							<h2 class="mb-0 card-heading">Setlists</h2>
+							<h2 class="mb-0 card-heading">{{ __('Setlists') }}</h2>
 						</div>
 						<div class="card-body">
 							@foreach ($piece->setlists as $setlist)
@@ -53,7 +53,7 @@
 				<div class="col">
 					<div class="mb-3 card">
 						<div class="card-header">
-							<h2 class="mb-0 card-heading">Upcoming concerts</h2>
+							<h2 class="mb-0 card-heading">{{ __('Upcoming concerts') }}</h2>
 						</div>
 						<div class="card-body">
 

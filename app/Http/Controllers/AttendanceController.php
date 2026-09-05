@@ -27,7 +27,7 @@ class AttendanceController extends Controller
 
         return view('attendances.index', [
             'attendances' => $attendances,
-            'page_name' => 'Attendance updates'
+            'page_name' => __('Attendance updates')
         ]);
     }
 

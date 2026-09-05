@@ -50,14 +50,14 @@
 			<div class="dropdown">
 				<button aria-expanded="false" class="btn btn-sm dropdown-toggle" data-bs-toggle="dropdown" type="button">
 					<x-icon name="list-check" />
-					Register
+					{{ __('Register') }}
 				</button>
 				<div class="dropdown-menu dropdown-menu-end">
 					@foreach ($term_dates as $term_date)
 						<a class="dropdown-item" href="{{ route('attendance.register.show', ['ensemble' => $ensemble, 'termDate' => $term_date]) }}">
 							{{ $term_date->date_label }}
 							@if ($term_date->concert_ensemble_id)
-								<span class="ms-1 badge bg-green-lt">Concert</span>
+								<span class="ms-1 badge bg-green-lt">{{ __('Concert') }}</span>
 							@endif
 						</a>
 					@endforeach
@@ -132,7 +132,7 @@
 				@endforeach
 				<tr>
 					<td class="align-right" colspan="{{ $term->term_dates->count() + 1 }}">
-						<button class="btn btn-primary" type="submit">Save</button>
+						<button class="btn btn-primary" type="submit">{{ __('Save') }}</button>
 					</td>
 				</tr>
 			</tbody>

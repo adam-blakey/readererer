@@ -1,16 +1,16 @@
 @props(['page_name', 'ensembles' => collect(), 'setupGroup' => null, 'nextRehearsal' => null, 'nextConcerts' => collect(), 'nextVanDrive' => null])
 
-<x-layout page_subname="Dashboard">
+<x-layout>
 	<div class="container-xl">
 		<x-card-row>
 			<div class="col-md-8">
 				<x-card>
 					<div class="card-header">
-						<h2 class="mb-0 card-heading">Your ensembles</h2>
+						<h2 class="mb-0 card-heading">{{ __('Your ensembles') }}</h2>
 					</div>
 					<x-card-body>
 						@if($ensembles->count() === 0)
-							<p>You are not currently a member of any ensembles.</p>
+							<p>{{ __('You are not currently a member of any ensembles.') }}</p>
 						@else
 							<div class="row row-cards">
 								@foreach($ensembles as $ensemble)
@@ -30,14 +30,14 @@
 
 				<x-card class="mt-3">
 					<div class="card-header">
-						<h2 class="mb-0 card-heading">Upcoming rehearsals and concerts</h2>
+						<h2 class="mb-0 card-heading">{{ __('Upcoming rehearsals and concerts') }}</h2>
 					</div>
 					<x-card-body>
-						<div class="card-title">Next rehearsal</div>
+						<div class="card-title">{{ __('Next rehearsal') }}</div>
 						<x-rehearsal-entry :ensembles="$ensembles" :term_date="$nextRehearsal" />
 					</x-card-body>
 					<x-card-body>
-						<div class="card-title">Your next concerts</div>
+						<div class="card-title">{{ __('Your next concerts') }}</div>
 						@if($nextConcerts->count() === 0)
 							<x-rehearsal-entry :term_date="null" />
 						@else
@@ -56,7 +56,7 @@
 			<div class="col-md-4">
 				<x-card>
 					<div class="card-header">
-						<h2 class="mb-0 card-heading">Your setup group</h2>
+						<h2 class="mb-0 card-heading">{{ __('Your setup group') }}</h2>
 					</div>
 					<x-card-body>
 						@if($setupGroup)
@@ -65,14 +65,14 @@
 								<span class="ms-2">{{ $setupGroup->name }}</span>
 							</div>
 						@else
-							<p class="text-muted">You are not assigned to a setup group.</p>
+							<p class="text-muted">{{ __('You are not assigned to a setup group.') }}</p>
 						@endif
 					</x-card-body>
 				</x-card>
 
 				<x-card class="mt-3">
 					<div class="card-header">
-						<h2 class="mb-0 card-heading">Next time you're driving the van</h2>
+						<h2 class="mb-0 card-heading">{{ __("Next time you're driving the van") }}</h2>
 					</div>
 					<x-card-body>
 						<x-rehearsal-entry :term_date="$nextVanDrive" />

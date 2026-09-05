@@ -1,23 +1,23 @@
 @props(['logs'])
 
-<x-layout page_subname="Overview of every notification email sent, with its delivery status">
+<x-layout>
 	<div class="container-xl">
 		<x-card-row>
 			<div class="col-md-12">
 				<x-card>
 					@if ($logs->isEmpty())
-						<div class="text-muted">No notifications have been sent yet.</div>
+						<div class="text-muted">{{ __('No notifications have been sent yet.') }}</div>
 					@else
 						<div class="table-responsive">
 							<table class="table table-vcenter card-table">
 								<thead>
 									<tr>
-										<th>Sent</th>
-										<th>Type</th>
-										<th>Subject</th>
-										<th>Date concerned</th>
-										<th>Status</th>
-										<th>Recipients</th>
+										<th>{{ __('Sent') }}</th>
+										<th>{{ __('Type') }}</th>
+										<th>{{ __('Subject') }}</th>
+										<th>{{ __('Date concerned') }}</th>
+										<th>{{ __('Status') }}</th>
+										<th>{{ __('Recipients') }}</th>
 									</tr>
 								</thead>
 								<tbody>
@@ -39,11 +39,11 @@
 											</td>
 											<td>
 												@if ($log->status === \App\Enums\EmailStatus::Sent)
-													<span class="badge bg-green text-green-fg">Sent</span>
+													<span class="badge bg-green text-green-fg">{{ __('Sent') }}</span>
 												@elseif ($log->status === \App\Enums\EmailStatus::Failed)
-													<span class="badge bg-red text-red-fg">Failed</span>
+													<span class="badge bg-red text-red-fg">{{ __('Failed') }}</span>
 												@else
-													<span class="badge bg-yellow text-yellow-fg">Pending</span>
+													<span class="badge bg-yellow text-yellow-fg">{{ __('Pending') }}</span>
 												@endif
 											</td>
 											<td>
@@ -52,11 +52,11 @@
 														<x-icon name="{{ $recipient->status === \App\Enums\EmailStatus::Failed ? 'alert-square' : 'check' }}" />
 														{{ $recipient->name ?? $recipient->email }}
 														@if ($recipient->error_message)
-															<span class="text-danger" title="{{ $recipient->error_message }}">(failed)</span>
+															<span class="text-danger" title="{{ $recipient->error_message }}">({{ __('failed') }})</span>
 														@endif
 													</div>
 												@empty
-													<span class="text-muted">Nobody</span>
+													<span class="text-muted">{{ __('Nobody') }}</span>
 												@endforelse
 											</td>
 										</tr>

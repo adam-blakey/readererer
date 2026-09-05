@@ -289,7 +289,7 @@ test('the ensemble show page hides management buttons from ordinary members', fu
     $this->actingAs($member)
         ->get(route('ensembles.show', $ensemble))
         ->assertOk()
-        ->assertSee("You're a member!", false)
+        ->assertSee("You're a member!")
         ->assertDontSee('Seating plan');
 });
 

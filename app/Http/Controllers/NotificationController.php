@@ -17,7 +17,7 @@ class NotificationController extends Controller
             ->paginate(15);
 
         return view('notifications.index', [
-            'page_name' => 'Notifications',
+            'page_name' => __('Notifications'),
             'logs' => $logs,
         ]);
     }

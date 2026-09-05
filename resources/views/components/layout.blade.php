@@ -1,7 +1,7 @@
 @props(['show_page_header' => true, 'show_nav_menu' => true])
 
 <!doctype html>
-<html lang="en">
+<html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
 
 <head>
 	<meta charset="utf-8" />

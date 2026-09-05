@@ -27,13 +27,13 @@
 >
     @unless ($required)
         <div class="col-auto">
-            <label class="form-colorinput form-colorinput-light" title="None">
+            <label class="form-colorinput form-colorinput-light" title="{{ __('None') }}">
                 <input
                     type="radio"
                     name="{{ $name }}"
                     value=""
                     class="form-colorinput-input"
-                    aria-label="None"
+                    aria-label="{{ __('None') }}"
                     @checked($selected === null)
                 >
                 <span class="form-colorinput-color bg-secondary-lt"></span>

@@ -14,7 +14,7 @@
 											<path d="M0 0h24v24H0z" fill="none" stroke="none"></path>
 											<path d="M15 6l-6 6l6 6"></path>
 										</svg>
-										prev
+										{{ __('prev') }}
 									</span>
 								</li>
 							@else
@@ -25,7 +25,7 @@
 											<path d="M0 0h24v24H0z" fill="none" stroke="none"></path>
 											<path d="M15 6l-6 6l6 6"></path>
 										</svg>
-										prev
+										{{ __('prev') }}
 									</a>
 								</li>
 							@endif
@@ -59,7 +59,7 @@
 							@if ($paginator->hasMorePages())
 								<li aria-label="{{ __('pagination.next') }}" class="page-item" rel="next">
 									<a class="page-link" href="{{ $paginator->nextPageUrl() }}">
-										next <!-- Download SVG icon from http://tabler-icons.io/i/chevron-right -->
+										{{ __('next') }} <!-- Download SVG icon from http://tabler-icons.io/i/chevron-right -->
 										<svg class="icon" fill="none" height="24" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" stroke="currentColor" viewBox="0 0 24 24" width="24" xmlns="http://www.w3.org/2000/svg">
 											<path d="M0 0h24v24H0z" fill="none" stroke="none"></path>
 											<path d="M9 6l6 6l-6 6"></path>
@@ -69,7 +69,7 @@
 							@else
 								<li aria-disabled="true" class="page-item disabled">
 									<span class="page-link">
-										next <!-- Download SVG icon from http://tabler-icons.io/i/chevron-right -->
+										{{ __('next') }} <!-- Download SVG icon from http://tabler-icons.io/i/chevron-right -->
 										<svg class="icon" fill="none" height="24" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" stroke="currentColor" viewBox="0 0 24 24" width="24" xmlns="http://www.w3.org/2000/svg">
 											<path d="M0 0h24v24H0z" fill="none" stroke="none"></path>
 											<path d="M9 6l6 6l-6 6"></path>
@@ -87,7 +87,7 @@
 										<path d="M0 0h24v24H0z" fill="none" stroke="none"></path>
 										<path d="M15 6l-6 6l6 6"></path>
 									</svg>
-									prev
+									{{ __('prev') }}
 								</span>
 							</li>
 
@@ -97,7 +97,7 @@
 
 							<li aria-disabled="true" class="page-item disabled">
 								<span class="page-link">
-									next <!-- Download SVG icon from http://tabler-icons.io/i/chevron-right -->
+									{{ __('next') }} <!-- Download SVG icon from http://tabler-icons.io/i/chevron-right -->
 									<svg class="icon" fill="none" height="24" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" stroke="currentColor" viewBox="0 0 24 24" width="24" xmlns="http://www.w3.org/2000/svg">
 										<path d="M0 0h24v24H0z" fill="none" stroke="none"></path>
 										<path d="M9 6l6 6l-6 6"></path>

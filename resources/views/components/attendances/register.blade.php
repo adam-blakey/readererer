@@ -11,9 +11,9 @@
 	$totals = register_status_totals($entries->only($members->pluck('id')->all()), $members->count());
 
 	$sort_options = [
-	    'first_name' => 'First name',
-	    'last_name' => 'Last name',
-	    'instrument_family' => 'Instrument',
+	    'first_name' => __('First name'),
+	    'last_name' => __('Last name'),
+	    'instrument_family' => __('Instrument'),
 	];
 
 	// What the poll answer implies for the register, used by "Fill from poll".
@@ -29,9 +29,9 @@
 		<div class="list-inline list-inline-dots mb-0 text-secondary d-flex flex-wrap align-items-center">
 			<span class="list-inline-item">
 				@if ($term_date->concert_ensemble_id)
-					<span class="badge bg-green text-green-fg">Concert</span>
+					<span class="badge bg-green text-green-fg">{{ __('Concert') }}</span>
 				@else
-					<span class="badge bg-gray text-muted">Rehearsal</span>
+					<span class="badge bg-gray text-muted">{{ __('Rehearsal') }}</span>
 				@endif
 			</span>
 			<span class="list-inline-item">{{ $ensemble->name }}</span>
@@ -44,9 +44,9 @@
 	<div class="ms-auto btn-list">
 		<x-a class="btn btn-sm" href="{{ route('attendance.poll', ['ensemble' => $ensemble, 'term' => $term_date->term]) }}">
 			<x-icon name="square-check" />
-			Poll
+			{{ __('Poll') }}
 		</x-a>
-		<div aria-label="Sort members by" class="btn-group" role="group">
+		<div aria-label="{{ __('Sort members by') }}" class="btn-group" role="group">
 			@foreach ($sort_options as $option => $label)
 				<x-a class="btn btn-sm {{ $sortby === $option ? 'active' : '' }}" href="{{ route('attendance.register.show', ['ensemble' => $ensemble, 'termDate' => $term_date, 'sortby' => $option]) }}">{{ $label }}</x-a>
 			@endforeach
@@ -67,15 +67,15 @@
 			<div class="btn-list">
 				<button class="btn btn-sm" type="button" onclick="fillRegisterFromPoll()">
 					<x-icon name="clipboard-check" />
-					Fill from poll
+					{{ __('Fill from poll') }}
 				</button>
 				<button class="btn btn-sm" type="button" onclick="setWholeRegister({{ RegisterStatus::Present->value }})">
 					<x-icon name="users-group" />
-					All present
+					{{ __('All present') }}
 				</button>
 				<button class="btn btn-sm" type="button" onclick="setWholeRegister({{ RegisterStatus::Unmarked->value }})">
 					<x-icon name="eraser" />
-					Clear
+					{{ __('Clear') }}
 				</button>
 			</div>
 		</div>
@@ -88,10 +88,10 @@
 		<table class="table table-vcenter card-table" id="attendance-register">
 			<thead>
 				<tr>
-					<th>Member</th>
-					<th class="w-1 text-nowrap">Said on the poll</th>
-					<th class="w-1 text-center">Register</th>
-					<th>Notes</th>
+					<th>{{ __('Member') }}</th>
+					<th class="w-1 text-nowrap">{{ __('Said on the poll') }}</th>
+					<th class="w-1 text-center">{{ __('Register') }}</th>
+					<th>{{ __('Notes') }}</th>
 				</tr>
 			</thead>
 			<tbody>
@@ -110,17 +110,17 @@
 						<td>
 							@switch ($polled)
 								@case (AttendanceStatus::Attending)
-									<span class="badge bg-green-lt">Attending</span>
+									<span class="badge bg-green-lt">{{ __('Attending') }}</span>
 									@break
 								@case (AttendanceStatus::NotAttending)
-									<span class="badge bg-red-lt">Not attending</span>
+									<span class="badge bg-red-lt">{{ __('Not attending') }}</span>
 									@break
 								@default
-									<span class="badge bg-secondary-lt">No answer</span>
+									<span class="badge bg-secondary-lt">{{ __('No answer') }}</span>
 							@endswitch
 						</td>
 						<td>
-							<div aria-label="Register status for {{ $member->name }}" class="btn-group text-nowrap" role="group">
+							<div aria-label="{{ __('Register status for :name', ['name' => $member->name]) }}" class="btn-group text-nowrap" role="group">
 								@foreach ([RegisterStatus::Unmarked, ...RegisterStatus::choices()] as $choice)
 									@php
 										$input_id = 'status-'.$member->id.'-'.$choice->value;
@@ -137,12 +137,12 @@
 							</div>
 						</td>
 						<td>
-							<input class="form-control form-control-sm" maxlength="255" name="notes[{{ $member->id }}]" placeholder="Optional note" type="text" value="{{ $entry?->notes }}" />
+							<input class="form-control form-control-sm" maxlength="255" name="notes[{{ $member->id }}]" placeholder="{{ __('Optional note') }}" type="text" value="{{ $entry?->notes }}" />
 						</td>
 					</tr>
 				@empty
 					<tr>
-						<td colspan="4">No members to take a register for. Add members with an instrument to {{ $ensemble->name }} first.</td>
+						<td colspan="4">{{ __('No members to take a register for. Add members with an instrument to :name first.', ['name' => $ensemble->name]) }}</td>
 					</tr>
 				@endforelse
 			</tbody>
@@ -155,11 +155,17 @@
 				$last_marked = $entries->sortByDesc('updated_at')->first();
 			@endphp
 			@if ($last_marked)
-				<span class="text-secondary">Last saved {{ $last_marked->updated_at->diffForHumans() }}@if ($last_marked->marked_by) by {{ $last_marked->marked_by->name }}@endif.</span>
+				<span class="text-secondary">
+					@if ($last_marked->marked_by)
+						{{ __('Last saved :time by :name.', ['time' => $last_marked->updated_at->diffForHumans(), 'name' => $last_marked->marked_by->name]) }}
+					@else
+						{{ __('Last saved :time.', ['time' => $last_marked->updated_at->diffForHumans()]) }}
+					@endif
+				</span>
 			@else
-				<span class="text-secondary">This register has not been taken yet.</span>
+				<span class="text-secondary">{{ __('This register has not been taken yet.') }}</span>
 			@endif
-			<button class="ms-auto btn btn-primary" type="submit">Save register</button>
+			<button class="ms-auto btn btn-primary" type="submit">{{ __('Save register') }}</button>
 		</div>
 	@endif
 </form>

@@ -1,6 +1,6 @@
 @props(['attendances'])
 
-<x-layout page_subname="Attendance updates overview">
+<x-layout>
 	<div class="container-xl">
 		<x-card-row>
 			<div class="col-md-12">

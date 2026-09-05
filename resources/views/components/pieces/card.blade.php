@@ -13,10 +13,10 @@
 		<a class="mt-3 text-xl font-bold transition-colors duration-300 group-hover:text-blue-700" href="#" target="_blank">
 			{{ $piece->name }}
 		</a>
-		<p class="mt-auto text-sm text-gray-400">Wow</p>
+		<p class="mt-auto text-sm text-gray-400">{{ __('Wow') }}</p>
 	</div>
 
 	<div>
-		Tags
+		{{ __('Tags') }}
 	</div>
 </div>

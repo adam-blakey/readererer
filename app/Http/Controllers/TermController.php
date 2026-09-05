@@ -29,11 +29,11 @@ class TermController extends Controller
 
         return view('auto-entities.index', [
             'entities' => $terms,
-            'page_name' => 'Terms',
-            'page_subname' => 'Terms overview',
+            'page_name' => __('Terms'),
+            'page_subname' => __('Terms overview'),
             'create_entity' => [
                 'route' => 'terms.create',
-                'name' => 'term',
+                'name' => __('term'),
             ],
         ]);
     }
@@ -50,7 +50,7 @@ class TermController extends Controller
 
         return view('terms.form', [
             'term' => $term,
-            'page_name' => 'New term',
+            'page_name' => __('New term'),
             'ensembles' => $ensembles,
             'setup_groups' => $setup_groups,
             'van_drivers' => $van_drivers,
@@ -137,7 +137,7 @@ class TermController extends Controller
 
         return view('terms.form', [
             'term' => $term,
-            'page_name' => 'Edit term',
+            'page_name' => __('Edit term'),
             'ensembles' => $ensembles,
             'setup_groups' => $setup_groups,
             'van_drivers' => $van_drivers,
@@ -200,7 +200,7 @@ class TermController extends Controller
     {
         $term->delete();
 
-        return redirect()->back()->with('status', 'Record deleted.');
+        return redirect()->back()->with('status', __('Record deleted.'));
     }
 
     public function purgeTrashed()
@@ -209,7 +209,7 @@ class TermController extends Controller
             $model->forceDelete();
         });
 
-        return redirect()->back()->with('status', 'All soft-deleted records permanently removed.');
+        return redirect()->back()->with('status', __('All soft-deleted records permanently removed.'));
     }
 
     public function restore(int $id)
@@ -217,6 +217,6 @@ class TermController extends Controller
         $entity = Term::withTrashed()->findOrFail($id);
         $entity->restore();
 
-        return redirect()->back()->with('status', 'Restored.');
+        return redirect()->back()->with('status', __('Restored.'));
     }
 }

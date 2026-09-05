@@ -30,11 +30,11 @@ class InstrumentFamilyController extends Controller
 
         return view('auto-entities.index', [
             'entities' => $instrumentFamilies,
-            'page_name' => 'Instrument families',
-            'page_subname' => 'Instrument families overview',
+            'page_name' => __('Instrument families'),
+            'page_subname' => __('Instrument families overview'),
             'create_entity' => [
                 'route' => 'instrumentfamilys.create',
-                'name' => 'instrument family',
+                'name' => __('instrument family'),
             ],
         ]);
     }
@@ -48,8 +48,8 @@ class InstrumentFamilyController extends Controller
         $fields = get_create_fields($dummy);
 
         return view('auto-entities.form', [
-            'page_name' => 'Instrument families',
-            'page_subname' => 'Create new instrument family',
+            'page_name' => __('Instrument families'),
+            'page_subname' => __('Create new instrument family'),
             'update' => false,
             'fields' => $fields,
             'form_route' => route('instrumentfamilys.store'),
@@ -73,8 +73,8 @@ class InstrumentFamilyController extends Controller
     {
         return view('auto-entities.show', [
             'entity' => $instrumentFamily,
-            'page_name' => 'Instrument families',
-            'page_subname' => 'Instrument family '.$instrumentFamily->name,
+            'page_name' => __('Instrument families'),
+            'page_subname' => __('Instrument family :name', ['name' => $instrumentFamily->name]),
             'edit_route' => 'instrumentfamilys.edit',
             'destroy_route' => 'instrumentfamilys.destroy',
             'restore_route' => 'instrumentfamilys.restore',
@@ -89,8 +89,8 @@ class InstrumentFamilyController extends Controller
         $fields = get_create_fields($instrumentFamily);
 
         return view('auto-entities.form', [
-            'page_name' => 'Instrument families',
-            'page_subname' => 'Update instrument family',
+            'page_name' => __('Instrument families'),
+            'page_subname' => __('Update instrument family'),
             'update' => true,
             'fields' => $fields,
             'form_route' => route('instrumentfamilys.update', $instrumentFamily),
@@ -114,7 +114,7 @@ class InstrumentFamilyController extends Controller
     {
         $instrumentFamily->delete();
 
-        return redirect()->back()->with('status', 'Record deleted.');
+        return redirect()->back()->with('status', __('Record deleted.'));
     }
 
     public function purgeTrashed()
@@ -123,7 +123,7 @@ class InstrumentFamilyController extends Controller
             $model->forceDelete();
         });
 
-        return redirect()->back()->with('status', 'All soft-deleted records permanently removed.');
+        return redirect()->back()->with('status', __('All soft-deleted records permanently removed.'));
     }
 
     public function restore(int $id)
@@ -132,6 +132,6 @@ class InstrumentFamilyController extends Controller
         $this->authorize('restore', $entity);
         $entity->restore();
 
-        return redirect()->back()->with('status', 'Restored.');
+        return redirect()->back()->with('status', __('Restored.'));
     }
 }

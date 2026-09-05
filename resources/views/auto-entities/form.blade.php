@@ -28,7 +28,7 @@
                         </div>
 
                         <div class="card-footer text-end">
-                            <button type="submit" class="btn btn-primary">{{ $update ? 'Update' : 'Create' }}</button>
+                            <button type="submit" class="btn btn-primary">{{ $update ? __('Update') : __('Create') }}</button>
                         </div>
                     </form>
                 </x-card>

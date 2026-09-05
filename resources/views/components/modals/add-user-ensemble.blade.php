@@ -13,20 +13,20 @@
             <form action="{{ route('ensembles.add_user', ['ensemble' => $ensemble]) }}" method="POST">
                 @csrf
                 <div class="modal-header">
-                    <h4 class="modal-title">Add user to {{ $ensemble->name }}</h4>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    <h4 class="modal-title">{{ __('Add user to :name', ['name' => $ensemble->name]) }}</h4>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="{{ __('Close') }}"></button>
                 </div>
 
                 <div class="modal-body">
                     <div class="mb-3">
-                        <label class="form-label required">Assigned To</label>
+                        <label class="form-label required">{{ __('Assigned to') }}</label>
                         <select id="user_id" name="user_id" class="form-select" required>
-                            <option value="">Select person</option>
+                            <option value="">{{ __('Select person') }}</option>
                             @foreach($users as $user)
                                 @if($user->ensembles->contains('id', $ensemble->id))
                                     @php
                                         $pivot = $user->ensembles->firstWhere('id', $ensemble->id)->pivot;
-                                        $instrument = App\Models\InstrumentFamily::find($pivot->instrument_family_id)?->name ?? 'No instrument';
+                                        $instrument = App\Models\InstrumentFamily::find($pivot->instrument_family_id)?->name ?? __('No instrument');
                                     @endphp
                                     <option value="{{ $user->id }}" disabled>{{ $user->name }} ({{ $instrument }} in {{ $pivot->seat_row }}{{ $pivot->seat_column }})</option>
                                 @else
@@ -36,9 +36,9 @@
                         </select>
                     </div>
                     <div class="mb-3">
-                        <label class="form-label required">Instrument Family</label>
+                        <label class="form-label required">{{ __('Instrument family') }}</label>
                         <select name="instrument_family_id" class="form-select" required>
-                            <option value="">Select instrument family</option>
+                            <option value="">{{ __('Select instrument family') }}</option>
                             @foreach($instrumentFamilies as $instrumentFamily)
                                 <option value="{{ $instrumentFamily->id }}">{{ $instrumentFamily->name }}</option>
                             @endforeach
@@ -48,26 +48,26 @@
                         <div class="row">
                             <div class="col-md-6">
                                 <div class="mb-3">
-                                    <label class="form-label">Seat Row</label>
+                                    <label class="form-label">{{ __('Seat row') }}</label>
                                     <input type="text" name="seat_row" class="form-control" placeholder="A">
                                 </div>
                             </div>
                             <div class="col-md-6">
                                 <div class="mb-3">
-                                    <label class="form-label">Seat Column</label>
+                                    <label class="form-label">{{ __('Seat column') }}</label>
                                     <input type="text" name="seat_column" class="form-control" placeholder="1">
                                 </div>
                             </div>
                         </div>
                     @else
-                        <p class="text-muted mb-0">This ensemble does not use a seating plan, so no seat is assigned.</p>
+                        <p class="text-muted mb-0">{{ __('This ensemble does not use a seating plan, so no seat is assigned.') }}</p>
                     @endif
                 </div>
 
                 <div class="modal-footer">
-                    <button type="button" class="btn" data-bs-dismiss="modal">Cancel</button>
+                    <button type="button" class="btn" data-bs-dismiss="modal">{{ __('Cancel') }}</button>
                     <button type="submit" class="btn btn-primary ms-auto">
-                        Add User
+                        {{ __('Add user') }}
                     </button>
                 </div>
             </form>

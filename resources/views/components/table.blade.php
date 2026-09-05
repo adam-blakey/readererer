@@ -2,7 +2,7 @@
 
 <div class="table-responsive">
 	@if ($entities->isEmpty())
-		<p class="p-5">No results found.</p>
+		<p class="p-5">{{ __('No results found.') }}</p>
 	@else
 		@php
 			$attributes = $entities->first()->getVisible();
@@ -31,8 +31,8 @@
 							@endif
 						</th>
 					@endforeach
-					<th>Edit</th>
-                    <th>Archive</th>
+					<th>{{ __('Edit') }}</th>
+                    <th>{{ __('Archive') }}</th>
 				</tr>
 			</thead>
 			<tbody>
@@ -47,7 +47,7 @@
 								@elseif (array_key_exists($attribute, $casts))
 									@switch($casts[$attribute])
 										@case('boolean')
-											<span data-bs-toggle="tooltip" title="{{ $entity->$attribute ? 'Yes' : 'No' }}">{{ $entity->$attribute ? 'Y' : 'N' }}</span>
+											<span data-bs-toggle="tooltip" title="{{ $entity->$attribute ? __('Yes') : __('No') }}">{{ $entity->$attribute ? __('Y') : __('N') }}</span>
 										@break
 
 										@case('datetime')
@@ -97,7 +97,7 @@
 								@endif
 							</td>
  					@endforeach
-					<td><x-a :route="$edit_route_name" :model="$entity">Edit</x-a></td>
+					<td><x-a :route="$edit_route_name" :model="$entity">{{ __('Edit') }}</x-a></td>
                     <td>
                         @php
                             $allowed = Gate::allows('delete', $entity);
@@ -107,16 +107,16 @@
                             }
                         @endphp
                         @if ($entity->deleted_at != null)
-                            <form method="POST" action="{{ route($restore_route_name, $entity) }}" onsubmit="return confirm('Are you sure you want to unarchive this record?');">
+                            <form method="POST" action="{{ route($restore_route_name, $entity) }}" onsubmit="return confirm('{{ __('Are you sure you want to unarchive this record?') }}');">
                                 @csrf
                                 @method('PATCH')
-                                <button type="submit" @class(array_merge(['btn-outline-success'], $classes))>Unarchive</button>
+                                <button type="submit" @class(array_merge(['btn-outline-success'], $classes))>{{ __('Unarchive') }}</button>
                             </form>
                         @else
-                            <form method="POST" action="{{ route($destroy_route_name, $entity) }}" onsubmit="return confirm('Are you sure you want to archive this record?');">
+                            <form method="POST" action="{{ route($destroy_route_name, $entity) }}" onsubmit="return confirm('{{ __('Are you sure you want to archive this record?') }}');">
                                 @csrf
                                 @method('DELETE')
-                                <button type="submit" @class(array_merge(['btn-outline-danger'], $classes))>Archive</button>
+                                <button type="submit" @class(array_merge(['btn-outline-danger'], $classes))>{{ __('Archive') }}</button>
                             </form>
                         @endif
                     </td>
