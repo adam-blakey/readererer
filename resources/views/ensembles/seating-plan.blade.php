@@ -31,7 +31,7 @@
                                         <div class="dropdown-divider mt-0"></div>
                                         @foreach(['upcoming' => $upcoming_term_dates, 'past' => $past_term_dates] as $when => $term_dates)
                                             @foreach($term_dates as $term_date)
-                                                <x-a class="dropdown-item download-option" data-when="{{ $when }}" data-search="{{ strtolower($term_date->name) }}" href="{{ route('seating-plan.download', ['ensemble' => $ensemble, 'termDate' => $term_date]) }}" target="_blank">
+                                                <x-a class="dropdown-item download-option" data-when="{{ $when }}" data-search="{{ strtolower($term_date->name) }}" href="{{ route('ensembles.seating-plan.download', ['ensemble' => $ensemble, 'termDate' => $term_date]) }}" target="_blank">
                                                     {{ $term_date->name }}
                                                     @if($term_date->concert_ensemble_id)
                                                         <span class="badge bg-green text-green-fg ms-2">Concert</span>
