@@ -5,9 +5,6 @@ use App\Models\Ensemble;
 use App\Models\InstrumentFamily;
 use App\Models\Term;
 
-// The save button on these forms greys out until something changes, which the
-// front end wires up from the form's data-dirty-check attribute.
-
 test('the generic edit form opts into the change check but the create form does not', function () {
     $instrumentFamily = InstrumentFamily::create(['name' => 'Bassoons']);
     $admin = make_user(UserRole::Admin);

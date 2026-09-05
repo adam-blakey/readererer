@@ -12,9 +12,6 @@ function setRegisterRowStatus(row, value) {
 
     if (radio != null) {
         radio.checked = true;
-
-        // Setting checked in script fires nothing on its own, so tell the page
-        // (the save button's change tracking) that the register moved on.
         radio.dispatchEvent(new Event('change', { bubbles: true }));
     }
 }
