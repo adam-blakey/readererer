@@ -1,31 +1,29 @@
-@props(['user', 'instrument_families', 'page_name'])
+@props(['user', 'instrument_families'])
 
 @php
 	$terms = App\Models\Term::all()->sortBy('earliest_date');
 @endphp
 
-<x-layout :$page_name :show_page_header="0">
-	<div class="page-header">
-		<div class="container">
-			<div class="row align-items-center">
-				<div class="col-auto">
-					<span class="rounded avatar avatar-lg" style="background-image: url({{ $user->image }})"></span>
-				</div>
-				<div class="col">
-					<h1 class="my-0 font-bold">{{ $user->name }}</h1>
-					<span class="badge bg-blue text-blue-fg">{{ $user->role_description }}</span>
-				</div>
-				<div class="col-auto ms-auto">
-					<div class="btn-list">
-						<x-a aria-label="{{ __('Edit') }}" class="btn" :route="'users.edit'" :user="$user">
-							<x-icon name="pencil" />
-							{{ __('Edit') }}
-						</x-a>
-					</div>
-				</div>
-			</div>
-		</div>
-	</div>
+<x-layout>
+    <div class="container">
+        <div class="row align-items-center">
+            <div class="col-auto">
+                <span class="rounded avatar avatar-lg" style="background-image: url({{ $user->image }})"></span>
+            </div>
+            <div class="col">
+                <h1 class="my-0 font-bold">{{ $user->name }}</h1>
+                <span class="badge bg-blue text-blue-fg">{{ $user->role_description }}</span>
+            </div>
+            <div class="col-auto ms-auto">
+                <div class="btn-list">
+                    <x-a aria-label="{{ __('Edit') }}" class="btn" :route="'users.edit'" :user="$user">
+                        <x-icon name="pencil" />
+                        {{ __('Edit') }}
+                    </x-a>
+                </div>
+            </div>
+        </div>
+    </div>
 
 	<div class="page-body">
 		<div class="container-xl">

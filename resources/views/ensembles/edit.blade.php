@@ -1,29 +1,27 @@
-@props(['ensemble', 'page_name'])
+@props(['ensemble'])
 
 @php
 	$terms = App\Models\Term::all()->sortBy('earliest_date');
 @endphp
 
-<x-layout :$page_name :show_page_header="0">
-	<div class="page-header">
-		<div class="container">
-			<div class="row align-items-center">
-				<div class="col-auto">
-					<span class="rounded avatar avatar-lg" style="background-image: url({{ $ensemble->image }})"></span>
-				</div>
-				<div class="col">
-					<h1 class="my-0 font-bold">{{ $ensemble->name }}</h1>
-				</div>
-				<div class="col-auto ms-auto">
-					<div class="btn-list">
-						<button aria-label="{{ __('Save') }}" class="btn btn-primary" form="ensemble-edit-form" type="submit">
-							{{ __('Save') }}
-						</button>
-					</div>
-				</div>
-			</div>
-		</div>
-	</div>
+<x-layout>
+    <div class="container">
+        <div class="row align-items-center">
+            <div class="col-auto">
+                <span class="rounded avatar avatar-lg" style="background-image: url({{ $ensemble->image }})"></span>
+            </div>
+            <div class="col">
+                <h1 class="my-0 font-bold">{{ $ensemble->name }}</h1>
+            </div>
+            <div class="col-auto ms-auto">
+                <div class="btn-list">
+                    <button aria-label="{{ __('Save') }}" class="btn btn-primary" form="ensemble-edit-form" type="submit">
+                        {{ __('Save') }}
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
 
 	<div class="page-body">
 		<div class="container-xl">
@@ -34,7 +32,7 @@
 							<h2 class="mb-0 card-heading">{{ __('Edit ensemble details') }}</h2>
 						</div>
 						<div class="card-body">
-							<form action="{{ route('ensembles.update', ['ensemble' => $ensemble]) }}" id="ensemble-edit-form" method="POST">
+							<form action="{{ route('ensembles.update', ['ensemble' => $ensemble]) }}" id="ensemble-edit-form" method="POST" data-dirty-check>
 								@csrf
 								@method('PUT')
 

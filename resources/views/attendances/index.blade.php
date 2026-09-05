@@ -1,6 +1,6 @@
-@props(['attendances', 'page_name'])
+@props(['attendances'])
 
-<x-layout :$page_name :page_subname="__('Attendance updates overview')">
+<x-layout>
 	<div class="container-xl">
 		<x-card-row>
 			<div class="col-md-12">

@@ -82,7 +82,7 @@
 	</div>
 </div>
 
-<form action="{{ route('attendance.register.store', ['ensemble' => $ensemble, 'termDate' => $term_date, 'sortby' => $sortby]) }}" method="POST">
+<form action="{{ route('attendance.register.store', ['ensemble' => $ensemble, 'termDate' => $term_date, 'sortby' => $sortby]) }}" method="POST" data-dirty-check>
 	@csrf
 	<div class="table-responsive">
 		<table class="table table-vcenter card-table" id="attendance-register">

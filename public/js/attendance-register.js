@@ -12,6 +12,7 @@ function setRegisterRowStatus(row, value) {
 
     if (radio != null) {
         radio.checked = true;
+        radio.dispatchEvent(new Event('change', { bubbles: true }));
     }
 }
 

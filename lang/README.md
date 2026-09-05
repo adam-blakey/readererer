@@ -20,6 +20,12 @@ can be shipped in another language without touching Blade or PHP.
   which passes the result through `__()`. They therefore appear in the catalogue
   as their generated English form even though no `__('Setup group')` call is
   written anywhere.
+- **Breadcrumb labels** live in `routes/breadcrumbs.php` and are translated
+  inside each trail's closure rather than at the call site, because the file is
+  loaded at boot — before any per-request locale is applied — while the closures
+  run at render time. The repeated auto-entity trails therefore pass their labels
+  in as plain strings and the closure wraps them in `__()`, so those labels also
+  appear in the catalogue without a literal `__()` call beside them.
 
 ## The catalogue
 

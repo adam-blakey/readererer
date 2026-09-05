@@ -1,6 +1,6 @@
-@props(['update', 'fields', 'page_name', 'page_subname', 'form_route'])
+@props(['update', 'fields', 'form_route'])
 
-<x-layout :$page_name :$page_subname>
+<x-layout>
     <div class="container-xl">
         <x-card-row>
             <div class="col-md-12">
@@ -10,7 +10,7 @@
                             {{ $page_subname }}
                         </h3>
                     </div>
-                    <form action="{{ $form_route }}" method="POST" class="space-y">
+                    <form action="{{ $form_route }}" method="POST" class="space-y" @if ($update) data-dirty-check @endif>
                         @csrf
                         @if ($update)
                             @method('PATCH')

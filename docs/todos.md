@@ -66,21 +66,26 @@ These touch the shared generic-CRUD layer or general UX and so apply regardless 
 - ~~**Enum support in the generic form**~~ — done: a column with an enum cast is
   rendered as a select of the enum's cases, labelled by the enum's `label()` method
   where it has one and defaulting to the column's database default.
-- **Generic form field polish** — `resources/views/components/forms/field.blade.php:13`
-  (icon alignment when an error is present), `:20` ("style nice"), `:39` (something
-  "apparently isn't working correctly").
+- ~~**Generic form field polish**~~ — done: the validation message now sits outside
+  the icon wrapper (so the icon stays centred on the control), selects are padded
+  clear of the icon, and the field types the form can produce but never rendered
+  (booleans, dates, datetimes) render proper controls.
 - ~~**Auto-entity show view button alignment**~~ — done: the card header's actions are
   now a `btn-list`, so the Edit link and the Archive/Unarchive form sit side by side
   with the standard gap instead of the form block dropping onto its own line.
 - ~~**Proper colour picker**~~ — done: a column cast to the `Color` palette is
   rendered by the generic form as a swatch picker (`<x-forms.color-picker>`), a
   plain radio group needing no JavaScript.
-- **Canonical breadcrumb navigation** — recurring item; plan suggests
-  `diglactic/laravel-breadcrumbs`.
+- ~~**Canonical breadcrumb navigation**~~ — done: `diglactic/laravel-breadcrumbs`
+  is wired up, with a trail per named page in `routes/breadcrumbs.php` and Tabler
+  markup in `resources/views/vendor/breadcrumbs/tabler.blade.php`, rendered by the
+  page header.
 - ~~**Translation strings**~~ — done: user-facing text goes through `__()` /
   `trans_choice()`, and `lang/en.json` holds the catalogue a locale is translated
   from. See `lang/README.md`.
-- **Grey out the Save button when no changes have been made.**
+- ~~**Grey out the Save button when no changes have been made**~~ — done: a form
+  opts in with `data-dirty-check` and `resources/js/form-dirty.js` keeps its submit
+  buttons disabled until the form's values differ from the ones it was rendered with.
 - **Quantify/triage rough edges** — form error handling; "resizing text disappearing"
   issue; automated tests; possible Laravel Boost setup.
 

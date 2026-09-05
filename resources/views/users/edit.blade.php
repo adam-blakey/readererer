@@ -1,26 +1,24 @@
-@props(['user', 'roles', 'setupGroups', 'ensembles', 'allInstrumentFamilies', 'instrumentFamilies', 'page_name'])
+@props(['user', 'roles', 'setupGroups', 'ensembles', 'allInstrumentFamilies', 'instrumentFamilies'])
 
-<x-layout :$page_name :show_page_header="0">
-	<div class="page-header">
-		<div class="container">
-			<div class="row align-items-center">
-				<div class="col-auto">
-					<span class="rounded avatar avatar-lg" style="background-image: url({{ $user->image }})"></span>
-				</div>
-				<div class="col">
-					<h1 class="my-0 font-bold">{{ $user->name }}</h1>
-					<span class="badge bg-blue text-blue-fg">{{ $user->role_description }}</span>
-				</div>
-				<div class="col-auto ms-auto">
-					<div class="btn-list">
-						<x-a aria-label="{{ __('View') }}" class="btn" :route="'users.show'" :user="$user">
-							{{ __('View') }}
-						</x-a>
-					</div>
-				</div>
-			</div>
-		</div>
-	</div>
+<x-layout>
+    <div class="container">
+        <div class="row align-items-center">
+            <div class="col-auto">
+                <span class="rounded avatar avatar-lg" style="background-image: url({{ $user->image }})"></span>
+            </div>
+            <div class="col">
+                <h1 class="my-0 font-bold">{{ $user->name }}</h1>
+                <span class="badge bg-blue text-blue-fg">{{ $user->role_description }}</span>
+            </div>
+            <div class="col-auto ms-auto">
+                <div class="btn-list">
+                    <x-a aria-label="{{ __('View') }}" class="btn" :route="'users.show'" :user="$user">
+                        {{ __('View') }}
+                    </x-a>
+                </div>
+            </div>
+        </div>
+    </div>
 
 	<div class="page-body">
 		<div class="container-xl">
@@ -35,7 +33,7 @@
 							<h2 class="mb-0 card-heading">{{ __('Edit user details') }}</h2>
 						</div>
 						<div class="card-body">
-							<form action="{{ route('users.update', ['user' => $user]) }}" method="POST">
+							<form action="{{ route('users.update', ['user' => $user]) }}" method="POST" data-dirty-check>
 								@csrf
 								@method('PATCH')
 

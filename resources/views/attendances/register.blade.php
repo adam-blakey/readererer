@@ -1,6 +1,6 @@
-@props(['ensemble', 'term_date', 'members', 'entries', 'polled_statuses', 'instrument_families', 'sortby', 'page_name'])
+@props(['ensemble', 'term_date', 'members', 'entries', 'polled_statuses', 'instrument_families', 'sortby'])
 
-<x-layout :$page_name :page_subname="__('Attendance register')">
+<x-layout>
 	<div class="container-xl">
 		@if (session('status'))
 			<div class="mb-3 alert alert-success" role="alert">{{ session('status') }}</div>
