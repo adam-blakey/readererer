@@ -31,31 +31,31 @@
 <html>
 <head>
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
-    <title>Seating plan for {{ $ensemble->name }} on {{ $termDate->name }}</title>
+    <title>{{ __('Seating plan for :ensemble on :date', ['ensemble' => $ensemble->name, 'date' => $termDate->name]) }}</title>
 </head>
 
 <body style="font-family: Arial, sans-serif;">
 
-<p style="display: inline-block; padding-right: 20px;"><strong>Exported at: </strong> {{ now() }}</p>
-<p style="display: inline-block; padding-right: 20px;"><strong>Date: </strong> {{ $termDate->start_datetime }}</p>
-<p style="display: inline-block; padding-right: 20px;"><strong>Ensemble: </strong> {{ $ensemble->name }}</p>
+<p style="display: inline-block; padding-right: 20px;"><strong>{{ __('Exported at') }}: </strong> {{ now() }}</p>
+<p style="display: inline-block; padding-right: 20px;"><strong>{{ __('Date') }}: </strong> {{ $termDate->start_datetime }}</p>
+<p style="display: inline-block; padding-right: 20px;"><strong>{{ __('Ensemble') }}: </strong> {{ $ensemble->name }}</p>
 <br />
-<p style="display: inline-block; padding-right: 20px;"><strong>Attendees: </strong> {{ $attendanceTotals['attending'] }}</p>
-<p style="display: inline-block; padding-right: 20px;"><strong>Absent: </strong> {{ $attendanceTotals['not_attending'] }}</p>
+<p style="display: inline-block; padding-right: 20px;"><strong>{{ __('Attendees') }}: </strong> {{ $attendanceTotals['attending'] }}</p>
+<p style="display: inline-block; padding-right: 20px;"><strong>{{ __('Absent') }}: </strong> {{ $attendanceTotals['not_attending'] }}</p>
 @if (array_key_exists('unknown', $attendanceTotals))
-    <p style="display: inline-block; padding-right: 20px;"><strong>Unknown: </strong> {{ $attendanceTotals['unknown'] }}</p>
+    <p style="display: inline-block; padding-right: 20px;"><strong>{{ __('Unknown') }}: </strong> {{ $attendanceTotals['unknown'] }}</p>
 @endif
 
-<h1 style="margin-top: 0;">Seating plan for {{ $termDate->start_datetime->format('jS M') }}</h1>
+<h1 style="margin-top: 0;">{{ __('Seating plan for :date', ['date' => $termDate->start_datetime->format('jS M')]) }}</h1>
 
 <p style="margin-top: 0;">
-    <strong>Key: </strong>
+    <strong>{{ __('Key') }}: </strong>
     @foreach($instrumentFamilies as $instrumentFamily)
         <span style="display: inline-block; padding: 0 6px; margin-right: 12px; border-left: 6px solid {{ color_name_to_hex($instrumentFamily->color) ?? '#000000' }};">{{ $instrumentFamily->name }}</span>
     @endforeach
-    <s style="color: #9CA3AF; text-decoration: line-through; margin-right: 12px;">Not attending</s>
+    <s style="color: #9CA3AF; text-decoration: line-through; margin-right: 12px;">{{ __('Not attending') }}</s>
     @if (array_key_exists('unknown', $attendanceTotals))
-        <i style="color: #f59f00;">Unknown ?</i>
+        <i style="color: #f59f00;">{{ __('Unknown ?') }}</i>
     @endif
 </p>
 
@@ -69,7 +69,7 @@
         <div style="display: inline-block; width: calc({{ 100.0 / $numberOfRows }}% - 30px); vertical-align: top;">
             <table style="border-collapse: collapse; width: 100%;">
                 <tr style="text-align: center; background-color: #066fd1; color: #f9fafb;">
-                    <th style="padding: 0.15em 0.4em; border: 2px solid black; width: 100%;">Row {{ $row }}</th>
+                    <th style="padding: 0.15em 0.4em; border: 2px solid black; width: 100%;">{{ __('Row :number', ['number' => $row]) }}</th>
                     <th style="padding: 0.15em 0.4em; border: 2px solid black;">{{ $totals['attending'] }}</th>
                 </tr>
                 @foreach($members as $member)

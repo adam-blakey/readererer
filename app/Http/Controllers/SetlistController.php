@@ -27,8 +27,8 @@ class SetlistController extends Controller
 
         return view('auto-entities.index', [
             'entities' => $setlists,
-            'page_name' => 'Setlists',
-            'page_subname' => 'Setlist overview'
+            'page_name' => __('Setlists'),
+            'page_subname' => __('Setlist overview')
         ]);
     }
 
@@ -78,7 +78,7 @@ class SetlistController extends Controller
     public function destroy(Setlist $setlist)
     {
         $setlist->delete();
-        return redirect()->back()->with('status', 'Record deleted.');
+        return redirect()->back()->with('status', __('Record deleted.'));
     }
 
     public function purgeTrashed()
@@ -86,7 +86,7 @@ class SetlistController extends Controller
         Setlist::onlyTrashed()->get()->each(function ($model) {
             $model->forceDelete();
         });
-        return redirect()->back()->with('status', 'All soft-deleted records permanently removed.');
+        return redirect()->back()->with('status', __('All soft-deleted records permanently removed.'));
     }
 
     public function restore(int $id)
@@ -94,6 +94,6 @@ class SetlistController extends Controller
         $entity = Setlist::withTrashed()->findOrFail($id);
         $entity->restore();
 
-        return redirect()->back()->with('status', 'Restored.');
+        return redirect()->back()->with('status', __('Restored.'));
     }
 }

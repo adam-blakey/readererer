@@ -8,45 +8,45 @@ use Diglactic\Breadcrumbs\Generator as BreadcrumbTrail;
 use Illuminate\Database\Eloquent\Model;
 
 Breadcrumbs::for('home', function (BreadcrumbTrail $trail) {
-    $trail->push('Home', route('home'));
+    $trail->push(__('Home'), route('home'));
 });
 
 Breadcrumbs::for('login', function (BreadcrumbTrail $trail) {
-    $trail->push('Login', route('login'));
+    $trail->push(__('Login'), route('login'));
 });
 
 Breadcrumbs::for('password.request', function (BreadcrumbTrail $trail) {
-    $trail->push('Forgot password', route('password.request'));
+    $trail->push(__('Forgot password'), route('password.request'));
 });
 
 Breadcrumbs::for('password.reset', function (BreadcrumbTrail $trail, string $entity) {
-    $trail->push('Reset password', route('password.reset', $entity));
+    $trail->push(__('Reset password'), route('password.reset', $entity));
 });
 
 Breadcrumbs::for('dashboard', function (BreadcrumbTrail $trail) {
     $trail->parent('home');
-    $trail->push('Dashboard', route('dashboard'));
+    $trail->push(__('Dashboard'), route('dashboard'));
 });
 
 Breadcrumbs::for('notifications.index', function (BreadcrumbTrail $trail) {
     $trail->parent('home');
-    $trail->push('Notifications', route('notifications.index'));
+    $trail->push(__('Notifications'), route('notifications.index'));
 });
 
 Breadcrumbs::for('settings.edit', function (BreadcrumbTrail $trail) {
     $trail->parent('home');
-    $trail->push('Settings', route('settings.edit'));
+    $trail->push(__('Settings'), route('settings.edit'));
 });
 
 $auto_entity = function (string $route_prefix, string $index_label, string $create_label): void {
     Breadcrumbs::for($route_prefix.'.index', function (BreadcrumbTrail $trail) use ($route_prefix, $index_label) {
         $trail->parent('home');
-        $trail->push($index_label, route($route_prefix.'.index'));
+        $trail->push(__($index_label), route($route_prefix.'.index'));
     });
 
     Breadcrumbs::for($route_prefix.'.create', function (BreadcrumbTrail $trail) use ($route_prefix, $create_label) {
         $trail->parent($route_prefix.'.index');
-        $trail->push($create_label, route($route_prefix.'.create'));
+        $trail->push(__($create_label), route($route_prefix.'.create'));
     });
 
     Breadcrumbs::for($route_prefix.'.show', function (BreadcrumbTrail $trail, Model $entity) use ($route_prefix) {
@@ -56,7 +56,7 @@ $auto_entity = function (string $route_prefix, string $index_label, string $crea
 
     Breadcrumbs::for($route_prefix.'.edit', function (BreadcrumbTrail $trail, Model $entity) use ($route_prefix) {
         $trail->parent($route_prefix.'.show', $entity);
-        $trail->push('Edit', route($route_prefix.'.edit', $entity));
+        $trail->push(__('Edit'), route($route_prefix.'.edit', $entity));
     });
 };
 
@@ -71,17 +71,17 @@ $auto_entity('users', 'Users', 'New user');
 
 Breadcrumbs::for('ensembles.members', function (BreadcrumbTrail $trail, Ensemble $ensemble) {
     $trail->parent('ensembles.show', $ensemble);
-    $trail->push('Members', route('ensembles.members', $ensemble));
+    $trail->push(__('Members'), route('ensembles.members', $ensemble));
 });
 
 Breadcrumbs::for('ensembles.seating-plan.show', function (BreadcrumbTrail $trail, Ensemble $ensemble) {
     $trail->parent('ensembles.show', $ensemble);
-    $trail->push('Seating plan', route('ensembles.seating-plan.show', $ensemble));
+    $trail->push(__('Seating plan'), route('ensembles.seating-plan.show', $ensemble));
 });
 
 Breadcrumbs::for('attendance.index', function (BreadcrumbTrail $trail) {
     $trail->parent('home');
-    $trail->push('Attendance updates', route('attendance.index'));
+    $trail->push(__('Attendance updates'), route('attendance.index'));
 });
 
 Breadcrumbs::for('attendance.poll', function (BreadcrumbTrail $trail, Ensemble $ensemble, Term $term) {
@@ -91,7 +91,7 @@ Breadcrumbs::for('attendance.poll', function (BreadcrumbTrail $trail, Ensemble $
 
 Breadcrumbs::for('attendance.register.index', function (BreadcrumbTrail $trail) {
     $trail->parent('home');
-    $trail->push('Attendance registers', route('attendance.register.index'));
+    $trail->push(__('Attendance registers'), route('attendance.register.index'));
 });
 
 Breadcrumbs::for('attendance.register.show', function (BreadcrumbTrail $trail, Ensemble $ensemble, TermDate $term_date) {

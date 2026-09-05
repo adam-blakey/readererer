@@ -9,7 +9,7 @@ class SettingController extends Controller
     public function edit(Request $request)
     {
         return view('settings.edit', [
-            'page_name' => 'Settings'
+            'page_name' => __('Settings')
         ]);
     }
 }

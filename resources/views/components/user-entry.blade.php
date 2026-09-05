@@ -12,7 +12,7 @@
         <div>
             {{ $user->name }}
             @if ($draggable)
-                <span class="seating-position-changed" data-bs-toggle="tooltip" style="display: none;" title="Moved since the seating plan was last saved">*</span>
+                <span class="seating-position-changed" data-bs-toggle="tooltip" style="display: none;" title="{{ __('Moved since the seating plan was last saved') }}">*</span>
             @endif
         </div>
         <div class="mt-1 small text-muted">
@@ -24,16 +24,16 @@
     </div>
     @if ($show_seating_position)
         <div class="ms-auto align-self-center">
-                <span class="badge bg-secondary-lt text-decoration-line-through seating-position-original" data-bs-toggle="tooltip" style="display: none;" title="Seat as last saved"></span>
-                <span class="badge bg-blue-lt seating-position" data-bs-toggle="tooltip" title="Seat: row letter and place in the row"></span>
+                <span class="badge bg-secondary-lt text-decoration-line-through seating-position-original" data-bs-toggle="tooltip" style="display: none;" title="{{ __('Seat as last saved') }}"></span>
+                <span class="badge bg-blue-lt seating-position" data-bs-toggle="tooltip" title="{{ __('Seat: row letter and place in the row') }}"></span>
         </div>
     @endif
     @if ($remove_from_ensemble != null)
         <div class="ms-auto align-self-center">
-            <form method="POST" action="{{ route('ensembles.remove_user', [$remove_from_ensemble, $user]) }}" onsubmit="return confirm('Are you sure you want to archive this record?');" onclick="event.stopPropagation()">
+            <form method="POST" action="{{ route('ensembles.remove_user', [$remove_from_ensemble, $user]) }}" onsubmit="return confirm('{{ __('Are you sure you want to archive this record?') }}');" onclick="event.stopPropagation()">
                 @csrf
                 @method('POST')
-                <button type="submit" class="btn btn-outline-danger btn-sm">Remove</button>
+                <button type="submit" class="btn btn-outline-danger btn-sm">{{ __('Remove') }}</button>
             </form>
         </div>
     @endif

@@ -26,11 +26,11 @@ class SetupGroupController extends Controller
 
         return view('auto-entities.index', [
             'entities' => $setupGroups,
-            'page_name' => 'Setup groups',
-            'page_subname' => 'Setup groups overview',
+            'page_name' => __('Setup groups'),
+            'page_subname' => __('Setup groups overview'),
             'create_entity' => [
                 'route' => 'setupgroups.create',
-                'name' => 'setup group'
+                'name' => __('setup group')
             ]
         ]);
     }
@@ -44,8 +44,8 @@ class SetupGroupController extends Controller
         $fields = get_create_fields($dummy);
 
         return view('auto-entities.form', [
-            'page_name' => 'Setup groups',
-            'page_subname' => 'Create new setup group',
+            'page_name' => __('Setup groups'),
+            'page_subname' => __('Create new setup group'),
             'update' => false,
             'fields' => $fields,
             'form_route' => route('setupgroups.store')
@@ -76,8 +76,8 @@ class SetupGroupController extends Controller
         $fields['van_drivers']['options'] = $fields['van_drivers']['options']->sortBy('first_name');
 
         return view('auto-entities.form', [
-            'page_name' => 'Setup groups',
-            'page_subname' => 'Update setup group',
+            'page_name' => __('Setup groups'),
+            'page_subname' => __('Update setup group'),
             'update' => true,
             'fields' => $fields,
             'form_route' => route('setupgroups.update', $setupGroup)
@@ -109,8 +109,8 @@ class SetupGroupController extends Controller
     {
         return view('auto-entities.show', [
             'entity' => $setupGroup,
-            'page_name' => 'Setup groups',
-            'page_subname' => 'Setup group ' . $setupGroup->name,
+            'page_name' => __('Setup groups'),
+            'page_subname' => __('Setup group :name', ['name' => $setupGroup->name]),
             'edit_route' => 'setupgroups.edit',
             'destroy_route' => 'setupgroups.destroy',
             'restore_route' => 'setupgroups.restore'
@@ -123,7 +123,7 @@ class SetupGroupController extends Controller
     public function destroy(SetupGroup $setupGroup)
     {
         $setupGroup->delete();
-        return redirect()->back()->with('status', 'Record deleted.');
+        return redirect()->back()->with('status', __('Record deleted.'));
     }
 
     public function purgeTrashed()
@@ -131,7 +131,7 @@ class SetupGroupController extends Controller
         SetupGroup::onlyTrashed()->get()->each(function ($model) {
             $model->forceDelete();
         });
-        return redirect()->back()->with('status', 'All soft-deleted records permanently removed.');
+        return redirect()->back()->with('status', __('All soft-deleted records permanently removed.'));
     }
 
     public function restore(int $id)
@@ -139,6 +139,6 @@ class SetupGroupController extends Controller
         $entity = SetupGroup::withTrashed()->findOrFail($id);
         $entity->restore();
 
-        return redirect()->back()->with('status', 'Restored.');
+        return redirect()->back()->with('status', __('Restored.'));
     }
 }

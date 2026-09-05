@@ -1,22 +1,22 @@
 <x-mail::message>
-# Setup reminder
+# {{ __('Setup reminder') }}
 
-This is a reminder that **{{ $setupGroup->name }}** is on setup duty for:
+{{ __('This is a reminder that') }} **{{ $setupGroup->name }}** {{ __('is on setup duty for') }}:
 
 **{{ $termDate->name }}**
 
 @if($termDate->concert_ensemble)
-This is a concert for **{{ $termDate->concert_ensemble->name }}**.
+{{ __('This is a concert for') }} **{{ $termDate->concert_ensemble->name }}**.
 @else
-This is a rehearsal.
+{{ __('This is a rehearsal.') }}
 @endif
 
 @if($termDate->inferred_van_driver)
-The van driver for this date is **{{ $termDate->inferred_van_driver->name }}**.
+{{ __('The van driver for this date is') }} **{{ $termDate->inferred_van_driver->name }}**.
 @endif
 
-Please make sure you arrive in good time to set up.
+{{ __('Please make sure you arrive in good time to set up.') }}
 
-Thanks,<br>
+{{ __('Thanks,') }}<br>
 {{ config('app.name') }}
 </x-mail::message>

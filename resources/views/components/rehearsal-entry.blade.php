@@ -2,7 +2,7 @@
 
 <div class="ps-2">
     @if($term_date == null)
-        <div class="text-muted">Nothing found.</div>
+        <div class="text-muted">{{ __('Nothing found.') }}</div>
     @else
         @php
             // Only ensembles the date actually applies to get a link: rehearsals are
@@ -26,12 +26,12 @@
                     @endphp
                     <x-a class="btn btn-sm" href="{{ route('attendance.poll', ['ensemble' => $ensemble, 'term' => $term_date->term]) }}">
                         <x-icon name="square-check" />
-                        {{ 'Poll' . $suffix }}
+                        {{ __('Poll') . $suffix }}
                     </x-a>
                     @if ($can_take_registers)
                         <x-a class="btn btn-sm" href="{{ route('attendance.register.show', ['ensemble' => $ensemble, 'termDate' => $term_date]) }}">
                             <x-icon name="list-check" />
-                            {{ 'Register' . $suffix }}
+                            {{ __('Register') . $suffix }}
                         </x-a>
                     @endif
                 @endforeach

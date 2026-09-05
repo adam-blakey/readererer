@@ -19,7 +19,7 @@ class AttendanceListMail extends Mailable
     public function envelope(): Envelope
     {
         return new Envelope(
-            subject: 'Attendance list — '.$this->termDate->name,
+            subject: __('Attendance list — :name', ['name' => $this->termDate->name]),
         );
     }
 

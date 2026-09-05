@@ -13,17 +13,17 @@
 			<input name="token" type="hidden" value="{{ $request->route('token') }}">
 
 			<div class="card-body">
-				<h2 class="mb-4 text-center h2">Reset your password</h2>
+				<h2 class="mb-4 text-center h2">{{ __('Reset your password') }}</h2>
 				<div class="mb-3">
-					<label class="form-label" for="email">Email address</label>
-					<input autocomplete="username" autofocus class="form-control" id="email" name="email" placeholder="Enter email" required type="email" value="{{ old('email', $request->email) }}">
+					<label class="form-label" for="email">{{ __('Email address') }}</label>
+					<input autocomplete="username" autofocus class="form-control" id="email" name="email" placeholder="{{ __('Enter email') }}" required type="email" value="{{ old('email', $request->email) }}">
 				</div>
 				<div class="mb-3">
-					<label class="form-label" for="password">Password</label>
+					<label class="form-label" for="password">{{ __('Password') }}</label>
 					<div class="input-group input-group-flat">
-						<input autocomplete="new-password" class="form-control" id="password" name="password" placeholder="Password" required type="password">
+						<input autocomplete="new-password" class="form-control" id="password" name="password" placeholder="{{ __('Password') }}" required type="password">
 						<span class="input-group-text">
-							<a aria-label="Show password" class="link-secondary" data-bs-original-title="Show password" data-bs-toggle="tooltip" href="#"><!-- Download SVG icon from http://tabler.io/icons/icon/eye -->
+							<a aria-label="{{ __('Show password') }}" class="link-secondary" data-bs-original-title="{{ __('Show password') }}" data-bs-toggle="tooltip" href="#"><!-- Download SVG icon from http://tabler.io/icons/icon/eye -->
 								<svg class="icon" fill="none" height="24" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" stroke="currentColor" viewBox="0 0 24 24" width="24" xmlns="http://www.w3.org/2000/svg">
 									<path d="M0 0h24v24H0z" fill="none" stroke="none"></path>
 									<path d="M10 12a2 2 0 1 0 4 0a2 2 0 0 0 -4 0"></path>
@@ -34,11 +34,11 @@
 					</div>
 				</div>
 				<div class="mb-3">
-					<label class="form-label" for="password">Confirm password</label>
+					<label class="form-label" for="password">{{ __('Confirm password') }}</label>
 					<div class="input-group input-group-flat">
-						<input autocomplete="new-password" class="form-control" id="password_confirmation" name="password_confirmation" placeholder="Password" required type="password">
+						<input autocomplete="new-password" class="form-control" id="password_confirmation" name="password_confirmation" placeholder="{{ __('Password') }}" required type="password">
 						<span class="input-group-text">
-							<a aria-label="Show password" class="link-secondary" data-bs-original-title="Show password" data-bs-toggle="tooltip" href="#"><!-- Download SVG icon from http://tabler.io/icons/icon/eye -->
+							<a aria-label="{{ __('Show password') }}" class="link-secondary" data-bs-original-title="{{ __('Show password') }}" data-bs-toggle="tooltip" href="#"><!-- Download SVG icon from http://tabler.io/icons/icon/eye -->
 								<svg class="icon" fill="none" height="24" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" stroke="currentColor" viewBox="0 0 24 24" width="24" xmlns="http://www.w3.org/2000/svg">
 									<path d="M0 0h24v24H0z" fill="none" stroke="none"></path>
 									<path d="M10 12a2 2 0 1 0 4 0a2 2 0 0 0 -4 0"></path>
@@ -49,7 +49,7 @@
 					</div>
 				</div>
 				<div class="form-footer">
-					<button class="btn btn-primary w-100" type="submit">Reset password</button>
+					<button class="btn btn-primary w-100" type="submit">{{ __('Reset password') }}</button>
 				</div>
 			</div>
 		</form>

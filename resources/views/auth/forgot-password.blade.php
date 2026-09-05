@@ -11,23 +11,23 @@
 			@csrf
 
 			<div class="card-body">
-				<h2 class="mb-4 text-center h2">Forgot password</h2>
-				<p class="mb-4 text-secondary">Enter your email address and your password will be reset and emailed to you.</p>
+				<h2 class="mb-4 text-center h2">{{ __('Forgot password') }}</h2>
+				<p class="mb-4 text-secondary">{{ __('Enter your email address and your password will be reset and emailed to you.') }}</p>
 				<div class="mb-3">
-					<label class="form-label" for="email">Email address</label>
-					<input class="form-control" id="email" name="email" placeholder="Enter email" required type="email" value="{{ old('email') }}">
+					<label class="form-label" for="email">{{ __('Email address') }}</label>
+					<input class="form-control" id="email" name="email" placeholder="{{ __('Enter email') }}" required type="email" value="{{ old('email') }}">
 					<x-forms.input-error :messages="$errors->get('email')" />
 				</div>
 				<div class="form-footer">
 					<button class="btn btn-primary w-100" type="submit">
 						<x-icon name="mail" />
-						Send me new password
+						{{ __('Send me new password') }}
 					</button>
 				</div>
 			</div>
 		</form>
 		<div class="mt-3 text-center text-secondary">
-			Forget it, <x-a :route="'login'">send me back</x-a> to the sign in screen.
+			{!! __('Forget it, :link to the sign in screen.', ['link' => '<a href="'.route('login').'">'.e(__('send me back')).'</a>']) !!}
 		</div>
 	</div>
 </x-layout>

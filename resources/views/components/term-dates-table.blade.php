@@ -10,7 +10,7 @@
 
 <div class="table-responsive">
     @if ($dates->isEmpty())
-        <p class="p-3 mb-0 text-muted">Nothing scheduled.</p>
+        <p class="p-3 mb-0 text-muted">{{ __('Nothing scheduled.') }}</p>
     @else
         <table class="table table-vcenter card-table">
             <colgroup>
@@ -24,13 +24,13 @@
             </colgroup>
             <thead>
                 <tr>
-                    <th>Date</th>
-                    <th>Time</th>
-                    <th>Type</th>
-                    <th>Setup group</th>
-                    <th>Van driver</th>
-                    <th>Emails</th>
-                    <th>Actions</th>
+                    <th>{{ __('Date') }}</th>
+                    <th>{{ __('Time') }}</th>
+                    <th>{{ __('Type') }}</th>
+                    <th>{{ __('Setup group') }}</th>
+                    <th>{{ __('Van driver') }}</th>
+                    <th>{{ __('Emails') }}</th>
+                    <th>{{ __('Actions') }}</th>
                 </tr>
             </thead>
             <tbody>
@@ -46,21 +46,21 @@
                         <td class="text-nowrap">{{ $td->time_label }}</td>
                         <td>
                             @if ($td->concert_ensemble_id)
-                                <span class="badge bg-green text-green-fg">Concert @if($td->concert_ensemble) ({{ $td->concert_ensemble->name }}) @endif</span>
+                                <span class="badge bg-green text-green-fg">{{ __('Concert') }} @if($td->concert_ensemble) ({{ $td->concert_ensemble->name }}) @endif</span>
                             @else
-                                <span class="badge bg-gray text-muted">Rehearsal</span>
+                                <span class="badge bg-gray text-muted">{{ __('Rehearsal') }}</span>
                             @endif
                         </td>
                         <td>
                             @if ($td->setup_group != null)
                                 <x-setup-group-badge :setup_group="$td->setup_group" />
                             @else
-                                <span class="text-muted" data-bs-toggle="tooltip" title="No setup group is on duty for this date">—</span>
+                                <span class="text-muted" data-bs-toggle="tooltip" title="{{ __('No setup group is on duty for this date') }}">—</span>
                             @endif
                         </td>
                         <td>
                             @if ($td->inferred_van_driver == null)
-                                <span class="badge bg-red text-red-fg">No van driver!</span>
+                                <span class="badge bg-red text-red-fg">{{ __('No van driver!') }}</span>
                             @else
                                 {{ $td->inferred_van_driver->name }}
                             @endif
@@ -68,28 +68,28 @@
                         <td>
                             @php $logs = $td->email_logs; @endphp
                             @if ($logs->isEmpty())
-                                <span class="text-muted">No emails sent yet.</span>
+                                <span class="text-muted">{{ __('No emails sent yet.') }}</span>
                             @else
                                 @php $latest = $logs->first(); $rest = $logs->slice(1); @endphp
                                 @php $latest_failed = $latest->status === \App\Enums\EmailStatus::Failed; @endphp
                                 <div>
-                                    <span data-bs-toggle="tooltip" title="{{ $latest_failed ? 'This email failed to send' : 'This email was sent' }}">
+                                    <span data-bs-toggle="tooltip" title="{{ $latest_failed ? __('This email failed to send') : __('This email was sent') }}">
                                         <x-icon name="{{ $latest_failed ? 'alert-square' : 'check' }}" />
                                     </span>
-                                    {{ $latest->subject }} — {{ $latest->recipients->count() }} recipient(s), {{ $latest->created_at->diffForHumans() }}
+                                    {{ $latest->subject }} — {{ trans_choice(':count recipient|:count recipients', $latest->recipients->count()) }}, {{ $latest->created_at->diffForHumans() }}
                                 </div>
                                 @if ($rest->isNotEmpty())
                                     <a class="d-inline-block small" data-bs-toggle="collapse" href="#email-history-{{ $td->id }}" role="button" aria-expanded="false">
-                                        Show {{ $rest->count() }} earlier
+                                        {{ __('Show :count earlier', ['count' => $rest->count()]) }}
                                     </a>
                                     <div class="collapse" id="email-history-{{ $td->id }}">
                                         @foreach ($rest as $log)
                                             @php $log_failed = $log->status === \App\Enums\EmailStatus::Failed; @endphp
                                             <div class="text-secondary">
-                                                <span data-bs-toggle="tooltip" title="{{ $log_failed ? 'This email failed to send' : 'This email was sent' }}">
+                                                <span data-bs-toggle="tooltip" title="{{ $log_failed ? __('This email failed to send') : __('This email was sent') }}">
                                                     <x-icon name="{{ $log_failed ? 'alert-square' : 'check' }}" />
                                                 </span>
-                                                {{ $log->subject }} — {{ $log->recipients->count() }} recipient(s), {{ $log->created_at->diffForHumans() }}
+                                                {{ $log->subject }} — {{ trans_choice(':count recipient|:count recipients', $log->recipients->count()) }}, {{ $log->created_at->diffForHumans() }}
                                             </div>
                                         @endforeach
                                     </div>
@@ -103,7 +103,7 @@
                                         @csrf
                                         <button type="submit" class="btn btn-sm bg-info text-info-fg">
                                             <x-icon name="list-check" />
-                                            Send attendance list now
+                                            {{ __('Send attendance list now') }}
                                         </button>
                                     </form>
                                     @if ($td->setup_group)
@@ -111,7 +111,7 @@
                                             @csrf
                                             <button type="submit" class="btn btn-sm bg-info-lt text-info-lt-fg">
                                                 <x-icon name="bell-ringing" />
-                                                Resend setup reminder
+                                                {{ __('Resend setup reminder') }}
                                             </button>
                                         </form>
                                     @endif
@@ -120,7 +120,7 @@
                                             @csrf
                                             <button type="submit" class="btn btn-sm bg-info text-info-fg">
                                                 <x-icon name="truck" />
-                                                Send van driver reminder
+                                                {{ __('Send van driver reminder') }}
                                             </button>
                                         </form>
                                     @endif
@@ -129,14 +129,14 @@
                                     @foreach ($ensembles->filter(fn ($ensemble) => $td->appliesToEnsemble($ensemble)) as $ensemble)
                                         <x-a class="btn btn-sm" href="{{ route('attendance.register.show', ['ensemble' => $ensemble, 'termDate' => $td]) }}">
                                             <x-icon name="list-check" />
-                                            Register: {{ $ensemble->name }}
+                                            {{ __('Register: :name', ['name' => $ensemble->name]) }}
                                         </x-a>
                                     @endforeach
                                 @endif
                                 @foreach ($seating_plan_ensembles as $ensemble)
                                     <x-a class="btn btn-sm bg-orange text-orange-fg" href="{{ route('seating-plan.download', ['ensemble' => $ensemble, 'termDate' => $td]) }}" target="_blank">
                                         <x-icon name="armchair" />
-                                        Seating plan: {{ $ensemble->name }}
+                                        {{ __('Seating plan: :name', ['name' => $ensemble->name]) }}
                                     </x-a>
                                 @endforeach
                             </div>

@@ -6,7 +6,7 @@
 @endphp
 
 @if (Route::has($route_name))
-	<x-a :route="$route_name" :model="$model"><img alt="{{ $model->name }} image" class="rounded" src="{{ $model->image }}" style="width: 50px;"></x-a>
+	<x-a :route="$route_name" :model="$model"><img alt="{{ __(':name image', ['name' => $model->name]) }}" class="rounded" src="{{ $model->image }}" style="width: 50px;"></x-a>
 @else
-	<img alt="{{ $model->name }} image" class="rounded" src="{{ $model->image }}" style="width: 50px;">
+	<img alt="{{ __(':name image', ['name' => $model->name]) }}" class="rounded" src="{{ $model->image }}" style="width: 50px;">
 @endif

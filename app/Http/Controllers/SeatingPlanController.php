@@ -85,8 +85,8 @@ class SeatingPlanController extends Controller
             'unassigned_users' => $unassignedUsers,
             'upcoming_term_dates' => $upcomingTermDates,
             'past_term_dates' => $pastTermDates,
-            'page_name' => 'Ensembles',
-            'page_subname' => $ensemble->name.' seating plan',
+            'page_name' => __('Ensembles'),
+            'page_subname' => __(':name seating plan', ['name' => $ensemble->name]),
         ]);
     }
 

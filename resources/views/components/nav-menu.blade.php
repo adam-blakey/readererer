@@ -1,73 +1,73 @@
 @php
 	$nav_items = [
 	    [
-	        'title' => 'Dashboard',
+	        'title' => __('Dashboard'),
 	        'icon' => 'dashboard',
 	        'route' => 'dashboard',
 	        'auth' => Gate::inspect('view.dashboard')->allowed(),
 	    ],
 	    [
-	        'title' => 'Attendance updates',
+	        'title' => __('Attendance updates'),
 	        'icon' => 'square-check',
 	        'route' => 'attendance.index',
 	        'auth' => Auth::user()?->can('viewAny', App\Models\Attendance::class),
 	    ],
 	    [
-	        'title' => 'Attendance register',
+	        'title' => __('Attendance register'),
 	        'icon' => 'list-check',
 	        'route' => 'attendance.register.index',
 	        'auth' => Auth::user()?->can('viewAny', App\Models\RegisterEntry::class),
 	    ],
 	    [
-	        'title' => 'Composers',
+	        'title' => __('Composers'),
 	        'icon' => 'old',
 	        'route' => 'composers.index',
 	        'auth' => Auth::user()?->can('viewAny', App\Models\Composer::class),
 	    ],
 	    [
-	        'title' => 'Ensembles',
+	        'title' => __('Ensembles'),
 	        'icon' => 'music',
 	        'route' => 'ensembles.index',
 	        'auth' => Auth::user()?->can('viewAny', App\Models\Ensemble::class),
 	    ],
 	    [
-	        'title' => 'Instrument families',
+	        'title' => __('Instrument families'),
 	        'icon' => 'guitar-pick',
 	        'route' => 'instrumentfamilys.index',
 	        'auth' => Auth::user()?->can('viewAny', App\Models\InstrumentFamily::class),
 	    ],
 	    [
-	        'title' => 'Notifications',
+	        'title' => __('Notifications'),
 	        'icon' => 'bell',
 	        'route' => 'notifications.index',
 	        'auth' => Auth::user()?->can('view.notifications'),
 	    ],
 	    [
-	        'title' => 'Pieces',
+	        'title' => __('Pieces'),
 	        'icon' => 'file-description',
 	        'route' => 'pieces.index',
 	        'auth' => Auth::user()?->can('viewAny', App\Models\Piece::class),
 	    ],
 	    [
-	        'title' => 'Setlists',
+	        'title' => __('Setlists'),
 	        'icon' => 'list-numbers',
 	        'route' => 'setlists.index',
 	        'auth' => Auth::user()?->can('viewAny', App\Models\Setlist::class),
 	    ],
 	    [
-	        'title' => 'Terms',
+	        'title' => __('Terms'),
 	        'icon' => 'calendar-month',
 	        'route' => 'terms.index',
 	        'auth' => Auth::user()?->can('viewAny', App\Models\Term::class),
 	    ],
 	    [
-	        'title' => 'Setup groups',
+	        'title' => __('Setup groups'),
 	        'icon' => 'users',
 	        'route' => 'setupgroups.index',
 	        'auth' => Auth::user()?->can('viewAny', App\Models\SetupGroup::class),
 	    ],
 	    [
-	        'title' => 'Users',
+	        'title' => __('Users'),
 	        'icon' => 'user',
 	        'route' => 'users.index',
 	        'auth' => Auth::user()?->can('viewAny', App\Models\User::class),
@@ -87,7 +87,7 @@
 <header class="navbar navbar-expand-md navbar-light d-print-none">
 	<div class="container-xl">
 		@if ($number_of_accessible_nav_items > 0)
-			<button aria-controls="navbar-menu" aria-expanded="false" aria-label="Toggle navigation" class="navbar-toggler" data-bs-target="#navbar-menu" data-bs-toggle="collapse" type="button">
+			<button aria-controls="navbar-menu" aria-expanded="false" aria-label="{{ __('Toggle navigation') }}" class="navbar-toggler" data-bs-target="#navbar-menu" data-bs-toggle="collapse" type="button">
 				<span class="navbar-toggler-icon"></span>
 			</button>
 		@endif
@@ -99,20 +99,20 @@
 		<div class="flex-row navbar-nav order-md-last">
 			<div class="nav-item dropdown">
 				@guest
-					<a class="px-0 nav-link" data-bs-placement="bottom" data-bs-toggle="tooltip" href="{{ route('login') }}" title="Login">
+					<a class="px-0 nav-link" data-bs-placement="bottom" data-bs-toggle="tooltip" href="{{ route('login') }}" title="{{ __('Login') }}">
 						<x-icon name="login" />
 					</a>
 				@endguest
 				@auth
-					<a aria-label="Open user menu" class="p-0 nav-link d-flex lh-1 text-reset" data-bs-toggle="dropdown" href="#">
+					<a aria-label="{{ __('Open user menu') }}" class="p-0 nav-link d-flex lh-1 text-reset" data-bs-toggle="dropdown" href="#">
 						<x-avatar :user="Auth::user()" size="sm" :tooltip="false" />
 						<x-name-and-role :user="Auth::user()" />
 					</a>
 					<div class="dropdown-menu dropdown-menu-end dropdown-menu-arrow">
-                        <x-a class="dropdown-item" :route="'settings.edit'">Settings</x-a>
+                        <x-a class="dropdown-item" :route="'settings.edit'">{{ __('Settings') }}</x-a>
 						<form action="{{ route('logout') }}" method="POST">
 							@csrf
-							<a class="dropdown-item" href="{{ route('logout') }}" onclick="event.preventDefault(); this.closest('form').submit();">Logout</a>
+							<a class="dropdown-item" href="{{ route('logout') }}" onclick="event.preventDefault(); this.closest('form').submit();">{{ __('Logout') }}</a>
 						</form>
 					</div>
 				@endauth

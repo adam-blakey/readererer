@@ -10,13 +10,13 @@
                             <input type="hidden" name="page" value="{{ request('page') }}" />
                             <label class="form-check m-4 pb-0">
                                 <input class="form-check-input" type="checkbox" id="withTrashed" name="with_trashed" value="1" {{ request('with_trashed') ? 'checked' : '' }} onchange="this.form.submit()">
-                                <span class="form-check-label">Show archived</span>
+                                <span class="form-check-label">{{ __('Show archived') }}</span>
                             </label>
                         </form>
                         <div class="card-actions ms-auto me-4">
                             @if ($create_entity)
                                 <x-a :route="$create_entity['route']" class="btn btn-primary">
-                                    Add {{ $create_entity['name'] }}
+                                    {{ __('Add :name', ['name' => $create_entity['name']]) }}
                                 </x-a>
                             @endif
                         </div>

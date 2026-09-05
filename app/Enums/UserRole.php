@@ -9,4 +9,15 @@ enum UserRole: int
     case Member = 2; // Standard access; view most things, edit and update very little.
     case Moderator = 3; // View and edit of most things; can't change important config settings.
     case Admin = 4; // Full access to everything.
+
+    public function label(): string
+    {
+        return match ($this) {
+            self::Guest => __('Guest'),
+            self::Ensemble => __('Ensemble'),
+            self::Member => __('Member'),
+            self::Moderator => __('Moderator'),
+            self::Admin => __('Admin'),
+        };
+    }
 }

@@ -19,7 +19,7 @@ class SetupReminderMail extends Mailable
     public function envelope(): Envelope
     {
         return new Envelope(
-            subject: 'Setup reminder — '.$this->termDate->name,
+            subject: __('Setup reminder — :name', ['name' => $this->termDate->name]),
         );
     }
 
