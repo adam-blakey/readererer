@@ -7,20 +7,20 @@ use Diglactic\Breadcrumbs\Breadcrumbs;
 use Diglactic\Breadcrumbs\Generator as BreadcrumbTrail;
 use Illuminate\Database\Eloquent\Model;
 
-/*
-|--------------------------------------------------------------------------
-| Breadcrumbs
-|--------------------------------------------------------------------------
-|
-| One definition per named GET route, keyed by that route's name. The page
-| header renders the trail for the current route (see
-| resources/views/components/page-header.blade.php); a route without a
-| definition here — the auth pages, for instance — simply shows no trail.
-|
-*/
-
 Breadcrumbs::for('home', function (BreadcrumbTrail $trail) {
     $trail->push('Home', route('home'));
+});
+
+Breadcrumbs::for('login', function (BreadcrumbTrail $trail) {
+    $trail->push('Login', route('login'));
+});
+
+Breadcrumbs::for('password.request', function (BreadcrumbTrail $trail) {
+    $trail->push('Forgot password', route('password.request'));
+});
+
+Breadcrumbs::for('password.reset', function (BreadcrumbTrail $trail, string $entity) {
+    $trail->push('Reset password', route('password.reset', $entity));
 });
 
 Breadcrumbs::for('dashboard', function (BreadcrumbTrail $trail) {
@@ -38,12 +38,6 @@ Breadcrumbs::for('settings.edit', function (BreadcrumbTrail $trail) {
     $trail->push('Settings', route('settings.edit'));
 });
 
-/*
- * The generic CRUD resources rendered by resources/views/auto-entities/ all
- * share the same shape — Home ▸ Composers ▸ Rachmaninoff ▸ Edit — so register
- * their index/create/show/edit trails from one definition. Every model exposes
- * a `name` attribute, which is what the show and edit crumbs are labelled by.
- */
 $auto_entity = function (string $route_prefix, string $index_label, string $create_label): void {
     Breadcrumbs::for($route_prefix.'.index', function (BreadcrumbTrail $trail) use ($route_prefix, $index_label) {
         $trail->parent('home');

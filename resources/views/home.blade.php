@@ -1,6 +1,6 @@
-@props(['terms', 'page_name'])
+@props(['terms'])
 
-<x-layout :$page_name :show_page_header="false">
+<x-layout :show_page_header="false">
 	<div class="container-xl">
 		<x-card-row>
 			<div class="col-md-12">

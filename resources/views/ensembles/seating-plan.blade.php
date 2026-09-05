@@ -1,6 +1,6 @@
-@props(['ensemble', 'grouped_users', 'unassigned_users', 'upcoming_term_dates', 'past_term_dates', 'page_name', 'page_subname'])
+@props(['ensemble', 'grouped_users', 'unassigned_users', 'upcoming_term_dates', 'past_term_dates'])
 
-<x-layout :$page_name :$page_subname>
+<x-layout>
     <div class="container-xl">
         <x-card-row>
             <div class="col-md-12">

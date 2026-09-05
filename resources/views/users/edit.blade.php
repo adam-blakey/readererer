@@ -1,27 +1,24 @@
-@props(['user', 'roles', 'setupGroups', 'ensembles', 'allInstrumentFamilies', 'instrumentFamilies', 'page_name'])
+@props(['user', 'roles', 'setupGroups', 'ensembles', 'allInstrumentFamilies', 'instrumentFamilies'])
 
-<x-layout :$page_name :show_page_header="0">
-	<div class="page-header">
-		<div class="container">
-			<x-breadcrumbs />
-			<div class="row align-items-center">
-				<div class="col-auto">
-					<span class="rounded avatar avatar-lg" style="background-image: url({{ $user->image }})"></span>
-				</div>
-				<div class="col">
-					<h1 class="my-0 font-bold">{{ $user->name }}</h1>
-					<span class="badge bg-blue text-blue-fg">{{ $user->role_description }}</span>
-				</div>
-				<div class="col-auto ms-auto">
-					<div class="btn-list">
-						<x-a aria-label="Button" class="btn" :route="'users.show'" :user="$user">
-							View
-						</x-a>
-					</div>
-				</div>
-			</div>
-		</div>
-	</div>
+<x-layout>
+    <div class="container">
+        <div class="row align-items-center">
+            <div class="col-auto">
+                <span class="rounded avatar avatar-lg" style="background-image: url({{ $user->image }})"></span>
+            </div>
+            <div class="col">
+                <h1 class="my-0 font-bold">{{ $user->name }}</h1>
+                <span class="badge bg-blue text-blue-fg">{{ $user->role_description }}</span>
+            </div>
+            <div class="col-auto ms-auto">
+                <div class="btn-list">
+                    <x-a aria-label="Button" class="btn" :route="'users.show'" :user="$user">
+                        View
+                    </x-a>
+                </div>
+            </div>
+        </div>
+    </div>
 
 	<div class="page-body">
 		<div class="container-xl">
