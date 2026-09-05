@@ -211,19 +211,26 @@ guidelines file duplicates or replaces parts of `CLAUDE.md`.
 
 ---
 
-## Proposed follow-up issues
+## Follow-up issues
 
-| Proposed issue | Covers | Est. |
+Each finding below is filed as its own issue:
+
+| Issue | Covers | Est. |
 | --- | --- | --- |
-| Show member names below 1200px | R: `user-entry`, `poll-entry` (+ decide on `name-and-role`) | 1–2 h |
-| Run the test suite and Pint in CI | T1, T2 | 1–2 h |
-| Format the codebase with Pint | T6 | 30 min |
-| Align generic-form `required` with the FormRequest rules | F2 | 2 h |
-| Show a form-level summary for errors with no visible field | F4 | 1–2 h |
-| Render `image` as something better than a text box | F3 | 1–2 h |
-| Fill in the model factories | T5 | 2 h |
-| Fix the `ext-pdo` constraint | T7 | 5 min |
-| Set up Laravel Boost | Strand 4 | 1 h |
+| #97 — Member names disappear below 1200px | R: `user-entry`, `poll-entry` (+ decide on `name-and-role`) | 1–2 h |
+| #98 — Run the test suite and Pint in CI | T1, T2 | 1–2 h |
+| #99 — Format the codebase with Pint | T6 | 30 min |
+| #100 — `required` markers come from the schema, not the rules | F2 | 2 h |
+| #101 — Errors with no visible field are invisible | F4 | 1–2 h |
+| #102 — `image` renders as a free-text box | F3 | 1–2 h |
+| #103 — Fill in the model factories | T5 | 2 h |
+| #104 — `ext-pdo` constraint breaks install below PHP 8.4.24 | T7 | 5 min |
+| #105 — Set up Laravel Boost | Strand 4 | 1 h |
+
+Ordering that falls out of the above: #104 (5 minutes, and it blocks CI), then
+#99, then #98 — after which everything else is protected by a suite that
+actually runs. #97 is independent and the most visible to members, so it can go
+first if a quick win is wanted.
 
 T3/T4 are not listed: they are Phase 2 feature work already tracked in
 `docs/todos.md`, not test debt.
