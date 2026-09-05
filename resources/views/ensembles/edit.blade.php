@@ -32,7 +32,7 @@
 							<h2 class="mb-0 card-heading">Edit ensemble details</h2>
 						</div>
 						<div class="card-body">
-							<form action="{{ route('ensembles.update', ['ensemble' => $ensemble]) }}" id="ensemble-edit-form" method="POST">
+							<form action="{{ route('ensembles.update', ['ensemble' => $ensemble]) }}" id="ensemble-edit-form" method="POST" data-dirty-check>
 								@csrf
 								@method('PUT')
 

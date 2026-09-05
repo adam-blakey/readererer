@@ -10,7 +10,7 @@
                             {{ $page_subname }}
                         </h3>
                     </div>
-                    <form action="{{ $form_route }}" method="POST" class="space-y">
+                    <form action="{{ $form_route }}" method="POST" class="space-y" @if ($update) data-dirty-check @endif>
                         @csrf
                         @if ($update)
                             @method('PATCH')

@@ -33,7 +33,7 @@
 							<h2 class="mb-0 card-heading">Edit user details</h2>
 						</div>
 						<div class="card-body">
-							<form action="{{ route('users.update', ['user' => $user]) }}" method="POST">
+							<form action="{{ route('users.update', ['user' => $user]) }}" method="POST" data-dirty-check>
 								@csrf
 								@method('PATCH')
 
