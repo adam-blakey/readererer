@@ -84,8 +84,19 @@ These touch the shared generic-CRUD layer or general UX and so apply regardless 
 - ~~**Grey out the Save button when no changes have been made**~~ — done: a form
   opts in with `data-dirty-check` and `resources/js/form-dirty.js` keeps its submit
   buttons disabled until the form's values differ from the ones it was rendered with.
-- **Quantify/triage rough edges** — form error handling; "resizing text disappearing"
-  issue; automated tests; possible Laravel Boost setup.
+- ~~**Quantify/triage rough edges**~~ — done: measured in
+  [`docs/rough-edges-triage.md`](rough-edges-triage.md), which sizes each of the
+  four strands and proposes the follow-up work. Headlines:
+  - **Form error handling** — largely closed by the field-partial polish while the
+    triage was being written; what is left is the `required` markers being derived
+    from the schema rather than the FormRequest rules, no form-level error summary,
+    and `image` fields rendering as a free-text box.
+  - **"Resizing text disappearing"** — reproduced and located: `user-entry`,
+    `name-and-role` and `poll-entry` hide their text below 1200px, and
+    `poll-entry` renders an empty link.
+  - **Automated tests** — 413 tests pass, but no CI job runs them or Pint; Pint
+    fails on 133 of 234 files; 3 of 9 model factories cannot create a model.
+  - **Laravel Boost** — compatible with Laravel 13 / PHP 8.4 and recommended.
 
 ---
 
