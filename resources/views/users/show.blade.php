@@ -16,9 +16,9 @@
             </div>
             <div class="col-auto ms-auto">
                 <div class="btn-list">
-                    <x-a aria-label="Button" class="btn" :route="'users.edit'" :user="$user">
+                    <x-a aria-label="{{ __('Edit') }}" class="btn" :route="'users.edit'" :user="$user">
                         <x-icon name="pencil" />
-                        Edit
+                        {{ __('Edit') }}
                     </x-a>
                 </div>
             </div>
@@ -31,12 +31,12 @@
 				<div class="col-lg-4">
 					<div class="mb-3 card">
 						<div class="card-header">
-							<h2 class="mb-0 card-heading">Ensembles ({{ $user->ensembles->count() }})</h2>
+							<h2 class="mb-0 card-heading">{{ __('Ensembles (:count)', ['count' => $user->ensembles->count()]) }}</h2>
 						</div>
 						<div class="card-body">
 							@foreach ($user->ensembles as $ensemble)
  							<p>
- 								<x-a :route="'ensembles.show'" :ensemble="$ensemble">{{ $ensemble->name }}</x-a>: <strong>{{ $instrumentFamilies[$ensemble->pivot->instrument_family_id]->name ?? '[none]' }} {{ ($ensemble->pivot->seat_column == null or $ensemble->pivot->seat_row == null) ? '' : '(' . $ensemble->pivot->seat_column . $ensemble->pivot->seat_row . ')' }}</strong>
+ 								<x-a :route="'ensembles.show'" :ensemble="$ensemble">{{ $ensemble->name }}</x-a>: <strong>{{ $instrumentFamilies[$ensemble->pivot->instrument_family_id]->name ?? __('[none]') }} {{ ($ensemble->pivot->seat_column == null or $ensemble->pivot->seat_row == null) ? '' : '(' . $ensemble->pivot->seat_column . $ensemble->pivot->seat_row . ')' }}</strong>
  							</p>
 							@endforeach
 						</div>
@@ -47,43 +47,43 @@
 						<div class="col-12">
 							<div class="card">
 								<div class="card-header">
-									<h2 class="mb-0 card-heading">Personal details</h2>
+									<h2 class="mb-0 card-heading">{{ __('Personal details') }}</h2>
 								</div>
 								<div class="card-body">
 									<div class="mb-2">
 										<x-icon name="user" />
-										Name:
+										{{ __('Name') }}:
 										<strong>{{ $user->name }}</strong>
 									</div>
                                     <div class="mb-2">
                                         <x-icon name="keyboard" />
-                                        Username:
+                                        {{ __('Username') }}:
                                         <strong>{{ $user->username }}</strong>
                                     </div>
 									<div class="mb-2">
 										<x-icon name="mail" />
-										Email:
+										{{ __('Email') }}:
 										<strong>{{ $user->email }}</strong>
 									</div>
 									<div class="mb-2">
 										<x-icon name="phone" />
-										Phone number:
+										{{ __('Phone number') }}:
 										<strong>{{ $user->phone_number }}</strong>
 									</div>
 									<div class="mb-2">
 										<x-icon name="pin" />
-										Address:
+										{{ __('Address') }}:
 										<strong>{{ $user->full_address }}</strong>
 									</div>
 									<div class="mb-2">
 										<x-icon name="building-hospital" />
-										Emergency contact details:
+										{{ __('Emergency contact details') }}:
 										<strong>{{ $user->emergency_contact_details }}</strong>
 									</div>
 									<div class="mb-2">
 										<x-icon name="glass" />
-										Over 18:
-										<strong>{{ $user->is_over_18 ? 'Yes' : 'No' }}</strong>
+										{{ __('Over 18') }}:
+										<strong>{{ $user->is_over_18 ? __('Yes') : __('No') }}</strong>
 									</div>
 								</div>
 							</div>
@@ -95,18 +95,18 @@
 						<div class="col-12">
 							<div class="card">
 								<div class="card-header">
-									<h2 class="mb-0 card-heading">Additional info</h2>
+									<h2 class="mb-0 card-heading">{{ __('Additional info') }}</h2>
 								</div>
 								<div class="card-body">
 									<div class="mb-2">
 										<x-icon name="camera" />
-										Photograph permssion:
-										<strong>{{ $user->has_photo_permission ? 'Yes' : 'No' }}</strong>
+										{{ __('Photograph permission') }}:
+										<strong>{{ $user->has_photo_permission ? __('Yes') : __('No') }}</strong>
 									</div>
 									<div class="mb-2">
 										<x-icon name="gift" />
-										Gift aid subs:
-										<strong>{{ $user->is_gift_aiding_subs ? 'Yes' : 'No' }}</strong>
+										{{ __('Gift aid subs') }}:
+										<strong>{{ $user->is_gift_aiding_subs ? __('Yes') : __('No') }}</strong>
 									</div>
 								</div>
 							</div>

@@ -40,7 +40,7 @@ class AttendanceRegisterController extends Controller
         return view('attendances.registers', [
             'term_dates' => $term_dates,
             'ensembles' => $ensembles,
-            'page_name' => 'Attendance registers',
+            'page_name' => __('Attendance registers'),
         ]);
     }
 
@@ -124,7 +124,7 @@ class AttendanceRegisterController extends Controller
 
         return redirect()
             ->route('attendance.register.show', ['ensemble' => $ensemble, 'termDate' => $termDate, 'sortby' => $request->query('sortby')])
-            ->with('status', 'Register saved.');
+            ->with('status', __('Register saved.'));
     }
 
     /**

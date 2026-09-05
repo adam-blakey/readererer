@@ -1,19 +1,19 @@
 @props(['term_dates', 'show_year' => false, 'ensemble' => null])
 
 <tr>
-	<th>Members</th>
+	<th>{{ __('Members') }}</th>
 	@foreach ($term_dates as $term_date)
 		@php
 			$highlight = $ensemble ? ((int)($term_date->concert_ensemble_id) === (int)($ensemble->id)) : ($term_date->concert_ensemble_id !== null);
 
-			$heading_tooltip = ($term_date->concert_ensemble_id ? 'Concert' : 'Rehearsal') . ': ' . $term_date->schedule_label;
+			$heading_tooltip = ($term_date->concert_ensemble_id ? __('Concert') : __('Rehearsal')) . ': ' . $term_date->schedule_label;
 
 			if ($term_date->concert_ensemble) {
 			    $heading_tooltip .= ' (' . $term_date->concert_ensemble->name . ')';
 			}
 
 			if ($term_date->setup_group != null) {
-			    $heading_tooltip .= ' — ' . $term_date->setup_group->label . ' sets up';
+			    $heading_tooltip .= ' — ' . __(':name sets up', ['name' => $term_date->setup_group->label]);
 			}
 		@endphp
 		<th class="text-center poll-date align-text-top {{ $highlight ? 'bg-primary text-bg-primary' : '' }}" data-bs-toggle="tooltip" title="{{ $heading_tooltip }}">

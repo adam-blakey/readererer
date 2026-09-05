@@ -1,6 +1,6 @@
 @props(['term_dates', 'ensembles'])
 
-<x-layout page_subname="Attendance registers overview">
+<x-layout>
 	<div class="container-xl">
 		<x-card-row>
 			<div class="col-md-12">

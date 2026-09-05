@@ -21,7 +21,7 @@ class RosterChangedMail extends Mailable
     public function envelope(): Envelope
     {
         return new Envelope(
-            subject: 'Setup group / van driver changed — '.$this->termDate->name,
+            subject: __('Setup group / van driver changed — :name', ['name' => $this->termDate->name]),
         );
     }
 

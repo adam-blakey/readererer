@@ -149,11 +149,11 @@ class TermDate extends Model
         $days = (int) round(now()->startOfDay()->diffInDays($this->start_datetime->copy()->startOfDay(), false));
 
         return match (true) {
-            $days === 0 => 'Today',
-            $days === 1 => 'Tomorrow',
-            $days === -1 => 'Yesterday',
-            $days > 1 && $days < 14 => 'In '.$days.' days',
-            $days < -1 && $days > -14 => abs($days).' days ago',
+            $days === 0 => __('Today'),
+            $days === 1 => __('Tomorrow'),
+            $days === -1 => __('Yesterday'),
+            $days > 1 && $days < 14 => trans_choice('In :count day|In :count days', $days),
+            $days < -1 && $days > -14 => trans_choice(':count day ago|:count days ago', abs($days)),
             default => ucfirst($this->start_datetime->diffForHumans(['parts' => 1])),
         };
     }

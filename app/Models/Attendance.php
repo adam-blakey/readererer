@@ -59,15 +59,6 @@ class Attendance extends Model
 
         $display_status = ($assume_attending and $this->status == AttendanceStatus::Unknown) ? AttendanceStatus::Attending : $this->status;
 
-        switch ($display_status) {
-            case AttendanceStatus::Attending:
-                return 'Attending';
-
-            case AttendanceStatus::NotAttending:
-                return 'Not attending';
-
-            case AttendanceStatus::Unknown:
-                return 'Unknown';
-        }
+        return $display_status->label();
     }
 }

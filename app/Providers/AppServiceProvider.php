@@ -42,10 +42,13 @@ class AppServiceProvider extends ServiceProvider
             return (new MailMessage)
                 ->subject(config('app.name').': '.__('Reset Password Request'))
                 ->greeting(__('Hello!'))
-                ->line(__('You recently requested to reset a password for your').' '.config('app.name').' '.__('account. Use the button below to reset it. This message will expire in :count minutes.', ['count' => config('auth.passwords.'.config('auth.defaults.passwords').'.expire')]))
+                ->line(__('You recently requested to reset a password for your :app account. Use the button below to reset it. This message will expire in :count minutes.', [
+                    'app' => config('app.name'),
+                    'count' => config('auth.passwords.'.config('auth.defaults.passwords').'.expire'),
+                ]))
                 ->action(__('Reset password'), $url)
                 ->line(__('If you did not request a password reset, then please ignore this message.'))
-                ->salutation(__('Regards,')."\r\n\r\n".config('app.name').' Team');
+                ->salutation(__('Regards,')."\r\n\r\n".__(':app Team', ['app' => config('app.name')]));
         });
 
         Gate::define('view.dashboard', function (User $user) {

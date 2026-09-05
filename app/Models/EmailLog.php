@@ -40,8 +40,9 @@ class EmailLog extends Model
 
     public function getTypeLabelAttribute(): string
     {
-        return self::TYPE_LABELS[$this->mailable_class]
-            ?? class_basename($this->mailable_class);
+        return isset(self::TYPE_LABELS[$this->mailable_class])
+            ? __(self::TYPE_LABELS[$this->mailable_class])
+            : class_basename($this->mailable_class);
     }
 
     public function recipients(): HasMany

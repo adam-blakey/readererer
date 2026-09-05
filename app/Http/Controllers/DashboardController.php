@@ -56,7 +56,7 @@ class DashboardController extends Controller
         }
 
         return view('dashboard.index', [
-            'page_name' => config('app.name') . ' dashboard',
+            'page_name' => __(':app dashboard', ['app' => config('app.name')]),
             'ensembles' => $ensembles,
             'setupGroup' => $setupGroup,
             'nextRehearsal' => $nextRehearsal,

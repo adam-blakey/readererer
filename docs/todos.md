@@ -80,7 +80,9 @@ These touch the shared generic-CRUD layer or general UX and so apply regardless 
   is wired up, with a trail per named page in `routes/breadcrumbs.php` and Tabler
   markup in `resources/views/vendor/breadcrumbs/tabler.blade.php`, rendered by the
   page header.
-- **Translation strings** — i18n not yet extracted.
+- ~~**Translation strings**~~ — done: user-facing text goes through `__()` /
+  `trans_choice()`, and `lang/en.json` holds the catalogue a locale is translated
+  from. See `lang/README.md`.
 - ~~**Grey out the Save button when no changes have been made**~~ — done: a form
   opts in with `data-dirty-check` and `resources/js/form-dirty.js` keeps its submit
   buttons disabled until the form's values differ from the ones it was rendered with.

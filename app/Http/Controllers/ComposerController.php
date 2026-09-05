@@ -28,8 +28,8 @@ class ComposerController extends Controller
 
         return view('auto-entities.index', [
             'entities' => $composers,
-            'page_name' => 'Composers',
-            'page_subname' => 'Composers overview'
+            'page_name' => __('Composers'),
+            'page_subname' => __('Composers overview')
         ]);
     }
 
@@ -79,7 +79,7 @@ class ComposerController extends Controller
     public function destroy(Composer $composer)
     {
         $composer->delete();
-        return redirect()->back()->with('status', 'Record deleted.');
+        return redirect()->back()->with('status', __('Record deleted.'));
     }
 
     public function purgeTrashed()
@@ -87,7 +87,7 @@ class ComposerController extends Controller
         Composer::onlyTrashed()->get()->each(function ($model) {
             $model->forceDelete();
         });
-        return redirect()->back()->with('status', 'All soft-deleted records permanently removed.');
+        return redirect()->back()->with('status', __('All soft-deleted records permanently removed.'));
     }
 
     public function restore(int $id)
@@ -95,6 +95,6 @@ class ComposerController extends Controller
         $entity = Composer::withTrashed()->findOrFail($id);
         $entity->restore();
 
-        return redirect()->back()->with('status', 'Restored.');
+        return redirect()->back()->with('status', __('Restored.'));
     }
 }
