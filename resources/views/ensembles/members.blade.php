@@ -1,27 +1,25 @@
-@props(['ensemble', 'page_name', 'page_subname'])
+@props(['ensemble'])
 
-<x-layout :$page_name :show_page_header="0">
-	<div class="page-header">
-		<div class="container">
-			<div class="row align-items-center">
-				<div class="col-auto">
-					<span class="rounded avatar avatar-lg" style="background-image: url({{ $ensemble->image }})"></span>
-				</div>
-				<div class="col">
-					<div class="page-pretitle">{{ $page_subname }}</div>
-					<h1 class="my-0 font-bold">{{ $ensemble->name }}</h1>
-				</div>
-				<div class="col-auto ms-auto">
-					<div class="btn-list">
-						<x-a href="{{ route('ensembles.show', ['ensemble' => $ensemble]) }}" class="btn"><x-icon name="arrow-left" />Back to ensemble</x-a>
-						@can('update', $ensemble)
-							<a href="#" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#modal-add-user-ensemble"><x-icon name="user-plus" />Add user</a>
-						@endcan
-					</div>
-				</div>
-			</div>
-		</div>
-	</div>
+<x-layout>
+    <div class="container">
+        <div class="row align-items-center">
+            <div class="col-auto">
+                <span class="rounded avatar avatar-lg" style="background-image: url({{ $ensemble->image }})"></span>
+            </div>
+            <div class="col">
+                <div class="page-pretitle">{{ $page_subname }}</div>
+                <h1 class="my-0 font-bold">{{ $ensemble->name }}</h1>
+            </div>
+            <div class="col-auto ms-auto">
+                <div class="btn-list">
+                    <x-a href="{{ route('ensembles.show', ['ensemble' => $ensemble]) }}" class="btn"><x-icon name="arrow-left" />Back to ensemble</x-a>
+                    @can('update', $ensemble)
+                        <a href="#" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#modal-add-user-ensemble"><x-icon name="user-plus" />Add user</a>
+                    @endcan
+                </div>
+            </div>
+        </div>
+    </div>
 
 	<div class="page-body">
 		<div class="container-xl">

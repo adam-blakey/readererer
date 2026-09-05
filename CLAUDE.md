@@ -83,6 +83,9 @@ The poll records what members said they *would* do and is append-only; the regis
 ### Frontend
 Blade components live in `resources/views/components/` (Tabler-based: `card`, `table`, `avatar`, `setup-group-badge`, form partials under `components/forms/`). JS/CSS entrypoints are wired through `vite.config.js` + `@tabler/core`. Colours use Tabler names; `color_name_to_hex()` in `helpers.php` maps them to hex for inline styling/PDFs.
 
+### Breadcrumbs
+`diglactic/laravel-breadcrumbs` renders the trail in `components/page-header.blade.php`, which is only reached when the layout's `show_page_header` is true. Trails are defined per route name in `routes/breadcrumbs.php` — the generic CRUD resources share one definition that registers their `index`/`create`/`show`/`edit` trails, labelling records by the model's `name` attribute. Add a definition there whenever you add a named GET page; `BreadcrumbsTest` fails if one is missing. Markup lives in `resources/views/vendor/breadcrumbs/tabler.blade.php` (selected by `config/breadcrumbs.php`).
+
 ## Conventions
 
 - `Model::preventSilentlyDiscardingAttributes()` is enabled in local env (`AppServiceProvider`) — mass-assignment of non-fillable attributes throws, so keep `$fillable` accurate.

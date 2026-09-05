@@ -271,13 +271,16 @@ function map_database_type_to_html(string $name, string $db_type, array $casts):
         return 'image';
     } elseif ($name == 'email') {
         return 'email';
+    } elseif ($name == 'password') {
+        return 'password';
     }
 
     $html_type = match (strtolower($db_type)) {
         'text', 'longtext', 'mediumtext' => 'textarea',
         'integer', 'bigint', 'smallint', 'decimal', 'float' => 'number',
         'boolean', 'tinyint' => 'boolean',
-        'date', 'datetime', 'timestamp' => 'date',
+        'date' => 'date',
+        'datetime', 'timestamp' => 'datetime',
         default => 'text'
     };
 

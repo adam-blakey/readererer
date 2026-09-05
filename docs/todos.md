@@ -66,31 +66,36 @@ These touch the shared generic-CRUD layer or general UX and so apply regardless 
 - ~~**Enum support in the generic form**~~ — done: a column with an enum cast is
   rendered as a select of the enum's cases, labelled by the enum's `label()` method
   where it has one and defaulting to the column's database default.
-- **Generic form field polish** — `resources/views/components/forms/field.blade.php:13`
-  (icon alignment when an error is present), `:20` ("style nice"), `:39` (something
-  "apparently isn't working correctly").
+- ~~**Generic form field polish**~~ — done: the validation message now sits outside
+  the icon wrapper (so the icon stays centred on the control), selects are padded
+  clear of the icon, and the field types the form can produce but never rendered
+  (booleans, dates, datetimes) render proper controls.
 - ~~**Auto-entity show view button alignment**~~ — done: the card header's actions are
   now a `btn-list`, so the Edit link and the Archive/Unarchive form sit side by side
   with the standard gap instead of the form block dropping onto its own line.
 - ~~**Proper colour picker**~~ — done: a column cast to the `Color` palette is
   rendered by the generic form as a swatch picker (`<x-forms.color-picker>`), a
   plain radio group needing no JavaScript.
-- **Canonical breadcrumb navigation** — recurring item; plan suggests
-  `diglactic/laravel-breadcrumbs`.
+- ~~**Canonical breadcrumb navigation**~~ — done: `diglactic/laravel-breadcrumbs`
+  is wired up, with a trail per named page in `routes/breadcrumbs.php` and Tabler
+  markup in `resources/views/vendor/breadcrumbs/tabler.blade.php`, rendered by the
+  page header.
 - **Translation strings** — i18n not yet extracted.
-- **Grey out the Save button when no changes have been made.**
+- ~~**Grey out the Save button when no changes have been made**~~ — done: a form
+  opts in with `data-dirty-check` and `resources/js/form-dirty.js` keeps its submit
+  buttons disabled until the form's values differ from the ones it was rendered with.
 - ~~**Quantify/triage rough edges**~~ — done: measured in
   [`docs/rough-edges-triage.md`](rough-edges-triage.md), which sizes each of the
   four strands and proposes the follow-up work. Headlines:
-  - **Form error handling** — the relationship (`class`) select still loses the
-    user's choice when validation fails, because it was missed by the old-input
-    fix; the form's `required` markers are derived from the schema rather than
-    the FormRequest rules; `date` fields render nothing at all.
+  - **Form error handling** — largely closed by the field-partial polish while the
+    triage was being written; what is left is the `required` markers being derived
+    from the schema rather than the FormRequest rules, no form-level error summary,
+    and `image` fields rendering as a free-text box.
   - **"Resizing text disappearing"** — reproduced and located: `user-entry`,
     `name-and-role` and `poll-entry` hide their text below 1200px, and
     `poll-entry` renders an empty link.
-  - **Automated tests** — 389 tests pass, but no CI job runs them or Pint; Pint
-    fails on 131 of 229 files; 3 of 9 model factories cannot create a model.
+  - **Automated tests** — 413 tests pass, but no CI job runs them or Pint; Pint
+    fails on 133 of 234 files; 3 of 9 model factories cannot create a model.
   - **Laravel Boost** — compatible with Laravel 13 / PHP 8.4 and recommended.
 
 ---

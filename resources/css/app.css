@@ -95,6 +95,15 @@
     background: var(--tblr-bg-surface, #fff);
 }
 
+.input-icon .form-select:not(:first-child) {
+    padding-left: 2.5rem;
+}
+
+.input-icon-top .input-icon-addon {
+    bottom: auto;
+    height: calc(1.25rem + 1.125rem + (var(--tblr-border-width) * 2));
+}
+
 /* Colour picker swatches: a little larger than Tabler's default so they are
    comfortable to hit on a form. */
 .color-picker .form-colorinput-color {

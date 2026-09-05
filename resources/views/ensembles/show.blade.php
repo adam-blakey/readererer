@@ -1,4 +1,4 @@
-@props(['ensemble', 'page_name'])
+@props(['ensemble'])
 
 @use('App\Enums\UserRole')
 @use('Illuminate\Support\Str')
@@ -9,38 +9,36 @@
 	$canManage = $currentUser->role->value >= UserRole::Moderator->value;
 @endphp
 
-<x-layout :$page_name :show_page_header="0">
-	<div class="page-header">
-		<div class="container">
-			<div class="row align-items-center">
-				<div class="col-auto">
-					<span class="rounded avatar avatar-lg" style="background-image: url({{ $ensemble->image }})"></span>
-				</div>
-				<div class="col">
-					<h1 class="my-0 font-bold">{{ $ensemble->name }}</h1>
-					<div class="mt-1 list-inline list-inline-dots text-muted">
-						<span class="list-inline-item">
-							<x-icon name="users" />{{ $ensemble->number_of_members }} {{ Str::plural('member', $ensemble->number_of_members) }}
-						</span>
-						@if ($isMember)
-							<span class="list-inline-item"><span class="badge bg-blue text-blue-fg">You're a member!</span></span>
-						@endif
-					</div>
-				</div>
-				@if ($canManage)
-					<div class="col-auto ms-auto">
-						<div class="btn-list">
-							<x-a href="{{ route('ensembles.members', ['ensemble' => $ensemble]) }}" class="btn"><x-icon name="users" />Members</x-a>
-							@if ($ensemble->seating_plan_enabled)
-								<x-a href="{{ route('ensembles.seating-plan.show', ['ensemble' => $ensemble]) }}" class="btn"><x-icon name="users-group" />Seating plan</x-a>
-							@endif
-							<x-a href="{{ route('ensembles.edit', ['ensemble' => $ensemble]) }}" class="btn"><x-icon name="pencil" />Edit</x-a>
-						</div>
-					</div>
-				@endif
-			</div>
-		</div>
-	</div>
+<x-layout>
+    <div class="container">
+        <div class="row align-items-center">
+            <div class="col-auto">
+                <span class="rounded avatar avatar-lg" style="background-image: url({{ $ensemble->image }})"></span>
+            </div>
+            <div class="col">
+                <h1 class="my-0 font-bold">{{ $ensemble->name }}</h1>
+                <div class="mt-1 list-inline list-inline-dots text-muted">
+                    <span class="list-inline-item">
+                        <x-icon name="users" />{{ $ensemble->number_of_members }} {{ Str::plural('member', $ensemble->number_of_members) }}
+                    </span>
+                    @if ($isMember)
+                        <span class="list-inline-item"><span class="badge bg-blue text-blue-fg">You're a member!</span></span>
+                    @endif
+                </div>
+            </div>
+            @if ($canManage)
+                <div class="col-auto ms-auto">
+                    <div class="btn-list">
+                        <x-a href="{{ route('ensembles.members', ['ensemble' => $ensemble]) }}" class="btn"><x-icon name="users" />Members</x-a>
+                        @if ($ensemble->seating_plan_enabled)
+                            <x-a href="{{ route('ensembles.seating-plan.show', ['ensemble' => $ensemble]) }}" class="btn"><x-icon name="users-group" />Seating plan</x-a>
+                        @endif
+                        <x-a href="{{ route('ensembles.edit', ['ensemble' => $ensemble]) }}" class="btn"><x-icon name="pencil" />Edit</x-a>
+                    </div>
+                </div>
+            @endif
+        </div>
+    </div>
 
 	<div class="page-body">
 		<div class="container-xl">

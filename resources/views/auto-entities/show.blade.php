@@ -1,10 +1,10 @@
-@props(['entity', 'page_name', 'page_subname', 'edit_route', 'destroy_route', 'restore_route'])
+@props(['entity', 'edit_route', 'destroy_route', 'restore_route'])
 
 @php
     $attributes = $entity->getVisible();
 @endphp
 
-<x-layout :$page_name :$page_subname>
+<x-layout>
     <div class="container-xl">
         <x-card-row>
             <div class="col-md-12">

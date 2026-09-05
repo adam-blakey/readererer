@@ -1,22 +1,20 @@
-@props(['term', 'page_name', 'ensembles', 'setup_groups', 'van_drivers', 'form_route', 'form_method'])
+@props(['term', 'ensembles', 'setup_groups', 'van_drivers', 'form_route', 'form_method'])
 
-<x-layout :$page_name :show_page_header="0">
-	<div class="page-header">
-		<div class="container">
-			<div class="row align-items-center">
-				<div class="col">
-					<h1 class="my-0 font-bold">Edit term: {{ $term->name }}</h1>
-				</div>
-				<div class="col-auto ms-auto">
-					<div class="btn-list">
-						<button aria-label="Save" class="btn btn-primary" form="term-edit-form" type="submit">
-							Save
-						</button>
-					</div>
-				</div>
-			</div>
-		</div>
-	</div>
+<x-layout>
+    <div class="container">
+        <div class="row align-items-center">
+            <div class="col">
+                <h1 class="my-0 font-bold">Edit term: {{ $term->name }}</h1>
+            </div>
+            <div class="col-auto ms-auto">
+                <div class="btn-list">
+                    <button aria-label="Save" class="btn btn-primary" form="term-edit-form" type="submit">
+                        Save
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
 
 	<div class="page-body">
 		<div class="container-xl">
@@ -27,7 +25,7 @@
 							<h2 class="mb-0 card-heading">Edit term details</h2>
 						</div>
 						<div class="card-body">
-							<form action="{{ $form_route }}" id="term-edit-form" method="POST">
+							<form action="{{ $form_route }}" id="term-edit-form" method="POST" data-dirty-check>
 								@csrf
                                 @method($form_method)
 
