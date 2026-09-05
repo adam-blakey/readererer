@@ -1,6 +1,6 @@
-@props(['logs', 'page_name'])
+@props(['logs'])
 
-<x-layout :$page_name page_subname="Overview of every notification email sent, with its delivery status">
+<x-layout page_subname="Overview of every notification email sent, with its delivery status">
 	<div class="container-xl">
 		<x-card-row>
 			<div class="col-md-12">

@@ -75,8 +75,10 @@ These touch the shared generic-CRUD layer or general UX and so apply regardless 
 - ~~**Proper colour picker**~~ — done: a column cast to the `Color` palette is
   rendered by the generic form as a swatch picker (`<x-forms.color-picker>`), a
   plain radio group needing no JavaScript.
-- **Canonical breadcrumb navigation** — recurring item; plan suggests
-  `diglactic/laravel-breadcrumbs`.
+- ~~**Canonical breadcrumb navigation**~~ — done: `diglactic/laravel-breadcrumbs`
+  is wired up, with a trail per named page in `routes/breadcrumbs.php` and Tabler
+  markup in `resources/views/vendor/breadcrumbs/tabler.blade.php`, rendered by the
+  page header.
 - **Translation strings** — i18n not yet extracted.
 - **Grey out the Save button when no changes have been made.**
 - **Quantify/triage rough edges** — form error handling; "resizing text disappearing"

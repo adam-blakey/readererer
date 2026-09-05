@@ -1,6 +1,6 @@
-@props(['entities', 'page_name', 'page_subname', 'create_entity' => null])
+@props(['entities', 'create_entity' => null])
 
-<x-layout :$page_name :$page_subname>
+<x-layout>
 	<div class="container-xl">
 		<x-card-row>
 			<div class="col-md-12">
