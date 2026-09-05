@@ -1,10 +1,10 @@
-@props(['entity', 'page_name', 'page_subname', 'edit_route', 'destroy_route', 'restore_route'])
+@props(['entity', 'edit_route', 'destroy_route', 'restore_route'])
 
 @php
     $attributes = $entity->getVisible();
 @endphp
 
-<x-layout :$page_name :$page_subname>
+<x-layout>
     <div class="container-xl">
         <x-card-row>
             <div class="col-md-12">
@@ -13,13 +13,12 @@
                         <h3 class="card-title">
                             {{ $page_subname }}
                         </h3>
-                        <div class="card-actions">
+                        <div class="card-actions btn-list align-items-center">
                             @if ($edit_route)
                                 <x-a :route="$edit_route" :model="$entity" class="btn">
                                     Edit
                                 </x-a>
                             @endif
-{{--                            TODO: Button alignment --}}
                             @if ($entity->deleted_at != null)
                                 @if ($restore_route)
                                     <form method="POST" action="{{ route($restore_route, $entity) }}" onsubmit="return confirm('Are you sure you want to unarchive this record?');">

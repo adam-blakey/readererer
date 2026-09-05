@@ -1,6 +1,6 @@
-@props(['members', 'term', 'page_name', 'ensemble', 'sortby'])
+@props(['members', 'term', 'ensemble', 'sortby'])
 
-<x-layout :$page_name page_subname="Poll">
+<x-layout page_subname="Poll">
 	<div class="container-xl">
 		<x-card-row>
 			<div class="col-md-12">

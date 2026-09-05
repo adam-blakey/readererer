@@ -1,6 +1,6 @@
-@props(['update', 'fields', 'page_name', 'page_subname', 'form_route'])
+@props(['update', 'fields', 'form_route'])
 
-<x-layout :$page_name :$page_subname>
+<x-layout>
     <div class="container-xl">
         <x-card-row>
             <div class="col-md-12">

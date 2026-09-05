@@ -69,10 +69,16 @@ These touch the shared generic-CRUD layer or general UX and so apply regardless 
 - **Generic form field polish** — `resources/views/components/forms/field.blade.php:13`
   (icon alignment when an error is present), `:20` ("style nice"), `:39` (something
   "apparently isn't working correctly").
-- **Auto-entity show view button alignment** — `resources/views/auto-entities/show.blade.php:22`.
-- **Proper colour picker** — recurring item in the plan (used by setup groups, etc.).
-- **Canonical breadcrumb navigation** — recurring item; plan suggests
-  `diglactic/laravel-breadcrumbs`.
+- ~~**Auto-entity show view button alignment**~~ — done: the card header's actions are
+  now a `btn-list`, so the Edit link and the Archive/Unarchive form sit side by side
+  with the standard gap instead of the form block dropping onto its own line.
+- ~~**Proper colour picker**~~ — done: a column cast to the `Color` palette is
+  rendered by the generic form as a swatch picker (`<x-forms.color-picker>`), a
+  plain radio group needing no JavaScript.
+- ~~**Canonical breadcrumb navigation**~~ — done: `diglactic/laravel-breadcrumbs`
+  is wired up, with a trail per named page in `routes/breadcrumbs.php` and Tabler
+  markup in `resources/views/vendor/breadcrumbs/tabler.blade.php`, rendered by the
+  page header.
 - **Translation strings** — i18n not yet extracted.
 - ~~**Grey out the Save button when no changes have been made**~~ — done: a form
   opts in with `data-dirty-check` and `resources/js/form-dirty.js` keeps its submit

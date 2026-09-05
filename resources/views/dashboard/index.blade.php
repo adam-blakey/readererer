@@ -1,6 +1,6 @@
 @props(['page_name', 'ensembles' => collect(), 'setupGroup' => null, 'nextRehearsal' => null, 'nextConcerts' => collect(), 'nextVanDrive' => null])
 
-<x-layout :$page_name page_subname="Dashboard">
+<x-layout page_subname="Dashboard">
 	<div class="container-xl">
 		<x-card-row>
 			<div class="col-md-8">
