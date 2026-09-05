@@ -148,10 +148,6 @@
     </div>
     @endif
 
-    {{-- Outside the icon wrapper: as a child of it the message stretched the
-         wrapper, dragging the vertically-centred icon down with it (and, because
-         Tabler pads a control differently once it is no longer the last child,
-         shunting the control's own text sideways). --}}
     @if ($has_error)
         <div class="invalid-feedback d-block">{{ $error_message }}</div>
     @endif

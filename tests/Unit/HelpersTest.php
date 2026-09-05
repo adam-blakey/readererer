@@ -97,9 +97,9 @@ test('an enum cast beats the image and email column name special cases', functio
 });
 
 test('map_database_type_to_html special-cases image, email and password column names', function () {
-    expect(map_database_type_to_html('image', 'varchar', []))->toBe('image');
-    expect(map_database_type_to_html('email', 'varchar', []))->toBe('email');
-    expect(map_database_type_to_html('password', 'varchar', []))->toBe('password');
+    expect(map_database_type_to_html('image', 'varchar', []))->toBe('image')
+        ->and(map_database_type_to_html('email', 'varchar', []))->toBe('email')
+        ->and(map_database_type_to_html('password', 'varchar', []))->toBe('password');
 });
 
 test('map_database_type_to_html maps database types to html input types', function (string $dbType, string $expected) {

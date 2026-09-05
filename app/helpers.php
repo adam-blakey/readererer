@@ -280,7 +280,6 @@ function map_database_type_to_html(string $name, string $db_type, array $casts):
         'integer', 'bigint', 'smallint', 'decimal', 'float' => 'number',
         'boolean', 'tinyint' => 'boolean',
         'date' => 'date',
-        // A date input would silently drop the time part of these.
         'datetime', 'timestamp' => 'datetime',
         default => 'text'
     };

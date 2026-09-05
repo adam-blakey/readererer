@@ -9,13 +9,6 @@ use Illuminate\Support\MessageBag;
 use Illuminate\Support\ViewErrorBag;
 
 /**
- * The generic auto-entity form renders every field through
- * resources/views/components/forms/field.blade.php; these cover the markup it
- * produces for each field type, and how it behaves once a value or a validation
- * error is in play.
- */
-
-/**
  * Render the field component directly, optionally with an error against it.
  */
 function render_field(string $name, array $data, ?string $error = null): string
