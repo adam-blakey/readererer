@@ -4,7 +4,7 @@
     <div class="container">
         <div class="row align-items-center">
             <div class="col-auto">
-                <span class="rounded avatar avatar-lg" style="background-image: url({{ $user->image }})"></span>
+                <span class="rounded avatar avatar-lg" style="background-image: url({{ $user->image_url }})"></span>
             </div>
             <div class="col">
                 <h1 class="my-0 font-bold">{{ $user->name }}</h1>
@@ -33,7 +33,7 @@
 							<h2 class="mb-0 card-heading">{{ __('Edit user details') }}</h2>
 						</div>
 						<div class="card-body">
-							<form action="{{ route('users.update', ['user' => $user]) }}" method="POST" data-dirty-check>
+							<form action="{{ route('users.update', ['user' => $user]) }}" enctype="multipart/form-data" method="POST" data-dirty-check>
 								@csrf
 								@method('PATCH')
 
@@ -83,6 +83,9 @@
 										<div class="invalid-feedback">{{ $message }}</div>
 									@enderror
 								</div>
+
+								<hr />
+								<x-forms.image-upload :model="$user" :label="__('Profile picture')" />
 
 								<div class="text-end">
 									<button type="submit" class="btn btn-primary">{{ __('Save details') }}</button>

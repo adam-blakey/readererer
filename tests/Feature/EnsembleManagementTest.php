@@ -179,12 +179,12 @@ test('saving the ensemble edit page persists the seating plan toggle', function 
 
     // Unchecked checkbox submits no value.
     $this->actingAs(make_user(UserRole::Admin))
-        ->put(route('ensembles.update', $ensemble), ['name' => 'Strings'])
+        ->put(route('ensembles.update', $ensemble), ['name' => 'Strings', 'slug' => $ensemble->slug])
         ->assertRedirect(route('ensembles.show', $ensemble));
     expect($ensemble->fresh()->seating_plan_enabled)->toBeFalse();
 
     $this->actingAs(make_user(UserRole::Admin))
-        ->put(route('ensembles.update', $ensemble), ['name' => 'Renamed Strings', 'seating_plan_enabled' => '1'])
+        ->put(route('ensembles.update', $ensemble), ['name' => 'Renamed Strings', 'slug' => $ensemble->slug, 'seating_plan_enabled' => '1'])
         ->assertRedirect();
 
     $ensemble->refresh();
@@ -354,4 +354,62 @@ test('the ensemble members table hides removal controls from ordinary members', 
         ->get(route('ensembles.members', $ensemble))
         ->assertOk()
         ->assertDontSee('Add user');
+});
+
+test('an admin can edit an ensemble slug', function () {
+    $ensemble = Ensemble::factory()->create(['name' => 'Strings', 'slug' => 'strings']);
+
+    $this->actingAs(make_user(UserRole::Admin))
+        ->put(route('ensembles.update', $ensemble), ['name' => 'Strings', 'slug' => 'string_section'])
+        ->assertSessionHasNoErrors()
+        ->assertRedirect(route('ensembles.show', $ensemble));
+
+    expect($ensemble->fresh()->slug)->toBe('string_section');
+});
+
+test('the ensemble edit page renders the slug field', function () {
+    $ensemble = Ensemble::factory()->create(['slug' => 'strings']);
+
+    $this->actingAs(make_user(UserRole::Admin))
+        ->get(route('ensembles.edit', $ensemble))
+        ->assertOk()
+        ->assertSee('name="slug"', false)
+        ->assertSee('strings');
+});
+
+test('updating an ensemble requires a slug', function () {
+    $ensemble = Ensemble::factory()->create();
+
+    $this->actingAs(make_user(UserRole::Admin))
+        ->put(route('ensembles.update', $ensemble), ['name' => 'Strings'])
+        ->assertSessionHasErrors('slug');
+});
+
+test('an ensemble slug rejects characters that are unsafe in a URL', function () {
+    $ensemble = Ensemble::factory()->create(['slug' => 'strings']);
+
+    $this->actingAs(make_user(UserRole::Admin))
+        ->put(route('ensembles.update', $ensemble), ['name' => 'Strings', 'slug' => 'Strings Section!'])
+        ->assertSessionHasErrors('slug');
+
+    expect($ensemble->fresh()->slug)->toBe('strings');
+});
+
+test('an ensemble slug cannot duplicate another ensemble', function () {
+    Ensemble::factory()->create(['slug' => 'taken']);
+    $ensemble = Ensemble::factory()->create(['slug' => 'strings']);
+
+    $this->actingAs(make_user(UserRole::Admin))
+        ->put(route('ensembles.update', $ensemble), ['name' => 'Strings', 'slug' => 'taken'])
+        ->assertSessionHasErrors('slug');
+
+    expect($ensemble->fresh()->slug)->toBe('strings');
+});
+
+test('an ensemble may keep its own slug when updated', function () {
+    $ensemble = Ensemble::factory()->create(['name' => 'Strings', 'slug' => 'strings']);
+
+    $this->actingAs(make_user(UserRole::Admin))
+        ->put(route('ensembles.update', $ensemble), ['name' => 'Strings', 'slug' => 'strings'])
+        ->assertSessionHasNoErrors();
 });
