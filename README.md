@@ -118,6 +118,13 @@ php artisan test                 # or ./vendor/bin/pest
 ./vendor/bin/pint --test         # check formatting only
 ```
 
+Run `npm run build` before the suite: `tests/Unit/IconComponentTest.php` reads the
+icons that the build copies into `public/build/icons`, and fails without them.
+
+Both commands run on every pull request (`.github/workflows/ci.yml`). The Pint check
+is limited to the PHP files the pull request touches, because the repository does not
+pass a whole-repo `pint --test` yet.
+
 ## Docker
 
 The `Dockerfile` builds a self-contained image (Apache + PHP 8.4, with assets and
