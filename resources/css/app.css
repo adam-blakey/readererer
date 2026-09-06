@@ -110,3 +110,11 @@
     width: 2rem;
     height: 2rem;
 }
+
+/* The name/role text beside an avatar in a user, poll or navbar entry. A flex
+   item will not shrink below the width of its content on its own, so it needs
+   min-width: 0 before the text-truncate on its lines can take effect. */
+.entry-text {
+    flex-grow: 1;
+    min-width: 0;
+}
