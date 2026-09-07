@@ -1,5 +1,6 @@
 <?php
 
+use App\Enums\Color;
 use App\Enums\UserRole;
 use App\Models\Ensemble;
 use App\Models\Term;
@@ -55,7 +56,7 @@ test('unassigned members are split up by instrument family', function () {
     expect($unassigned->get('No instrument')->pluck('id')->all())->toBe([$unknown->id]);
 
     // Each member carries their instrument family's colour for the editor.
-    expect($unassigned->get('Flutes')->first()->instrument_color)->toBe(\App\Enums\Color::Blue);
+    expect($unassigned->get('Flutes')->first()->instrument_color)->toBe(Color::Blue);
     expect($unassigned->get('No instrument')->first()->instrument_color)->toBeNull();
 });
 
@@ -93,12 +94,12 @@ test('the seating plan page offers downloads for upcoming rehearsals and own con
     $response->assertOk();
     $dates = $response->viewData('upcoming_term_dates');
     expect($dates->pluck('id')->all())->toBe([$upcomingRehearsal->id, $ownConcert->id]);
-    $response->assertSee(route('seating-plan.download', ['ensemble' => $ensemble, 'termDate' => $upcomingRehearsal]));
+    $response->assertSee(route('ensembles.seating-plan.download', ['ensemble' => $ensemble, 'termDate' => $upcomingRehearsal]));
 
     // Past dates are offered separately so the dropdown can filter them.
     $pastDates = $response->viewData('past_term_dates');
     expect($pastDates->pluck('id')->all())->toBe([$pastRehearsal->id]);
-    $response->assertSee(route('seating-plan.download', ['ensemble' => $ensemble, 'termDate' => $pastRehearsal]));
+    $response->assertSee(route('ensembles.seating-plan.download', ['ensemble' => $ensemble, 'termDate' => $pastRehearsal]));
 });
 
 test('updating the seating plan stores seat rows and columns on the pivot', function () {
@@ -175,7 +176,7 @@ test('the seating plan pdf downloads for authorised users', function () {
     join_ensemble($member, $ensemble, null, 1, 'A');
 
     $response = $this->actingAs(make_user(UserRole::Admin))
-        ->get(route('seating-plan.download', ['ensemble' => $ensemble, 'termDate' => $termDate->id]));
+        ->get(route('ensembles.seating-plan.download', ['ensemble' => $ensemble, 'termDate' => $termDate->id]));
 
     $response->assertOk();
     $response->assertHeader('content-type', 'application/pdf');
@@ -193,6 +194,6 @@ test('the seating plan pdf is forbidden without permission to view the ensemble'
     $member = make_user(UserRole::Member);
 
     $this->actingAs($member)
-        ->get(route('seating-plan.download', ['ensemble' => $ensemble, 'termDate' => $termDate->id]))
+        ->get(route('ensembles.seating-plan.download', ['ensemble' => $ensemble, 'termDate' => $termDate->id]))
         ->assertForbidden();
 });
