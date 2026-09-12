@@ -163,3 +163,19 @@ test('a select keeps the submitted value after a failed validation pass', functi
     expect($html)->toMatch('/<option value="'.$driver->id.'" ?selected>/')
         ->toContain('The name field is required.');
 });
+
+test('the rendered form marks fields required to match the rules, not the column nullability', function () {
+    $admin = make_user(UserRole::Admin);
+
+    // setup_groups.week is a NOT NULL column, but the request lets it be empty,
+    // so the browser must not block a submission the server would accept.
+    $html = $this->actingAs($admin)->get(route('setupgroups.create'))->assertOk()->getContent();
+
+    expect($html)->toMatch('/<input type="number" name="week"(?![^>]*\brequired\b)[^>]*>/');
+
+    // users.email is a nullable column, but the request requires it, so the
+    // browser should catch an empty one rather than the server bouncing it.
+    $html = $this->actingAs($admin)->get(route('users.create'))->assertOk()->getContent();
+
+    expect($html)->toMatch('/<input type="email" name="email"[^>]*\brequired\b[^>]*>/');
+});
