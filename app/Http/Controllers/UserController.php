@@ -66,10 +66,11 @@ class UserController extends Controller
         $attributes['username'] = User::generateUniqueUsername($attributes['first_name'], $attributes['last_name']);
         $attributes['password'] = Str::password(16);
 
+        // A user need not belong to a setup group, so a blank selection is kept as null.
         $setup_group_id = Arr::pull($attributes, 'setup_group');
         $user = User::create($attributes);
-        $setup_group = SetupGroup::find($setup_group_id);
-        $user->setup_group()->associate($setup_group);
+        $user->setup_group()->associate($setup_group_id ? SetupGroup::find($setup_group_id) : null);
+        $user->save();
 
         return to_route('users.show', $user);
     }
@@ -97,10 +98,10 @@ class UserController extends Controller
     {
         $attributes = $request->validated();
 
+        // A blank selection clears the user's setup group rather than failing validation.
         $setup_group_id = Arr::pull($attributes, 'setup_group');
-        $setup_group = SetupGroup::find($setup_group_id);
         $user->update($attributes);
-        $user->setup_group()->associate($setup_group);
+        $user->setup_group()->associate($setup_group_id ? SetupGroup::find($setup_group_id) : null);
 
         $user->save();
 

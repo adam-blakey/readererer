@@ -31,7 +31,7 @@ class UpdateUserRequest extends FormRequest
             'last_name' => ['required', 'string', 'max:255'],
             'email' => ['required', 'email', 'max:255', Rule::unique('users', 'email')->ignore($this->route('user'))],
             'role' => ['required', Rule::enum(UserRole::class)],
-            'setup_group' => ['required', 'exists:setup_groups,id'],
+            'setup_group' => ['nullable', 'exists:setup_groups,id'],
         ];
     }
 }

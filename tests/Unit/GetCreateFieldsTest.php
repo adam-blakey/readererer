@@ -39,6 +39,19 @@ test('a belongs-to-many relation becomes an optional multi-select class field', 
     expect($fields['van_drivers']['options'])->toHaveCount(2);
 });
 
+test('a belongs-to relation follows its foreign key column for optionality', function () {
+    // users.setup_group_id is nullable, so belonging to a setup group is optional.
+    SetupGroup::create(['name' => 'Group A', 'week' => 1, 'color' => 'blue']);
+
+    $fields = get_create_fields(new User);
+
+    expect($fields)->toHaveKey('setup_group');
+    expect($fields['setup_group']['type'])->toBe('class');
+    expect($fields['setup_group']['required'])->toBeFalse();
+    expect($fields['setup_group']['select_multiple'])->toBeFalse();
+    expect($fields['setup_group']['options'])->toHaveCount(1);
+});
+
 test('icons come from the model Icon attributes with a pencil fallback', function () {
     $fields = get_create_fields(new SetupGroup);
 
