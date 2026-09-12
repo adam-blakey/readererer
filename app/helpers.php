@@ -2,6 +2,7 @@
 
 use App\Enums\AttendanceStatus;
 use App\Enums\RegisterStatus;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Support\Facades\Schema;
@@ -121,6 +122,83 @@ function register_status_totals($entries, int $expected_members): array
     return $totals;
 }
 
+/**
+ * Resolve the FormRequest class that governs writes to a model, or null when
+ * the model has none.
+ *
+ * The CRUD controllers name their requests after the model they write
+ * (`SetupGroup` -> `StoreSetupGroupRequest` / `UpdateSetupGroupRequest`), so
+ * the model's class name is all that is needed to find them.
+ */
+function get_form_request_class_for_model(object $model, bool $update = false): ?string
+{
+    $class = 'App\\Http\\Requests\\'.($update ? 'Update' : 'Store').class_basename($model).'Request';
+
+    return class_exists($class) ? $class : null;
+}
+
+/**
+ * The validation rules that will be applied to a write of this model, keyed by
+ * attribute, or null when no FormRequest covers it.
+ *
+ * The rules are read outside of a request cycle, so a request whose rules()
+ * leans on the incoming request or route is no help here — it is treated the
+ * same as having no request at all, and the caller falls back to whatever it
+ * would have done without one.
+ */
+function get_validation_rules_for_model(object $model, bool $update = false): ?array
+{
+    $request_class = get_form_request_class_for_model($model, $update);
+
+    if (! $request_class) {
+        return null;
+    }
+
+    return rescue(fn () => (new $request_class)->rules(), null, false);
+}
+
+/**
+ * Whether a set of validation rules makes an attribute mandatory.
+ *
+ * Returns null when the rules say nothing about the attribute at all, so that
+ * a caller can tell "the rules allow this to be empty" from "the rules have no
+ * opinion" and fall back accordingly.
+ *
+ * Only a bare `required` counts: a conditional rule (`required_if`,
+ * `required_with`, ...) depends on what else was submitted, which the browser
+ * cannot enforce from a static attribute.
+ */
+function rules_require_attribute(array $rules, string $attribute): ?bool
+{
+    if (! array_key_exists($attribute, $rules)) {
+        return null;
+    }
+
+    $attribute_rules = $rules[$attribute];
+
+    if (is_string($attribute_rules)) {
+        $attribute_rules = explode('|', $attribute_rules);
+    } elseif (! is_array($attribute_rules)) {
+        $attribute_rules = [$attribute_rules];
+    }
+
+    foreach ($attribute_rules as $rule) {
+        if (is_string($rule) && strtolower($rule) === 'required') {
+            return true;
+        }
+    }
+
+    return false;
+}
+
+/**
+ * Build the field list the generic form renders for a model.
+ *
+ * Whether a field is mandatory is decided by the FormRequest that will
+ * validate the submission, where the model has one, so that the asterisk and
+ * the browser's own `required` enforcement agree with the server. Attributes
+ * the rules say nothing about fall back to the column's nullability.
+ */
 function get_create_fields(object $dummy): array
 {
     $columns = collect(Schema::getColumns($dummy->getTable()));
@@ -128,6 +206,10 @@ function get_create_fields(object $dummy): array
     // getCasts() rather than casts(), so models declaring a `$casts` property
     // are covered too — and it is public on every model.
     $casts = $dummy->getCasts();
+
+    // An existing record is being edited, a fresh one created; the two are
+    // validated by different requests.
+    $rules = get_validation_rules_for_model($dummy, $dummy instanceof Model && $dummy->exists) ?? [];
 
     $fields = [];
 
@@ -172,7 +254,7 @@ function get_create_fields(object $dummy): array
         $fields[$name] = [
             'label' => clean_attribute_name($name),
             'type' => $type,
-            'required' => ! $nullable,
+            'required' => rules_require_attribute($rules, $name) ?? ! $nullable,
             'icon' => $icon,
             'value' => $dummy->$name,
             'options' => $options,

@@ -2,12 +2,14 @@
 
 use App\Enums\Color;
 use App\Enums\UserRole;
+use App\Http\Requests\UpdateSetupGroupRequest;
 use App\Models\EmailLog;
 use App\Models\Ensemble;
 use App\Models\InstrumentFamily;
 use App\Models\SetupGroup;
 use App\Models\Term;
 use App\Models\User;
+use Illuminate\Validation\Rules\Enum;
 
 test('a plain string column becomes a required text field', function () {
     $fields = get_create_fields(new Ensemble);
@@ -126,4 +128,56 @@ test('the value of an enum field is the model\'s current case', function () {
     $instrumentFamily = new InstrumentFamily(['name' => 'Bassoons', 'color' => Color::Teal]);
 
     expect(get_create_fields($instrumentFamily)['color']['value'])->toBe(Color::Teal);
+});
+
+test('a field is required when the FormRequest requires it, whatever the column allows', function () {
+    // users.email is a nullable column, but StoreUserRequest requires it.
+    expect(get_create_fields(new User)['email']['required'])->toBeTrue();
+});
+
+test('a field is optional when the FormRequest allows it to be empty', function () {
+    // setup_groups.week is NOT NULL, but StoreSetupGroupRequest marks it nullable.
+    expect(get_create_fields(new SetupGroup)['week']['required'])->toBeFalse();
+});
+
+test('an attribute the rules say nothing about falls back to the column nullability', function () {
+    // StoreUserRequest has no rule for either of these.
+    $fields = get_create_fields(new User);
+
+    expect($fields['username']['required'])->toBeTrue();
+    expect($fields['image']['required'])->toBeFalse();
+});
+
+test('editing an existing record reads the update request rules', function () {
+    $setupGroup = SetupGroup::factory()->create(['name' => 'Group A', 'color' => Color::Teal]);
+
+    expect(get_form_request_class_for_model($setupGroup, $setupGroup->exists))
+        ->toBe(UpdateSetupGroupRequest::class);
+    expect(get_create_fields($setupGroup)['week']['required'])->toBeFalse();
+});
+
+test('a model with no FormRequest falls back to the column nullability throughout', function () {
+    expect(get_form_request_class_for_model(new EmailLog))->toBeNull();
+    expect(get_validation_rules_for_model(new EmailLog))->toBeNull();
+
+    expect(get_create_fields(new EmailLog)['status']['required'])->toBeTrue();
+});
+
+test('only a bare required rule makes an attribute mandatory', function () {
+    $rules = [
+        'listed' => ['required', 'string'],
+        'piped' => 'nullable|integer',
+        'piped_required' => 'required|string',
+        'conditional' => ['required_with:listed', 'string'],
+        'object' => new Enum(Color::class),
+    ];
+
+    expect(rules_require_attribute($rules, 'listed'))->toBeTrue();
+    expect(rules_require_attribute($rules, 'piped'))->toBeFalse();
+    expect(rules_require_attribute($rules, 'piped_required'))->toBeTrue();
+    expect(rules_require_attribute($rules, 'conditional'))->toBeFalse();
+    expect(rules_require_attribute($rules, 'object'))->toBeFalse();
+
+    // No rule at all is not the same as a rule allowing it to be empty.
+    expect(rules_require_attribute($rules, 'absent'))->toBeNull();
 });
