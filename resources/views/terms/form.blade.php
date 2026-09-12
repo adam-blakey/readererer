@@ -25,6 +25,8 @@
 							<h2 class="mb-0 card-heading">{{ __('Edit term details') }}</h2>
 						</div>
 						<div class="card-body">
+							<x-forms.error-summary :fields="['name', 'slug', 'term_dates.*.start_datetime', 'term_dates.*.end_datetime']" />
+
 							<form action="{{ $form_route }}" id="term-edit-form" method="POST" data-dirty-check>
 								@csrf
                                 @method($form_method)
