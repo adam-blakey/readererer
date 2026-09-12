@@ -8,7 +8,7 @@ use App\Models\User;
 
 function make_setup_group(array $attributes = []): SetupGroup
 {
-    return SetupGroup::create(array_merge([
+    return SetupGroup::factory()->create(array_merge([
         'name' => 'Group A',
         'week' => 1,
         'color' => 'blue',

@@ -70,11 +70,11 @@ function join_ensemble(User $user, Ensemble $ensemble, ?InstrumentFamily $instru
 
 /**
  * A term date: a rehearsal by default, or that ensemble's concert when one is
- * given. `term_id` is not fillable, hence the forceCreate().
+ * given, tomorrow evening either way.
  */
 function make_term_date(?Term $term = null, ?Ensemble $concertEnsemble = null): TermDate
 {
-    return TermDate::forceCreate([
+    return TermDate::factory()->create([
         'term_id' => ($term ?? Term::factory()->create())->id,
         'start_datetime' => now()->addDay()->setTime(19, 0),
         'end_datetime' => now()->addDay()->setTime(21, 0),
