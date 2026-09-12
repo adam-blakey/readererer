@@ -2,10 +2,12 @@
 
 use App\Enums\AttendanceStatus;
 use App\Enums\RegisterStatus;
+use Illuminate\Contracts\Support\MessageProvider;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Str;
+use Illuminate\Support\ViewErrorBag;
 
 function get_route_name_from_model($model, $route = 'show')
 {
@@ -312,4 +314,53 @@ function color_name_to_css_class(mixed $name): ?string
 
     $enum = \App\Enums\Color::tryFrom(strtolower((string) $name));
     return $enum ? $enum->cssClass() : null;
+}
+
+/**
+ * The validation messages a form would not show against one of its own fields.
+ *
+ * Errors are rendered beside the field they are keyed on, so a message keyed on
+ * anything the form does not render never reaches the user: a field the
+ * controller dropped from the generic form, a rule on a value that is not a
+ * field at all (a computed attribute, a pivot, an `array.*` sub-rule), or an
+ * error added outside the form request with withErrors(). Those are the
+ * messages a form-level summary has to carry; everything else is already shown
+ * where the user is looking.
+ *
+ * @param  mixed  $errors  The view's error bag (a ViewErrorBag or a MessageBag).
+ * @param  array<int, string>  $rendered  The field names the form renders.
+ *                                        Wildcards are allowed, so a repeated
+ *                                        row can be given as
+ *                                        'term_dates.*.start_datetime'.
+ * @return array<int, string>
+ */
+function unhandled_error_messages(mixed $errors, array $rendered): array
+{
+    // A view is handed a ViewErrorBag, which carries a bag per form; the fields
+    // read the default one, so the summary has to speak for the same bag.
+    $bag = match (true) {
+        $errors instanceof ViewErrorBag => $errors->getBag('default'),
+        $errors instanceof MessageProvider => $errors->getMessageBag(),
+        default => null,
+    };
+
+    if ($bag === null) {
+        return [];
+    }
+
+    $unhandled = [];
+
+    foreach ($bag->getMessages() as $key => $messages) {
+        // Str::is() takes no patterns as "matches nothing", which is what a
+        // form with no rendered fields should mean.
+        if (Str::is($rendered, $key)) {
+            continue;
+        }
+
+        foreach ($messages as $message) {
+            $unhandled[] = $message;
+        }
+    }
+
+    return $unhandled;
 }
