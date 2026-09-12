@@ -103,7 +103,7 @@ test('ensemble logins are shown their ensemble page instead of the dashboard', f
 });
 
 test('the dashboard shows the user\'s next van drive from the setup group rotation', function () {
-    $setupGroup = SetupGroup::create(['name' => 'Group A', 'week' => 1, 'color' => 'blue']);
+    $setupGroup = SetupGroup::factory()->create();
     $driver = make_user(UserRole::Member, ['setup_group_id' => $setupGroup->id]);
     $setupGroup->van_drivers()->attach($driver->id, ['sort' => 0]);
 

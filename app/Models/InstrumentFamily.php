@@ -16,6 +16,7 @@ use SDamian\Larasort\AutoSortable;
 class InstrumentFamily extends Model
 {
     use AutoSortable;
+    use HasFactory;
     use HasPropertyIcons;
     use SoftDeletes;
 
