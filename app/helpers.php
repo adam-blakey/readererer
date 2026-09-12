@@ -4,6 +4,7 @@ use App\Enums\AttendanceStatus;
 use App\Enums\RegisterStatus;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Str;
 
@@ -139,7 +140,10 @@ function get_create_fields(object $dummy): array
 
             $name = $fillable_entry;
             $type = 'class';
-            $nullable = $isBelongsToMany;
+            // A belongs-to-many is always optional — an empty pivot is a valid
+            // state. A belongs-to takes its answer from the same place a plain
+            // column does: whether its foreign key accepts null.
+            $nullable = $isBelongsToMany || belongs_to_is_optional($belongsToRelation, $columns);
             $select_multiple = $isBelongsToMany;
             $default_option = null;
             $icon = call_or_default($dummy, 'getIconForAttribute', $name, 'pencil');
@@ -184,6 +188,20 @@ function get_create_fields(object $dummy): array
     }
 
     return $fields;
+}
+
+/**
+ * Whether a belongs-to relation may be left unset, i.e. whether its foreign key
+ * column is nullable. A column the schema does not know about is treated as
+ * required, which is how get_create_fields() treats an unknown column anyway.
+ *
+ * @param  Collection<int, array<string, mixed>>  $columns
+ */
+function belongs_to_is_optional(BelongsTo $relation, Collection $columns): bool
+{
+    $column = $columns->firstWhere('name', $relation->getForeignKeyName());
+
+    return (bool) ($column['nullable'] ?? false);
 }
 
 function call_or_default(object $object, string $method, mixed $argument, mixed $defaultValue = null): mixed
