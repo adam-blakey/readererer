@@ -329,6 +329,7 @@
     "The van driver for this date is": "The van driver for this date is",
     "The van driver has no email address.": "The van driver has no email address.",
     "There are no ensemble admins with an email address to send the attendance list to.": "There are no ensemble admins with an email address to send the attendance list to.",
+    "There is a problem with this form|There are problems with this form": "There is a problem with this form|There are problems with this form",
     "This date has no setup group, so there is nobody to remind.": "This date has no setup group, so there is nobody to remind.",
     "This date has no van driver to remind.": "This date has no van driver to remind.",
     "This email failed to send": "This email failed to send",

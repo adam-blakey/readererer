@@ -9,6 +9,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Str;
+use Illuminate\Support\ViewErrorBag;
 
 function get_route_name_from_model($model, $route = 'show')
 {
@@ -322,4 +323,12 @@ function color_name_to_css_class(mixed $name): ?string
     $enum = Color::tryFrom(strtolower((string) $name));
 
     return $enum ? $enum->cssClass() : null;
+}
+
+function unhandled_error_messages(?ViewErrorBag $errors, array $rendered): array
+{
+    return collect($errors?->getBag('default')->getMessages() ?? [])
+        ->reject(fn ($messages, $key) => Str::is($rendered, $key))
+        ->flatten()
+        ->all();
 }
