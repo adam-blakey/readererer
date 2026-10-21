@@ -5,8 +5,8 @@
     "keywords": ["laravel", "framework"],
     "license": "MIT",
     "require": {
-        "php": "^8.4",
-        "ext-pdo": "^8.4.24",
+        "php": "^8.4.27",
+        "ext-pdo": "^8.4.27",
         "barryvdh/laravel-dompdf": "^3.1",
         "diglactic/laravel-breadcrumbs": "^10.1",
         "fakerphp/faker": "1.23",
@@ -64,7 +64,7 @@
     },
     "config": {
         "platform": {
-            "php": "8.4"
+            "php": "8.4.27"
         },
         "optimize-autoloader": true,
         "preferred-install": "dist",

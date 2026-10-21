@@ -13,7 +13,6 @@
         "axios": "^1.20.0",
         "laravel-vite-plugin": "^3.1",
         "postcss": "^8.5.25",
-        "tailwindcss": "^3.4.4",
         "vite": "^8.1"
     },
     "dependencies": {
@@ -32,9 +31,13 @@
         "litepicker": "^2.0.12",
         "nouislider": "^15.8.1",
         "postcss": "^8.5.25",
-        "tailwindcss": "^3.4.4",
         "tom-select": "^2.6.2",
         "vite": "^8.1",
         "vite-plugin-static-copy": "^4.1.1"
+    },
+    "overrides": {
+        "vite-plugin-static-copy": {
+            "chokidar": "^4.0.3"
+        }
     }
 }
