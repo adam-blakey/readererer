@@ -1,10 +1,16 @@
 version: 2
+
+multi-ecosystem-groups:
+  dependencies:
+    schedule:
+      interval: "weekly"
+
 updates:
   - package-ecosystem: "composer"
     directory: "/"
-    schedule:
-      interval: "weekly"
+    patterns: ["*"]
+    multi-ecosystem-group: "dependencies"
   - package-ecosystem: "npm"
     directory: "/"
-    schedule:
-      interval: "weekly"
+    patterns: ["*"]
+    multi-ecosystem-group: "dependencies"
