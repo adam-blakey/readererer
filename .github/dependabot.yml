@@ -1,8 +1,5 @@
 version: 2
 
-# Every Composer and npm version bump goes into one shared pull request.
-# Dependabot refreshes that pull request with any newer bumps on each
-# scheduled run until it is merged.
 multi-ecosystem-groups:
   dependencies:
     schedule:
