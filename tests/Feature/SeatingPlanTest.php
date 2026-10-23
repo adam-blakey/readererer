@@ -1,5 +1,6 @@
 <?php
 
+use App\Enums\Color;
 use App\Enums\UserRole;
 use App\Models\Ensemble;
 use App\Models\Term;
@@ -55,7 +56,7 @@ test('unassigned members are split up by instrument family', function () {
     expect($unassigned->get('No instrument')->pluck('id')->all())->toBe([$unknown->id]);
 
     // Each member carries their instrument family's colour for the editor.
-    expect($unassigned->get('Flutes')->first()->instrument_color)->toBe(\App\Enums\Color::Blue);
+    expect($unassigned->get('Flutes')->first()->instrument_color)->toBe(Color::Blue);
     expect($unassigned->get('No instrument')->first()->instrument_color)->toBeNull();
 });
 

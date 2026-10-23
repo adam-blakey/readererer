@@ -3,8 +3,8 @@
 namespace App\Models;
 
 use App\Attributes\Icon;
+use App\Enums\Color;
 use App\Traits\HasPropertyIcons;
-use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use SDamian\Larasort\AutoSortable;
@@ -36,7 +36,7 @@ class InstrumentFamily extends Model
     public function casts(): array
     {
         return [
-            'color' => \App\Enums\Color::class,
+            'color' => Color::class,
             'created_at' => 'datetime',
             'updated_at' => 'datetime',
         ];

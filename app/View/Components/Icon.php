@@ -4,12 +4,13 @@ namespace App\View\Components;
 
 use Closure;
 use Illuminate\Contracts\View\View;
-use Illuminate\View\Component;
 use Illuminate\Support\Facades\File;
+use Illuminate\View\Component;
 
 class Icon extends Component
 {
     public string $name;
+
     private static string $icon_base_path = 'build/icons';
 
     /**
@@ -25,9 +26,9 @@ class Icon extends Component
      */
     public function render(): View|Closure|string
     {
-        $icon_path = public_path(self::$icon_base_path . "/{$this->name}.svg");
+        $icon_path = public_path(self::$icon_base_path."/{$this->name}.svg");
 
-        if (!File::exists($icon_path)) {
+        if (! File::exists($icon_path)) {
             return '';
         }
 

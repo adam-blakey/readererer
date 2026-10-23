@@ -2,10 +2,9 @@
 
 namespace Database\Seeders;
 
-use Illuminate\Database\Console\Seeds\WithoutModelEvents;
-use Illuminate\Database\Seeder;
-use App\Models\Setlist;
 use App\Models\Piece;
+use App\Models\Setlist;
+use Illuminate\Database\Seeder;
 
 class SetlistSeeder extends Seeder
 {

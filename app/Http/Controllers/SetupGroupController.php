@@ -2,12 +2,12 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\SetupGroup;
 use App\Http\Requests\StoreSetupGroupRequest;
 use App\Http\Requests\UpdateSetupGroupRequest;
+use App\Models\SetupGroup;
 use Illuminate\Http\RedirectResponse;
-use Illuminate\View\View;
 use Illuminate\Support\Arr;
+use Illuminate\View\View;
 
 class SetupGroupController extends Controller
 {
@@ -30,8 +30,8 @@ class SetupGroupController extends Controller
             'page_subname' => __('Setup groups overview'),
             'create_entity' => [
                 'route' => 'setupgroups.create',
-                'name' => __('setup group')
-            ]
+                'name' => __('setup group'),
+            ],
         ]);
     }
 
@@ -40,7 +40,7 @@ class SetupGroupController extends Controller
      */
     public function create(): View
     {
-        $dummy = new SetupGroup();
+        $dummy = new SetupGroup;
         $fields = get_create_fields($dummy);
 
         return view('auto-entities.form', [
@@ -48,7 +48,7 @@ class SetupGroupController extends Controller
             'page_subname' => __('Create new setup group'),
             'update' => false,
             'fields' => $fields,
-            'form_route' => route('setupgroups.store')
+            'form_route' => route('setupgroups.store'),
         ]);
     }
 
@@ -80,7 +80,7 @@ class SetupGroupController extends Controller
             'page_subname' => __('Update setup group'),
             'update' => true,
             'fields' => $fields,
-            'form_route' => route('setupgroups.update', $setupGroup)
+            'form_route' => route('setupgroups.update', $setupGroup),
         ]);
     }
 
@@ -113,7 +113,7 @@ class SetupGroupController extends Controller
             'page_subname' => __('Setup group :name', ['name' => $setupGroup->name]),
             'edit_route' => 'setupgroups.edit',
             'destroy_route' => 'setupgroups.destroy',
-            'restore_route' => 'setupgroups.restore'
+            'restore_route' => 'setupgroups.restore',
         ]);
     }
 
@@ -123,6 +123,7 @@ class SetupGroupController extends Controller
     public function destroy(SetupGroup $setupGroup)
     {
         $setupGroup->delete();
+
         return redirect()->back()->with('status', __('Record deleted.'));
     }
 
@@ -131,6 +132,7 @@ class SetupGroupController extends Controller
         SetupGroup::onlyTrashed()->get()->each(function ($model) {
             $model->forceDelete();
         });
+
         return redirect()->back()->with('status', __('All soft-deleted records permanently removed.'));
     }
 

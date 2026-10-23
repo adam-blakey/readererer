@@ -1,6 +1,9 @@
 <?php
 
+use App\Enums\EmailStatus;
 use App\Enums\UserRole;
+use App\Mail\AttendanceListMail;
+use App\Models\EmailLog;
 use App\Models\Ensemble;
 use App\Models\SetupGroup;
 use App\Models\Term;
@@ -228,18 +231,18 @@ test('the term show page collapses all but the latest email into an accordion', 
     ]);
 
     // An older log and a newer one; email_logs() returns latest first.
-    $older = \App\Models\EmailLog::create([
+    $older = EmailLog::create([
         'term_date_id' => $termDate->id,
-        'mailable_class' => \App\Mail\AttendanceListMail::class,
+        'mailable_class' => AttendanceListMail::class,
         'subject' => 'Older attendance list',
-        'status' => \App\Enums\EmailStatus::Sent,
+        'status' => EmailStatus::Sent,
     ]);
     $older->forceFill(['created_at' => now()->subDay()])->save();
-    \App\Models\EmailLog::create([
+    EmailLog::create([
         'term_date_id' => $termDate->id,
-        'mailable_class' => \App\Mail\AttendanceListMail::class,
+        'mailable_class' => AttendanceListMail::class,
         'subject' => 'Newer attendance list',
-        'status' => \App\Enums\EmailStatus::Sent,
+        'status' => EmailStatus::Sent,
     ]);
 
     $this->actingAs(make_user(UserRole::Moderator))

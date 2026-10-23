@@ -2,11 +2,11 @@
 
 namespace App\Providers;
 
+use App\Faker\PlaceHoldImageFakerProvider;
 use Faker\Factory as FakerFactory;
 use Faker\Generator as FakerGenerator;
 use Illuminate\Database\Eloquent\Factories\Factory as EloquentFactory;
 use Illuminate\Support\ServiceProvider;
-use App\Faker\PlaceHoldImageFakerProvider;
 
 class FakerServiceProvider extends ServiceProvider
 {

@@ -2,9 +2,9 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Composer;
 use App\Http\Requests\StoreComposerRequest;
 use App\Http\Requests\UpdateComposerRequest;
+use App\Models\Composer;
 
 class ComposerController extends Controller
 {
@@ -29,7 +29,7 @@ class ComposerController extends Controller
         return view('auto-entities.index', [
             'entities' => $composers,
             'page_name' => __('Composers'),
-            'page_subname' => __('Composers overview')
+            'page_subname' => __('Composers overview'),
         ]);
     }
 
@@ -79,6 +79,7 @@ class ComposerController extends Controller
     public function destroy(Composer $composer)
     {
         $composer->delete();
+
         return redirect()->back()->with('status', __('Record deleted.'));
     }
 
@@ -87,6 +88,7 @@ class ComposerController extends Controller
         Composer::onlyTrashed()->get()->each(function ($model) {
             $model->forceDelete();
         });
+
         return redirect()->back()->with('status', __('All soft-deleted records permanently removed.'));
     }
 

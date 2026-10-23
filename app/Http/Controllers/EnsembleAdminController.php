@@ -2,9 +2,9 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\EnsembleAdmin;
 use App\Http\Requests\StoreEnsembleAdminRequest;
 use App\Http\Requests\UpdateEnsembleAdminRequest;
+use App\Models\EnsembleAdmin;
 
 class EnsembleAdminController extends Controller
 {

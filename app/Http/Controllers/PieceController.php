@@ -2,9 +2,9 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Piece;
 use App\Http\Requests\StorePieceRequest;
 use App\Http\Requests\UpdatePieceRequest;
+use App\Models\Piece;
 
 class PieceController extends Controller
 {
@@ -29,7 +29,7 @@ class PieceController extends Controller
         return view('auto-entities.index', [
             'entities' => $pieces,
             'page_name' => __('Pieces'),
-            'page_subname' => __('Pieces overview')
+            'page_subname' => __('Pieces overview'),
         ]);
     }
 
@@ -56,7 +56,7 @@ class PieceController extends Controller
     {
         return view('pieces.show', [
             'piece' => $piece,
-            'page_name' => $piece->title
+            'page_name' => $piece->title,
         ]);
     }
 
@@ -82,6 +82,7 @@ class PieceController extends Controller
     public function destroy(Piece $piece)
     {
         $piece->delete();
+
         return redirect()->back()->with('status', __('Record deleted.'));
     }
 
@@ -90,6 +91,7 @@ class PieceController extends Controller
         Piece::onlyTrashed()->get()->each(function ($model) {
             $model->forceDelete();
         });
+
         return redirect()->back()->with('status', __('All soft-deleted records permanently removed.'));
     }
 

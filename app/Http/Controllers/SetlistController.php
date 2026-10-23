@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Http\Requests\StoreSetlistRequest;
 use App\Http\Requests\UpdateSetlistRequest;
 use App\Models\Setlist;
+
 class SetlistController extends Controller
 {
     public function __construct()
@@ -28,7 +29,7 @@ class SetlistController extends Controller
         return view('auto-entities.index', [
             'entities' => $setlists,
             'page_name' => __('Setlists'),
-            'page_subname' => __('Setlist overview')
+            'page_subname' => __('Setlist overview'),
         ]);
     }
 
@@ -78,6 +79,7 @@ class SetlistController extends Controller
     public function destroy(Setlist $setlist)
     {
         $setlist->delete();
+
         return redirect()->back()->with('status', __('Record deleted.'));
     }
 
@@ -86,6 +88,7 @@ class SetlistController extends Controller
         Setlist::onlyTrashed()->get()->each(function ($model) {
             $model->forceDelete();
         });
+
         return redirect()->back()->with('status', __('All soft-deleted records permanently removed.'));
     }
 
