@@ -91,3 +91,8 @@ Blade components live in `resources/views/components/` (Tabler-based: `card`, `t
 - `docs/development-plan.md` is the running TODO / priorities list — consult it for intended direction and known bugs (e.g. seating-plan row bugs, missing edit views).
 - Tabler icons are referenced by name through the `<x-icon>` component / `Icon` attribute, not raw SVG.
 - User-facing text is translatable: wrap it in `__()` (or `trans_choice()` for counts) using the English string as the key, and pass interpolated values as named `:placeholders` rather than concatenating. Enum labels are translated in the enum's own `label()` method; auto-entity column labels are translated centrally by `clean_attribute_name()`. Add new strings to `lang/en.json` — see `lang/README.md`.
+
+## Working preferences
+
+- Do not schedule check-ins on PRs: no `send_later`/scheduled tasks, webhooks (`watch_url`), PR activity subscriptions or other periodic checks.
+- Do not add code comments unless the behaviour is genuinely obscure; prefer clear naming, and think carefully before adding any comment.
