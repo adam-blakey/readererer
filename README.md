@@ -7,7 +7,7 @@
 </p>
 
 <p align="center">
-  <img alt="Laravel 11" src="https://img.shields.io/badge/Laravel-11-FF2D20?logo=laravel&logoColor=white">
+  <img alt="Laravel 13" src="https://img.shields.io/badge/Laravel-13-FF2D20?logo=laravel&logoColor=white">
   <img alt="PHP 8.4.27+" src="https://img.shields.io/badge/PHP-8.4.27%2B-777BB4?logo=php&logoColor=white">
   <img alt="Tabler UI" src="https://img.shields.io/badge/UI-Tabler-0054A6">
   <img alt="SQLite" src="https://img.shields.io/badge/DB-SQLite-003B57?logo=sqlite&logoColor=white">
@@ -65,7 +65,7 @@ always use the latest reply per member.
 
 | Layer      | Choice                                                             |
 | ---------- | ------------------------------------------------------------------ |
-| Framework  | Laravel 11 (PHP 8.4.27+)                                           |
+| Framework  | Laravel 13 (PHP 8.4.27+)                                           |
 | Frontend   | Blade + [Tabler](https://tabler.io) UI, bundled by Vite           |
 | Database   | SQLite (`database/database.sqlite`)                               |
 | PDFs       | `barryvdh/laravel-dompdf`                                          |
