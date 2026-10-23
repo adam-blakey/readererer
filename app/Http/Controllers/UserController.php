@@ -110,7 +110,7 @@ class UserController extends Controller
     {
         $user->load(['ensembles']);
 
-        $instrumentFamilies = \App\Models\InstrumentFamily::whereIn(
+        $instrumentFamilies = InstrumentFamily::whereIn(
             'id', $user->ensembles->pluck('pivot.instrument_family_id')->unique()
         )->get()->keyBy('id');
 
