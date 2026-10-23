@@ -16,19 +16,19 @@
 
 ---
 
-Readererer is a web app for running the admin side of a music ensemble. It keeps
-track of who plays what, when the group rehearses and performs, and — crucially —
-**who is turning up**. Members reply to a term's attendance poll, and conductors and
-committee members get a clear register of attending / not attending / not-yet-replied
-for every rehearsal and concert. Alongside attendance it manages ensembles, seating
-plans, setup-group and van-driver rosters, and a library of setlists, pieces and parts.
+Readererer is a web application for administering a music ensemble. It records
+members, ensembles, rehearsal and concert dates, and attendance. Members reply to a
+term's attendance poll, and conductors and committee members view the replies for each
+date as attending, not attending or not yet replied. The application also manages
+seating plans, setup-group and van-driver rosters, and a library of setlists, pieces
+and parts.
 
 ## The attendance poll
 
-The heart of the app. Each term shows every member against every rehearsal and concert
-date, with a three-state control per date — **attending** (green), **not attending**
-(red) or **not yet replied** (grey `?`). Members can update their own answers; totals
-always use the latest reply per member.
+Each term lists every member against every rehearsal and concert date. Each date has a
+three-state control: **attending** (green), **not attending** (red) or **not yet
+replied** (grey `?`). Members can change their own answers. Replies are stored as a
+history, and totals use the latest reply for each member.
 
 ![Attendance poll for an ensemble across a term](docs/images/attendance-poll.png)
 
@@ -36,30 +36,35 @@ always use the latest reply per member.
 
 **Running the calendar (attendance diary)**
 
-- **Members & users** with per-ensemble instrument family and seat position.
-- **Ensembles** — a member can belong to several; each carries its own roster and seating.
-- **Terms & term dates** — a date with no ensemble is a rehearsal, otherwise it is that
-  ensemble's concert. Terms cache their latest date for quick display.
-- **Attendance polls & register** — three-state replies, with attending / not-attending /
-  unknown totals per date (latest reply per member wins). Behaviour is tunable via config
-  (`readererer_assume_attending`, `readererer_allow_change_to_unknown`,
-  `readererer_repeating_headings`).
-- **Seating plans** — per-ensemble seat rows and columns, downloadable as a PDF.
-- **Setup groups & van drivers** — rosters for who sets up and who drives, per date.
+- **Members and users** have an instrument family and seat position for each ensemble
+  they belong to.
+- **Ensembles** can share members. Each ensemble has its own roster and seating.
+- **Terms and term dates**: a date with no ensemble is a rehearsal for all members; a
+  date with an ensemble is that ensemble's concert. Each term stores its latest date.
+- **Attendance polls and register**: polls record three-state replies and give
+  attending, not-attending and unknown totals per date. The register records actual
+  attendance on the day (present, absent or late) for each member, date and ensemble.
+  Poll behaviour is set by the config keys `readererer_assume_attending`,
+  `readererer_allow_change_to_unknown` and `readererer_repeating_headings`.
+- **Seating plans** set seat rows and columns for each ensemble and can be downloaded
+  as a PDF.
+- **Setup groups and van drivers** are rosters of who sets up and who drives on each
+  date.
 
 **The music library (digital sheet music)**
 
-- **Composers, pieces and parts** — each part is tied to an instrument family.
-- **Setlists** — group pieces together and attach them to term dates.
+- **Composers, pieces and parts**: each part belongs to an instrument family.
+- **Setlists** group pieces and can be attached to term dates.
 
 **Throughout**
 
-- **Role-based access** — `Guest`, `Ensemble` (a shared login that can only fill in
-  polls), `Member`, `Moderator` and `Admin`.
-- **Convention-driven CRUD** — most entities share generic index / show / form views that
-  are built by reflecting over the model, so adding a field to a migration and `$fillable`
-  is usually enough to surface it in the UI.
-- **Soft deletes with restore**, sortable index tables, and Tabler icons throughout.
+- **Role-based access** uses five roles: `Guest`, `Ensemble`, `Member`, `Moderator`
+  and `Admin`. The `Ensemble` role is a shared login that can only fill in polls.
+- **Generic CRUD**: most entities use shared index, show and form views that are built
+  from the model. A new field needs a migration column and a `$fillable` entry to appear
+  in the interface.
+- **Soft deletes** allow deleted records to be restored. Index tables are sortable, and
+  the interface uses Tabler icons.
 
 ## Tech stack
 
@@ -91,18 +96,17 @@ touch database/database.sqlite
 php artisan migrate:fresh --seed
 ```
 
-Run the app with the PHP dev server and Vite in two terminals:
+Start the PHP development server and Vite in two terminals:
 
 ```bash
 php artisan serve   # http://localhost:8000
 npm run dev         # Vite dev server / HMR
 ```
 
-Then log in with one of the seeded accounts — `admin` / `password` gives you the full
-admin view (there is one seeded user per role: `guest`, `ensemble`, `member`,
-`moderator`, `admin`, all with the password `password`).
+The seeder creates one user for each role: `guest`, `ensemble`, `member`, `moderator`
+and `admin`. All use the password `password`. The `admin` user has full access.
 
-To build assets for production instead of running the dev server:
+To build assets for production instead of running the development server:
 
 ```bash
 npm run build
@@ -119,8 +123,8 @@ php artisan test --testsuite=Unit,Feature,Browser
 ./vendor/bin/pint --test         # check formatting only
 ```
 
-Browser tests in `tests/Browser` drive a real browser through
-[Pest's browser plugin](https://pestphp.com/docs/browser-testing). They need
+Browser tests in `tests/Browser` run in a real browser through
+[Pest's browser plugin](https://pestphp.com/docs/browser-testing). They require
 Playwright's browsers and the built assets:
 
 ```bash
@@ -128,19 +132,20 @@ npx playwright install
 npm run build
 ```
 
-Run `npm run build` before the suite: `tests/Unit/IconComponentTest.php` reads the
-icons that the build copies into `public/build/icons`, and fails without them.
+`npm run build` must be run before the test suite. `tests/Unit/IconComponentTest.php`
+reads the icons that the build copies into `public/build/icons` and fails if they are
+missing.
 
-Both commands run on every pull request (`.github/workflows/ci.yml`). The Pint check
-is limited to the PHP files the pull request touches, because the repository does not
-pass a whole-repo `pint --test` yet.
+Tests and the Pint check run on every pull request (`.github/workflows/ci.yml`). The
+Pint check covers only the PHP files changed in the pull request, because the
+repository does not yet pass `pint --test` across all files.
 
 ## Docker
 
-The `Dockerfile` builds a self-contained image (Apache + PHP 8.4, with assets and
-Composer dependencies baked in) that is published to the GitHub Container Registry
-as the `dev` and `qa` tags. No `.env` file is included, so configuration is passed
-in as environment variables:
+The `Dockerfile` builds an image containing Apache, PHP 8.4, the built assets and the
+Composer dependencies. The image is published to the GitHub Container Registry with the
+tags `dev` and `qa`. The image contains no `.env` file, so configuration is passed as
+environment variables:
 
 ```bash
 docker run -d --name readererer-dev -p 8080:80 \
@@ -150,28 +155,23 @@ docker run -d --name readererer-dev -p 8080:80 \
   ghcr.io/adam-blakey/readererer:dev
 ```
 
-`APP_KEY` is required. Run `php artisan key:generate --show` first and paste the
-`base64:` value it prints — pass the literal key, not a `$(...)` substitution, which
-is not expanded inside a compose file or an env-file and reaches the app as a string.
-The container creates the SQLite database and runs migrations on start; mount a volume
-over `/var/www/html/database` to keep it across container replacements, or point
-`DB_CONNECTION`/`DB_HOST`/`DB_DATABASE` at MySQL instead. Set `SKIP_MIGRATIONS=true`
-to leave the schema alone at boot. Application logs go to the container's stderr,
-so `docker logs readererer-dev` shows any errors.
+`APP_KEY` is required. Generate one with `php artisan key:generate --show` and pass the
+printed `base64:` value literally. A `$(...)` substitution is not expanded in a compose
+file or env-file and is passed to the application as a string.
+
+On start, the container creates the SQLite database and runs migrations. Mounting a
+volume at `/var/www/html/database` keeps the database when the container is replaced.
+MySQL can be used instead by setting `DB_CONNECTION`, `DB_HOST` and `DB_DATABASE`.
+Setting `SKIP_MIGRATIONS=true` skips migrations at start. Application logs are written
+to the container's stderr and can be read with `docker logs readererer-dev`.
 
 ## Deployment
 
-Deployment is GitLab-CI driven (`.gitlab-ci.yml`) using Laravel Envoy (`Envoy.blade.php`)
-over SSH. Pushing a `v*` tag deploys `main` to the demo server; the `develop` branch
-deploys to the test server. The deploy story pulls the latest code, installs
-dependencies, compiles assets, migrates (optionally seeds) and brings the app back up.
-
-## Project status
-
-Active development. Work is organised into two phases — the **attendance diary** (members,
-ensembles, terms, polls, seating, rosters, notifications) and the **digital sheet music**
-library (composers, pieces, parts, setlists). See [`docs/todos.md`](docs/todos.md) for the
-outstanding work in each phase.
+Deployment runs through GitLab CI (`.gitlab-ci.yml`) and Laravel Envoy
+(`Envoy.blade.php`) over SSH. Pushing a `v*` tag deploys `main` to the demo server.
+Pushing to the `develop` branch deploys to the test server. The deploy story pulls the
+latest code, installs dependencies, compiles assets, runs migrations (optionally
+seeding), and brings the application back up.
 
 ## Copyright
 
