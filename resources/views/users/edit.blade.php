@@ -74,7 +74,6 @@
 								<div class="mb-3">
 									<label class="form-label">{{ __('Setup group') }}</label>
 									<select name="setup_group" class="form-select @error('setup_group') is-invalid @enderror">
-										{{-- Belonging to a setup group is optional, so an empty selection is a valid answer rather than a prompt. --}}
 										<option value="" @selected(! old('setup_group', $user->setup_group_id))>{{ __('No setup group') }}</option>
 										@foreach ($setupGroups as $setupGroup)
 											<option value="{{ $setupGroup->id }}" {{ (int) old('setup_group', $user->setup_group_id) === $setupGroup->id ? 'selected' : '' }}>{{ $setupGroup->name }}</option>
