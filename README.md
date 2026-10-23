@@ -173,13 +173,6 @@ Pushing to the `develop` branch deploys to the test server. The deploy story pul
 latest code, installs dependencies, compiles assets, runs migrations (optionally
 seeding), and brings the application back up.
 
-## Project status
-
-The project is in active development. Work is split into two phases: the **attendance
-diary** (members, ensembles, terms, polls, seating, rosters, notifications) and the
-**digital sheet music** library (composers, pieces, parts, setlists).
-[`docs/todos.md`](docs/todos.md) lists the outstanding work in each phase.
-
 ## Copyright
 
 © 2024–present Adam Blakey. All rights reserved.
