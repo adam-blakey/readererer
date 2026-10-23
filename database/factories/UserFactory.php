@@ -30,7 +30,7 @@ class UserFactory extends Factory
         return [
             'first_name' => $this->faker->firstName(),
             'last_name' => $this->faker->lastName(),
-            'username' => $this->faker->userName(),
+            'username' => $this->faker->unique()->userName(),
             'email' => $this->faker->unique()->safeEmail(),
             'email_verified_at' => now(),
             'password' => static::$password ??= Hash::make('password'),

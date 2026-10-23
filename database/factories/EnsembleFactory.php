@@ -19,7 +19,7 @@ class EnsembleFactory extends Factory
     public function definition(): array
     {
         return [
-            'name' => ucfirst($this->faker->words(2, true)),
+            'name' => ucfirst($this->faker->unique()->words(2, true)),
             'slug' => fn (array $attributes) => Str::slug($attributes['name']),
             'image' => $this->faker->imageUrl(),
             'show' => $this->faker->boolean(),
