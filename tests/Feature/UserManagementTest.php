@@ -34,10 +34,27 @@ test('a user can be created with a generated username', function () {
     expect($user)->not->toBeNull();
     expect($user->username)->toBe('ada.lovelace');
     expect($user->role)->toBe(UserRole::Member);
+    expect($user->setup_group_id)->toBe($setupGroup->id);
     $response->assertRedirect(route('users.show', $user));
 });
 
-test('creating a user requires names and an existing setup group', function () {
+test('a user can be created without a setup group', function () {
+    $response = $this->actingAs(make_user(UserRole::Admin))->post(route('users.store'), [
+        'first_name' => 'Ada',
+        'last_name' => 'Lovelace',
+        'email' => 'ada@example.com',
+        'role' => UserRole::Member->value,
+        'setup_group' => '',
+    ]);
+
+    $response->assertSessionHasNoErrors();
+
+    $user = User::where('email', 'ada@example.com')->first();
+    expect($user)->not->toBeNull();
+    expect($user->setup_group_id)->toBeNull();
+});
+
+test('creating a user requires names and rejects an unknown setup group', function () {
     $this->actingAs(make_user(UserRole::Admin))
         ->post(route('users.store'), [
             'email' => 'ada@example.com',
@@ -136,6 +153,24 @@ test('a user can be updated including their setup group', function () {
     expect($user->email)->toBe('grace@example.com');
     expect($user->role)->toBe(UserRole::Moderator);
     expect($user->setup_group_id)->toBe($setupGroup->id);
+});
+
+test('a user\'s setup group can be cleared', function () {
+    $setupGroup = make_setup_group_for_users();
+    $user = make_user(UserRole::Member, ['setup_group_id' => $setupGroup->id]);
+
+    $this->actingAs(make_user(UserRole::Admin))
+        ->patch(route('users.update', $user), [
+            'first_name' => $user->first_name,
+            'last_name' => $user->last_name,
+            'email' => $user->email,
+            'role' => $user->role->value,
+            'setup_group' => '',
+        ])
+        ->assertSessionHasNoErrors()
+        ->assertRedirect(route('users.show', $user));
+
+    expect($user->fresh()->setup_group_id)->toBeNull();
 });
 
 test('updating a user rejects another user\'s email address', function () {
@@ -242,6 +277,19 @@ test('the user edit page renders when the user has no setup group or ensembles',
         ->get(route('users.edit', $user))
         ->assertOk()
         ->assertSee('not a member of any ensembles');
+});
+
+test('the user edit page offers an empty setup group option', function () {
+    $setupGroup = make_setup_group_for_users();
+    $user = make_user(UserRole::Member, ['setup_group_id' => $setupGroup->id]);
+
+    $html = $this->actingAs(make_user(UserRole::Admin))
+        ->get(route('users.edit', $user))
+        ->assertOk()
+        ->getContent();
+
+    expect($html)->toContain('No setup group')
+        ->toMatch('/<select name="setup_group"(?![^>]*\brequired\b)[^>]*>/');
 });
 
 test('a user can be added to an ensemble from the edit page', function () {

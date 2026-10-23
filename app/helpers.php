@@ -5,6 +5,7 @@ use App\Enums\Color;
 use App\Enums\RegisterStatus;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Str;
 
@@ -140,7 +141,7 @@ function get_create_fields(object $dummy): array
 
             $name = $fillable_entry;
             $type = 'class';
-            $nullable = $isBelongsToMany;
+            $nullable = $isBelongsToMany || belongs_to_is_optional($belongsToRelation, $columns);
             $select_multiple = $isBelongsToMany;
             $default_option = null;
             $icon = call_or_default($dummy, 'getIconForAttribute', $name, 'pencil');
@@ -185,6 +186,13 @@ function get_create_fields(object $dummy): array
     }
 
     return $fields;
+}
+
+function belongs_to_is_optional(BelongsTo $relation, Collection $columns): bool
+{
+    $column = $columns->firstWhere('name', $relation->getForeignKeyName());
+
+    return (bool) ($column['nullable'] ?? false);
 }
 
 function call_or_default(object $object, string $method, mixed $argument, mixed $defaultValue = null): mixed

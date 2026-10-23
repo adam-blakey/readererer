@@ -68,8 +68,8 @@ class UserController extends Controller
 
         $setup_group_id = Arr::pull($attributes, 'setup_group');
         $user = User::create($attributes);
-        $setup_group = SetupGroup::find($setup_group_id);
-        $user->setup_group()->associate($setup_group);
+        $user->setup_group()->associate($setup_group_id ? SetupGroup::find($setup_group_id) : null);
+        $user->save();
 
         return to_route('users.show', $user);
     }
@@ -98,9 +98,8 @@ class UserController extends Controller
         $attributes = $request->validated();
 
         $setup_group_id = Arr::pull($attributes, 'setup_group');
-        $setup_group = SetupGroup::find($setup_group_id);
         $user->update($attributes);
-        $user->setup_group()->associate($setup_group);
+        $user->setup_group()->associate($setup_group_id ? SetupGroup::find($setup_group_id) : null);
 
         $user->save();
 
