@@ -112,10 +112,20 @@ npm run build
 
 ```bash
 php artisan test                 # or ./vendor/bin/pest
-./vendor/bin/pest --filter 'name of test'
+php artisan test --filter 'name of test'
+php artisan test --testsuite=Unit,Feature,Browser
 
 ./vendor/bin/pint                # format
 ./vendor/bin/pint --test         # check formatting only
+```
+
+Browser tests in `tests/Browser` drive a real browser through
+[Pest's browser plugin](https://pestphp.com/docs/browser-testing). They need
+Playwright's browsers and the built assets:
+
+```bash
+npx playwright install
+npm run build
 ```
 
 ## Docker
