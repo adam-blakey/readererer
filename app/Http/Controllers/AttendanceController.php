@@ -2,12 +2,12 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Attendance;
-use App\Models\User;
-use App\Models\Ensemble;
-use App\Models\Term;
 use App\Http\Requests\StoreAttendanceRequest;
 use App\Http\Requests\UpdateAttendanceRequest;
+use App\Models\Attendance;
+use App\Models\Ensemble;
+use App\Models\Term;
+use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
@@ -27,7 +27,7 @@ class AttendanceController extends Controller
 
         return view('attendances.index', [
             'attendances' => $attendances,
-            'page_name' => __('Attendance updates')
+            'page_name' => __('Attendance updates'),
         ]);
     }
 
@@ -40,14 +40,16 @@ class AttendanceController extends Controller
         $this->authorize('view', $ensemble);
 
         $members = User::latest()
-        ->with('attendances')
-        ->with('ensembles')
-        ->with('setup_group')
-        ->get()
-        ->filter(function($user) use ($ensemble) { return $user->ensembles->contains($ensemble) && $user->ensembles->where('id', $ensemble->id)->first()->pivot->instrument_family_id != null; })
-        ->values();
+            ->with('attendances')
+            ->with('ensembles')
+            ->with('setup_group')
+            ->get()
+            ->filter(function ($user) use ($ensemble) {
+                return $user->ensembles->contains($ensemble) && $user->ensembles->where('id', $ensemble->id)->first()->pivot->instrument_family_id != null;
+            })
+            ->values();
 
-        $page_name = $ensemble->name . ': ' . $term->name;
+        $page_name = $ensemble->name.': '.$term->name;
 
         return view('attendances.poll', [
             'members' => $members,
@@ -65,7 +67,7 @@ class AttendanceController extends Controller
 
         $request_ip = $request->ip();
 
-        $request->collect()->each(function($parameter_value, $parameter_key) use ($request_ip, $ensemble) {
+        $request->collect()->each(function ($parameter_value, $parameter_key) use ($request_ip, $ensemble) {
             if ($parameter_key == '_token') {
                 return;
             }
@@ -84,7 +86,7 @@ class AttendanceController extends Controller
                 'ensemble_id' => $ensemble->id,
                 'status' => $parameter_value,
                 'edit_user_id' => Auth::user()->id,
-                'edit_ip' => $request_ip
+                'edit_ip' => $request_ip,
             ]);
         });
 

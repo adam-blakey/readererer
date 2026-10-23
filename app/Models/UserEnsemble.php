@@ -23,6 +23,6 @@ class UserEnsemble extends Pivot
 
     public function getSeatAttribute()
     {
-        return $this->seat_column . $this->seat_row;
+        return $this->seat_column.$this->seat_row;
     }
 }

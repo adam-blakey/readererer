@@ -9,7 +9,7 @@ use SDamian\Larasort\AutoSortable;
 
 class Setlist extends Model
 {
-    use HasFactory, AutoSortable, SoftDeletes;
+    use AutoSortable, HasFactory, SoftDeletes;
 
     protected $visible = [
         'name',

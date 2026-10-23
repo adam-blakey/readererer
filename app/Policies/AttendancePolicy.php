@@ -2,10 +2,10 @@
 
 namespace App\Policies;
 
+use App\Enums\UserRole;
 use App\Models\Attendance;
 use App\Models\User;
 use Illuminate\Auth\Access\Response;
-use App\Enums\UserRole;
 
 class AttendancePolicy
 {
@@ -36,14 +36,14 @@ class AttendancePolicy
     /**
      * Determine whether the user can interact with polls.
      */
-//    public function poll(User $user)
-//    {
-//        if ($user->role >= UserRole::Moderator) {
-//            return Response::allow();
-//        }
-//
-//        return Response::deny();
-//    }
+    //    public function poll(User $user)
+    //    {
+    //        if ($user->role >= UserRole::Moderator) {
+    //            return Response::allow();
+    //        }
+    //
+    //        return Response::deny();
+    //    }
 
     /**
      * Determine whether the user can create models.

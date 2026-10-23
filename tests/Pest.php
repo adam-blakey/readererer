@@ -6,6 +6,8 @@ use App\Models\InstrumentFamily;
 use App\Models\Term;
 use App\Models\TermDate;
 use App\Models\User;
+use Illuminate\Foundation\Testing\RefreshDatabase;
+use Tests\TestCase;
 
 /*
 |--------------------------------------------------------------------------
@@ -19,14 +21,14 @@ use App\Models\User;
 */
 
 uses(
-    Tests\TestCase::class,
-    Illuminate\Foundation\Testing\RefreshDatabase::class,
+    TestCase::class,
+    RefreshDatabase::class,
 )->in('Feature', 'Unit');
 
 // Browser tests drive a real browser, so they need the built assets (`npm run build`).
 uses(
-    Tests\TestCase::class,
-    Illuminate\Foundation\Testing\RefreshDatabase::class,
+    TestCase::class,
+    RefreshDatabase::class,
 )->beforeEach(function () {
     $this->withVite();
 })->in('Browser');

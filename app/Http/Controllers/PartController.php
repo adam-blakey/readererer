@@ -2,9 +2,9 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Part;
 use App\Http\Requests\StorePartRequest;
 use App\Http\Requests\UpdatePartRequest;
+use App\Models\Part;
 
 class PartController extends Controller
 {

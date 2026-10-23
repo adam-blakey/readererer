@@ -3,7 +3,6 @@
 namespace App\Traits;
 
 use App\Models\Ensemble;
-use App\Models\InstrumentFamily;
 use App\Models\Term;
 use Illuminate\Support\Carbon;
 
@@ -25,7 +24,7 @@ trait ShowEnsemble
 
         $next_concert = $upcoming_terms
             ->flatMap(fn ($term) => $term->term_dates)
-            ->filter(fn ($term_date) => (int)$term_date->concert_ensemble_id === (int)$ensemble->id)
+            ->filter(fn ($term_date) => (int) $term_date->concert_ensemble_id === (int) $ensemble->id)
             ->where('start_datetime', '>', Carbon::now())
             ->sortBy('start_datetime')
             ->first();
@@ -35,7 +34,7 @@ trait ShowEnsemble
             'upcomingTerms' => $upcoming_terms,
             'nextRehearsal' => $next_rehearsal,
             'nextConcert' => $next_concert,
-            'page_name' => $ensemble->name
+            'page_name' => $ensemble->name,
         ]);
     }
 }

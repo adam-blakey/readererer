@@ -3,11 +3,10 @@
 namespace Database\Seeders;
 
 use App\Enums\UserRole;
-use App\Models\User;
-use Illuminate\Database\Console\Seeds\WithoutModelEvents;
-use Illuminate\Database\Seeder;
 use App\Models\Ensemble;
 use App\Models\InstrumentFamily;
+use App\Models\User;
+use Illuminate\Database\Seeder;
 
 class EnsembleSeeder extends Seeder
 {
@@ -36,7 +35,7 @@ class EnsembleSeeder extends Seeder
             shuffle($users);
 
             for ($i = 0; $i < $no_users; $i++) {
-                $ensemble->users()->attach(array_pop($users), ['instrument_family_id' => $instrument_families->random()->id, 'seat_row' => chr(rand(1, 5)+65), 'seat_column' => rand(1, 10)]);
+                $ensemble->users()->attach(array_pop($users), ['instrument_family_id' => $instrument_families->random()->id, 'seat_row' => chr(rand(1, 5) + 65), 'seat_column' => rand(1, 10)]);
             }
         });
 

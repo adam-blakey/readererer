@@ -2,11 +2,10 @@
 
 namespace App\Models;
 
+use App\Enums\AttendanceStatus;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use App\Enums\AttendanceStatus;
 
 class Attendance extends Model
 {
@@ -50,7 +49,7 @@ class Attendance extends Model
 
     public function getNameAttribute(): string
     {
-        return $this->ensemble->name . ': ' . $this->term_date->term->name;
+        return $this->ensemble->name.': '.$this->term_date->term->name;
     }
 
     public function getStatusTextAttribute(): string

@@ -1,5 +1,6 @@
 <?php
 
+use App\Enums\Color;
 use App\Enums\UserRole;
 use App\Models\SetupGroup;
 
@@ -17,7 +18,7 @@ test('a setup group can be created with van drivers', function () {
     $setupGroup = SetupGroup::where('name', 'Group A')->first();
     expect($setupGroup)->not->toBeNull();
     expect($setupGroup->week)->toBe(2);
-    expect($setupGroup->color)->toBe(\App\Enums\Color::Blue);
+    expect($setupGroup->color)->toBe(Color::Blue);
     expect($setupGroup->van_drivers->pluck('id')->sort()->values()->all())
         ->toBe(collect([$driverOne->id, $driverTwo->id])->sort()->values()->all());
     $response->assertRedirect(route('setupgroups.show', $setupGroup));
@@ -92,7 +93,7 @@ test('updating a setup group replaces its attributes and van drivers', function 
     $setupGroup->refresh();
     expect($setupGroup->name)->toBe('Group Z');
     expect($setupGroup->week)->toBe(3);
-    expect($setupGroup->color)->toBe(\App\Enums\Color::Green);
+    expect($setupGroup->color)->toBe(Color::Green);
     expect($setupGroup->van_drivers->pluck('id')->all())->toBe([$newDriver->id]);
 });
 
