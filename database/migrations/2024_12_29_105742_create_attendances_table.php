@@ -1,10 +1,10 @@
 <?php
 
+use App\Models\TermDate;
+use App\Models\User;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
-use App\Models\User;
-use App\Models\TermDate;
 
 return new class extends Migration
 {

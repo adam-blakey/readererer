@@ -1,5 +1,6 @@
 <?php
 
+use App\Enums\Color;
 use App\Enums\UserRole;
 use App\Models\InstrumentFamily;
 
@@ -20,7 +21,7 @@ test('an instrument family can be created with a colour', function () {
 
     $instrumentFamily = InstrumentFamily::where('name', 'Bassoons')->first();
     expect($instrumentFamily)->not->toBeNull();
-    expect($instrumentFamily->color)->toBe(\App\Enums\Color::Teal);
+    expect($instrumentFamily->color)->toBe(Color::Teal);
     $response->assertRedirect(route('instrumentfamilys.show', $instrumentFamily));
 });
 
@@ -58,7 +59,7 @@ test('an instrument family can be viewed and updated', function () {
         ->assertRedirect(route('instrumentfamilys.show', $instrumentFamily));
 
     expect($instrumentFamily->fresh()->name)->toBe('Contrabassoons');
-    expect($instrumentFamily->fresh()->color)->toBe(\App\Enums\Color::Pink);
+    expect($instrumentFamily->fresh()->color)->toBe(Color::Pink);
 });
 
 test('deleting an instrument family soft deletes it and admins can restore it', function () {

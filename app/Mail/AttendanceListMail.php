@@ -2,6 +2,7 @@
 
 namespace App\Mail;
 
+use App\Models\Ensemble;
 use App\Models\TermDate;
 use Illuminate\Bus\Queueable;
 use Illuminate\Mail\Mailable;
@@ -45,7 +46,7 @@ class AttendanceListMail extends Mailable
             return ($this->termDate->concert_ensemble?->users ?? collect())->values();
         }
 
-        return \App\Models\Ensemble::with('users')
+        return Ensemble::with('users')
             ->get()
             ->flatMap->users
             ->unique('id')

@@ -2,10 +2,11 @@
 
 namespace Database\Factories;
 
+use App\Models\Instrument;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
- * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Models\Instrument>
+ * @extends Factory<Instrument>
  */
 class InstrumentFactory extends Factory
 {

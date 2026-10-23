@@ -4,13 +4,14 @@ namespace Database\Factories;
 
 use App\Enums\AttendanceStatus;
 use App\Enums\UserRole;
-use Illuminate\Database\Eloquent\Factories\Factory;
-use App\Models\User;
-use App\Models\TermDate;
+use App\Models\Attendance;
 use App\Models\Ensemble;
+use App\Models\TermDate;
+use App\Models\User;
+use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
- * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Models\Attendance>
+ * @extends Factory<Attendance>
  */
 class AttendanceFactory extends Factory
 {
