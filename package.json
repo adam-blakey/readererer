@@ -9,32 +9,26 @@
         "build": "vite build"
     },
     "devDependencies": {
-        "autoprefixer": "^10.4.19",
-        "axios": "^1.16.0",
-        "laravel-vite-plugin": "^3.1",
+        "autoprefixer": "^10.6.1",
+        "axios": "^1.20.0",
+        "laravel-vite-plugin": "^3.2",
+        "playwright": "^1.64.1",
         "postcss": "^8.5.25",
-        "tailwindcss": "^3.4.4",
         "vite": "^8.1"
     },
     "dependencies": {
-        "@tabler/core": "^1.4.0",
-        "@tabler/icons": "^3.44.0",
-        "apexcharts": "^3.50.0",
-        "autoprefixer": "^10.4.19",
-        "autosize": "^6.0.1",
-        "axios": "^1.16.0",
-        "choices.js": "^10.2.0",
-        "countup.js": "^2.8.0",
-        "flatpickr": "^4.6.13",
-        "imask": "^6.6.3",
-        "jsvectormap": "^1.6.0",
-        "laravel-vite-plugin": "^3.1",
-        "litepicker": "^2.0.12",
-        "nouislider": "^15.8.1",
+        "@tabler/core": "^1.7.0",
+        "@tabler/icons": "^3.49.0",
+        "autoprefixer": "^10.6.1",
+        "axios": "^1.20.0",
+        "laravel-vite-plugin": "^3.2",
         "postcss": "^8.5.25",
-        "tailwindcss": "^3.4.4",
-        "tom-select": "^2.6.2",
         "vite": "^8.1",
         "vite-plugin-static-copy": "^4.1.1"
+    },
+    "overrides": {
+        "vite-plugin-static-copy": {
+            "chokidar": "^4.0.3"
+        }
     }
 }

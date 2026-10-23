@@ -20,3 +20,4 @@ yarn-error.log
 /.vscode
 /storage/debugbar
 /version.json
+/tests/Browser/Screenshots
