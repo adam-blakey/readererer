@@ -3,17 +3,17 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Carbon;
 use SDamian\Larasort\AutoSortable;
 
 class Term extends Model
 {
+    use AutoSortable;
     use HasFactory;
     use SoftDeletes;
-    use AutoSortable;
 
     protected $visible = [
         'name',
@@ -44,7 +44,7 @@ class Term extends Model
     protected $fillable = [
         'name',
         'slug',
-        'term_dates'
+        'term_dates',
     ];
 
     public function casts(): array
@@ -101,29 +101,24 @@ class Term extends Model
 
     public function getFormattedTermDateRangeAttribute(): string
     {
-        if ($this->term_dates->count() === 0)
-        {
+        if ($this->term_dates->count() === 0) {
             return '–';
-        }
-        else
-        {
+        } else {
             $first = $this->earliestDate;
             $last = $this->latestDate;
 
             // Get human-readable length.
             $months = $first->diff($last)->months;
 
-            if ($months == 0)
-            {
-                if ($first->diff($last)->day == 0)
-                {
+            if ($months == 0) {
+                if ($first->diff($last)->day == 0) {
                     return $first->format('Y-m-d');
                 }
 
-                return 'less than a month, ' . $first->format('Y-m-d') . ' to ' . $last->format('Y-m-d');
+                return 'less than a month, '.$first->format('Y-m-d').' to '.$last->format('Y-m-d');
             }
 
-            return 'about ' . $months . ' months, ' . $first->format('Y-m-d') . ' to ' . $last->format('Y-m-d');
+            return 'about '.$months.' months, '.$first->format('Y-m-d').' to '.$last->format('Y-m-d');
         }
     }
 }

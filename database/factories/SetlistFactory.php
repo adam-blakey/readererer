@@ -2,10 +2,11 @@
 
 namespace Database\Factories;
 
+use App\Models\Setlist;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
- * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Models\Setlist>
+ * @extends Factory<Setlist>
  */
 class SetlistFactory extends Factory
 {

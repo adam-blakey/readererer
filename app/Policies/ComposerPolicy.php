@@ -5,7 +5,6 @@ namespace App\Policies;
 use App\Models\Composer;
 use App\Models\User;
 use Illuminate\Auth\Access\Response;
-use App\Enums\UserRole;
 
 class ComposerPolicy
 {

@@ -3,20 +3,18 @@
 namespace App\Models;
 
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
-use App\Traits\HasPropertyIcons;
+use App\Enums\UserRole;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
-use App\Enums\UserRole;
-use Carbon\Carbon;
 use Illuminate\Support\Carbon as SupportCarbon;
 use Illuminate\Support\Str;
 use SDamian\Larasort\AutoSortable;
 
 class User extends Authenticatable
 {
-    use HasFactory, Notifiable, SoftDeletes, AutoSortable;
+    use AutoSortable, HasFactory, Notifiable, SoftDeletes;
 
     protected $visible = [
         'image',
@@ -115,13 +113,13 @@ class User extends Authenticatable
      */
     public static function generateUniqueUsername(string $firstName, string $lastName): string
     {
-        $base = Str::slug($firstName . ' ' . $lastName, '.');
+        $base = Str::slug($firstName.' '.$lastName, '.');
         $username = $base;
         $suffix = 1;
 
         while (static::withTrashed()->where('username', $username)->exists()) {
             $suffix++;
-            $username = $base . '.' . $suffix;
+            $username = $base.'.'.$suffix;
         }
 
         return $username;
@@ -129,7 +127,7 @@ class User extends Authenticatable
 
     public function getInitialsAttribute(): string
     {
-        return $this->first_name[0] . $this->last_name[0];
+        return $this->first_name[0].$this->last_name[0];
     }
 
     public function getRoleDescriptionAttribute(): string
@@ -206,7 +204,7 @@ class User extends Authenticatable
 
     public function getNameAttribute(): string
     {
-        return $this->first_name . ' ' . $this->last_name;
+        return $this->first_name.' '.$this->last_name;
     }
 
     public function getFirstNameInitialAttribute(): string
@@ -219,26 +217,25 @@ class User extends Authenticatable
         return $this->last_name[0];
     }
 
-    public function membership($ensemble): string {
+    public function membership($ensemble): string
+    {
         $membership = $this->ensembles->firstWhere('id', $ensemble->id);
-        if (!$membership) {
+        if (! $membership) {
             return __('Not a member');
         }
 
         $pivot = $membership->pivot;
         $instrument_name = $pivot->instrumentFamily?->name ?? '';
-        $seat_name = $pivot->seat_row . $pivot->seat_column;
+        $seat_name = $pivot->seat_row.$pivot->seat_column;
 
-        if (!$instrument_name && !$seat_name) {
+        if (! $instrument_name && ! $seat_name) {
             return __('No membership information');
-        }
-        elseif ($instrument_name && !$seat_name) {
+        } elseif ($instrument_name && ! $seat_name) {
             return $instrument_name;
-        }
-        elseif (!$instrument_name && $seat_name) {
+        } elseif (! $instrument_name && $seat_name) {
             return $seat_name;
         }
 
-        return $seat_name . " in " . $instrument_name;
+        return $seat_name.' in '.$instrument_name;
     }
 }

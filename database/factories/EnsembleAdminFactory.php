@@ -2,10 +2,11 @@
 
 namespace Database\Factories;
 
+use App\Models\EnsembleAdmin;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
- * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Models\EnsembleAdmin>
+ * @extends Factory<EnsembleAdmin>
  */
 class EnsembleAdminFactory extends Factory
 {

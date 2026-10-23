@@ -12,7 +12,8 @@ class Part extends Model
     use HasFactory;
     use SoftDeletes;
 
-    public function piece(): HasOne {
+    public function piece(): HasOne
+    {
         return $this->hasOne(Piece::class);
     }
 }

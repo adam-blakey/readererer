@@ -2,9 +2,9 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\TermDate;
 use App\Http\Requests\StoreTermDateRequest;
 use App\Http\Requests\UpdateTermDateRequest;
+use App\Models\TermDate;
 
 class TermDateController extends Controller
 {

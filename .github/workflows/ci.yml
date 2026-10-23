@@ -19,7 +19,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
 
       - name: Setup PHP
         uses: shivammathur/setup-php@v2
@@ -34,7 +34,7 @@ jobs:
           php artisan key:generate
 
       - name: Setup Node
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v5
         with:
           node-version: '24'
           cache: npm
@@ -48,6 +48,9 @@ jobs:
       - name: Build frontend assets
         run: npm run build
 
+      - name: Install Playwright
+        run: npx playwright install --with-deps chromium
+
       - name: Run the test suite
         run: php artisan test
 
@@ -56,7 +59,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
         with:
           fetch-depth: 0
 
@@ -69,20 +72,5 @@ jobs:
       - name: Install Composer dependencies
         run: composer install --no-interaction --no-progress --prefer-dist --no-scripts
 
-      - name: List the PHP files this pull request touches
-        run: |
-          git fetch --no-tags origin "$GITHUB_BASE_REF"
-          # ACMR skips deleted files, which Pint cannot open.
-          git diff --name-only --diff-filter=ACMR \
-            "origin/$GITHUB_BASE_REF...HEAD" -- '*.php' > "$RUNNER_TEMP/changed-php-files.txt"
-          cat "$RUNNER_TEMP/changed-php-files.txt"
-
-      - name: Check the style of the changed files
-        run: |
-          # Pint falls back to linting the whole repository when it is given no
-          # paths, so an empty list has to short-circuit rather than reach it.
-          if [ ! -s "$RUNNER_TEMP/changed-php-files.txt" ]; then
-            echo "No PHP files changed; nothing for Pint to check."
-            exit 0
-          fi
-          xargs -r -a "$RUNNER_TEMP/changed-php-files.txt" ./vendor/bin/pint --test
+      - name: Check style
+        run: ./vendor/bin/pint --test

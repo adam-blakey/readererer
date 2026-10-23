@@ -10,8 +10,8 @@ use SDamian\Larasort\AutoSortable;
 
 class Composer extends Model
 {
-    use HasFactory;
     use AutoSortable;
+    use HasFactory;
 
     protected $visible = [
         'first_name',
@@ -35,13 +35,15 @@ class Composer extends Model
         ];
     }
 
-    public function pieces(): belongstoMany {
+    public function pieces(): BelongsToMany
+    {
         return $this->belongsToMany(Piece::class);
     }
 
-    protected function name(): Attribute {
+    protected function name(): Attribute
+    {
         return Attribute::make(
-            get: fn () => $this->first_name . ' ' . $this->last_name
+            get: fn () => $this->first_name.' '.$this->last_name
         );
     }
 }

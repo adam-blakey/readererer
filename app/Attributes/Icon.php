@@ -14,6 +14,5 @@ class Icon
      * carry icons without declaring real properties for them, which would
      * shadow the model's magic attribute handling.
      */
-    public function __construct(public string $name, public ?string $for = null) {
-    }
+    public function __construct(public string $name, public ?string $for = null) {}
 }

@@ -23,7 +23,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - name: Checkout repository
-      uses: actions/checkout@v4
+      uses: actions/checkout@v5
 
     # Checks composer.lock against the PHP Security Advisories Database.
     # The step (and therefore the job) fails when a known vulnerability is
@@ -68,7 +68,7 @@ jobs:
       actions: read
     steps:
     - name: Checkout repository
-      uses: actions/checkout@v4
+      uses: actions/checkout@v5
 
     # The psalm/psalm-github-security-scan Docker action is unmaintained and
     # ships PHP 8.2, which can no longer load this project's dependencies
