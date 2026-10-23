@@ -112,8 +112,8 @@ npm run build
 
 ```bash
 php artisan test                 # or ./vendor/bin/pest
-./vendor/bin/pest --filter 'name of test'
-./vendor/bin/pest --testsuite=Unit,Feature   # skip the browser tests
+php artisan test --filter 'name of test'
+php artisan test --testsuite=Unit,Feature,Browser
 
 ./vendor/bin/pint                # format
 ./vendor/bin/pint --test         # check formatting only
