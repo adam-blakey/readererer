@@ -2,6 +2,9 @@
 
 namespace Database\Factories;
 
+use App\Enums\UserRole;
+use App\Models\Ensemble;
+use App\Models\User;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
@@ -17,7 +20,8 @@ class EnsembleAdminFactory extends Factory
     public function definition(): array
     {
         return [
-            //
+            'ensemble_id' => Ensemble::factory(),
+            'admin_id' => User::factory()->state(['role' => UserRole::Admin]),
         ];
     }
 }

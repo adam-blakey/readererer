@@ -59,7 +59,7 @@ test('a create form checks the column\'s database default', function () {
 });
 
 test('an edit form checks the record\'s current colour', function () {
-    $setupGroup = SetupGroup::create(['name' => 'Group A', 'week' => 1, 'color' => Color::Teal]);
+    $setupGroup = SetupGroup::factory()->create(['name' => 'Group A', 'week' => 1, 'color' => Color::Teal]);
 
     $html = $this->actingAs(make_user(UserRole::Admin))
         ->get(route('setupgroups.edit', $setupGroup))

@@ -7,7 +7,7 @@ use App\Models\User;
 
 function make_setup_group_for_users(): SetupGroup
 {
-    return SetupGroup::create(['name' => 'Group A', 'week' => 1, 'color' => 'blue']);
+    return SetupGroup::factory()->create(['name' => 'Group A', 'week' => 1, 'color' => 'blue']);
 }
 
 test('the user index, create form and show page render', function () {

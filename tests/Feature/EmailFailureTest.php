@@ -78,7 +78,7 @@ test('a transport failure is recorded on the log and every recipient', function 
 test('a malformed recipient address fails without stopping the rest of the batch', function () {
     // The array mailer still builds the full message, so a non-RFC-compliant
     // address throws while everyone else sends normally.
-    $setupGroup = SetupGroup::create(['name' => 'Group A', 'color' => 'blue']);
+    $setupGroup = SetupGroup::factory()->create(['name' => 'Group A', 'color' => 'blue']);
     $badMember = make_user(UserRole::Member, ['setup_group_id' => $setupGroup->id, 'email' => 'not-a-valid-address']);
     $goodDriver = make_user(UserRole::Member, ['setup_group_id' => null]);
     $setupGroup->van_drivers()->attach($goodDriver->id);

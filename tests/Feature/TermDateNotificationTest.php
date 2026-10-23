@@ -65,7 +65,7 @@ test('sending the attendance list with no ensemble admins is a no-op with a mess
 test('a moderator can send a setup reminder to the setup group van drivers', function () {
     Mail::fake();
 
-    $setupGroup = SetupGroup::create(['name' => 'Group A', 'color' => 'blue']);
+    $setupGroup = SetupGroup::factory()->create(['name' => 'Group A', 'color' => 'blue']);
     // The factory assigns new users to a random setup group, so opt out explicitly.
     $driver = make_user(UserRole::Member, ['setup_group_id' => null]);
     $setupGroup->van_drivers()->attach($driver->id);
@@ -149,7 +149,7 @@ test('the attendance list email renders', function () {
 });
 
 test('the setup reminder email renders', function () {
-    $setupGroup = SetupGroup::create(['name' => 'Group A', 'color' => 'blue']);
+    $setupGroup = SetupGroup::factory()->create(['name' => 'Group A', 'color' => 'blue']);
     $termDate = make_notification_term_date(['setup_group_id' => $setupGroup->id]);
 
     $html = (new SetupReminderMail($termDate, $setupGroup))->render();
@@ -181,7 +181,7 @@ test('a moderator can send a van driver reminder to the assigned driver', functi
 test('a van driver reminder goes to the driver inferred from the setup group rotation', function () {
     Mail::fake();
 
-    $setupGroup = SetupGroup::create(['name' => 'Group A', 'color' => 'blue']);
+    $setupGroup = SetupGroup::factory()->create(['name' => 'Group A', 'color' => 'blue']);
     $driver = make_user(UserRole::Member);
     $setupGroup->van_drivers()->attach($driver->id);
 
@@ -211,7 +211,7 @@ test('a van driver reminder for a date with no driver is a no-op', function () {
 test('a setup reminder also goes to the members of the setup group', function () {
     Mail::fake();
 
-    $setupGroup = SetupGroup::create(['name' => 'Group A', 'color' => 'blue']);
+    $setupGroup = SetupGroup::factory()->create(['name' => 'Group A', 'color' => 'blue']);
     $member = make_user(UserRole::Member, ['setup_group_id' => $setupGroup->id]);
     $driver = make_user(UserRole::Member, ['setup_group_id' => null]);
     $setupGroup->van_drivers()->attach($driver->id);
@@ -231,8 +231,8 @@ test('a setup reminder also goes to the members of the setup group', function ()
 test('changing the setup group of an upcoming date alerts the old and new groups', function () {
     Mail::fake();
 
-    $oldGroup = SetupGroup::create(['name' => 'Old group', 'color' => 'blue']);
-    $newGroup = SetupGroup::create(['name' => 'New group', 'color' => 'red']);
+    $oldGroup = SetupGroup::factory()->create(['name' => 'Old group', 'color' => 'blue']);
+    $newGroup = SetupGroup::factory()->create(['name' => 'New group', 'color' => 'red']);
     $oldMember = make_user(UserRole::Member, ['setup_group_id' => $oldGroup->id]);
     $newMember = make_user(UserRole::Member, ['setup_group_id' => $newGroup->id]);
 
@@ -299,7 +299,7 @@ test('updating a date without touching the roster does not send alerts', functio
 test('editing a term through the form sends roster change alerts', function () {
     Mail::fake();
 
-    $setupGroup = SetupGroup::create(['name' => 'Group A', 'color' => 'blue']);
+    $setupGroup = SetupGroup::factory()->create(['name' => 'Group A', 'color' => 'blue']);
     $member = make_user(UserRole::Member, ['setup_group_id' => $setupGroup->id]);
 
     $termDate = make_notification_term_date([

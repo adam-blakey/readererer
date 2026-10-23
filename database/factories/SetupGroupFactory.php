@@ -2,6 +2,7 @@
 
 namespace Database\Factories;
 
+use App\Enums\Color;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
@@ -16,8 +17,12 @@ class SetupGroupFactory extends Factory
      */
     public function definition(): array
     {
+        $week = $this->faker->numberBetween(1, 4);
+
         return [
-            //
+            'name' => 'Setup group '.$week,
+            'week' => $week,
+            'color' => $this->faker->randomElement(Color::cases()),
         ];
     }
 }

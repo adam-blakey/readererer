@@ -4,7 +4,7 @@ use App\Models\SetupGroup;
 use App\Models\User;
 
 test('van drivers are ordered by their sort value', function () {
-    $setupGroup = SetupGroup::create(['name' => 'Group A', 'week' => 1, 'color' => 'blue']);
+    $setupGroup = SetupGroup::factory()->create();
     $second = User::factory()->create();
     $first = User::factory()->create();
     $setupGroup->van_drivers()->attach($second->id, ['sort' => 2]);
@@ -32,7 +32,7 @@ test('icon lookup returns null for attributes without an Icon annotation', funct
 });
 
 test('setup groups are soft deleted and can be restored', function () {
-    $setupGroup = SetupGroup::create(['name' => 'Group A', 'week' => 1, 'color' => 'blue']);
+    $setupGroup = SetupGroup::factory()->create();
 
     $setupGroup->delete();
     expect(SetupGroup::find($setupGroup->id))->toBeNull();
@@ -45,7 +45,7 @@ test('setup groups are soft deleted and can be restored', function () {
 test('setup groups persist their timestamps', function () {
     // Regression test: declared $created_at/$updated_at properties used to
     // shadow the Eloquent attributes, so timestamps were never written.
-    $setupGroup = SetupGroup::create(['name' => 'Group A', 'week' => 1, 'color' => 'blue']);
+    $setupGroup = SetupGroup::factory()->create();
 
     expect($setupGroup->fresh()->created_at)->not->toBeNull();
     expect($setupGroup->fresh()->updated_at)->not->toBeNull();
