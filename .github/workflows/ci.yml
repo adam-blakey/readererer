@@ -1,10 +1,3 @@
-# Runs the Pest suite and the Pint style check on every pull request, so a
-# change that breaks either one cannot reach `main` with a green tick.
-#
-# NOTE: composer.json requires ext-pdo ^8.4.24, so `composer install` fails on
-# any PHP older than that (see issue #104). setup-php's `8.4` resolves to the
-# latest 8.4 patch, which satisfies it; pin a lower patch here and the install
-# will start failing.
 name: CI
 
 on:
@@ -34,8 +27,6 @@ jobs:
           php-version: '8.4'
           coverage: none
 
-      # The suite boots the framework, which needs an APP_KEY; phpunit.xml
-      # supplies the rest (in-memory SQLite, array cache/session/mail).
       - name: Prepare the application environment
         run: |
           cp .env.example .env
@@ -51,9 +42,6 @@ jobs:
       - name: Install npm dependencies
         run: npm ci
 
-      # Not optional: tests/Unit/IconComponentTest.php asserts against the
-      # icons that `npm run build` copies into public/build/icons, and 9 of its
-      # 10 tests fail without them.
       - name: Build frontend assets
         run: npm run build
 
@@ -63,16 +51,10 @@ jobs:
   pint:
     name: Pint code style
     runs-on: ubuntu-latest
-    # Scoped to the PHP files a pull request touches. The repository does not
-    # pass a whole-repo `pint --test` yet (issue #99 tracks the one-shot
-    # reformat); once that lands, drop the diff below and run
-    # `./vendor/bin/pint --test` over everything on pushes as well.
-    if: github.event_name == 'pull_request'
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
         with:
-          # Full history so the merge base with the target branch is available.
           fetch-depth: 0
 
       - name: Setup PHP
