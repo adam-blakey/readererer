@@ -23,6 +23,14 @@ uses(
     Illuminate\Foundation\Testing\RefreshDatabase::class,
 )->in('Feature', 'Unit');
 
+// Browser tests drive a real browser, so they need the built assets (`npm run build`).
+uses(
+    Tests\TestCase::class,
+    Illuminate\Foundation\Testing\RefreshDatabase::class,
+)->beforeEach(function () {
+    $this->withVite();
+})->in('Browser');
+
 /*
 |--------------------------------------------------------------------------
 | Expectations

@@ -30,6 +30,7 @@ php artisan test
 ./vendor/bin/pest
 ./vendor/bin/pest tests/Feature/EndpointAccessTest.php          # single file
 ./vendor/bin/pest --filter 'name of test'                        # single test
+./vendor/bin/pest --testsuite=Unit,Feature                       # skip browser tests
 
 # Lint / format (Laravel Pint)
 ./vendor/bin/pint
@@ -37,6 +38,8 @@ php artisan test
 ```
 
 Tests run with `APP_ENV=testing` (see `phpunit.xml`); the SQLite-in-memory env lines are currently commented out, so tests hit the configured DB connection.
+
+Browser tests (`tests/Browser`) use `pestphp/pest-plugin-browser` to check that elements are on the page and clickable in a real browser (`visit('/login')->type(...)->click(...)`). Unlike the other suites they load the real Vite assets, so they need `npm run build` and `npx playwright install` first.
 
 ## Deployment
 
