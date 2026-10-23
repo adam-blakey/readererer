@@ -128,8 +128,8 @@ npx playwright install
 npm run build
 ```
 
-Run `npm run build` before the suite: `tests/Unit/IconComponentTest.php` reads the
-icons that the build copies into `public/build/icons`, and fails without them.
+`npm run build` matters outside the browser suite too: `tests/Unit/IconComponentTest.php`
+reads the icons the build copies into `public/build/icons`, and fails without them.
 
 Both commands run on every pull request (`.github/workflows/ci.yml`). The Pint check
 is limited to the PHP files the pull request touches, because the repository does not
