@@ -26,7 +26,7 @@ test('the dashboard is available to every authenticated role', function (UserRol
 
 test('resource indexes redirect guests to the login page', function (string $uri) {
     $this->get($uri)->assertRedirect('/login');
-})->with(['/composers', '/ensembles', '/pieces', '/setlists', '/terms', '/users', '/setupgroups']);
+})->with(['/composers', '/ensembles', '/pieces', '/setlists', '/terms', '/users', '/setup-groups']);
 
 test('composer, piece and setlist indexes are forbidden for every role', function (string $uri, UserRole $role) {
     // The Composer, Piece and Setlist policies currently deny viewAny to everyone.
@@ -42,7 +42,7 @@ test('the ensembles index is admin only', function () {
 test('term, user and setup group indexes only require authentication', function (string $uri) {
     // These controllers do not call authorizeResource, so any logged-in user may view them.
     $this->actingAs(make_user(UserRole::Member))->get($uri)->assertOk();
-})->with(['/terms', '/users', '/setupgroups']);
+})->with(['/terms', '/users', '/setup-groups']);
 
 test('ensemble show is limited to moderators and members of that ensemble', function () {
     $ensemble = Ensemble::factory()->create();

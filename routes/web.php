@@ -21,15 +21,15 @@ use Illuminate\Support\Facades\Route;
 
 Route::view('/', 'home', ['page_name' => config('app.name')])
     ->name('home');
+
 Route::get('/dashboard', [DashboardController::class, 'index'])
     ->name('dashboard')
     ->can('view.dashboard');
 
-Route::get('/notifications', [NotificationController::class, 'index'])
-    ->name('notifications.index')
-    ->middleware('auth')
-    ->can('view.notifications');
-
+/*
+| Attendance polls and registers are guarded by policies rather than the auth
+| middleware so the shared "Ensemble" login can reach them.
+*/
 Route::get('/attendance', [AttendanceController::class, 'index'])
     ->name('attendance.index')
     ->can('viewAny', Attendance::class);
@@ -54,33 +54,82 @@ Route::post('/attendance/register/{ensemble:slug}/{termDate}', [AttendanceRegist
     ->name('attendance.register.store')
     ->can('create', RegisterEntry::class);
 
-Route::resource('composers', ComposerController::class)->middleware('auth');
-Route::patch('/composers/{composer}/restore', [ComposerController::class, 'restore'])->name('composers.restore')->middleware('auth');
-Route::resource('ensembles', EnsembleController::class)->middleware('auth');
-Route::patch('/ensembles/{ensemble}/restore', [EnsembleController::class, 'restore'])->name('ensembles.restore')->middleware('auth');
-Route::get('/ensembles/{ensemble}/members', [EnsembleController::class, 'members'])->name('ensembles.members')->middleware('auth');
-Route::post('/ensembles/{ensemble}/add_user', [EnsembleController::class, 'add_user'])->name('ensembles.add_user')->middleware('auth');
-Route::post('/ensembles/{ensemble}/remove_user/{user}', [EnsembleController::class, 'remove_user'])->name('ensembles.remove_user')->middleware('auth');
-Route::get('/ensembles/{ensemble}/seating-plan', [SeatingPlanController::class, 'show'])->name('ensembles.seating-plan.show')->middleware('auth');
-Route::post('/ensembles/{ensemble}/seating-plan', [SeatingPlanController::class, 'update'])->name('ensembles.seating-plan.update')->middleware('auth');
-Route::get('/ensembles/{ensemble}/seating-plan/{termDate:id}/download', [SeatingPlanController::class, 'download'])->name('seating-plan.download')->withoutScopedBindings();
-Route::resource('instrument-families', InstrumentFamilyController::class)->names('instrumentfamilys')->parameter('instrument-families', 'instrumentFamily')->middleware('auth');
-Route::patch('/instrument-families/{instrumentFamily}/restore', [InstrumentFamilyController::class, 'restore'])->name('instrumentfamilys.restore')->middleware('auth');
-Route::resource('pieces', PieceController::class)->middleware('auth');
-Route::patch('/pieces/{piece}/restore', [PieceController::class, 'restore'])->name('pieces.restore')->middleware('auth');
-Route::resource('setlists', SetlistController::class)->middleware('auth');
-Route::patch('/setlists/{setlist}/restore', [SetlistController::class, 'restore'])->name('setlists.restore')->middleware('auth');
-Route::resource('terms', TermController::class)->middleware('auth');
-Route::patch('/terms/{term}/restore', [TermController::class, 'restore'])->name('terms.restore')->middleware('auth');
-Route::post('/term-dates/{termDate}/send-attendance-list', [TermDateNotificationController::class, 'sendAttendanceList'])->name('term-dates.send-attendance-list')->middleware('auth');
-Route::post('/term-dates/{termDate}/send-setup-reminder', [TermDateNotificationController::class, 'sendSetupReminder'])->name('term-dates.send-setup-reminder')->middleware('auth');
-Route::post('/term-dates/{termDate}/send-van-driver-reminder', [TermDateNotificationController::class, 'sendVanDriverReminder'])->name('term-dates.send-van-driver-reminder')->middleware('auth');
-Route::resource('users', UserController::class)->middleware('auth');
-Route::patch('/users/{user}/restore', [UserController::class, 'restore'])->name('users.restore')->middleware('auth');
-Route::post('/users/{user}/ensembles', [UserController::class, 'attachEnsemble'])->name('users.ensembles.attach')->middleware('auth');
-Route::delete('/users/{user}/ensembles/{ensemble}', [UserController::class, 'detachEnsemble'])->name('users.ensembles.detach')->middleware('auth');
-Route::resource('setupgroups', SetupGroupController::class)->middleware('auth')->parameter('setupgroups', 'setupGroup');
-Route::patch('/setupgroups/{setupgroup}/restore', [SetupGroupController::class, 'restore'])->name('setupgroups.restore')->middleware('auth');
-Route::get('/settings', [SettingController::class, 'edit'])->name('settings.edit')->middleware('auth');
+/*
+| The seating-plan PDF authorises inside the controller, so it stays outside
+| the auth group (kept alongside the other seating-plan route names).
+*/
+Route::get('/ensembles/{ensemble}/seating-plan/{termDate}/download', [SeatingPlanController::class, 'download'])
+    ->name('ensembles.seating-plan.download')
+    ->withoutScopedBindings();
+
+Route::middleware('auth')->group(function () {
+    Route::get('/notifications', [NotificationController::class, 'index'])
+        ->name('notifications.index')
+        ->can('view.notifications');
+
+    /*
+    | Soft-deletable resources each expose the standard resource routes plus a
+    | restore route and (where the controller supports it) a purge route. The
+    | route *names* stay in the get_route_name_from_model() form so the shared
+    | auto-entities views resolve them.
+    */
+    $softDeletableResources = [
+        'composers' => ComposerController::class,
+        'ensembles' => EnsembleController::class,
+        'pieces' => PieceController::class,
+        'setlists' => SetlistController::class,
+        'terms' => TermController::class,
+        'users' => UserController::class,
+    ];
+
+    foreach ($softDeletableResources as $name => $controller) {
+        Route::patch("{$name}/{id}/restore", [$controller, 'restore'])->name("{$name}.restore");
+
+        if (method_exists($controller, 'purgeTrashed')) {
+            Route::delete("{$name}/purge", [$controller, 'purgeTrashed'])->name("{$name}.purge");
+        }
+
+        Route::resource($name, $controller);
+    }
+
+    /*
+    | Instrument families and setup groups keep a clean kebab-case URL while
+    | their route names stay in the get_route_name_from_model() form.
+    */
+    Route::patch('instrument-families/{id}/restore', [InstrumentFamilyController::class, 'restore'])->name('instrumentfamilys.restore');
+    Route::delete('instrument-families/purge', [InstrumentFamilyController::class, 'purgeTrashed'])->name('instrumentfamilys.purge');
+    Route::resource('instrument-families', InstrumentFamilyController::class)
+        ->names('instrumentfamilys')
+        ->parameter('instrument-families', 'instrumentFamily');
+
+    Route::patch('setup-groups/{id}/restore', [SetupGroupController::class, 'restore'])->name('setupgroups.restore');
+    Route::delete('setup-groups/purge', [SetupGroupController::class, 'purgeTrashed'])->name('setupgroups.purge');
+    Route::resource('setup-groups', SetupGroupController::class)
+        ->names('setupgroups')
+        ->parameter('setup-groups', 'setupGroup');
+
+    // Ensemble membership and seating plan (the PDF download is public, above).
+    Route::prefix('ensembles/{ensemble}')->name('ensembles.')->group(function () {
+        Route::get('members', [EnsembleController::class, 'members'])->name('members');
+        Route::post('add-user', [EnsembleController::class, 'add_user'])->name('add-user');
+        Route::post('remove-user/{user}', [EnsembleController::class, 'remove_user'])->name('remove-user');
+        Route::get('seating-plan', [SeatingPlanController::class, 'show'])->name('seating-plan.show');
+        Route::post('seating-plan', [SeatingPlanController::class, 'update'])->name('seating-plan.update');
+    });
+
+    // User <-> ensemble membership.
+    Route::post('/users/{user}/ensembles', [UserController::class, 'attachEnsemble'])->name('users.ensembles.attach');
+    Route::delete('/users/{user}/ensembles/{ensemble}', [UserController::class, 'detachEnsemble'])->name('users.ensembles.detach');
+
+    // Term-date notifications.
+    Route::post('/term-dates/{termDate}/send-attendance-list', [TermDateNotificationController::class, 'sendAttendanceList'])
+        ->name('term-dates.send-attendance-list');
+    Route::post('/term-dates/{termDate}/send-setup-reminder', [TermDateNotificationController::class, 'sendSetupReminder'])
+        ->name('term-dates.send-setup-reminder');
+    Route::post('/term-dates/{termDate}/send-van-driver-reminder', [TermDateNotificationController::class, 'sendVanDriverReminder'])
+        ->name('term-dates.send-van-driver-reminder');
+
+    Route::get('/settings', [SettingController::class, 'edit'])->name('settings.edit');
+});
 
 require __DIR__.'/auth.php';
