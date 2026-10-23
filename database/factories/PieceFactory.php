@@ -3,10 +3,11 @@
 namespace Database\Factories;
 
 use App\Models\Composer;
+use App\Models\Piece;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
- * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Models\Piece>
+ * @extends Factory<Piece>
  */
 class PieceFactory extends Factory
 {
@@ -19,7 +20,7 @@ class PieceFactory extends Factory
     {
         return [
             'name' => ucfirst($this->faker->word),
-            'composer_id' => Composer::factory()
+            'composer_id' => Composer::factory(),
         ];
     }
 }

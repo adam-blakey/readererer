@@ -1,6 +1,7 @@
 <?php
 
 use App\Enums\AttendanceStatus;
+use App\Enums\Color;
 use App\Enums\RegisterStatus;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
@@ -271,7 +272,7 @@ function map_database_type_to_html(string $name, string $db_type, array $casts):
     if ($enum_class !== null) {
         // The palette enum gets the colour picker rather than a plain select,
         // whatever the column happens to be called.
-        return ($enum_class === \App\Enums\Color::class) ? 'color' : 'enum';
+        return ($enum_class === Color::class) ? 'color' : 'enum';
     }
 
     if ($name == 'image') {
@@ -296,20 +297,22 @@ function map_database_type_to_html(string $name, string $db_type, array $casts):
 
 function color_name_to_hex(mixed $name): ?string
 {
-    if ($name instanceof \App\Enums\Color) {
+    if ($name instanceof Color) {
         return $name->hex();
     }
 
-    $enum = \App\Enums\Color::tryFrom(strtolower((string) $name));
+    $enum = Color::tryFrom(strtolower((string) $name));
+
     return $enum ? $enum->hex() : null;
 }
 
 function color_name_to_css_class(mixed $name): ?string
 {
-    if ($name instanceof \App\Enums\Color) {
+    if ($name instanceof Color) {
         return $name->cssClass();
     }
 
-    $enum = \App\Enums\Color::tryFrom(strtolower((string) $name));
+    $enum = Color::tryFrom(strtolower((string) $name));
+
     return $enum ? $enum->cssClass() : null;
 }

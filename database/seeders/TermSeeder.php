@@ -5,18 +5,19 @@ namespace Database\Seeders;
 use App\Models\Ensemble;
 use App\Models\Setlist;
 use App\Models\SetupGroup;
-use Carbon\CarbonInterface;
-use Illuminate\Database\Seeder;
 use App\Models\Term;
-use App\Models\TermDate;
+use Carbon\CarbonInterface;
+use Faker\Factory;
+use Illuminate\Database\Seeder;
 use Illuminate\Support\Carbon;
 
 class TermSeeder extends Seeder
 {
     protected $faker;
+
     public function __construct()
     {
-        $this->faker = \Faker\Factory::create();
+        $this->faker = Factory::create();
     }
 
     /**

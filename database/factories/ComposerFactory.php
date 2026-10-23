@@ -2,10 +2,11 @@
 
 namespace Database\Factories;
 
+use App\Models\Composer;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
- * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Models\Composer>
+ * @extends Factory<Composer>
  */
 class ComposerFactory extends Factory
 {
@@ -18,7 +19,7 @@ class ComposerFactory extends Factory
     {
         return [
             'first_name' => $this->faker->firstName(),
-            'last_name' => $this->faker->lastName()
+            'last_name' => $this->faker->lastName(),
         ];
     }
 }

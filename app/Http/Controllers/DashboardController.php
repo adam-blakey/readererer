@@ -25,7 +25,7 @@ class DashboardController extends Controller
 
         // Upcoming rehearsal (any non-concert term date)
         $nextRehearsal = null;
-        if (!empty($ensembles)) {
+        if (! empty($ensembles)) {
             $nextRehearsal = TermDate::whereNull('concert_ensemble_id')
                 ->where('start_datetime', '>', Carbon::now())
                 ->orderBy('start_datetime')
