@@ -28,7 +28,7 @@ jobs:
     steps:
       # Full history and tags so `git describe` can compute the version that
       # gets baked into the image (the footer's version number).
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
         with:
           fetch-depth: 0
 
