@@ -4,7 +4,7 @@
     <div class="container">
         <div class="row align-items-center">
             <div class="col-auto">
-                <span class="rounded avatar avatar-lg" style="background-image: url({{ $ensemble->image }})"></span>
+                <span class="rounded avatar avatar-lg" style="background-image: url({{ $ensemble->image_url }})"></span>
             </div>
             <div class="col">
                 <div class="page-pretitle">{{ $page_subname }}</div>

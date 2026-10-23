@@ -92,7 +92,9 @@ class EnsembleController extends Controller
     public function update(UpdateEnsembleRequest $request, Ensemble $ensemble): RedirectResponse
     {
         $ensemble->name = $request->validated('name');
+        $ensemble->slug = $request->validated('slug');
         $ensemble->seating_plan_enabled = $request->boolean('seating_plan_enabled');
+        $ensemble->applyImageInput($request->file('image'), $request->boolean('remove_image'));
         $ensemble->save();
 
         return to_route('ensembles.show', $ensemble);

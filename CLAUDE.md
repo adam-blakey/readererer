@@ -20,6 +20,9 @@ npm run dev
 # Build frontend assets
 npm run build
 
+# Uploaded images are served through a symlink (once per checkout)
+php artisan storage:link
+
 # Database
 php artisan migrate
 php artisan migrate:fresh --seed   # rebuild + seed sample data
@@ -66,6 +69,26 @@ Uses `s-damian/larasort` (`AutoSortable` trait + `$sortables` array on models). 
 
 ### Attendance register
 The poll records what members said they *would* do and is append-only; the register (`RegisterEntry`, `AttendanceRegisterController`, `attendance.register.*` routes) records what actually happened on the day and holds one row per member per date per ensemble, updated in place (unique index on `term_date_id + ensemble_id + user_id`). `RegisterStatus` is `Unmarked=0, Present=1, Absent=2, Late=3`; clearing a member back to `Unmarked` with no note deletes their row. `register_status_totals()` in `helpers.php` counts a register, treating members with no row as unmarked. A register only exists for dates that apply to the ensemble — rehearsals apply to everyone, a concert only to the ensemble playing it (`TermDate::appliesToEnsemble()`).
+
+### Uploaded images
+
+`User` and `Ensemble` carry an `image` column and the `HasImage` trait
+(`app/Traits/HasImage.php`). The column holds either an external URL (the
+seeders point at a placeholder service) or a path on the `public` disk written
+by an upload, so views read `$model->image_url` rather than `$model->image`.
+Forms offer the shared `<x-forms.image-upload>` field (which also renders a
+"remove the current image" checkbox), post as `multipart/form-data`, and
+validate through the `ValidatesImageUpload` request trait; the controller hands
+both inputs to `applyImageInput()`.
+
+Replacing or clearing an image never deletes the file — a failed save would
+otherwise take the only copy with it. The scheduled `images:prune` command
+(`App\Console\Commands\PruneImages`, daily at 03:00 via `routes/console.php`)
+is the single place files are removed: it deletes anything in an image
+directory that no row references (soft-deleted rows count, since a restore
+brings the image back) and that is older than its grace period (`--hours`,
+24 by default). Add a model to that command's `$models` when you give it the
+trait.
 
 ### Seating plans & PDFs
 `SeatingPlanController` edits per-ensemble seating (seat_row/seat_column stored on the `user_ensemble` pivot). PDF output uses `barryvdh/laravel-dompdf` (`SeatingPlanPdfController`, `seating-plan.download` route).

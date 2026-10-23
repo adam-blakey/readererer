@@ -83,6 +83,7 @@
     php artisan event:cache
 
     php artisan migrate --force
+    php artisan storage:link --force
     php artisan cache:clear
     php artisan queue:restart
 @endtask

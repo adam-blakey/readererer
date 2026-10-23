@@ -99,8 +99,12 @@ class UserController extends Controller
 
         $setup_group_id = Arr::pull($attributes, 'setup_group');
         $setup_group = SetupGroup::find($setup_group_id);
+        // The image is a file rather than a validated attribute, so it is set
+        // on the model instead of being mass-assigned.
+        unset($attributes['image'], $attributes['remove_image']);
         $user->update($attributes);
         $user->setup_group()->associate($setup_group);
+        $user->applyImageInput($request->file('image'), $request->boolean('remove_image'));
 
         $user->save();
 
