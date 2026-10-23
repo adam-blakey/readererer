@@ -1,0 +1,85 @@
+name: CI
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  tests:
+    name: Pest test suite
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.4'
+          coverage: none
+
+      - name: Prepare the application environment
+        run: |
+          cp .env.example .env
+          composer install --no-interaction --no-progress --prefer-dist
+          php artisan key:generate
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+          cache: npm
+
+      - name: Install npm dependencies
+        run: npm ci
+
+      - name: Build frontend assets
+        run: npm run build
+
+      - name: Run the test suite
+        run: php artisan test
+
+  pint:
+    name: Pint code style
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.4'
+          coverage: none
+
+      - name: Install Composer dependencies
+        run: composer install --no-interaction --no-progress --prefer-dist --no-scripts
+
+      - name: List the PHP files this pull request touches
+        run: |
+          git fetch --no-tags origin "$GITHUB_BASE_REF"
+          # ACMR skips deleted files, which Pint cannot open.
+          git diff --name-only --diff-filter=ACMR \
+            "origin/$GITHUB_BASE_REF...HEAD" -- '*.php' > "$RUNNER_TEMP/changed-php-files.txt"
+          cat "$RUNNER_TEMP/changed-php-files.txt"
+
+      - name: Check the style of the changed files
+        run: |
+          # Pint falls back to linting the whole repository when it is given no
+          # paths, so an empty list has to short-circuit rather than reach it.
+          if [ ! -s "$RUNNER_TEMP/changed-php-files.txt" ]; then
+            echo "No PHP files changed; nothing for Pint to check."
+            exit 0
+          fi
+          xargs -r -a "$RUNNER_TEMP/changed-php-files.txt" ./vendor/bin/pint --test
