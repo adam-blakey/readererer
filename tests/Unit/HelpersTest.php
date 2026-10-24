@@ -7,6 +7,8 @@ use App\Models\Composer;
 use App\Models\Ensemble;
 use App\Models\SetupGroup;
 use App\Models\Term;
+use Illuminate\Support\MessageBag;
+use Illuminate\Support\ViewErrorBag;
 
 // get_route_name_from_model / get_class_name_from_model
 
@@ -191,4 +193,53 @@ test('color_name_to_hex maps known Tabler colour names to hex values', function 
 test('color_name_to_hex is case-insensitive', function () {
     expect(color_name_to_hex('Blue'))->toBe('#066fd1');
     expect(color_name_to_hex('RED'))->toBe('#d63939');
+});
+
+// unhandled_error_messages
+
+test('unhandled_error_messages keeps only the messages no field would show', function () {
+    $errors = new MessageBag([
+        'name' => ['The name field is required.'],
+        'password' => ['The password is rubbish.'],
+    ]);
+
+    expect(unhandled_error_messages($errors, ['name', 'email']))
+        ->toBe(['The password is rubbish.']);
+});
+
+test('unhandled_error_messages reads the default bag of a view error bag', function () {
+    $errors = (new ViewErrorBag)->put('default', new MessageBag([
+        'password' => ['The password is rubbish.'],
+    ]));
+
+    expect(unhandled_error_messages($errors, ['name']))
+        ->toBe(['The password is rubbish.']);
+});
+
+test('unhandled_error_messages matches a rendered field by wildcard', function () {
+    $errors = new MessageBag([
+        'term_dates.0.start_datetime' => ['The start is required.'],
+        'term_dates.0.venue' => ['The venue is required.'],
+    ]);
+
+    expect(unhandled_error_messages($errors, ['term_dates.*.start_datetime']))
+        ->toBe(['The venue is required.']);
+});
+
+test('unhandled_error_messages keeps every message of a key with more than one', function () {
+    $errors = new MessageBag([
+        'password' => ['Too short.', 'Too obvious.'],
+    ]);
+
+    expect(unhandled_error_messages($errors, []))->toBe(['Too short.', 'Too obvious.']);
+});
+
+test('unhandled_error_messages treats a form with no rendered fields as handling nothing', function () {
+    $errors = new MessageBag(['name' => ['The name field is required.']]);
+
+    expect(unhandled_error_messages($errors, []))->toBe(['The name field is required.']);
+});
+
+test('unhandled_error_messages copes with a view that was never given an error bag', function () {
+    expect(unhandled_error_messages(null, ['name']))->toBe([]);
 });
