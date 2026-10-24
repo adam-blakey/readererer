@@ -17,6 +17,7 @@ test('every named GET page has a breadcrumb trail', function () {
         'verification.notice',
         'verification.verify',
         'seating-plan.download',
+        'health',
     ];
 
     $missing = collect(Route::getRoutes())

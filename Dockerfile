@@ -93,4 +93,7 @@ RUN chmod +x /usr/local/bin/readererer-entrypoint
 ENTRYPOINT ["/usr/local/bin/readererer-entrypoint"]
 CMD ["apache2-foreground"]
 
+HEALTHCHECK --interval=30s --timeout=5s --start-period=30s --retries=3 \
+    CMD curl --fail --silent --show-error http://localhost/health || exit 1
+
 EXPOSE 80

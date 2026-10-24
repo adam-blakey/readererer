@@ -5,6 +5,7 @@ use App\Http\Controllers\AttendanceRegisterController;
 use App\Http\Controllers\ComposerController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\EnsembleController;
+use App\Http\Controllers\HealthCheckController;
 use App\Http\Controllers\InstrumentFamilyController;
 use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\PieceController;
@@ -18,6 +19,9 @@ use App\Http\Controllers\UserController;
 use App\Models\Attendance;
 use App\Models\RegisterEntry;
 use Illuminate\Support\Facades\Route;
+
+Route::get('/health', HealthCheckController::class)
+    ->name('health');
 
 Route::view('/', 'home', ['page_name' => config('app.name')])
     ->name('home');
