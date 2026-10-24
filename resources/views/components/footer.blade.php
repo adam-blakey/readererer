@@ -4,7 +4,7 @@
 			<div class="col-lg-auto ms-lg-auto">
 				<ul class="mb-0 list-inline list-inline-dots">
 					<li class="list-inline-item"><a class="link-secondary" href="https://tabler.io" target="_blank">{{ __('Styled by Tabler') }}</a></li>
-					<li class="list-inline-item"><a class="link-secondary" href="https://gitlab.com/adam.blakey/readererer" rel="noopener" target="_blank">{{ __('Source code') }}</a></li>
+					<li class="list-inline-item"><a class="link-secondary" href="https://github.com/adam-blakey/readererer" rel="noopener" target="_blank">{{ __('Source code') }}</a></li>
 				</ul>
 			</div>
 			<div class="mt-3 col-12 col-lg-auto mt-lg-0">
