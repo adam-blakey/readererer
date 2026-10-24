@@ -72,5 +72,6 @@ jobs:
             APP_VERSION_TAG=${{ steps.version.outputs.tag }}
             APP_VERSION_HASH=${{ steps.version.outputs.hash }}
             APP_VERSION_DATE=${{ steps.version.outputs.date }}
+            APP_SEED_DATABASE=1
           cache-from: type=gha
           cache-to: type=gha,mode=max

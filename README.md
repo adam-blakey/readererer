@@ -162,7 +162,8 @@ file or env-file and is passed to the application as a string.
 On start, the container creates the SQLite database and runs migrations. Mounting a
 volume at `/var/www/html/database` keeps the database when the container is replaced.
 MySQL can be used instead by setting `DB_CONNECTION`, `DB_HOST` and `DB_DATABASE`.
-Setting `SKIP_MIGRATIONS=true` skips migrations at start. Application logs are written
+The `dev` image also seeds the database after migrating; setting `APP_SEED_DATABASE=1` or
+`0` overrides this. Setting `SKIP_MIGRATIONS=true` skips migrations at start. Application logs are written
 to the container's stderr and can be read with `docker logs readererer-dev`.
 
 ## Deployment

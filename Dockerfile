@@ -84,6 +84,9 @@ RUN chown -R www-data:www-data storage bootstrap/cache database \
 # Puts application errors in `docker logs` rather than a file in the container.
 ENV LOG_CHANNEL=stderr
 
+ARG APP_SEED_DATABASE=0
+ENV APP_SEED_DATABASE=${APP_SEED_DATABASE}
+
 COPY docker/entrypoint.sh /usr/local/bin/readererer-entrypoint
 RUN chmod +x /usr/local/bin/readererer-entrypoint
 
