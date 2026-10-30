@@ -1,0 +1,17 @@
+name: Conventional Commits
+
+on:
+  pull_request:
+
+permissions:
+  contents: read
+  pull-requests: read
+
+jobs:
+  commit_messages:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v5
+      - uses: wagoid/commitlint-github-action@v6
+        with:
+          helpURL: https://github.com/${{ github.repository }}/blob/main/.github/pull_request_template.md

@@ -143,8 +143,7 @@ repository does not yet pass `pint --test` across all files.
 ## Docker
 
 The `Dockerfile` builds an image containing Apache, PHP 8.4, the built assets and the
-Composer dependencies. The image is published to the GitHub Container Registry with the
-tags `dev` and `qa`. The image contains no `.env` file, so configuration is passed as
+Composer dependencies. Build it with `docker build -t readererer .`. The image contains no `.env` file, so configuration is passed as
 environment variables:
 
 ```bash
@@ -152,7 +151,7 @@ docker run -d --name readererer-dev -p 8080:80 \
   -e APP_KEY="base64:..." \
   -e APP_URL="http://localhost:8080" \
   -v readererer-db:/var/www/html/database \
-  ghcr.io/adam-blakey/readererer:dev
+  readererer
 ```
 
 `APP_KEY` is required. Generate one with `php artisan key:generate --show` and pass the
@@ -162,17 +161,15 @@ file or env-file and is passed to the application as a string.
 On start, the container creates the SQLite database and runs migrations. Mounting a
 volume at `/var/www/html/database` keeps the database when the container is replaced.
 MySQL can be used instead by setting `DB_CONNECTION`, `DB_HOST` and `DB_DATABASE`.
-The `dev` image also seeds the database after migrating; setting `APP_SEED_DATABASE=1` or
-`0` overrides this. Setting `SKIP_MIGRATIONS=true` skips migrations at start. Application logs are written
+Setting `APP_SEED_DATABASE=1` also seeds the database after migrating. Setting `SKIP_MIGRATIONS=true` skips migrations at start. Application logs are written
 to the container's stderr and can be read with `docker logs readererer-dev`.
 
 ## Deployment
 
-Deployment runs through GitLab CI (`.gitlab-ci.yml`) and Laravel Envoy
-(`Envoy.blade.php`) over SSH. Pushing a `v*` tag deploys `main` to the demo server.
-Pushing to the `develop` branch deploys to the test server. The deploy story pulls the
-latest code, installs dependencies, compiles assets, runs migrations (optionally
-seeding), and brings the application back up.
+Deployment runs through GitHub Actions (`.github/workflows/deploy.yml`) to three
+Krystal environments over SSH. Pull requests deploy to dev. Merges to `main` deploy to
+QA, then to production after a wait timer, and publish a GitHub release whose version
+is derived from the Conventional Commit messages. See `.github/DEPLOYMENTS.md`.
 
 ## Copyright
 

@@ -1,0 +1,140 @@
+name: Build, Test & Deploy
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  build_and_test:
+    name: Pest test suite
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v5
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.4'
+          coverage: none
+      - uses: actions/setup-node@v5
+        with:
+          node-version: '24'
+          cache: npm
+      - id: composer-cache
+        run: echo "dir=$(composer config cache-files-dir)" >> "$GITHUB_OUTPUT"
+      - uses: actions/cache@v6
+        with:
+          path: ${{ steps.composer-cache.outputs.dir }}
+          key: composer-${{ hashFiles('composer.lock') }}
+          restore-keys: composer-
+      - run: cp .env.example .env
+      - run: composer install --no-interaction --no-progress --prefer-dist
+      - run: php artisan key:generate
+      - run: npm ci
+      - run: npx playwright install --with-deps chromium
+      - run: npm run build
+      - run: php artisan test --log-junit ./junit.xml
+      - run: composer install --no-interaction --no-progress --prefer-dist --no-dev --optimize-autoloader
+      # Production build smoke test. Must run after the tests: a cached config ignores APP_ENV=testing and CSRF would be enforced.
+      - run: php artisan optimize --env=production
+        if: github.ref == 'refs/heads/main'
+      - run: php artisan event:cache
+        if: github.ref == 'refs/heads/main'
+      - uses: actions/upload-artifact@v7
+        if: always()
+        with:
+          name: junit
+          path: junit.xml
+      - uses: actions/upload-artifact@v7
+        with:
+          name: build
+          path: |
+            vendor
+            public/build
+          include-hidden-files: true
+
+  deploy:
+    if: ${{ github.actor != 'dependabot[bot]' && (github.ref == 'refs/heads/main' || github.event.pull_request.head.repo.full_name == github.repository) }}
+    needs: build_and_test
+    runs-on: ubuntu-24.04
+    permissions:
+      actions: write
+      contents: write
+    strategy:
+      max-parallel: 1 # qa first; a failure there skips production
+      matrix:
+        domain:
+          - ${{ vars.DEV_DOMAIN }}
+          - ${{ vars.QA_DOMAIN }}
+          - ${{ vars.PROD_DOMAIN }}
+        exclude:
+          - domain: ${{ github.event_name == 'pull_request' && vars.QA_DOMAIN || '' }}
+          - domain: ${{ github.event_name == 'pull_request' && vars.PROD_DOMAIN || '' }}
+          - domain: ${{ github.event_name != 'pull_request' && vars.DEV_DOMAIN || '' }}
+    concurrency: deploy-${{ matrix.domain }}
+    environment:
+      name: ${{ matrix.domain == vars.PROD_DOMAIN && 'production' || matrix.domain == vars.QA_DOMAIN && 'qa' || 'dev' }}
+      url: https://${{ matrix.domain }}
+    env:
+      SSH: ssh -i ~/.ssh/deploy -p ${{ vars.DEPLOY_SSH_PORT }} -o StrictHostKeyChecking=no
+      HOST: ${{ vars.DEPLOY_SSH_USER }}@${{ vars.DEPLOY_SSH_HOST }}
+    steps:
+      - name: Cancel if a newer run is on its way
+        if: matrix.domain == vars.PROD_DOMAIN
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+        run: |
+          newer=$(gh run list --workflow deploy.yml --branch main --json databaseId,status --jq 'map(select(.databaseId > ${{ github.run_id }} and .status != "completed")) | length')
+          if [ "$newer" -gt 0 ]; then
+            gh run cancel ${{ github.run_id }}
+            sleep 300
+          fi
+      - id: version
+        if: matrix.domain == vars.PROD_DOMAIN
+        uses: mathieudutour/github-tag-action@v7
+        with:
+          github_token: ${{ github.token }}
+          default_bump: minor
+          dry_run: true
+      - uses: actions/download-artifact@v8
+        with:
+          name: build
+      - run: |
+          mkdir -p ~/.ssh
+          echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/deploy
+          chmod 600 ~/.ssh/deploy
+      - run: rsync -rltz --delete -e "$SSH" vendor public/build --relative "$HOST:domains/${{ matrix.domain }}/"
+      - run: |
+          $SSH $HOST bash -es <<'EOF'
+            set -e
+            cd domains/${{ matrix.domain }}
+            export GIT_SSH_COMMAND="ssh -i ~/.ssh/${{ vars.DEPLOY_GIT_KEY }} -o IdentitiesOnly=yes"
+            git fetch --tags --force origin ${{ github.sha }}
+            git reset --hard FETCH_HEAD
+            rm -f bootstrap/cache/*.php
+            if [ '${{ matrix.domain }}' = '${{ vars.PROD_DOMAIN }}' ]; then
+              php artisan app:generate-version --tag='${{ steps.version.outputs.new_tag || steps.version.outputs.previous_tag }}'
+            else
+              php artisan app:generate-version --tag="$(git describe --tags --always)${{ github.event.pull_request.number && format('+pr{0}', github.event.pull_request.number) || '' }}"
+            fi
+            php artisan down
+            trap 'php artisan up' EXIT
+            if [ '${{ matrix.domain }}' = '${{ vars.DEV_DOMAIN }}' ]; then
+              php artisan migrate:fresh --seed --force
+            else
+              php artisan migrate --force
+            fi
+            php artisan optimize
+            php artisan event:cache
+            php artisan queue:restart
+          EOF
+      - if: matrix.domain == vars.PROD_DOMAIN
+        uses: softprops/action-gh-release@v2.6.2
+        with:
+          tag_name: ${{ steps.version.outputs.new_tag || steps.version.outputs.previous_tag }}
+          target_commitish: ${{ github.sha }}
+          generate_release_notes: true

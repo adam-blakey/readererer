@@ -43,7 +43,7 @@ Browser tests (`tests/Browser`) use `pestphp/pest-plugin-browser` to check that 
 
 ## Deployment
 
-Deploys are GitLab-CI driven (`.gitlab-ci.yml`) via Laravel Envoy (`Envoy.blade.php`), SSH to a Krystal host. Pushing tags (`v*`) deploys `main` to the demo server; the `develop` branch deploys to the test server. The Envoy `deploy` story does git reset, npm install, asset compile, composer install, `migrate`, optionally seed, then brings the app back up. Do not invoke deploys yourself.
+All three environments (dev, qa, production) are on Krystal and deployed by `.github/workflows/deploy.yml`: pull requests deploy to dev; pushes to `main` deploy to qa, then to production after the environment's wait timer, which also tags and publishes a GitHub release. The workflow builds `vendor` and `public/build` on the runner, rsyncs them over SSH, resets the server's checkout to the commit and migrates (dev is `migrate:fresh --seed`). Setup and required repo settings are in `.github/DEPLOYMENTS.md`. Do not invoke deploys yourself.
 
 ## Architecture
 
@@ -93,6 +93,8 @@ Blade components live in `resources/views/components/` (Tabler-based: `card`, `t
 - User-facing text is translatable: wrap it in `__()` (or `trans_choice()` for counts) using the English string as the key, and pass interpolated values as named `:placeholders` rather than concatenating. Enum labels are translated in the enum's own `label()` method; auto-entity column labels are translated centrally by `clean_attribute_name()`. Add new strings to `lang/en.json` — see `lang/README.md`.
 
 ## Working preferences
+
+- Write commit messages as Conventional Commits (`type(scope): description`); see `.github/pull_request_template.md`. The release version bump is derived from them.
 
 - Do not schedule check-ins on PRs: no `send_later`/scheduled tasks, webhooks (`watch_url`), PR activity subscriptions or other periodic checks.
 - Do not add code comments unless the behaviour is genuinely obscure; prefer clear naming, and think carefully before adding any comment.

@@ -1,103 +1,105 @@
 # Deployments
 
-Readererer deploys through **GitHub Actions** using **GitHub Environments**. All
-CI/CD lives in GitHub (the old GitLab pipeline has been removed).
+All three environments are hosted on Krystal and deployed by
+`.github/workflows/deploy.yml`, the same pipeline as the website repo.
 
-| Environment  | Trigger                       | What it does                                              | Workflow                                  |
-| ------------ | ----------------------------- | -------------------------------------------------------- | ----------------------------------------- |
-| `dev`        | Pull request opened / updated | Build image, push to GHCR tagged `dev`                   | `.github/workflows/deploy-dev.yml`        |
-| `qa`         | Push to `main`                | Build image, push to GHCR tagged `qa`                    | `.github/workflows/deploy-qa.yml`         |
-| `production` | GitHub release published      | Deploy `main` over SSH with Laravel Envoy                | `.github/workflows/deploy-production.yml` |
+| Environment  | Trigger                         | Database                         |
+| ------------ | ------------------------------- | -------------------------------- |
+| `dev`        | Pull request opened / updated   | `migrate:fresh --seed` each time |
+| `qa`         | Push to `main`                  | `migrate`                        |
+| `production` | Push to `main`, after `qa`      | `migrate`                        |
 
-## Dev and QA — container images
+## How it works
 
-`dev` and `qa` **do not connect to any server.** They build the app image from
-the root `Dockerfile` and push it to the **GitHub Container Registry (GHCR)**:
+1. **`build_and_test`** runs the Pest suite (including browser tests), then
+   reinstalls Composer dependencies without dev packages and uploads `vendor`
+   and `public/build` as the `build` artifact. On `main` it also smoke-tests
+   `php artisan optimize --env=production`.
+2. **`deploy`** runs once per environment, one at a time (`qa` before
+   `production`, so a `qa` failure skips production). For each domain it:
+   - rsyncs `vendor` and `public/build` to `~/domains/<domain>/`;
+   - fetches the exact commit on the server and `git reset --hard`s to it;
+   - writes `version.json` (production: the new release tag; dev/qa:
+     `git describe`, plus `+pr<n>` on dev);
+   - puts the app in maintenance mode, migrates, runs `optimize`,
+     `event:cache` and `queue:restart`, and brings it back up.
+3. **Production only:** before deploying it cancels itself if a newer `main`
+   run is in progress, works out the next version from the Conventional
+   Commits since the last tag, and after deploying publishes a GitHub release
+   with that tag and generated notes.
 
-- Image: `ghcr.io/adam-blakey/readererer`
-- `dev` pushes tags: `dev`, `pr-<number>`, `sha-<commit>`
-- `qa` pushes tags: `qa`, `sha-<commit>`
+Node and Composer are no longer needed on the server; only PHP and git.
 
-Each environment's server is expected to **watch its tag (`dev` / `qa`) and pull
-the new image itself** (e.g. via a watchtower-style poller or a scheduled
-`docker pull && docker compose up -d`). GitHub's job finishes once the image is
-pushed.
+Fork pull requests and Dependabot pull requests build and test but do not
+deploy (they have no access to the secrets).
 
-### Requirements
+`dev` is shared: whichever pull request deployed last is what is on dev.
 
-- No secrets or variables are needed — the built-in `GITHUB_TOKEN` authenticates
-  to GHCR. The workflows request `packages: write` permission for this.
-- **Server pull access.** If the GHCR package is **private**, the server needs
-  credentials to pull it: create a Personal Access Token (or GitHub App token)
-  with `read:packages` and `docker login ghcr.io` on the server. Making the
-  package **public** avoids this.
-- **Fork PRs are skipped** (they cannot push to the registry).
+## Repository configuration
 
-### The image
+These settings live in GitHub, not in the repo, so they have to be applied by
+hand. They are what the pipeline relies on, matching the website repo's setup.
 
-Multi-stage `Dockerfile`:
+### Variables (Settings → Secrets and variables → Actions → Variables)
 
-1. `node:24-alpine` builds the Vite assets (`npm ci && npm run build`).
-2. `composer:2` installs PHP dependencies (`--no-dev`).
-3. `php:8.2-apache` serves Laravel's `public/` directory.
+Repository-level, because the deploy matrix reads the domains before any
+environment is selected.
 
-Runtime configuration (`APP_KEY`, `DB_*`, etc.) is supplied by the server as
-environment variables — **nothing sensitive is baked into the image** (`.env` and
-the local SQLite database are excluded via `.dockerignore`).
+| Name              | Example                    | Description                                                                 |
+| ----------------- | -------------------------- | --------------------------------------------------------------------------- |
+| `DEV_DOMAIN`      | `dev.readererer.com`       | Dev domain; also the folder under `~/domains/` on the server.               |
+| `QA_DOMAIN`       | `qa.readererer.com`        | QA domain.                                                                  |
+| `PROD_DOMAIN`     | `readererer.com`           | Production domain.                                                          |
+| `DEPLOY_SSH_HOST` | `ssh.example.krystal.uk`   | SSH host.                                                                   |
+| `DEPLOY_SSH_PORT` | `722`                      | SSH port.                                                                   |
+| `DEPLOY_SSH_USER` | `readererer`               | SSH user.                                                                   |
+| `DEPLOY_GIT_KEY`  | `github_readererer`        | File name, in the server's `~/.ssh/`, of the key the server uses to fetch from GitHub. |
 
-### Footer version number
+If an environment lives on a different Krystal account, set `DEPLOY_SSH_*`
+on that environment instead; environment variables override repository ones.
 
-The version shown in the app footer comes from `version.json`, generated at
-build time (read by `config/_version.php` — no git commands run inside the
-app). The image workflows compute it with `git describe` and pass it in as
-Docker build arguments; everywhere else (local installs, the production SSH
-deploy) `php artisan app:generate-version` writes it from composer's
-`post-autoload-dump` hook.
+### Secret
 
-## Production — SSH deploy
+| Name              | Description                                                         |
+| ----------------- | ------------------------------------------------------------------- |
+| `SSH_PRIVATE_KEY` | Private key for `DEPLOY_SSH_USER`; its public key must be in the server's `~/.ssh/authorized_keys`. |
 
-`production` keeps the existing SSH deploy: it installs Laravel Envoy on the
-runner and runs the `deploy` story in `Envoy.blade.php` (git pull, npm, composer,
-migrate) against the production server. It deploys `main`, matching the previous
-tag-triggered GitLab deploy; Envoy also fetches all tags.
+### Server, once per domain
 
-### Required configuration on the `production` environment
+- `~/domains/<domain>` is a git clone of this repo whose `origin` can be
+  fetched with `~/.ssh/<DEPLOY_GIT_KEY>`, with a `.env` for that environment.
+- The domain's document root points at `public/`.
 
-Add these under **Settings → Environments → production**.
+### Environments (Settings → Environments)
 
-**Secret**
+- **`dev`** — no protection.
+- **`qa`** — Deployment branches: `main` only.
+- **`production`** — Deployment branches: `main` only, and a **Wait timer**
+  (the batching window: runs that find a newer one in progress when the timer
+  ends cancel themselves). Optionally add Required reviewers.
 
-| Name              | Description                                                                                          |
-| ----------------- | --------------------------------------------------------------------------------------------------- |
-| `SSH_PRIVATE_KEY` | Private key for the SSH user. Its public key must be authorised on the server, and the key must be able to pull from the git remote (Envoy uses agent forwarding). |
+The old `production` environment variables (`UNIX_USERNAME`, `SERVER_DOMAIN`,
+`SERVER_PORT`, `APP_DOMAIN`) and its `SSH_PRIVATE_KEY` are no longer read and
+can be deleted.
 
-**Variables**
+### Rules (Settings → Rules → Rulesets → `main`)
 
-| Name            | Example              | Description                                                            |
-| --------------- | -------------------- | --------------------------------------------------------------------- |
-| `UNIX_USERNAME` | `default`            | SSH user on the server.                                               |
-| `SERVER_DOMAIN` | `ssh.readererer.com` | SSH host.                                                             |
-| `SERVER_PORT`   | `22`                 | SSH port.                                                             |
-| `APP_DOMAIN`    | `readererer.com`     | App domain — Envoy uses it to find the app dir; shown as deployment URL. |
+The existing `main` ruleset (restrict deletions, block force pushes, require
+signed commits, CodeQL, code quality, coverage) stays. Add:
 
-## One-time setup
+- **Require a pull request before merging.**
+- **Require status checks to pass**, with:
+  - `Pest test suite` (from Build, Test & Deploy)
+  - `Pint code style` (from CI)
+  - `commit_messages` (from Conventional Commits)
 
-1. **Create the environments** in **Settings → Environments**: `dev`, `qa`,
-   `production` (names must match exactly).
-2. **Configure `production`** with the secret and variables above. `dev` and `qa`
-   need no configuration.
-3. **Recommended protection rules:**
-   - `production` — **Required reviewers** so a release deploy waits for manual
-     approval, and restrict **Deployment branches** to `main`.
-   - `qa` — restrict **Deployment branches** to `main`.
-   - `dev` — no restriction needed.
+### Merging
 
-## Notes and limitations
+The release version is derived from the commit messages that land on `main`,
+so keep merge commits or rebase merging enabled. With squash merging, the PR
+title becomes the commit message and must also be a Conventional Commit.
 
-- **Shared `dev` tag.** Every PR overwrites the `dev` image tag, so whichever PR
-  built last is what the dev server pulls. Runs for the *same* PR are serialised
-  (a newer push cancels the older).
-- **Production ref.** Production deploys `main` (with all tags fetched). Ensure
-  `main` points at the released commit when publishing the release. To deploy the
-  exact tag, Envoy's `git reset --hard origin/<ref>` in `Envoy.blade.php` would
-  need adjusting to handle tag refs.
+### Cleanup
+
+Nothing pushes to `ghcr.io/adam-blakey/readererer` any more; the package can
+be deleted under the profile's **Packages** tab once nothing pulls it.
