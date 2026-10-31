@@ -274,3 +274,24 @@ test('the poll runs the same number of queries however many members there are', 
     expect($response->viewData('van_driver_ids')->values()->all())
         ->toBe([$drivers[0]->id, $drivers[1]->id, $drivers[0]->id, $drivers[1]->id]);
 });
+
+test('repeating poll headings start again for each instrument family', function () {
+    config(['app.readererer_repeating_headings' => true]);
+    $ensemble = Ensemble::factory()->create();
+    $term = Term::factory()->create();
+    TermDate::forceCreate([
+        'term_id' => $term->id,
+        'start_datetime' => now()->addWeek(),
+        'end_datetime' => now()->addWeek()->addHours(2),
+    ]);
+    foreach (['Brass', 'Brass', 'Strings'] as $family) {
+        join_ensemble(make_user(UserRole::Member), $ensemble, make_instrument_family($family));
+    }
+
+    $html = $this->actingAs(make_user(UserRole::Admin))
+        ->get(route('attendance.poll', ['ensemble' => $ensemble->slug, 'term' => $term->slug, 'sortby' => 'instrument_family']))
+        ->assertOk()
+        ->getContent();
+
+    expect(substr_count($html, '<thead>'))->toBe(2);
+});

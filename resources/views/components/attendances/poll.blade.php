@@ -64,7 +64,9 @@
 				@endphp
 				@foreach ($members as $member)
 					@php
-						$sort_value = $member->$sort_attribute;
+						$sort_value = ($sort_attribute == 'instrument_family')
+							? $instrument_families->get($member->pivot->instrument_family_id)?->name
+							: $member->$sort_attribute;
 					@endphp
 
 					@if ($repeating_headings and $sort_value != $prev_sort_value or $loop->first)
@@ -74,13 +76,7 @@
 					@endif
 					@if ($repeating_headings and $sort_value != $prev_sort_value)
 						<tr>
-							<td>
-								@if ($sort_attribute == 'instrument_family')
-									{{ $instrument_families->get($member->pivot->instrument_family_id)?->name }}
-								@else
-									{{ $member->$sort_attribute }}
-								@endif
-							</td>
+							<td>{{ $sort_value }}</td>
 							@foreach ($term_dates as $term_date)
                                 <td class="w-1 {{ ((int)($term_date->concert_ensemble_id) === (int)($ensemble->id)) ? 'bg-primary-subtle' : '' }}"></td>
 							@endforeach
