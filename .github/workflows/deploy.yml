@@ -64,12 +64,12 @@ jobs:
       actions: write
       contents: write
     strategy:
-      max-parallel: 1 # dev, then qa, then production; a failure skips the rest
+      max-parallel: 1 # dev, then qa, then prod; a failure skips the rest
       matrix:
-        environment: [dev, qa, production]
+        environment: [dev, qa, prod]
         exclude:
           - environment: ${{ github.event_name == 'pull_request' && 'qa' || '' }}
-          - environment: ${{ github.event_name == 'pull_request' && 'production' || '' }}
+          - environment: ${{ github.event_name == 'pull_request' && 'prod' || '' }}
     concurrency: deploy-${{ matrix.environment }}
     environment:
       name: ${{ matrix.environment }}
@@ -79,7 +79,7 @@ jobs:
       HOST: ${{ vars.DEPLOY_SSH_USER }}@${{ vars.DEPLOY_SSH_HOST }}
     steps:
       - name: Cancel if a newer run is on its way
-        if: matrix.environment == 'production'
+        if: matrix.environment == 'prod'
         env:
           GH_TOKEN: ${{ github.token }}
           GH_REPO: ${{ github.repository }}
@@ -90,7 +90,7 @@ jobs:
             sleep 300
           fi
       - id: version
-        if: matrix.environment == 'production'
+        if: matrix.environment == 'prod'
         uses: mathieudutour/github-tag-action@v7
         with:
           github_token: ${{ github.token }}
@@ -110,14 +110,21 @@ jobs:
             set -e
             cd domains/${{ vars.APP_DOMAIN }}
             export GIT_SSH_COMMAND="ssh -i ~/.ssh/${{ vars.DEPLOY_GIT_KEY }} -o IdentitiesOnly=yes"
-            git fetch --tags --force origin ${{ github.sha }}
+            git init -q
+            git fetch --tags --force git@github.com:${{ github.repository }}.git ${{ github.sha }}
             git reset --hard FETCH_HEAD
-            rm -f bootstrap/cache/*.php
-            if [ '${{ matrix.environment }}' = 'production' ]; then
-              php artisan app:generate-version --tag='${{ steps.version.outputs.new_tag || steps.version.outputs.previous_tag }}'
-            else
-              php artisan app:generate-version --tag="$(git describe --tags --always)${{ github.event.pull_request.number && format('+pr{0}', github.event.pull_request.number) || '' }}"
+            if [ ! -f .env ]; then
+              echo "No .env in ~/domains/${{ vars.APP_DOMAIN }}: copy .env.example to .env, fill it in, then re-run this deploy." >&2
+              exit 1
             fi
+            rm -f bootstrap/cache/*.php
+            if [ '${{ matrix.environment }}' = 'prod' ]; then
+              tag='${{ steps.version.outputs.new_tag || steps.version.outputs.previous_tag }}'
+            else
+              tag="$(git describe --tags --always)${{ github.event.pull_request.number && format('+pr{0}', github.event.pull_request.number) || '' }}"
+            fi
+            # Krystal disables proc_open, so git must not be run from PHP.
+            php artisan app:generate-version --tag="$tag" --hash="$(git log --pretty=%h -n1)" --date="$(git log --pretty=%cI -n1)"
             php artisan down
             trap 'php artisan up' EXIT
             if [ '${{ matrix.environment }}' = 'dev' ]; then
@@ -129,7 +136,7 @@ jobs:
             php artisan event:cache
             php artisan queue:restart
           EOF
-      - if: matrix.environment == 'production'
+      - if: matrix.environment == 'prod'
         uses: softprops/action-gh-release@v2.6.2
         with:
           tag_name: ${{ steps.version.outputs.new_tag || steps.version.outputs.previous_tag }}
