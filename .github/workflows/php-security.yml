@@ -81,7 +81,9 @@ jobs:
         tools: psalm
 
     - name: Install Composer dependencies
-      run: composer install --no-scripts --no-progress
+      uses: ramsey/composer-install@v3
+      with:
+        composer-options: --no-scripts
 
     - name: Run Psalm security scan
       run: psalm --output-format=github --taint-analysis --report=results.sarif

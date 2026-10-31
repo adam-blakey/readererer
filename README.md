@@ -147,9 +147,8 @@ npm run build
 reads the icons that the build copies into `public/build/icons` and fails if they are
 missing.
 
-Tests and the Pint check run on every pull request (`.github/workflows/ci.yml`). The
-Pint check covers only the PHP files changed in the pull request, because the
-repository does not yet pass `pint --test` across all files.
+Tests and the Pint check run on every pull request, in the `Pest test suite` job of
+`.github/workflows/deploy.yml`.
 
 ## Docker
 

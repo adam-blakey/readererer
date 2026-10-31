@@ -9,6 +9,10 @@ on:
 permissions:
   contents: read
 
+concurrency:
+  group: deploy-${{ github.event.pull_request.number || github.run_id }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
 jobs:
   build_and_test:
     name: Pest test suite
@@ -23,20 +27,15 @@ jobs:
         with:
           node-version: '24'
           cache: npm
-      - id: composer-cache
-        run: echo "dir=$(composer config cache-files-dir)" >> "$GITHUB_OUTPUT"
-      - uses: actions/cache@v6
-        with:
-          path: ${{ steps.composer-cache.outputs.dir }}
-          key: composer-${{ hashFiles('composer.lock') }}
-          restore-keys: composer-
       - run: cp .env.example .env
-      - run: composer install --no-interaction --no-progress --prefer-dist
+      - uses: ramsey/composer-install@v3
+      - run: ./vendor/bin/pint --test
       - run: php artisan key:generate
       - run: npm ci
       - run: npx playwright install --with-deps chromium
       - run: npm run build
-      - run: php artisan test --log-junit ./junit.xml
+      - run: php artisan test --parallel --testsuite=Unit,Feature --log-junit ./junit.xml
+      - run: php artisan test --testsuite=Browser --log-junit ./junit-browser.xml
       - run: composer install --no-interaction --no-progress --prefer-dist --no-dev --optimize-autoloader
       # Production build smoke test. Must run after the tests: a cached config ignores APP_ENV=testing and CSRF would be enforced.
       - run: php artisan optimize --env=production
@@ -47,7 +46,7 @@ jobs:
         if: always()
         with:
           name: junit
-          path: junit.xml
+          path: junit*.xml
       - uses: actions/upload-artifact@v7
         with:
           name: build
