@@ -137,3 +137,44 @@ test('repeated poll submissions append new attendance records rather than replac
     // Attendance history is append-only; the latest record wins when totals are computed.
     expect(Attendance::where('user_id', $member->id)->count())->toBe(2);
 });
+
+test('a poll submission ignores members, dates and statuses that do not belong to the poll', function () {
+    $ensemble = Ensemble::factory()->create();
+    $otherEnsemble = Ensemble::factory()->create();
+    $term = Term::factory()->create();
+    $otherTerm = Term::factory()->create();
+    $rehearsal = TermDate::forceCreate([
+        'term_id' => $term->id,
+        'start_datetime' => now()->addWeek(),
+        'end_datetime' => now()->addWeek()->addHours(2),
+    ]);
+    $otherConcert = TermDate::forceCreate([
+        'term_id' => $term->id,
+        'concert_ensemble_id' => $otherEnsemble->id,
+        'start_datetime' => now()->addWeeks(2),
+        'end_datetime' => now()->addWeeks(2)->addHours(2),
+    ]);
+    $otherTermDate = TermDate::forceCreate([
+        'term_id' => $otherTerm->id,
+        'start_datetime' => now()->addWeek(),
+        'end_datetime' => now()->addWeek()->addHours(2),
+    ]);
+
+    $member = make_user(UserRole::Member);
+    join_ensemble($member, $ensemble);
+    $outsider = make_user(UserRole::Member);
+    join_ensemble($outsider, $otherEnsemble);
+
+    $this->actingAs(make_user(UserRole::Admin))->post(
+        route('attendance.poll-store', ['ensemble' => $ensemble->slug, 'term' => $term->slug]),
+        [
+            "status-t{$rehearsal->id}m{$outsider->id}" => AttendanceStatus::Attending->value,
+            "status-t{$otherTermDate->id}m{$member->id}" => AttendanceStatus::Attending->value,
+            "status-t{$otherConcert->id}m{$member->id}" => AttendanceStatus::Attending->value,
+            "status-t{$rehearsal->id}m{$member->id}" => 7,
+            'unexpected' => 'value',
+        ]
+    )->assertRedirect();
+
+    expect(Attendance::count())->toBe(0);
+});
