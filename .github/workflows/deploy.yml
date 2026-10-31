@@ -115,10 +115,12 @@ jobs:
             git reset --hard FETCH_HEAD
             rm -f bootstrap/cache/*.php
             if [ '${{ matrix.environment }}' = 'production' ]; then
-              php artisan app:generate-version --tag='${{ steps.version.outputs.new_tag || steps.version.outputs.previous_tag }}'
+              tag='${{ steps.version.outputs.new_tag || steps.version.outputs.previous_tag }}'
             else
-              php artisan app:generate-version --tag="$(git describe --tags --always)${{ github.event.pull_request.number && format('+pr{0}', github.event.pull_request.number) || '' }}"
+              tag="$(git describe --tags --always)${{ github.event.pull_request.number && format('+pr{0}', github.event.pull_request.number) || '' }}"
             fi
+            # Krystal disables proc_open, so git must not be run from PHP.
+            php artisan app:generate-version --tag="$tag" --hash="$(git log --pretty=%h -n1)" --date="$(git log --pretty=%cI -n1)"
             php artisan down
             trap 'php artisan up' EXIT
             if [ '${{ matrix.environment }}' = 'dev' ]; then
