@@ -4,8 +4,10 @@ use App\Enums\AttendanceStatus;
 use App\Enums\UserRole;
 use App\Models\Attendance;
 use App\Models\Ensemble;
+use App\Models\SetupGroup;
 use App\Models\Term;
 use App\Models\TermDate;
+use Illuminate\Support\Facades\DB;
 
 test('the poll lists ensemble members who have an instrument family', function () {
     $ensemble = Ensemble::factory()->create();
@@ -224,4 +226,51 @@ test('the poll and the register agree on a member\'s latest answer for their ens
 
     expect($totals['not_attending'])->toBe(0);
     expect($register->viewData('polled_statuses')->get($member->id))->toBe(AttendanceStatus::Attending);
+});
+
+test('the poll runs the same number of queries however many members there are', function () {
+    $ensemble = Ensemble::factory()->create();
+    $term = Term::factory()->create();
+    $setupGroup = SetupGroup::create(['name' => 'Group A', 'week' => 1, 'color' => 'blue']);
+    $drivers = collect([make_user(UserRole::Member), make_user(UserRole::Member)]);
+    $drivers->each(fn ($driver, $index) => $setupGroup->van_drivers()->attach($driver->id, ['sort' => $index]));
+    $drivers->each(fn ($driver) => join_ensemble($driver, $ensemble));
+    $dates = collect(range(1, 4))->map(fn ($week) => TermDate::forceCreate([
+        'term_id' => $term->id,
+        'setup_group_id' => $setupGroup->id,
+        'start_datetime' => now()->addWeeks($week),
+        'end_datetime' => now()->addWeeks($week)->addHours(2),
+    ]));
+    $admin = make_user(UserRole::Admin);
+    $url = route('attendance.poll', ['ensemble' => $ensemble->slug, 'term' => $term->slug]);
+
+    $countQueries = function () use ($admin, $url) {
+        DB::flushQueryLog();
+        DB::enableQueryLog();
+        $response = $this->actingAs($admin)->get($url)->assertOk();
+        DB::disableQueryLog();
+
+        return [count(DB::getQueryLog()), $response];
+    };
+
+    [$fewMembers] = $countQueries();
+
+    foreach (range(1, 10) as $ignored) {
+        $member = make_user(UserRole::Member, ['setup_group_id' => $setupGroup->id]);
+        join_ensemble($member, $ensemble);
+        Attendance::create([
+            'user_id' => $member->id,
+            'term_date_id' => $dates->first()->id,
+            'ensemble_id' => $ensemble->id,
+            'status' => AttendanceStatus::Attending,
+            'edit_user_id' => $admin->id,
+            'edit_ip' => '127.0.0.1',
+        ]);
+    }
+
+    [$manyMembers, $response] = $countQueries();
+
+    expect($manyMembers)->toBe($fewMembers);
+    expect($response->viewData('van_driver_ids')->values()->all())
+        ->toBe([$drivers[0]->id, $drivers[1]->id, $drivers[0]->id, $drivers[1]->id]);
 });

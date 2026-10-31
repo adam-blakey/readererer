@@ -7,9 +7,9 @@ use App\Http\Requests\StoreAttendanceRequest;
 use App\Http\Requests\UpdateAttendanceRequest;
 use App\Models\Attendance;
 use App\Models\Ensemble;
+use App\Models\InstrumentFamily;
 use App\Models\Term;
 use App\Models\TermDate;
-use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
@@ -34,22 +34,23 @@ class AttendanceController extends Controller
     {
         $this->authorize('view', $ensemble);
 
-        $members = User::latest()
-            ->with('attendances')
-            ->with('ensembles')
-            ->with('setup_group')
-            ->get()
-            ->filter(function ($user) use ($ensemble) {
-                return $user->ensembles->contains($ensemble) && $user->ensembles->where('id', $ensemble->id)->first()->pivot->instrument_family_id != null;
-            })
-            ->values();
+        $term_dates = $term->term_dates
+            ->filter(fn (TermDate $term_date) => $term_date->appliesToEnsemble($ensemble))
+            ->values()
+            ->load(['concert_ensemble', 'setup_group.van_drivers', 'van_driver']);
 
-        $page_name = $ensemble->name.': '.$term->name;
+        $members = $ensemble->users()
+            ->wherePivotNotNull('instrument_family_id')
+            ->with(['setup_group', 'attendances' => fn ($query) => $query->whereIn('term_date_id', $term_dates->pluck('id'))])
+            ->get();
 
         return view('attendances.poll', [
             'members' => $members,
             'term' => $term,
-            'page_name' => $page_name,
+            'term_dates' => $term_dates,
+            'instrument_families' => InstrumentFamily::whereIn('id', $members->pluck('pivot.instrument_family_id'))->get()->keyBy('id'),
+            'van_driver_ids' => $term_dates->mapWithKeys(fn (TermDate $term_date) => [$term_date->id => $term_date->inferred_van_driver?->id]),
+            'page_name' => $ensemble->name.': '.$term->name,
             'ensemble' => $ensemble,
             'sortby' => $request->query('sortby') ?? 'first_name',
         ]);

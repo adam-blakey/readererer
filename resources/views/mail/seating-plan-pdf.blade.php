@@ -1,25 +1,11 @@
 @php
     $attendanceTotals = member_status_totals($members, $termDate, $ensemble);
 
-    function get_seat_row($member, $ensemble) {
-        return $member->ensembles->where('id', $ensemble->id)->first()->pivot->seat_row;
-    }
-    function get_seat_column($member, $ensemble) {
-        return $member->ensembles->where('id', $ensemble->id)->first()->pivot->seat_column;
-    }
-    function get_instrument_color($member, $ensemble, $instrumentFamilies) {
-        $family = $instrumentFamilies->firstWhere('id', $member->ensembles->where('id', $ensemble->id)->first()->pivot->instrument_family_id);
-
-        return ($family ? color_name_to_hex($family->color) : null) ?? '#000000';
-    }
-
     $members = $members->sortBy([
-        fn ($a, $b) => get_seat_row($a, $ensemble) <=> get_seat_row($b, $ensemble),
-        fn ($a, $b) => get_seat_column($a, $ensemble) <=> get_seat_column($b, $ensemble),
+        ['pivot.seat_row', 'asc'],
+        ['pivot.seat_column', 'asc'],
     ]);
-    $rowGroupedMembers = $members->groupBy(function($member) use ($ensemble) {
-        return $member->ensembles->where('id', $ensemble->id)->first()->pivot->seat_row;
-    });
+    $rowGroupedMembers = $members->groupBy('pivot.seat_row');
 
     $minRow = $rowGroupedMembers->keys()->min();
     $maxRow = $rowGroupedMembers->keys()->max();
@@ -75,7 +61,7 @@
                 @foreach($members as $member)
                     @php($attendance_value = $member->latestAttendanceFor($termDate, $ensemble)?->status ?? App\Enums\AttendanceStatus::Unknown)
                     <tr>
-                        <td style="padding: 0.15em 0.4em; border: 2px solid black; border-left: 6px solid {{ get_instrument_color($member, $ensemble, $instrumentFamilies) }};">
+                        <td style="padding: 0.15em 0.4em; border: 2px solid black; border-left: 6px solid {{ color_name_to_hex($instrumentFamilies->get($member->pivot->instrument_family_id)?->color) ?? '#000000' }};">
                             @switch($attendance_value)
                                 @case(App\Enums\AttendanceStatus::Attending)
                                     <span>{{ $member->name }}</span>

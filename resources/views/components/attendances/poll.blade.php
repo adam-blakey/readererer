@@ -1,5 +1,4 @@
-@php use App\Models\TermDate; @endphp
-@props(['members', 'term', 'ensemble', 'sortby'])
+@props(['members', 'term', 'term_dates', 'instrument_families', 'van_driver_ids', 'ensemble', 'sortby'])
 
 @push('scripts')
 	<script src="/js/three-state-checkbox.js"></script>
@@ -16,9 +15,7 @@
 	        $sort_attribute = 'last_name_initial';
 	        break;
 	    case 'instrument_family':
-	        $members = $members->sortBy(function ($member) use ($ensemble) {
-	            return App\Models\InstrumentFamily::find($member->ensembles->where('id', $ensemble->id)->first()->pivot->instrument_family_id)->name;
-	        });
+	        $members = $members->sortBy(fn ($member) => $instrument_families->get($member->pivot->instrument_family_id)?->name);
 	        $sort_attribute = 'instrument_family';
 	        break;
 	    default:
@@ -26,10 +23,6 @@
 	        $sort_attribute = 'first_name_initial';
 	        break;
 	}
-
-    $term_dates = $term
-        ->term_dates
-        ->filter(fn (TermDate $td) => $td->appliesToEnsemble($ensemble));
 
 	$spans_multiple_years = $term->earliest_date->year != $term->latest_date->year;
 
@@ -83,7 +76,7 @@
 						<tr>
 							<td>
 								@if ($sort_attribute == 'instrument_family')
-									{{ App\Models\InstrumentFamily::find($member->ensembles->where('id', $ensemble->id)->first()->pivot->instrument_family_id)->name }}
+									{{ $instrument_families->get($member->pivot->instrument_family_id)?->name }}
 								@else
 									{{ $member->$sort_attribute }}
 								@endif
@@ -96,7 +89,7 @@
 
 					<tr>
 						<td>
-							<x-user-entry :add_route="false" :secondary_info="App\Models\InstrumentFamily::find($member->ensembles->where('id', $ensemble->id)->first()->pivot->instrument_family_id)->name ?? ''" :user="$member" show_setup_group="true" />
+							<x-user-entry :add_route="false" :secondary_info="$instrument_families->get($member->pivot->instrument_family_id)?->name ?? ''" :user="$member" show_setup_group="true" />
 						</td>
 						@foreach ($term_dates as $term_date)
                             <td class="w-1 {{ ((int)($term_date->concert_ensemble_id) === (int)($ensemble->id)) ? 'bg-primary-subtle' : '' }}">
@@ -112,7 +105,7 @@
                                         $setup_group = null;
                                     }
 
-                                    $is_van_driver = !($term_date->inferred_van_driver == null) && $term_date->inferred_van_driver->id == $member->id;
+                                    $is_van_driver = $van_driver_ids->get($term_date->id) === $member->id;
 								@endphp
 								<x-forms.input-three-state-checkbox :$allow_change_to_unknown :$assume_attending :member_id="$member->id" :status="$attendance_value" :term_date_id="$term_date->id" :$setup_group :$is_van_driver />
 							</td>
@@ -124,7 +117,7 @@
 					@endphp
 				@endforeach
 				<tr>
-					<td class="align-right" colspan="{{ $term->term_dates->count() + 1 }}">
+					<td class="align-right" colspan="{{ $term_dates->count() + 1 }}">
 						<button class="btn btn-primary" type="submit">{{ __('Save') }}</button>
 					</td>
 				</tr>

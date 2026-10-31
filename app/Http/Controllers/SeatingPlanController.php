@@ -5,7 +5,6 @@ namespace App\Http\Controllers;
 use App\Models\Ensemble;
 use App\Models\InstrumentFamily;
 use App\Models\TermDate;
-use App\Models\User;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Http\Request;
 use Illuminate\Support\Collection;
@@ -124,20 +123,12 @@ class SeatingPlanController extends Controller
     {
         $this->authorize('view', $ensemble);
 
-        $members = User::latest()
-            ->with('attendances')
-            ->with('ensembles')
-            ->with('setup_group')
-            ->get()
-            ->filter(function ($user) use ($ensemble) {
-                return $user->ensembles->contains($ensemble) && $user->ensembles->where('id', $ensemble->id)->first()->pivot->instrument_family_id != null;
-            })
-            ->values();
+        $members = $ensemble->users()
+            ->wherePivotNotNull('instrument_family_id')
+            ->with(['attendances' => fn ($query) => $query->where('term_date_id', $termDate->id)])
+            ->get();
 
-        $instrumentFamilyIds = $members
-            ->map(fn ($member) => $member->ensembles->where('id', $ensemble->id)->first()->pivot->instrument_family_id)
-            ->unique();
-        $instrumentFamilies = InstrumentFamily::whereIn('id', $instrumentFamilyIds)->orderBy('name')->get();
+        $instrumentFamilies = InstrumentFamily::whereIn('id', $members->pluck('pivot.instrument_family_id'))->orderBy('name')->get()->keyBy('id');
 
         Pdf::setOption(['debugCss' => true]);
         $pdf = Pdf::loadView('mail.seating-plan-pdf', compact('ensemble', 'termDate', 'members', 'instrumentFamilies'))->setPaper('a4', 'landscape');
