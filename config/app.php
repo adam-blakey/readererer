@@ -25,7 +25,7 @@ return [
     | or any other location as required by the application or its packages.
     */
 
-    'version' => config('_version.tag'),
+    'version' => is_file(base_path('VERSION')) ? trim(file_get_contents(base_path('VERSION'))) : '0.0.0',
 
     /*
     |--------------------------------------------------------------------------

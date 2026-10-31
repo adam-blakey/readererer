@@ -117,14 +117,12 @@ jobs:
               echo "No .env in ~/domains/${{ vars.APP_DOMAIN }}: copy .env.example to .env, fill it in, then re-run this deploy." >&2
               exit 1
             fi
-            rm -f bootstrap/cache/*.php
             if [ '${{ matrix.environment }}' = 'prod' ]; then
-              tag='${{ steps.version.outputs.new_tag || steps.version.outputs.previous_tag }}'
+              echo '${{ steps.version.outputs.new_tag || steps.version.outputs.previous_tag }}' > VERSION
             else
-              tag="$(git describe --tags --always)${{ github.event.pull_request.number && format('+pr{0}', github.event.pull_request.number) || '' }}"
+              echo "$(git describe --tags --always)${{ github.event.pull_request.number && format('+pr{0}', github.event.pull_request.number) || '' }}" > VERSION
             fi
-            # Krystal disables proc_open, so git must not be run from PHP.
-            php artisan app:generate-version --tag="$tag" --hash="$(git log --pretty=%h -n1)" --date="$(git log --pretty=%cI -n1)"
+            rm -f bootstrap/cache/*.php
             php artisan down
             trap 'php artisan up' EXIT
             if [ '${{ matrix.environment }}' = 'dev' ]; then
@@ -136,7 +134,7 @@ jobs:
             php artisan event:cache
             php artisan queue:restart
           EOF
-      - if: matrix.environment == 'prod'
+      - if: matrix.environment == 'prod' && steps.version.outputs.new_tag
         uses: softprops/action-gh-release@v2.6.2
         with:
           tag_name: ${{ steps.version.outputs.new_tag || steps.version.outputs.previous_tag }}

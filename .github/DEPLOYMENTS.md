@@ -24,7 +24,7 @@ The app's prod site is `readererer-prod.blakey.family`; the docs site is
    `qa`, then `prod`, so a failure skips the environments after it). For each domain it:
    - rsyncs `vendor` and `public/build` to `~/domains/<domain>/`;
    - fetches the exact commit on the server and `git reset --hard`s to it;
-   - writes `version.json` (prod: the new release tag; dev/qa:
+   - writes `VERSION` (prod: the new release tag; dev/qa:
      `git describe`, plus `+pr<n>` on dev);
    - puts the app in maintenance mode, migrates, runs `optimize`,
      `event:cache` and `queue:restart`, and brings it back up.

@@ -19,5 +19,5 @@ yarn-error.log
 /.idea
 /.vscode
 /storage/debugbar
-/version.json
+/VERSION
 /tests/Browser/Screenshots
