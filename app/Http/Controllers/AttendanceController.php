@@ -2,12 +2,12 @@
 
 namespace App\Http\Controllers;
 
-use App\Http\Requests\StoreAttendanceRequest;
-use App\Http\Requests\UpdateAttendanceRequest;
+use App\Enums\AttendanceStatus;
 use App\Models\Attendance;
 use App\Models\Ensemble;
+use App\Models\InstrumentFamily;
 use App\Models\Term;
-use App\Models\User;
+use App\Models\TermDate;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
@@ -32,22 +32,23 @@ class AttendanceController extends Controller
     {
         $this->authorize('view', $ensemble);
 
-        $members = User::latest()
-            ->with('attendances')
-            ->with('ensembles')
-            ->with('setup_group')
-            ->get()
-            ->filter(function ($user) use ($ensemble) {
-                return $user->ensembles->contains($ensemble) && $user->ensembles->where('id', $ensemble->id)->first()->pivot->instrument_family_id != null;
-            })
-            ->values();
+        $term_dates = $term->term_dates
+            ->filter(fn (TermDate $term_date) => $term_date->appliesToEnsemble($ensemble))
+            ->values()
+            ->load(['concert_ensemble', 'setup_group.van_drivers', 'van_driver']);
 
-        $page_name = $ensemble->name.': '.$term->name;
+        $members = $ensemble->users()
+            ->wherePivotNotNull('instrument_family_id')
+            ->with(['setup_group', 'attendances' => fn ($query) => $query->whereIn('term_date_id', $term_dates->pluck('id'))])
+            ->get();
 
         return view('attendances.poll', [
             'members' => $members,
             'term' => $term,
-            'page_name' => $page_name,
+            'term_dates' => $term_dates,
+            'instrument_families' => InstrumentFamily::whereIn('id', $members->pluck('pivot.instrument_family_id'))->get()->keyBy('id'),
+            'van_driver_ids' => $term_dates->mapWithKeys(fn (TermDate $term_date) => [$term_date->id => $term_date->inferred_van_driver?->id]),
+            'page_name' => $ensemble->name.': '.$term->name,
             'ensemble' => $ensemble,
             'sortby' => $request->query('sortby') ?? 'first_name',
         ]);
@@ -57,43 +58,29 @@ class AttendanceController extends Controller
     {
         $this->authorize('view', $ensemble);
 
-        $request_ip = $request->ip();
+        $member_ids = $ensemble->users()->wherePivotNotNull('instrument_family_id')->pluck('users.id');
+        $term_date_ids = $term->term_dates->filter(fn (TermDate $term_date) => $term_date->appliesToEnsemble($ensemble))->pluck('id');
 
-        $request->collect()->each(function ($parameter_value, $parameter_key) use ($request_ip, $ensemble) {
-            if ($parameter_key == '_token') {
-                return;
+        foreach ($request->except('_token') as $key => $value) {
+            $status = is_numeric($value) ? AttendanceStatus::tryFrom((int) $value) : null;
+
+            if ($status === null
+                || ! preg_match('/^status-t(\d+)m(\d+)$/', $key, $ids)
+                || ! $term_date_ids->contains((int) $ids[1])
+                || ! $member_ids->contains((int) $ids[2])) {
+                continue;
             }
 
-            assert(substr($parameter_key, 0, 7) == 'status-');
-
-            $data = preg_split('/(t|m)/', explode('-', $parameter_key)[1], -1, PREG_SPLIT_NO_EMPTY);
-
-            assert(count($data) == 2);
-            $term_date_id = $data[0];
-            $member_id = $data[1];
-
             Attendance::create([
-                'user_id' => $member_id,
-                'term_date_id' => $term_date_id,
+                'user_id' => (int) $ids[2],
+                'term_date_id' => (int) $ids[1],
                 'ensemble_id' => $ensemble->id,
-                'status' => $parameter_value,
-                'edit_user_id' => Auth::user()->id,
-                'edit_ip' => $request_ip,
+                'status' => $status,
+                'edit_user_id' => Auth::id(),
+                'edit_ip' => $request->ip(),
             ]);
-        });
+        }
 
         return redirect()->route('attendance.poll', ['ensemble' => $ensemble, 'term' => $term]);
     }
-
-    public function create() {}
-
-    public function store(StoreAttendanceRequest $request) {}
-
-    public function show(Attendance $attendance) {}
-
-    public function edit(Attendance $attendance) {}
-
-    public function update(UpdateAttendanceRequest $request, Attendance $attendance) {}
-
-    public function destroy(Attendance $attendance) {}
 }

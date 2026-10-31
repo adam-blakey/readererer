@@ -1,8 +1,11 @@
 <?php
 
+use App\Enums\AttendanceStatus;
 use App\Enums\Color;
 use App\Enums\UserRole;
+use App\Models\Attendance;
 use App\Models\Ensemble;
+use App\Models\InstrumentFamily;
 use App\Models\Term;
 use App\Models\TermDate;
 
@@ -195,4 +198,36 @@ test('the seating plan pdf is forbidden without permission to view the ensemble'
     $this->actingAs($member)
         ->get(route('seating-plan.download', ['ensemble' => $ensemble, 'termDate' => $termDate->id]))
         ->assertForbidden();
+});
+
+test('the seating plan pdf view groups members by row and marks who is not attending', function () {
+    $ensemble = Ensemble::factory()->create();
+    $term = Term::factory()->create();
+    $termDate = TermDate::forceCreate([
+        'term_id' => $term->id,
+        'start_datetime' => now()->addWeek(),
+        'end_datetime' => now()->addWeek()->addHours(2),
+    ]);
+    $frontRow = make_user(UserRole::Member, ['first_name' => 'Ada', 'last_name' => 'Front']);
+    $backRow = make_user(UserRole::Member, ['first_name' => 'Bea', 'last_name' => 'Back']);
+    join_ensemble($frontRow, $ensemble, null, 'A', 1);
+    join_ensemble($backRow, $ensemble, null, 'B', 1);
+    Attendance::create([
+        'user_id' => $backRow->id,
+        'term_date_id' => $termDate->id,
+        'ensemble_id' => $ensemble->id,
+        'status' => AttendanceStatus::NotAttending,
+        'edit_user_id' => $frontRow->id,
+        'edit_ip' => '127.0.0.1',
+    ]);
+    $members = $ensemble->users()->wherePivotNotNull('instrument_family_id')->with('attendances')->get();
+    $instrumentFamilies = InstrumentFamily::all()->keyBy('id');
+
+    $render = fn () => view('mail.seating-plan-pdf', ['ensemble' => $ensemble, 'termDate' => $termDate, 'members' => $members, 'instrumentFamilies' => $instrumentFamilies])->render();
+    $render();
+    $html = $render();
+
+    expect($html)->toContain('Row A')->toContain('Row B');
+    expect($html)->toMatch('/<s [^>]*>\s*'.$backRow->name.'\s*<\/s>/');
+    expect($html)->not->toMatch('/<s [^>]*>\s*'.$frontRow->name.'\s*<\/s>/');
 });

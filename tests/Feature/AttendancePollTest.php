@@ -4,8 +4,10 @@ use App\Enums\AttendanceStatus;
 use App\Enums\UserRole;
 use App\Models\Attendance;
 use App\Models\Ensemble;
+use App\Models\SetupGroup;
 use App\Models\Term;
 use App\Models\TermDate;
+use Illuminate\Support\Facades\DB;
 
 test('the poll lists ensemble members who have an instrument family', function () {
     $ensemble = Ensemble::factory()->create();
@@ -136,4 +138,160 @@ test('repeated poll submissions append new attendance records rather than replac
 
     // Attendance history is append-only; the latest record wins when totals are computed.
     expect(Attendance::where('user_id', $member->id)->count())->toBe(2);
+});
+
+test('a poll submission ignores members, dates and statuses that do not belong to the poll', function () {
+    $ensemble = Ensemble::factory()->create();
+    $otherEnsemble = Ensemble::factory()->create();
+    $term = Term::factory()->create();
+    $otherTerm = Term::factory()->create();
+    $rehearsal = TermDate::forceCreate([
+        'term_id' => $term->id,
+        'start_datetime' => now()->addWeek(),
+        'end_datetime' => now()->addWeek()->addHours(2),
+    ]);
+    $otherConcert = TermDate::forceCreate([
+        'term_id' => $term->id,
+        'concert_ensemble_id' => $otherEnsemble->id,
+        'start_datetime' => now()->addWeeks(2),
+        'end_datetime' => now()->addWeeks(2)->addHours(2),
+    ]);
+    $otherTermDate = TermDate::forceCreate([
+        'term_id' => $otherTerm->id,
+        'start_datetime' => now()->addWeek(),
+        'end_datetime' => now()->addWeek()->addHours(2),
+    ]);
+
+    $member = make_user(UserRole::Member);
+    join_ensemble($member, $ensemble);
+    $outsider = make_user(UserRole::Member);
+    join_ensemble($outsider, $otherEnsemble);
+
+    $this->actingAs(make_user(UserRole::Admin))->post(
+        route('attendance.poll-store', ['ensemble' => $ensemble->slug, 'term' => $term->slug]),
+        [
+            "status-t{$rehearsal->id}m{$outsider->id}" => AttendanceStatus::Attending->value,
+            "status-t{$otherTermDate->id}m{$member->id}" => AttendanceStatus::Attending->value,
+            "status-t{$otherConcert->id}m{$member->id}" => AttendanceStatus::Attending->value,
+            "status-t{$rehearsal->id}m{$member->id}" => 7,
+            'unexpected' => 'value',
+        ]
+    )->assertRedirect();
+
+    expect(Attendance::count())->toBe(0);
+});
+
+test('the poll and the register agree on a member\'s latest answer for their ensemble', function () {
+    $orchestra = Ensemble::factory()->create();
+    $choir = Ensemble::factory()->create();
+    $term = Term::factory()->create();
+    $rehearsal = TermDate::forceCreate([
+        'term_id' => $term->id,
+        'start_datetime' => now()->addWeek(),
+        'end_datetime' => now()->addWeek()->addHours(2),
+    ]);
+    $member = make_user(UserRole::Member);
+    join_ensemble($member, $orchestra);
+    join_ensemble($member, $choir);
+    $admin = make_user(UserRole::Admin);
+
+    $sameSecond = now();
+    foreach ([AttendanceStatus::NotAttending, AttendanceStatus::Attending] as $status) {
+        Attendance::forceCreate([
+            'user_id' => $member->id,
+            'term_date_id' => $rehearsal->id,
+            'ensemble_id' => $orchestra->id,
+            'status' => $status,
+            'edit_user_id' => $admin->id,
+            'edit_ip' => '127.0.0.1',
+            'created_at' => $sameSecond,
+            'updated_at' => $sameSecond,
+        ]);
+    }
+    Attendance::forceCreate([
+        'user_id' => $member->id,
+        'term_date_id' => $rehearsal->id,
+        'ensemble_id' => $choir->id,
+        'status' => AttendanceStatus::NotAttending,
+        'edit_user_id' => $admin->id,
+        'edit_ip' => '127.0.0.1',
+        'created_at' => $sameSecond->copy()->addMinute(),
+        'updated_at' => $sameSecond->copy()->addMinute(),
+    ]);
+
+    $poll = $this->actingAs($admin)->get(route('attendance.poll', ['ensemble' => $orchestra->slug, 'term' => $term->slug]));
+    $totals = member_status_totals($poll->viewData('members'), $rehearsal, $orchestra);
+
+    $register = $this->actingAs($admin)->get(route('attendance.register.show', ['ensemble' => $orchestra->slug, 'termDate' => $rehearsal]));
+
+    expect($totals['not_attending'])->toBe(0);
+    expect($register->viewData('polled_statuses')->get($member->id))->toBe(AttendanceStatus::Attending);
+});
+
+test('the poll runs the same number of queries however many members there are', function () {
+    $ensemble = Ensemble::factory()->create();
+    $term = Term::factory()->create();
+    $setupGroup = SetupGroup::create(['name' => 'Group A', 'week' => 1, 'color' => 'blue']);
+    $drivers = collect([make_user(UserRole::Member), make_user(UserRole::Member)]);
+    $drivers->each(fn ($driver, $index) => $setupGroup->van_drivers()->attach($driver->id, ['sort' => $index]));
+    $drivers->each(fn ($driver) => join_ensemble($driver, $ensemble));
+    $dates = collect(range(1, 4))->map(fn ($week) => TermDate::forceCreate([
+        'term_id' => $term->id,
+        'setup_group_id' => $setupGroup->id,
+        'start_datetime' => now()->addWeeks($week),
+        'end_datetime' => now()->addWeeks($week)->addHours(2),
+    ]));
+    $admin = make_user(UserRole::Admin);
+    $url = route('attendance.poll', ['ensemble' => $ensemble->slug, 'term' => $term->slug]);
+
+    $countQueries = function () use ($admin, $url) {
+        DB::flushQueryLog();
+        DB::enableQueryLog();
+        $response = $this->actingAs($admin)->get($url)->assertOk();
+        DB::disableQueryLog();
+
+        return [count(DB::getQueryLog()), $response];
+    };
+
+    [$fewMembers] = $countQueries();
+
+    foreach (range(1, 10) as $ignored) {
+        $member = make_user(UserRole::Member, ['setup_group_id' => $setupGroup->id]);
+        join_ensemble($member, $ensemble);
+        Attendance::create([
+            'user_id' => $member->id,
+            'term_date_id' => $dates->first()->id,
+            'ensemble_id' => $ensemble->id,
+            'status' => AttendanceStatus::Attending,
+            'edit_user_id' => $admin->id,
+            'edit_ip' => '127.0.0.1',
+        ]);
+    }
+
+    [$manyMembers, $response] = $countQueries();
+
+    expect($manyMembers)->toBe($fewMembers);
+    expect($response->viewData('van_driver_ids')->values()->all())
+        ->toBe([$drivers[0]->id, $drivers[1]->id, $drivers[0]->id, $drivers[1]->id]);
+});
+
+test('repeating poll headings start again for each instrument family', function () {
+    config(['app.readererer_repeating_headings' => true]);
+    $ensemble = Ensemble::factory()->create();
+    $term = Term::factory()->create();
+    TermDate::forceCreate([
+        'term_id' => $term->id,
+        'start_datetime' => now()->addWeek(),
+        'end_datetime' => now()->addWeek()->addHours(2),
+    ]);
+    foreach (['Brass', 'Brass', 'Strings'] as $family) {
+        join_ensemble(make_user(UserRole::Member), $ensemble, make_instrument_family($family));
+    }
+
+    $html = $this->actingAs(make_user(UserRole::Admin))
+        ->get(route('attendance.poll', ['ensemble' => $ensemble->slug, 'term' => $term->slug, 'sortby' => 'instrument_family']))
+        ->assertOk()
+        ->getContent();
+
+    expect(substr_count($html, '<thead>'))->toBe(2);
 });

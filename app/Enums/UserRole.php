@@ -2,6 +2,8 @@
 
 namespace App\Enums;
 
+use App\Models\User;
+
 enum UserRole: int
 {
     case Guest = 0; // No access to anything.
@@ -9,6 +11,12 @@ enum UserRole: int
     case Member = 2; // Standard access; view most things, edit and update very little.
     case Moderator = 3; // View and edit of most things; can't change important config settings.
     case Admin = 4; // Full access to everything.
+
+    /** @return list<self> */
+    public static function assignableBy(User $user): array
+    {
+        return array_values(array_filter(self::cases(), fn (self $role) => $role->value <= $user->role->value));
+    }
 
     public function label(): string
     {

@@ -17,14 +17,17 @@ class DashboardController extends Controller
         $user = Auth::user();
 
         if ($user->role == UserRole::Ensemble) {
-            return $this->show($user->ensembles()->first());
+            $ensemble = $user->ensembles()->first();
+            abort_if($ensemble === null, 403, __('This login is not linked to an ensemble.'));
+
+            return $this->show($ensemble);
         }
 
         $ensembles = $user->ensembles()->get();
         $setupGroup = $user->setup_group;
 
         $nextRehearsal = null;
-        if (! empty($ensembles)) {
+        if ($ensembles->isNotEmpty()) {
             $nextRehearsal = TermDate::whereNull('concert_ensemble_id')
                 ->where('start_datetime', '>', Carbon::now())
                 ->orderBy('start_datetime')

@@ -373,3 +373,63 @@ test('the roster changed email renders', function () {
     expect($html)->toContain('changed');
     expect($html)->toContain('Group B');
 });
+
+test('a term edit that fails part way saves nothing and sends no alerts', function () {
+    Mail::fake();
+
+    $setupGroup = SetupGroup::create(['name' => 'Group A', 'color' => 'blue']);
+    make_user(UserRole::Member, ['setup_group_id' => $setupGroup->id]);
+    $kept = make_notification_term_date([
+        'start_datetime' => now()->addWeek(),
+        'end_datetime' => now()->addWeek()->addHours(2),
+    ]);
+    $term = $kept->term;
+    $removed = TermDate::forceCreate([
+        'term_id' => $term->id,
+        'start_datetime' => now()->addWeeks(2),
+        'end_datetime' => now()->addWeeks(2)->addHours(2),
+    ]);
+    TermDate::creating(fn () => throw new RuntimeException('Database went away'));
+
+    $this->withoutExceptionHandling();
+
+    expect(fn () => $this->actingAs(make_user(UserRole::Moderator))->patch(route('terms.update', $term), [
+        'name' => 'Renamed',
+        'slug' => $term->slug,
+        'term_dates' => [
+            [
+                'id' => $kept->id,
+                'start_datetime' => $kept->start_datetime->format('Y-m-d H:i:s'),
+                'end_datetime' => $kept->end_datetime->format('Y-m-d H:i:s'),
+                'setup_group_id' => $setupGroup->id,
+            ],
+            [
+                'start_datetime' => now()->addWeeks(3)->format('Y-m-d H:i:s'),
+                'end_datetime' => now()->addWeeks(3)->addHours(2)->format('Y-m-d H:i:s'),
+            ],
+        ],
+    ]))->toThrow(RuntimeException::class);
+
+    expect($term->fresh()->name)->not->toBe('Renamed');
+    expect($kept->fresh()->setup_group_id)->toBeNull();
+    expect($removed->fresh()->trashed())->toBeFalse();
+    Mail::assertNothingSent();
+    expect(EmailLog::count())->toBe(0);
+});
+
+test('a roster change alert names the previous setup group', function () {
+    Mail::fake();
+
+    $oldGroup = SetupGroup::create(['name' => 'Old group', 'color' => 'blue']);
+    $newGroup = SetupGroup::create(['name' => 'New group', 'color' => 'red']);
+    make_user(UserRole::Member, ['setup_group_id' => $oldGroup->id]);
+    $termDate = make_notification_term_date([
+        'start_datetime' => now()->addWeek(),
+        'end_datetime' => now()->addWeek()->addHours(2),
+        'setup_group_id' => $oldGroup->id,
+    ]);
+
+    $termDate->update(['setup_group_id' => $newGroup->id]);
+
+    Mail::assertSent(RosterChangedMail::class, fn ($mail) => in_array('The setup group is now New group (was Old group).', $mail->changes, true));
+});

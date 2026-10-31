@@ -7,9 +7,10 @@ use App\Models\SetupGroup;
 use App\Models\TermDate;
 use App\Models\User;
 use App\Services\EmailDispatcher;
+use Illuminate\Contracts\Events\ShouldHandleEventsAfterCommit;
 use Illuminate\Support\Collection;
 
-class TermDateObserver
+class TermDateObserver implements ShouldHandleEventsAfterCommit
 {
     public function __construct(private EmailDispatcher $dispatcher) {}
 
@@ -31,9 +32,9 @@ class TermDateObserver
             return;
         }
 
-        $oldGroup = $groupChanged ? SetupGroup::withTrashed()->find($termDate->getOriginal('setup_group_id')) : $termDate->setup_group;
+        $oldGroup = $groupChanged ? SetupGroup::withTrashed()->find(($termDate->getPrevious()['setup_group_id'] ?? null)) : $termDate->setup_group;
         $newGroup = $termDate->setup_group;
-        $oldDriver = $driverChanged ? User::withTrashed()->find($termDate->getOriginal('van_driver_id')) : $termDate->van_driver;
+        $oldDriver = $driverChanged ? User::withTrashed()->find(($termDate->getPrevious()['van_driver_id'] ?? null)) : $termDate->van_driver;
         $newDriver = $termDate->van_driver;
 
         $changes = [];

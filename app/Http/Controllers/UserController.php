@@ -10,14 +10,21 @@ use App\Models\InstrumentFamily;
 use App\Models\SetupGroup;
 use App\Models\User;
 use App\Models\UserEnsemble;
+use Illuminate\Database\UniqueConstraintViolationException;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Str;
 use Illuminate\View\View;
+use Throwable;
 
 class UserController extends Controller
 {
+    public function __construct()
+    {
+        $this->authorizeResource(User::class);
+    }
+
     public function index()
     {
         $query = User::query();
@@ -46,6 +53,7 @@ class UserController extends Controller
         $fields['last_name']['width'] = 6;
         unset($fields['password']);
         unset($fields['image']);
+        $fields['role']['options'] = array_filter($fields['role']['options'], fn ($role) => $role <= auth()->user()->role->value, ARRAY_FILTER_USE_KEY);
 
         return view('auto-entities.form', [
             'page_name' => __('Users'),
@@ -59,12 +67,13 @@ class UserController extends Controller
     public function store(StoreUserRequest $request): RedirectResponse
     {
         $attributes = $request->validated();
-
-        $attributes['username'] = User::generateUniqueUsername($attributes['first_name'], $attributes['last_name']);
         $attributes['password'] = Str::password(16);
-
         $setup_group_id = Arr::pull($attributes, 'setup_group');
-        $user = User::create($attributes);
+
+        // Someone else may take the generated username between the check and the insert.
+        $user = retry(3, fn () => User::create($attributes + [
+            'username' => User::generateUniqueUsername($attributes['first_name'], $attributes['last_name']),
+        ]), when: fn (Throwable $exception) => $exception instanceof UniqueConstraintViolationException);
         $user->setup_group()->associate($setup_group_id ? SetupGroup::find($setup_group_id) : null);
         $user->save();
 
@@ -81,7 +90,7 @@ class UserController extends Controller
 
         return view('users.edit', [
             'user' => $user,
-            'roles' => UserRole::cases(),
+            'roles' => UserRole::assignableBy(auth()->user()),
             'setupGroups' => SetupGroup::orderBy('name')->get(),
             'ensembles' => Ensemble::orderBy('name')->get(),
             'allInstrumentFamilies' => InstrumentFamily::orderBy('name')->get(),
@@ -128,6 +137,7 @@ class UserController extends Controller
     public function restore(int $userId)
     {
         $user = User::withTrashed()->findOrFail($userId);
+        $this->authorize('restore', $user);
         $user->restore();
 
         return redirect()->back()->with('status', __('User restored.'));
@@ -135,6 +145,8 @@ class UserController extends Controller
 
     public function attachEnsemble(Request $request, User $user): RedirectResponse
     {
+        $this->authorize('update', $user);
+
         $validated = $request->validate([
             'ensemble_id' => 'required|exists:ensembles,id',
             'instrument_family_id' => 'required|exists:instrument_families,id',
@@ -161,6 +173,8 @@ class UserController extends Controller
 
     public function detachEnsemble(User $user, Ensemble $ensemble): RedirectResponse
     {
+        $this->authorize('update', $user);
+
         $pivot = UserEnsemble::where('user_id', $user->id)
             ->where('ensemble_id', $ensemble->id)
             ->firstOrFail();

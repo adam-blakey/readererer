@@ -63,3 +63,8 @@ test('users can logout', function () {
     $this->assertGuest();
     $response->assertRedirect('/');
 });
+
+test('there is no public sign-up page', function () {
+    $this->get('/register')->assertNotFound();
+    $this->post('/register', ['email' => 'new@example.com'])->assertNotFound();
+});

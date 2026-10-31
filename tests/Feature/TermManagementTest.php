@@ -168,7 +168,7 @@ test('a term can be soft deleted and restored', function () {
 test('the terms index shows the friendly column labels', function () {
     Term::factory()->create();
 
-    $response = $this->actingAs(make_user(UserRole::Member))->get(route('terms.index'));
+    $response = $this->actingAs(make_user(UserRole::Moderator))->get(route('terms.index'));
 
     $response->assertOk();
     $response->assertSee('Rehearsals');
@@ -185,7 +185,7 @@ test('the term show page renders with its dates', function () {
         'end_datetime' => '2026-01-05 21:00:00',
     ]);
 
-    $this->actingAs(make_user(UserRole::Member))
+    $this->actingAs(make_user(UserRole::Moderator))
         ->get(route('terms.show', $term))
         ->assertOk();
 });
@@ -328,4 +328,19 @@ test('the term edit form renders the setup group, van driver and row template', 
         ->assertSee('Setup group')
         ->assertSee('Van driver override')
         ->assertSee('term-date-row-template', false);
+});
+
+test('a term cannot be renamed to another term\'s slug but may keep its own', function () {
+    Term::factory()->create(['slug' => 'autumn-2026']);
+    $term = Term::factory()->create(['slug' => 'spring-2027']);
+    $admin = make_user(UserRole::Admin);
+
+    $this->actingAs($admin)
+        ->patch(route('terms.update', $term), ['name' => 'Spring', 'slug' => 'autumn-2026'])
+        ->assertSessionHasErrors('slug');
+    expect($term->fresh()->slug)->toBe('spring-2027');
+
+    $this->actingAs($admin)
+        ->patch(route('terms.update', $term), ['name' => 'Spring', 'slug' => 'spring-2027'])
+        ->assertSessionHasNoErrors();
 });

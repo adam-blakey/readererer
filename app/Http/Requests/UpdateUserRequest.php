@@ -9,10 +9,6 @@ use Illuminate\Validation\Rule;
 
 class UpdateUserRequest extends FormRequest
 {
-    /**
-     * Access is already gated by the `auth` middleware on the route; the
-     * request only concerns itself with validation.
-     */
     public function authorize(): bool
     {
         return true;
@@ -25,7 +21,7 @@ class UpdateUserRequest extends FormRequest
             'first_name' => ['required', 'string', 'max:255'],
             'last_name' => ['required', 'string', 'max:255'],
             'email' => ['required', 'email', 'max:255', Rule::unique('users', 'email')->ignore($this->route('user'))],
-            'role' => ['required', Rule::enum(UserRole::class)],
+            'role' => ['required', Rule::enum(UserRole::class)->only(UserRole::assignableBy($this->user()))],
             'setup_group' => ['nullable', 'exists:setup_groups,id'],
         ];
     }

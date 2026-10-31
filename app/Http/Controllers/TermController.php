@@ -10,10 +10,16 @@ use App\Models\User;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Arr;
+use Illuminate\Support\Facades\DB;
 use Illuminate\View\View;
 
 class TermController extends Controller
 {
+    public function __construct()
+    {
+        $this->authorizeResource(Term::class);
+    }
+
     public function index()
     {
         $query = Term::query();
@@ -68,31 +74,12 @@ class TermController extends Controller
             'term_dates.*.van_driver_id' => 'nullable|integer|exists:users,id',
         ]);
 
-        $attributes = Arr::only($validated, ['name', 'slug']);
+        $term = DB::transaction(function () use ($validated) {
+            $term = Term::create(Arr::only($validated, ['name', 'slug']));
+            $this->syncTermDates($term, $validated['term_dates'] ?? []);
 
-        $request_term_dates = collect($request->input('term_dates', []));
-
-        $term = Term::create($attributes);
-
-        $request_term_dates->each(function ($term_date) use ($term) {
-            $payload = [
-                'start_datetime' => $term_date['start_datetime'] ?? null,
-                'end_datetime' => $term_date['end_datetime'] ?? null,
-                'concert_ensemble_id' => $term_date['ensemble_id'] ?? null,
-                'setup_group_id' => $term_date['setup_group_id'] ?? null,
-                'van_driver_id' => $term_date['van_driver_id'] ?? null,
-            ];
-
-            if (! empty($term_date['id'])) {
-                // Fetched first so the update fires TermDateObserver's change alerts;
-                // a query-builder update() skips model events.
-                $term->term_dates()->whereKey($term_date['id'])->first()?->update($payload);
-            } else {
-                $term->term_dates()->create($payload);
-            }
+            return $term;
         });
-
-        $term->save();
 
         return redirect()->route('terms.show', $term);
     }
@@ -129,38 +116,10 @@ class TermController extends Controller
 
     public function update(UpdateTermRequest $request, Term $term)
     {
-        $attributes = $request->safe()->only(['name', 'slug']);
-
-        $request_term_dates = collect($request->input('term_dates', []));
-
-        $keepIds = $request_term_dates->pluck('id')->filter()->values()->all();
-
-        if (count($keepIds) > 0) {
-            $term->term_dates()->whereNotIn('id', $keepIds)->delete();
-        } else {
-            $term->term_dates()->delete();
-        }
-
-        $request_term_dates->each(function ($term_date) use ($term) {
-            $payload = [
-                'start_datetime' => $term_date['start_datetime'] ?? null,
-                'end_datetime' => $term_date['end_datetime'] ?? null,
-                'concert_ensemble_id' => $term_date['ensemble_id'] ?? null,
-                'setup_group_id' => $term_date['setup_group_id'] ?? null,
-                'van_driver_id' => $term_date['van_driver_id'] ?? null,
-            ];
-
-            if (! empty($term_date['id'])) {
-                // Fetched first so the update fires TermDateObserver's change alerts;
-                // a query-builder update() skips model events.
-                $term->term_dates()->whereKey($term_date['id'])->first()?->update($payload);
-            } else {
-                $term->term_dates()->create($payload);
-            }
+        DB::transaction(function () use ($request, $term) {
+            $this->syncTermDates($term, $request->validated('term_dates', []));
+            $term->update($request->safe()->only(['name', 'slug']));
         });
-
-        $term->fill($attributes);
-        $term->save();
 
         return redirect()->route('terms.show', $term);
     }
@@ -172,20 +131,37 @@ class TermController extends Controller
         return redirect()->back()->with('status', __('Record deleted.'));
     }
 
-    public function purgeTrashed()
-    {
-        Term::onlyTrashed()->get()->each(function ($model) {
-            $model->forceDelete();
-        });
-
-        return redirect()->back()->with('status', __('All soft-deleted records permanently removed.'));
-    }
-
     public function restore(int $id)
     {
         $entity = Term::withTrashed()->findOrFail($id);
+        $this->authorize('restore', $entity);
         $entity->restore();
 
         return redirect()->back()->with('status', __('Restored.'));
+    }
+
+    private function syncTermDates(Term $term, array $rows): void
+    {
+        $rows = collect($rows);
+
+        $term->term_dates()->whereNotIn('id', $rows->pluck('id')->filter())->delete();
+
+        foreach ($rows as $row) {
+            $payload = [
+                'start_datetime' => $row['start_datetime'],
+                'end_datetime' => $row['end_datetime'],
+                'concert_ensemble_id' => $row['ensemble_id'] ?? null,
+                'setup_group_id' => $row['setup_group_id'] ?? null,
+                'van_driver_id' => $row['van_driver_id'] ?? null,
+            ];
+
+            if (! empty($row['id'])) {
+                // Fetched first so the update fires TermDateObserver's change alerts;
+                // a query-builder update() skips model events.
+                $term->term_dates()->whereKey($row['id'])->first()?->update($payload);
+            } else {
+                $term->term_dates()->create($payload);
+            }
+        }
     }
 }

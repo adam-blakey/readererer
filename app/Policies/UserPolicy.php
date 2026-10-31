@@ -37,7 +37,7 @@ class UserPolicy
 
     public function update(User $user, User $user_)
     {
-        if ($user->role->value >= UserRole::Moderator->value) {
+        if ($user->role->value >= UserRole::Moderator->value && $user_->role->value <= $user->role->value) {
             return Response::allow();
         }
 
@@ -46,7 +46,7 @@ class UserPolicy
 
     public function delete(User $user, User $user_)
     {
-        if ($user->role->value >= UserRole::Moderator->value) {
+        if ($user->role->value >= UserRole::Moderator->value && $user_->role->value <= $user->role->value) {
             return Response::allow();
         }
 

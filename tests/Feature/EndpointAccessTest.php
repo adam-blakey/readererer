@@ -2,6 +2,7 @@
 
 use App\Enums\UserRole;
 use App\Models\Ensemble;
+use App\Models\SetupGroup;
 use App\Models\Term;
 use App\Models\TermDate;
 
@@ -39,10 +40,43 @@ test('the ensembles index is admin only', function () {
     $this->actingAs(make_user(UserRole::Admin))->get('/ensembles')->assertOk();
 });
 
-test('term, user and setup group indexes only require authentication', function (string $uri) {
-    // These controllers do not call authorizeResource, so any logged-in user may view them.
-    $this->actingAs(make_user(UserRole::Member))->get($uri)->assertOk();
+test('term, user and setup group indexes require moderator or above', function (string $uri) {
+    $this->actingAs(make_user(UserRole::Member))->get($uri)->assertForbidden();
+    $this->actingAs(make_user(UserRole::Moderator))->get($uri)->assertOk();
 })->with(['/terms', '/users', '/setupgroups']);
+
+test('members cannot change terms, setup groups or ensemble membership', function () {
+    $member = make_user(UserRole::Member);
+    $term = Term::factory()->create();
+    $setupGroup = SetupGroup::create(['name' => 'Group A', 'week' => 1, 'color' => 'blue']);
+    $ensemble = Ensemble::factory()->create();
+    $player = make_user(UserRole::Member);
+    join_ensemble($player, $ensemble);
+
+    $this->actingAs($member)->post(route('terms.store'), ['name' => 'New', 'slug' => 'new'])->assertForbidden();
+    $this->actingAs($member)->delete(route('terms.destroy', $term))->assertForbidden();
+    $this->actingAs($member)->delete(route('setupgroups.destroy', $setupGroup))->assertForbidden();
+    $this->actingAs($member)->post(route('ensembles.remove_user', [$ensemble, $player]))->assertForbidden();
+    $this->actingAs($member)->post(route('ensembles.add_user', $ensemble), [
+        'user_id' => $member->id,
+        'instrument_family_id' => make_instrument_family()->id,
+    ])->assertForbidden();
+
+    expect($term->fresh()->trashed())->toBeFalse();
+    expect($setupGroup->fresh()->trashed())->toBeFalse();
+    expect($ensemble->users()->pluck('users.id')->all())->toBe([$player->id]);
+});
+
+test('restoring a deleted record requires the restore permission', function () {
+    $term = Term::factory()->create();
+    $term->delete();
+
+    $this->actingAs(make_user(UserRole::Moderator))->patch(route('terms.restore', $term->id))->assertForbidden();
+    expect($term->fresh()->trashed())->toBeTrue();
+
+    $this->actingAs(make_user(UserRole::Admin))->patch(route('terms.restore', $term->id))->assertRedirect();
+    expect($term->fresh()->trashed())->toBeFalse();
+});
 
 test('ensemble show is limited to moderators and members of that ensemble', function () {
     $ensemble = Ensemble::factory()->create();
@@ -109,15 +143,24 @@ test('the attendance poll page requires permission to view the ensemble', functi
     $this->actingAs(make_user(UserRole::Moderator))->get($url)->assertOk();
 });
 
-test('submitting the attendance poll requires the admin-only create permission', function () {
+test('submitting the attendance poll requires permission to view the ensemble', function () {
     $ensemble = Ensemble::factory()->create();
     $term = Term::factory()->create();
     $url = route('attendance.poll-store', ['ensemble' => $ensemble->slug, 'term' => $term->slug]);
 
     $this->post($url)->assertForbidden();
-    $this->actingAs(make_user(UserRole::Ensemble))->post($url)->assertForbidden();
-    $this->actingAs(make_user(UserRole::Member))->post($url)->assertForbidden();
-    $this->actingAs(make_user(UserRole::Moderator))->post($url)->assertForbidden();
+
+    foreach ([UserRole::Ensemble, UserRole::Member] as $role) {
+        $insider = make_user($role);
+        join_ensemble($insider, $ensemble);
+        $this->actingAs($insider)->post($url)->assertRedirect();
+
+        $outsider = make_user($role);
+        join_ensemble($outsider, Ensemble::factory()->create());
+        $this->actingAs($outsider)->post($url)->assertForbidden();
+    }
+
+    $this->actingAs(make_user(UserRole::Moderator))->post($url)->assertRedirect();
     $this->actingAs(make_user(UserRole::Admin))->post($url)->assertRedirect();
 });
 
