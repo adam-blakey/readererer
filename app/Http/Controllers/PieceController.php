@@ -64,7 +64,9 @@ class PieceController extends Controller
 
     public function restore(int $id)
     {
-        $entity = Piece::withTrashed()->findOrFail($id)->restore();
+        $entity = Piece::withTrashed()->findOrFail($id);
+        $this->authorize('restore', $entity);
+        $entity->restore();
 
         return redirect()->back()->with('status', __('Restored.'));
     }

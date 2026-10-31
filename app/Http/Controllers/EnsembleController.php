@@ -102,6 +102,7 @@ class EnsembleController extends Controller
     public function restore(int $id)
     {
         $entity = Ensemble::withTrashed()->findOrFail($id);
+        $this->authorize('restore', $entity);
         $entity->restore();
 
         return redirect()->back()->with('status', __('Restored.'));
@@ -120,6 +121,8 @@ class EnsembleController extends Controller
 
     public function add_user(Ensemble $ensemble)
     {
+        $this->authorize('update', $ensemble);
+
         $validated = request()->validate([
             'user_id' => 'required|exists:users,id',
             'instrument_family_id' => 'required|exists:instrument_families,id',
@@ -141,6 +144,8 @@ class EnsembleController extends Controller
 
     public function remove_user(Ensemble $ensemble, User $user)
     {
+        $this->authorize('update', $ensemble);
+
         $pivot = UserEnsemble::where('user_id', $user->id)
             ->where('ensemble_id', $ensemble->id)
             ->firstOrFail();

@@ -14,6 +14,11 @@ use Illuminate\View\View;
 
 class TermController extends Controller
 {
+    public function __construct()
+    {
+        $this->authorizeResource(Term::class);
+    }
+
     public function index()
     {
         $query = Term::query();
@@ -184,6 +189,7 @@ class TermController extends Controller
     public function restore(int $id)
     {
         $entity = Term::withTrashed()->findOrFail($id);
+        $this->authorize('restore', $entity);
         $entity->restore();
 
         return redirect()->back()->with('status', __('Restored.'));

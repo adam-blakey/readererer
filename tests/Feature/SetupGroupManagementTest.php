@@ -156,7 +156,7 @@ test('guests cannot create setup groups', function () {
 
 test('the setup group show and create pages render', function () {
     $setupGroup = SetupGroup::create(['name' => 'Group A', 'week' => 1, 'color' => 'blue']);
-    $user = make_user();
+    $user = make_user(UserRole::Moderator);
 
     $this->actingAs($user)->get(route('setupgroups.show', $setupGroup))->assertOk();
     $this->actingAs($user)->get(route('setupgroups.create'))->assertOk();

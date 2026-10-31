@@ -2,6 +2,7 @@
 
 use App\Enums\UserRole;
 use App\Models\Ensemble;
+use App\Models\SetupGroup;
 use App\Models\Term;
 use App\Models\TermDate;
 
@@ -39,13 +40,42 @@ test('the ensembles index is admin only', function () {
     $this->actingAs(make_user(UserRole::Admin))->get('/ensembles')->assertOk();
 });
 
-test('term and setup group indexes only require authentication', function (string $uri) {
-    $this->actingAs(make_user(UserRole::Member))->get($uri)->assertOk();
-})->with(['/terms', '/setupgroups']);
+test('term, user and setup group indexes require moderator or above', function (string $uri) {
+    $this->actingAs(make_user(UserRole::Member))->get($uri)->assertForbidden();
+    $this->actingAs(make_user(UserRole::Moderator))->get($uri)->assertOk();
+})->with(['/terms', '/users', '/setupgroups']);
 
-test('the user index requires moderator or above', function () {
-    $this->actingAs(make_user(UserRole::Member))->get('/users')->assertForbidden();
-    $this->actingAs(make_user(UserRole::Moderator))->get('/users')->assertOk();
+test('members cannot change terms, setup groups or ensemble membership', function () {
+    $member = make_user(UserRole::Member);
+    $term = Term::factory()->create();
+    $setupGroup = SetupGroup::create(['name' => 'Group A', 'week' => 1, 'color' => 'blue']);
+    $ensemble = Ensemble::factory()->create();
+    $player = make_user(UserRole::Member);
+    join_ensemble($player, $ensemble);
+
+    $this->actingAs($member)->post(route('terms.store'), ['name' => 'New', 'slug' => 'new'])->assertForbidden();
+    $this->actingAs($member)->delete(route('terms.destroy', $term))->assertForbidden();
+    $this->actingAs($member)->delete(route('setupgroups.destroy', $setupGroup))->assertForbidden();
+    $this->actingAs($member)->post(route('ensembles.remove_user', [$ensemble, $player]))->assertForbidden();
+    $this->actingAs($member)->post(route('ensembles.add_user', $ensemble), [
+        'user_id' => $member->id,
+        'instrument_family_id' => make_instrument_family()->id,
+    ])->assertForbidden();
+
+    expect($term->fresh()->trashed())->toBeFalse();
+    expect($setupGroup->fresh()->trashed())->toBeFalse();
+    expect($ensemble->users()->pluck('users.id')->all())->toBe([$player->id]);
+});
+
+test('restoring a deleted record requires the restore permission', function () {
+    $term = Term::factory()->create();
+    $term->delete();
+
+    $this->actingAs(make_user(UserRole::Moderator))->patch(route('terms.restore', $term->id))->assertForbidden();
+    expect($term->fresh()->trashed())->toBeTrue();
+
+    $this->actingAs(make_user(UserRole::Admin))->patch(route('terms.restore', $term->id))->assertRedirect();
+    expect($term->fresh()->trashed())->toBeFalse();
 });
 
 test('ensemble show is limited to moderators and members of that ensemble', function () {

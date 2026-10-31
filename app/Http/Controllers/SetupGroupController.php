@@ -11,6 +11,11 @@ use Illuminate\View\View;
 
 class SetupGroupController extends Controller
 {
+    public function __construct()
+    {
+        $this->authorizeResource(SetupGroup::class, 'setupGroup');
+    }
+
     public function index()
     {
         $query = SetupGroup::query();
@@ -121,6 +126,7 @@ class SetupGroupController extends Controller
     public function restore(int $id)
     {
         $entity = SetupGroup::withTrashed()->findOrFail($id);
+        $this->authorize('restore', $entity);
         $entity->restore();
 
         return redirect()->back()->with('status', __('Restored.'));

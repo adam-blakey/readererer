@@ -59,6 +59,7 @@ class ComposerController extends Controller
     public function restore(int $id)
     {
         $entity = Composer::withTrashed()->findOrFail($id);
+        $this->authorize('restore', $entity);
         $entity->restore();
 
         return redirect()->back()->with('status', __('Restored.'));

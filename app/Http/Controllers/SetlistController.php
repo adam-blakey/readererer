@@ -59,6 +59,7 @@ class SetlistController extends Controller
     public function restore(int $id)
     {
         $entity = Setlist::withTrashed()->findOrFail($id);
+        $this->authorize('restore', $entity);
         $entity->restore();
 
         return redirect()->back()->with('status', __('Restored.'));

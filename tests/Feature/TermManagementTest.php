@@ -168,7 +168,7 @@ test('a term can be soft deleted and restored', function () {
 test('the terms index shows the friendly column labels', function () {
     Term::factory()->create();
 
-    $response = $this->actingAs(make_user(UserRole::Member))->get(route('terms.index'));
+    $response = $this->actingAs(make_user(UserRole::Moderator))->get(route('terms.index'));
 
     $response->assertOk();
     $response->assertSee('Rehearsals');
@@ -185,7 +185,7 @@ test('the term show page renders with its dates', function () {
         'end_datetime' => '2026-01-05 21:00:00',
     ]);
 
-    $this->actingAs(make_user(UserRole::Member))
+    $this->actingAs(make_user(UserRole::Moderator))
         ->get(route('terms.show', $term))
         ->assertOk();
 });
