@@ -2,32 +2,23 @@
 
 namespace App\Http\Requests;
 
-use App\Models\Term;
 use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Foundation\Http\FormRequest;
 
 class UpdateTermRequest extends FormRequest
 {
-    /**
-     * Determine if the user is authorized to make this request.
-     */
     public function authorize(): bool
     {
         return $this->user()->can('update', $this->term);
     }
 
-    /**
-     * Get the validation rules that apply to the request.
-     *
-     * @return array<string, ValidationRule|array<mixed>|string>
-     */
+    /** @return array<string, ValidationRule|array<mixed>|string> */
     public function rules(): array
     {
         return [
             'name' => 'required|string|max:255',
             'slug' => 'required|string|max:255',
 
-            // Term dates must not be null; validate each provided row
             'term_dates' => 'array',
             'term_dates.*.id' => 'nullable|integer',
             'term_dates.*.start_datetime' => 'required|date',

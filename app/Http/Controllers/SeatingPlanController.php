@@ -144,6 +144,5 @@ class SeatingPlanController extends Controller
 
         return $pdf->stream();
 
-        // return view('mail.seating-plan-pdf', compact('ensemble', 'termDate', 'members'));
     }
 }

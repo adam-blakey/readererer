@@ -13,17 +13,11 @@ class Icon extends Component
 
     private static string $icon_base_path = 'build/icons';
 
-    /**
-     * Create a new component instance.
-     */
     public function __construct(string $name)
     {
         $this->name = $name;
     }
 
-    /**
-     * Get the view / contents that represent the component.
-     */
     public function render(): View|Closure|string
     {
         $icon_path = public_path(self::$icon_base_path."/{$this->name}.svg");

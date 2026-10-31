@@ -15,9 +15,6 @@ class InstrumentFamilyController extends Controller
         $this->authorizeResource(InstrumentFamily::class, 'instrumentFamily');
     }
 
-    /**
-     * Display a listing of the resource.
-     */
     public function index()
     {
         $query = InstrumentFamily::query();
@@ -39,9 +36,6 @@ class InstrumentFamilyController extends Controller
         ]);
     }
 
-    /**
-     * Show the form for creating a new resource.
-     */
     public function create(): View
     {
         $dummy = new InstrumentFamily;
@@ -56,9 +50,6 @@ class InstrumentFamilyController extends Controller
         ]);
     }
 
-    /**
-     * Store a newly created resource in storage.
-     */
     public function store(StoreInstrumentFamilyRequest $request): RedirectResponse
     {
         $instrumentFamily = InstrumentFamily::create($request->validated());
@@ -66,9 +57,6 @@ class InstrumentFamilyController extends Controller
         return to_route('instrumentfamilys.show', $instrumentFamily);
     }
 
-    /**
-     * Display the specified resource.
-     */
     public function show(InstrumentFamily $instrumentFamily)
     {
         return view('auto-entities.show', [
@@ -81,9 +69,6 @@ class InstrumentFamilyController extends Controller
         ]);
     }
 
-    /**
-     * Show the form for editing the specified resource.
-     */
     public function edit(InstrumentFamily $instrumentFamily): View
     {
         $fields = get_create_fields($instrumentFamily);
@@ -97,9 +82,6 @@ class InstrumentFamilyController extends Controller
         ]);
     }
 
-    /**
-     * Update the specified resource in storage.
-     */
     public function update(UpdateInstrumentFamilyRequest $request, InstrumentFamily $instrumentFamily): RedirectResponse
     {
         $instrumentFamily->update($request->validated());
@@ -107,9 +89,6 @@ class InstrumentFamilyController extends Controller
         return to_route('instrumentfamilys.show', $instrumentFamily);
     }
 
-    /**
-     * Remove the specified resource from storage.
-     */
     public function destroy(InstrumentFamily $instrumentFamily)
     {
         $instrumentFamily->delete();

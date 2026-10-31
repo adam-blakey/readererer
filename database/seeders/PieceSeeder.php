@@ -9,9 +9,6 @@ use Illuminate\Database\Seeder;
 
 class PieceSeeder extends Seeder
 {
-    /**
-     * Run the database seeds.
-     */
     public function run(): void
     {
         $pieces = Piece::factory(10)->create();

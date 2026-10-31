@@ -26,7 +26,6 @@ class Ensemble extends Model
         'updated_at',
     ];
 
-    // Friendlier, shorter label for the computed member-count column.
     public array $column_labels = [
         'number_of_members' => 'Members',
     ];
@@ -55,7 +54,6 @@ class Ensemble extends Model
 
     public function admins(): BelongsToMany
     {
-        // return $this->hasManyThrough(User::class, EnsembleAdmin::class, 'ensemble_id', 'ensemble_admin_id');
 
         return $this->belongsToMany(User::class, 'ensemble_admins', 'ensemble_id', 'admin_id')->orderBy('first_name');
     }

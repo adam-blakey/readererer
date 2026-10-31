@@ -13,9 +13,6 @@ class SetlistController extends Controller
         $this->authorizeResource(Setlist::class);
     }
 
-    /**
-     * Display a listing of the resource.
-     */
     public function index()
     {
         $query = Setlist::query();
@@ -33,49 +30,16 @@ class SetlistController extends Controller
         ]);
     }
 
-    /**
-     * Show the form for creating a new resource.
-     */
-    public function create()
-    {
-        //
-    }
+    public function create() {}
 
-    /**
-     * Store a newly created resource in storage.
-     */
-    public function store(StoreSetlistRequest $request)
-    {
-        //
-    }
+    public function store(StoreSetlistRequest $request) {}
 
-    /**
-     * Display the specified resource.
-     */
-    public function show(Setlist $setlist)
-    {
-        //
-    }
+    public function show(Setlist $setlist) {}
 
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(Setlist $setlist)
-    {
-        //
-    }
+    public function edit(Setlist $setlist) {}
 
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(UpdateSetlistRequest $request, Setlist $setlist)
-    {
-        //
-    }
+    public function update(UpdateSetlistRequest $request, Setlist $setlist) {}
 
-    /**
-     * Remove the specified resource from storage.
-     */
     public function destroy(Setlist $setlist)
     {
         $setlist->delete();

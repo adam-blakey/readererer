@@ -8,59 +8,17 @@ use App\Models\Part;
 
 class PartController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
-    public function index()
-    {
-        //
-    }
+    public function index() {}
 
-    /**
-     * Show the form for creating a new resource.
-     */
-    public function create()
-    {
-        //
-    }
+    public function create() {}
 
-    /**
-     * Store a newly created resource in storage.
-     */
-    public function store(StorePartRequest $request)
-    {
-        //
-    }
+    public function store(StorePartRequest $request) {}
 
-    /**
-     * Display the specified resource.
-     */
-    public function show(Part $parts)
-    {
-        //
-    }
+    public function show(Part $parts) {}
 
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(Part $parts)
-    {
-        //
-    }
+    public function edit(Part $parts) {}
 
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(UpdatePartRequest $request, Part $parts)
-    {
-        //
-    }
+    public function update(UpdatePartRequest $request, Part $parts) {}
 
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(Part $parts)
-    {
-        //
-    }
+    public function destroy(Part $parts) {}
 }

@@ -23,7 +23,6 @@ class DashboardController extends Controller
         $ensembles = $user->ensembles()->get();
         $setupGroup = $user->setup_group;
 
-        // Upcoming rehearsal (any non-concert term date)
         $nextRehearsal = null;
         if (! empty($ensembles)) {
             $nextRehearsal = TermDate::whereNull('concert_ensemble_id')
@@ -32,7 +31,6 @@ class DashboardController extends Controller
                 ->first();
         }
 
-        // Upcoming concerts for user's ensembles
         $ensembleIds = $ensembles->pluck('id');
         $nextConcerts = TermDate::whereNotNull('concert_ensemble_id')
             ->whereIn('concert_ensemble_id', $ensembleIds)
@@ -41,7 +39,6 @@ class DashboardController extends Controller
             ->limit(3)
             ->get();
 
-        // Next time the user will be driving the van
         $nextVanDrive = null;
         if ($setupGroup) {
             $upcomingWithGroup = TermDate::where('setup_group_id', $setupGroup->id)
@@ -50,7 +47,6 @@ class DashboardController extends Controller
                 ->get();
 
             $nextVanDrive = $upcomingWithGroup->first(function ($td) use ($user) {
-                // Use the accessor that infers from rotation if explicit driver not set
                 return optional($td->inferred_van_driver)->id === $user->id;
             });
         }

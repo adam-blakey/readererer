@@ -8,59 +8,17 @@ use App\Models\EnsembleAdmin;
 
 class EnsembleAdminController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
-    public function index()
-    {
-        //
-    }
+    public function index() {}
 
-    /**
-     * Show the form for creating a new resource.
-     */
-    public function create()
-    {
-        //
-    }
+    public function create() {}
 
-    /**
-     * Store a newly created resource in storage.
-     */
-    public function store(StoreEnsembleAdminRequest $request)
-    {
-        //
-    }
+    public function store(StoreEnsembleAdminRequest $request) {}
 
-    /**
-     * Display the specified resource.
-     */
-    public function show(EnsembleAdmin $ensembleAdmin)
-    {
-        //
-    }
+    public function show(EnsembleAdmin $ensembleAdmin) {}
 
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(EnsembleAdmin $ensembleAdmin)
-    {
-        //
-    }
+    public function edit(EnsembleAdmin $ensembleAdmin) {}
 
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(UpdateEnsembleAdminRequest $request, EnsembleAdmin $ensembleAdmin)
-    {
-        //
-    }
+    public function update(UpdateEnsembleAdminRequest $request, EnsembleAdmin $ensembleAdmin) {}
 
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(EnsembleAdmin $ensembleAdmin)
-    {
-        //
-    }
+    public function destroy(EnsembleAdmin $ensembleAdmin) {}
 }

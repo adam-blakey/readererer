@@ -9,9 +9,6 @@ use Illuminate\Auth\Access\Response;
 
 class EnsemblePolicy
 {
-    /**
-     * Determine whether the user can view any models.
-     */
     public function viewAny(User $user)
     {
         if ($user->role->value >= UserRole::Admin->value) {
@@ -21,9 +18,6 @@ class EnsemblePolicy
         return Response::deny();
     }
 
-    /**
-     * Determine whether the user can view the model.
-     */
     public function view(User $user, Ensemble $ensemble)
     {
         // Admins always allowed; otherwise allow users tied to this ensemble (including Ensemble role users).
@@ -37,9 +31,6 @@ class EnsemblePolicy
         return Response::deny();
     }
 
-    /**
-     * Determine whether the user can create models.
-     */
     public function create(User $user)
     {
         if ($user->role->value >= UserRole::Admin->value) {
@@ -49,9 +40,6 @@ class EnsemblePolicy
         return Response::deny();
     }
 
-    /**
-     * Determine whether the user can update the model.
-     */
     public function update(User $user, Ensemble $ensemble)
     {
         if ($user->role->value >= UserRole::Admin->value) {
@@ -61,9 +49,6 @@ class EnsemblePolicy
         return Response::deny();
     }
 
-    /**
-     * Determine whether the user can delete the model.
-     */
     public function delete(User $user, Ensemble $ensemble)
     {
         if ($user->role->value >= UserRole::Admin->value) {
@@ -73,9 +58,6 @@ class EnsemblePolicy
         return Response::deny();
     }
 
-    /**
-     * Determine whether the user can restore the model.
-     */
     public function restore(User $user, Ensemble $ensemble)
     {
         if ($user->role->value >= UserRole::Admin->value) {
@@ -85,9 +67,6 @@ class EnsemblePolicy
         return Response::deny();
     }
 
-    /**
-     * Determine whether the user can permanently delete the model.
-     */
     public function forceDelete(User $user, Ensemble $ensemble)
     {
         if ($user->role->value >= UserRole::Admin->value) {

@@ -19,9 +19,6 @@ class EnsembleController extends Controller
         $this->authorizeResource(Ensemble::class);
     }
 
-    /**
-     * Display a listing of the resource.
-     */
     public function index()
     {
         $query = Ensemble::query();
@@ -43,9 +40,6 @@ class EnsembleController extends Controller
         ]);
     }
 
-    /**
-     * Show the form for creating a new resource.
-     */
     public function create(): View
     {
         $fields = get_create_fields(new Ensemble);
@@ -59,9 +53,6 @@ class EnsembleController extends Controller
         ]);
     }
 
-    /**
-     * Store a newly created resource in storage.
-     */
     public function store(StoreEnsembleRequest $request): RedirectResponse
     {
         $attributes = $request->validated();
@@ -75,9 +66,6 @@ class EnsembleController extends Controller
 
     use ShowEnsemble;
 
-    /**
-     * Show the form for editing the specified resource.
-     */
     public function edit(Ensemble $ensemble)
     {
         return view('ensembles.edit', [
@@ -86,9 +74,6 @@ class EnsembleController extends Controller
         ]);
     }
 
-    /**
-     * Update the specified resource in storage.
-     */
     public function update(UpdateEnsembleRequest $request, Ensemble $ensemble): RedirectResponse
     {
         $ensemble->name = $request->validated('name');
@@ -98,9 +83,6 @@ class EnsembleController extends Controller
         return to_route('ensembles.show', $ensemble);
     }
 
-    /**
-     * Remove the specified resource from storage.
-     */
     public function destroy(Ensemble $ensemble)
     {
         $ensemble->delete();
@@ -125,9 +107,6 @@ class EnsembleController extends Controller
         return redirect()->back()->with('status', __('Restored.'));
     }
 
-    /**
-     * Display a table of the ensemble's members.
-     */
     public function members(Ensemble $ensemble): View
     {
         $this->authorize('view', $ensemble);

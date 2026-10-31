@@ -14,9 +14,6 @@ use Illuminate\View\View;
 
 class TermController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
     public function index()
     {
         $query = Term::query();
@@ -38,9 +35,6 @@ class TermController extends Controller
         ]);
     }
 
-    /**
-     * Show the form for creating a new resource.
-     */
     public function create(): View
     {
         $term = new Term;
@@ -59,9 +53,6 @@ class TermController extends Controller
         ]);
     }
 
-    /**
-     * Store a newly created resource in storage.
-     */
     public function store(Request $request): RedirectResponse
     {
         $validated = $request->validate([
@@ -83,7 +74,6 @@ class TermController extends Controller
 
         $term = Term::create($attributes);
 
-        // Create or update term dates
         $request_term_dates->each(function ($term_date) use ($term) {
             $payload = [
                 'start_datetime' => $term_date['start_datetime'] ?? null,
@@ -94,13 +84,10 @@ class TermController extends Controller
             ];
 
             if (! empty($term_date['id'])) {
-                // Update existing by ID, scoped to this term. Retrieved first so the
-                // save goes through the model: a query-builder update() writes straight
-                // to the database without firing Eloquent events, which would stop
-                // TermDateObserver sending setup group / van driver change alerts.
+                // Fetched first so the update fires TermDateObserver's change alerts;
+                // a query-builder update() skips model events.
                 $term->term_dates()->whereKey($term_date['id'])->first()?->update($payload);
             } else {
-                // Create new
                 $term->term_dates()->create($payload);
             }
         });
@@ -110,9 +97,6 @@ class TermController extends Controller
         return redirect()->route('terms.show', $term);
     }
 
-    /**
-     * Display the specified resource.
-     */
     public function show(Term $term)
     {
         $term->load('term_dates')->with('van_driver');
@@ -125,9 +109,6 @@ class TermController extends Controller
         ]);
     }
 
-    /**
-     * Show the form for editing the specified resource.
-     */
     public function edit(Term $term)
     {
         $term->load('term_dates');
@@ -146,26 +127,20 @@ class TermController extends Controller
         ]);
     }
 
-    /**
-     * Update the specified resource in storage.
-     */
     public function update(UpdateTermRequest $request, Term $term)
     {
         $attributes = $request->safe()->only(['name', 'slug']);
 
         $request_term_dates = collect($request->input('term_dates', []));
 
-        // / Delete term dates that are not in the request
         $keepIds = $request_term_dates->pluck('id')->filter()->values()->all();
 
         if (count($keepIds) > 0) {
             $term->term_dates()->whereNotIn('id', $keepIds)->delete();
         } else {
-            // If no IDs provided, remove all existing term dates
             $term->term_dates()->delete();
         }
 
-        // Create or update term dates
         $request_term_dates->each(function ($term_date) use ($term) {
             $payload = [
                 'start_datetime' => $term_date['start_datetime'] ?? null,
@@ -176,13 +151,10 @@ class TermController extends Controller
             ];
 
             if (! empty($term_date['id'])) {
-                // Update existing by ID, scoped to this term. Retrieved first so the
-                // save goes through the model: a query-builder update() writes straight
-                // to the database without firing Eloquent events, which would stop
-                // TermDateObserver sending setup group / van driver change alerts.
+                // Fetched first so the update fires TermDateObserver's change alerts;
+                // a query-builder update() skips model events.
                 $term->term_dates()->whereKey($term_date['id'])->first()?->update($payload);
             } else {
-                // Create new
                 $term->term_dates()->create($payload);
             }
         });
@@ -193,9 +165,6 @@ class TermController extends Controller
         return redirect()->route('terms.show', $term);
     }
 
-    /**
-     * Remove the specified resource from storage.
-     */
     public function destroy(Term $term)
     {
         $term->delete();
