@@ -1,5 +1,6 @@
 <?php
 
+use Illuminate\Contracts\Foundation\MaintenanceMode;
 use Illuminate\Support\Facades\Artisan;
 
 it('is hidden when no deploy token is configured', function () {
@@ -27,10 +28,8 @@ it('migrates, re-caches and leaves maintenance mode with the right token', funct
 
 it('answers during maintenance mode', function () {
     config(['app.deploy_token' => null]);
-    $this->app->maintenanceMode()->activate([]);
+    $this->mock(MaintenanceMode::class, fn ($mock) => $mock->shouldReceive('active')->andReturn(true)->shouldReceive('data')->andReturn([]));
 
     $this->post('/_deploy')->assertNotFound();
     $this->get('/health')->assertServiceUnavailable();
-
-    $this->app->maintenanceMode()->deactivate();
 });
