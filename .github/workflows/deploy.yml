@@ -95,16 +95,52 @@ jobs:
           github_token: ${{ github.token }}
           default_bump: minor
           dry_run: true
+      - if: matrix.environment == 'prod'
+        uses: actions/checkout@v5
       - uses: actions/download-artifact@v8
         with:
           name: build
-      - run: |
+      - if: matrix.environment == 'prod'
+        name: Upload over FTP and run the deploy endpoint
+        env:
+          LFTP_PASSWORD: ${{ secrets.FTP_PASSWORD }}
+          DEPLOY_TOKEN: ${{ secrets.DEPLOY_TOKEN }}
+        run: |
+          test -n '${{ vars.APP_DOMAIN }}'
+          echo '${{ steps.version.outputs.new_tag || steps.version.outputs.previous_tag }}' > VERSION
+          echo '{}' > down
+          sudo apt-get install -y -qq lftp
+          lftp <<'EOF'
+          set cmd:fail-exit true
+          set ftp:ssl-force true
+          set ssl:verify-certificate true
+          open --env-password -u '${{ vars.DEPLOY_FTP_USER }}' '${{ vars.DEPLOY_FTP_HOST }}'
+          cd domains/${{ vars.APP_DOMAIN }}
+          mirror -R storage storage
+          put down -o storage/framework/down
+          mirror -R --delete --parallel=8 bootstrap bootstrap
+          mirror -R --delete --parallel=8 --exclude-glob *.sqlite* database database
+          mirror -R --delete --parallel=8 vendor vendor
+          mirror -R --delete --parallel=8 app app
+          mirror -R --delete --parallel=8 config config
+          mirror -R --delete --parallel=8 lang lang
+          mirror -R --delete --parallel=8 resources resources
+          mirror -R --delete --parallel=8 routes routes
+          mirror -R --delete --parallel=8 public/build public/build
+          mirror -R --delete --parallel=8 public/js public/js
+          mput -d artisan composer.json composer.lock VERSION public/index.php public/.htaccess public/favicon.ico public/robots.txt
+          EOF
+          curl --fail-with-body -sS -X POST -H "Authorization: Bearer $DEPLOY_TOKEN" 'https://${{ vars.APP_DOMAIN }}/_deploy'
+      - if: matrix.environment != 'prod'
+        run: |
           test -n '${{ vars.APP_DOMAIN }}'
           mkdir -p ~/.ssh
           echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/deploy
           chmod 600 ~/.ssh/deploy
-      - run: rsync -rltz --delete -e "$SSH" vendor public/build --relative "$HOST:domains/${{ vars.APP_DOMAIN }}/"
-      - run: |
+      - if: matrix.environment != 'prod'
+        run: rsync -rltz --delete -e "$SSH" vendor public/build --relative "$HOST:domains/${{ vars.APP_DOMAIN }}/"
+      - if: matrix.environment != 'prod'
+        run: |
           $SSH $HOST bash -es <<'EOF'
             set -e
             cd domains/${{ vars.APP_DOMAIN }}
@@ -116,11 +152,7 @@ jobs:
               echo "No .env in ~/domains/${{ vars.APP_DOMAIN }}: copy .env.example to .env, fill it in, then re-run this deploy." >&2
               exit 1
             fi
-            if [ '${{ matrix.environment }}' = 'prod' ]; then
-              echo '${{ steps.version.outputs.new_tag || steps.version.outputs.previous_tag }}' > VERSION
-            else
-              echo "$(git describe --tags --always)${{ github.event.pull_request.number && format('+pr{0}', github.event.pull_request.number) || '' }}" > VERSION
-            fi
+            echo "$(git describe --tags --always)${{ github.event.pull_request.number && format('+pr{0}', github.event.pull_request.number) || '' }}" > VERSION
             rm -f bootstrap/cache/*.php
             php artisan down
             trap 'php artisan up' EXIT

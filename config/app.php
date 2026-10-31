@@ -148,4 +148,7 @@ return [
     'readererer_allow_change_to_unknown' => env('READERERER_ALLOW_CHANGE_TO_UNKNOWN', false),
     'readererer_repeating_headings' => env('READERERER_REPEATING_HEADINGS', false),
 
+    // Bearer token for POST /_deploy, which migrates and re-caches after an FTP upload. Unset disables it.
+    'deploy_token' => env('DEPLOY_TOKEN'),
+
 ];
