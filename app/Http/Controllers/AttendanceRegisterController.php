@@ -4,11 +4,11 @@ namespace App\Http\Controllers;
 
 use App\Enums\AttendanceStatus;
 use App\Enums\RegisterStatus;
-use App\Models\Attendance;
 use App\Models\Ensemble;
 use App\Models\InstrumentFamily;
 use App\Models\RegisterEntry;
 use App\Models\TermDate;
+use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Auth;
@@ -173,13 +173,10 @@ class AttendanceRegisterController extends Controller
      */
     private function polled_statuses(Ensemble $ensemble, TermDate $termDate): Collection
     {
-        return Attendance::where('ensemble_id', $ensemble->id)
-            ->where('term_date_id', $termDate->id)
-            ->orderBy('created_at')
-            ->orderBy('id')
-            ->get()
-            ->mapWithKeys(fn (Attendance $attendance) => [
-                $attendance->user_id => $attendance->status ?? AttendanceStatus::Unknown,
+        return $this->members($ensemble)
+            ->load(['attendances' => fn ($query) => $query->where('term_date_id', $termDate->id)])
+            ->mapWithKeys(fn (User $member) => [
+                $member->id => $member->latestAttendanceFor($termDate, $ensemble)?->status ?? AttendanceStatus::Unknown,
             ]);
     }
 }

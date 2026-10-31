@@ -44,6 +44,15 @@ class User extends Authenticatable
         return $this->hasMany(Attendance::class);
     }
 
+    public function latestAttendanceFor(TermDate $termDate, ?Ensemble $ensemble = null): ?Attendance
+    {
+        return $this->attendances
+            ->where('term_date_id', $termDate->id)
+            ->when($ensemble, fn ($attendances) => $attendances->where('ensemble_id', $ensemble->id))
+            ->sortBy([['created_at', 'desc'], ['id', 'desc']])
+            ->first();
+    }
+
     public function ensembles()
     {
         return $this->belongsToMany(Ensemble::class, 'user_ensemble')

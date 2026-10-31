@@ -3,6 +3,7 @@
 use App\Enums\AttendanceStatus;
 use App\Enums\Color;
 use App\Enums\RegisterStatus;
+use App\Models\Ensemble;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Support\Collection;
@@ -57,7 +58,7 @@ function column_label($model, $attribute)
     return clean_attribute_name($attribute);
 }
 
-function member_status_totals($members, $term_date): array
+function member_status_totals($members, $term_date, ?Ensemble $ensemble = null): array
 {
     $assume_attending = config('app.readererer_assume_attending');
 
@@ -66,8 +67,7 @@ function member_status_totals($members, $term_date): array
     $number_unknown = 0;
 
     foreach ($members as $member) {
-        $attendance = $member->attendances->where('term_date_id', $term_date->id)->sortByDesc('created_at')->first();
-        $attendance_value = $attendance->status ?? AttendanceStatus::Unknown;
+        $attendance_value = $member->latestAttendanceFor($term_date, $ensemble)?->status ?? AttendanceStatus::Unknown;
 
         switch ($attendance_value) {
             case AttendanceStatus::Attending:

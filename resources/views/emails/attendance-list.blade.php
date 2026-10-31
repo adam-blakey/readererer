@@ -3,7 +3,7 @@
 
 {{ __('Here is the current attendance for') }} **{{ $termDate->name }}**.
 
-@php($totals = member_status_totals($members, $termDate))
+@php($totals = member_status_totals($members, $termDate, $termDate->concert_ensemble))
 - **{{ __('Attending') }}:** {{ $totals['attending'] }}
 - **{{ __('Not attending') }}:** {{ $totals['not_attending'] }}
 @isset($totals['unknown'])
@@ -15,7 +15,7 @@
 | {{ __('Member') }} | {{ __('Status') }} |
 | :----- | :----- |
 @foreach($members as $member)
-@php($attendance = $member->attendances->where('term_date_id', $termDate->id)->sortByDesc('created_at')->first())
+@php($attendance = $member->latestAttendanceFor($termDate, $termDate->concert_ensemble))
 | {{ $member->name }} | {{ $attendance?->status_text ?? __('No response yet') }} |
 @endforeach
 </x-mail::table>

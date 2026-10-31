@@ -1,5 +1,5 @@
 @php
-    $attendanceTotals = member_status_totals($members, $termDate);
+    $attendanceTotals = member_status_totals($members, $termDate, $ensemble);
 
     function get_seat_row($member, $ensemble) {
         return $member->ensembles->where('id', $ensemble->id)->first()->pivot->seat_row;
@@ -64,7 +64,7 @@
         @php
             $members = $rowGroupedMembers[$row] ?? [];
 
-            $totals = member_status_totals($members, $termDate);
+            $totals = member_status_totals($members, $termDate, $ensemble);
         @endphp
         <div style="display: inline-block; width: calc({{ 100.0 / $numberOfRows }}% - 30px); vertical-align: top;">
             <table style="border-collapse: collapse; width: 100%;">
@@ -73,7 +73,7 @@
                     <th style="padding: 0.15em 0.4em; border: 2px solid black;">{{ $totals['attending'] }}</th>
                 </tr>
                 @foreach($members as $member)
-                    @php($attendance_value = $member->attendances->where('term_date_id', $termDate->id)->sortByDesc('created_at')->first()?->status ?? App\Enums\AttendanceStatus::Unknown)
+                    @php($attendance_value = $member->latestAttendanceFor($termDate, $ensemble)?->status ?? App\Enums\AttendanceStatus::Unknown)
                     <tr>
                         <td style="padding: 0.15em 0.4em; border: 2px solid black; border-left: 6px solid {{ get_instrument_color($member, $ensemble, $instrumentFamilies) }};">
                             @switch($attendance_value)

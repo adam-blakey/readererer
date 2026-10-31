@@ -101,8 +101,7 @@
 						@foreach ($term_dates as $term_date)
                             <td class="w-1 {{ ((int)($term_date->concert_ensemble_id) === (int)($ensemble->id)) ? 'bg-primary-subtle' : '' }}">
 								@php
-									$attendance = $member->attendances->where('term_date_id', $term_date->id)->sortByDesc('created_at')->first();
-									$attendance_value = $attendance->status ?? App\Enums\AttendanceStatus::Unknown;
+									$attendance_value = $member->latestAttendanceFor($term_date, $ensemble)?->status ?? App\Enums\AttendanceStatus::Unknown;
 
                                     if ($term_date->setup_group != null && $member->setup_group != null)
                                     {

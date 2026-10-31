@@ -178,3 +178,50 @@ test('a poll submission ignores members, dates and statuses that do not belong t
 
     expect(Attendance::count())->toBe(0);
 });
+
+test('the poll and the register agree on a member\'s latest answer for their ensemble', function () {
+    $orchestra = Ensemble::factory()->create();
+    $choir = Ensemble::factory()->create();
+    $term = Term::factory()->create();
+    $rehearsal = TermDate::forceCreate([
+        'term_id' => $term->id,
+        'start_datetime' => now()->addWeek(),
+        'end_datetime' => now()->addWeek()->addHours(2),
+    ]);
+    $member = make_user(UserRole::Member);
+    join_ensemble($member, $orchestra);
+    join_ensemble($member, $choir);
+    $admin = make_user(UserRole::Admin);
+
+    $sameSecond = now();
+    foreach ([AttendanceStatus::NotAttending, AttendanceStatus::Attending] as $status) {
+        Attendance::forceCreate([
+            'user_id' => $member->id,
+            'term_date_id' => $rehearsal->id,
+            'ensemble_id' => $orchestra->id,
+            'status' => $status,
+            'edit_user_id' => $admin->id,
+            'edit_ip' => '127.0.0.1',
+            'created_at' => $sameSecond,
+            'updated_at' => $sameSecond,
+        ]);
+    }
+    Attendance::forceCreate([
+        'user_id' => $member->id,
+        'term_date_id' => $rehearsal->id,
+        'ensemble_id' => $choir->id,
+        'status' => AttendanceStatus::NotAttending,
+        'edit_user_id' => $admin->id,
+        'edit_ip' => '127.0.0.1',
+        'created_at' => $sameSecond->copy()->addMinute(),
+        'updated_at' => $sameSecond->copy()->addMinute(),
+    ]);
+
+    $poll = $this->actingAs($admin)->get(route('attendance.poll', ['ensemble' => $orchestra->slug, 'term' => $term->slug]));
+    $totals = member_status_totals($poll->viewData('members'), $rehearsal, $orchestra);
+
+    $register = $this->actingAs($admin)->get(route('attendance.register.show', ['ensemble' => $orchestra->slug, 'termDate' => $rehearsal]));
+
+    expect($totals['not_attending'])->toBe(0);
+    expect($register->viewData('polled_statuses')->get($member->id))->toBe(AttendanceStatus::Attending);
+});
