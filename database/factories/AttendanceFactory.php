@@ -31,7 +31,7 @@ class AttendanceFactory extends Factory
             'edit_ip' => $this->faker->ipv4,
             'user_id' => $user->id,
             'edit_user_id' => User::inRandomOrder()->first(),
-            'term_date_id' => TermDate::inRandomOrder()->where('role', '!=', UserRole::Ensemble)->first(),
+            'term_date_id' => TermDate::inRandomOrder()->first(),
             'ensemble_id' => $ensemble->id,
         ];
     }
