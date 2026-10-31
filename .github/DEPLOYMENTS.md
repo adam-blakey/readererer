@@ -16,7 +16,8 @@ The app's prod site is `readererer-prod.blakey.family`; the docs site is
 
 ## How it works
 
-1. **`build_and_test`** runs the Pest suite (including browser tests), then
+1. **`build_and_test`** checks code style with Pint and runs the Pest suite
+   (Unit and Feature in parallel, then the browser tests), then
    reinstalls Composer dependencies without dev packages and uploads `vendor`
    and `public/build` as the `build` artifact. On `main` it also smoke-tests
    `php artisan optimize --env=production`.
@@ -39,6 +40,9 @@ The app's prod site is `readererer-prod.blakey.family`; the docs site is
    overwrite a folder that still holds the app.
 
 Node and Composer are no longer needed on the server; only PHP and git.
+
+A new push to a pull request cancels that pull request's earlier run; runs on
+`main` are never cancelled this way.
 
 Fork pull requests and Dependabot pull requests build and test but do not
 deploy (they have no access to the secrets).
@@ -163,7 +167,6 @@ signed commits, CodeQL, code quality, coverage) stays. Add:
 - **Require a pull request before merging.**
 - **Require status checks to pass**, with:
   - `Pest test suite` (from Build, Test & Deploy)
-  - `Pint code style` (from CI)
   - `commit_messages` (from Conventional Commits)
 
 ### Merging
