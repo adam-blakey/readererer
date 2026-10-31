@@ -66,24 +66,21 @@ jobs:
     strategy:
       max-parallel: 1 # qa first; a failure there skips production
       matrix:
-        domain:
-          - ${{ vars.DEV_DOMAIN }}
-          - ${{ vars.QA_DOMAIN }}
-          - ${{ vars.PROD_DOMAIN }}
+        environment: [dev, qa, production]
         exclude:
-          - domain: ${{ github.event_name == 'pull_request' && vars.QA_DOMAIN || '' }}
-          - domain: ${{ github.event_name == 'pull_request' && vars.PROD_DOMAIN || '' }}
-          - domain: ${{ github.event_name != 'pull_request' && vars.DEV_DOMAIN || '' }}
-    concurrency: deploy-${{ matrix.domain }}
+          - environment: ${{ github.event_name == 'pull_request' && 'qa' || '' }}
+          - environment: ${{ github.event_name == 'pull_request' && 'production' || '' }}
+          - environment: ${{ github.event_name != 'pull_request' && 'dev' || '' }}
+    concurrency: deploy-${{ matrix.environment }}
     environment:
-      name: ${{ matrix.domain == vars.PROD_DOMAIN && 'production' || matrix.domain == vars.QA_DOMAIN && 'qa' || 'dev' }}
-      url: https://${{ matrix.domain }}
+      name: ${{ matrix.environment }}
+      url: https://${{ vars.APP_DOMAIN }}
     env:
       SSH: ssh -i ~/.ssh/deploy -p ${{ vars.DEPLOY_SSH_PORT }} -o StrictHostKeyChecking=no
       HOST: ${{ vars.DEPLOY_SSH_USER }}@${{ vars.DEPLOY_SSH_HOST }}
     steps:
       - name: Cancel if a newer run is on its way
-        if: matrix.domain == vars.PROD_DOMAIN
+        if: matrix.environment == 'production'
         env:
           GH_TOKEN: ${{ github.token }}
           GH_REPO: ${{ github.repository }}
@@ -94,7 +91,7 @@ jobs:
             sleep 300
           fi
       - id: version
-        if: matrix.domain == vars.PROD_DOMAIN
+        if: matrix.environment == 'production'
         uses: mathieudutour/github-tag-action@v7
         with:
           github_token: ${{ github.token }}
@@ -104,26 +101,27 @@ jobs:
         with:
           name: build
       - run: |
+          test -n '${{ vars.APP_DOMAIN }}'
           mkdir -p ~/.ssh
           echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/deploy
           chmod 600 ~/.ssh/deploy
-      - run: rsync -rltz --delete -e "$SSH" vendor public/build --relative "$HOST:domains/${{ matrix.domain }}/"
+      - run: rsync -rltz --delete -e "$SSH" vendor public/build --relative "$HOST:domains/${{ vars.APP_DOMAIN }}/"
       - run: |
           $SSH $HOST bash -es <<'EOF'
             set -e
-            cd domains/${{ matrix.domain }}
+            cd domains/${{ vars.APP_DOMAIN }}
             export GIT_SSH_COMMAND="ssh -i ~/.ssh/${{ vars.DEPLOY_GIT_KEY }} -o IdentitiesOnly=yes"
             git fetch --tags --force origin ${{ github.sha }}
             git reset --hard FETCH_HEAD
             rm -f bootstrap/cache/*.php
-            if [ '${{ matrix.domain }}' = '${{ vars.PROD_DOMAIN }}' ]; then
+            if [ '${{ matrix.environment }}' = 'production' ]; then
               php artisan app:generate-version --tag='${{ steps.version.outputs.new_tag || steps.version.outputs.previous_tag }}'
             else
               php artisan app:generate-version --tag="$(git describe --tags --always)${{ github.event.pull_request.number && format('+pr{0}', github.event.pull_request.number) || '' }}"
             fi
             php artisan down
             trap 'php artisan up' EXIT
-            if [ '${{ matrix.domain }}' = '${{ vars.DEV_DOMAIN }}' ]; then
+            if [ '${{ matrix.environment }}' = 'dev' ]; then
               php artisan migrate:fresh --seed --force
             else
               php artisan migrate --force
@@ -132,7 +130,7 @@ jobs:
             php artisan event:cache
             php artisan queue:restart
           EOF
-      - if: matrix.domain == vars.PROD_DOMAIN
+      - if: matrix.environment == 'production'
         uses: softprops/action-gh-release@v2.6.2
         with:
           tag_name: ${{ steps.version.outputs.new_tag || steps.version.outputs.previous_tag }}
