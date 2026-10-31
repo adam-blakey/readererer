@@ -168,7 +168,7 @@ to the container's stderr and can be read with `docker logs readererer-dev`.
 
 Deployment runs through GitHub Actions (`.github/workflows/deploy.yml`) to three
 Krystal environments over SSH. Pull requests deploy to dev. Merges to `main` deploy to
-dev, then QA, then production after a wait timer, and publish a GitHub release whose version
+dev, then QA, then prod after a wait timer, and publish a GitHub release whose version
 is derived from the Conventional Commit messages. See `.github/DEPLOYMENTS.md`.
 
 ## Copyright

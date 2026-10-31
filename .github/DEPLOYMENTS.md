@@ -7,7 +7,7 @@ All three environments are hosted on Krystal and deployed by
 | ------------ | ------------------------------- | -------------------------------- |
 | `dev`        | Pull request opened / updated, and push to `main` | `migrate:fresh --seed` each time |
 | `qa`         | Push to `main`, after `dev`     | `migrate`                        |
-| `production` | Push to `main`, after `qa`      | `migrate`                        |
+| `prod`       | Push to `main`, after `qa`      | `migrate`                        |
 
 ## How it works
 
@@ -16,14 +16,14 @@ All three environments are hosted on Krystal and deployed by
    and `public/build` as the `build` artifact. On `main` it also smoke-tests
    `php artisan optimize --env=production`.
 2. **`deploy`** runs once per environment, one at a time (on `main`: `dev`, then
-   `qa`, then `production`, so a failure skips the environments after it). For each domain it:
+   `qa`, then `prod`, so a failure skips the environments after it). For each domain it:
    - rsyncs `vendor` and `public/build` to `~/domains/<domain>/`;
    - fetches the exact commit on the server and `git reset --hard`s to it;
-   - writes `version.json` (production: the new release tag; dev/qa:
+   - writes `version.json` (prod: the new release tag; dev/qa:
      `git describe`, plus `+pr<n>` on dev);
    - puts the app in maintenance mode, migrates, runs `optimize`,
      `event:cache` and `queue:restart`, and brings it back up.
-3. **Production only:** before deploying it cancels itself if a newer `main`
+3. **`prod` only:** before deploying it cancels itself if a newer `main`
    run is in progress, works out the next version from the Conventional
    Commits since the last tag, and after deploying publishes a GitHub release
    with that tag and generated notes.
@@ -43,11 +43,11 @@ hand. They are what the pipeline relies on, matching the website repo's setup.
 
 ### Environments (Settings → Environments)
 
-Create `dev`, `qa` and `production` (names must match exactly), with:
+Create `dev`, `qa` and `prod` (names must match exactly), with:
 
 - **`dev`** — no protection.
 - **`qa`** — Deployment branches: `main` only.
-- **`production`** — Deployment branches: `main` only, and a **Wait timer**
+- **`prod`** — Deployment branches: `main` only, and a **Wait timer**
   (the batching window: runs that find a newer one in progress when the timer
   ends cancel themselves). Optionally add Required reviewers.
 
@@ -68,8 +68,10 @@ per environment and the rest once on the repository.
 | `DEPLOY_GIT_KEY`            | `github_readererer`      | File name, in the server's `~/.ssh/`, of the key the server fetches from GitHub with. |
 | `SSH_PRIVATE_KEY` (secret)  |                          | Private key GitHub logs in to the server with.                           |
 
-The old `production` variables `UNIX_USERNAME`, `SERVER_DOMAIN` and
-`SERVER_PORT` are no longer read and can be deleted; `APP_DOMAIN` is kept.
+The live environment is now called `prod`. Recreate the old `production`
+environment's `APP_DOMAIN`, any secrets and its protection rules on `prod`,
+then delete `production`. Its `UNIX_USERNAME`, `SERVER_DOMAIN` and
+`SERVER_PORT` variables are no longer read.
 
 ### cPanel, once per account
 
@@ -103,12 +105,13 @@ The old `production` variables `UNIX_USERNAME`, `SERVER_DOMAIN` and
    database and user with all privileges. For SQLite run
    `touch ~/domains/<domain>/database/database.sqlite`.
 4. **`.env`.** `cp .env.example .env` in the site folder and set at least
-   `APP_ENV` (`dev`/`qa`/`production`), `APP_DEBUG=false` (except dev),
+   `APP_ENV` (`dev`, `qa`, or `production` on prod, which Laravel treats
+   specially), `APP_DEBUG=false` (except dev),
    `APP_URL=https://<domain>`, the `DB_*` values from step 3 (SQLite needs the
    absolute path, `/home/<user>/domains/<domain>/database/database.sqlite`) and
    the mail settings. For `APP_KEY`, run
    `php -r "echo 'base64:'.base64_encode(random_bytes(32)).PHP_EOL;"` and paste
-   the output. Keep production's existing key. Then re-run the deploy.
+   the output. Keep prod's existing key. Then re-run the deploy.
 
 No cron jobs are needed: the app has no scheduled tasks or queued jobs.
 

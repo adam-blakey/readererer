@@ -43,7 +43,7 @@ Browser tests (`tests/Browser`) use `pestphp/pest-plugin-browser` to check that 
 
 ## Deployment
 
-All three environments (dev, qa, production) are on Krystal and deployed by `.github/workflows/deploy.yml`: pull requests deploy to dev; pushes to `main` deploy to dev, then qa, then production after the environment's wait timer, which also tags and publishes a GitHub release. The workflow builds `vendor` and `public/build` on the runner, rsyncs them over SSH, resets the server's checkout to the commit and migrates (dev is `migrate:fresh --seed`). Setup and required repo settings are in `.github/DEPLOYMENTS.md`. Do not invoke deploys yourself.
+All three environments (dev, qa, prod) are on Krystal and deployed by `.github/workflows/deploy.yml`: pull requests deploy to dev; pushes to `main` deploy to dev, then qa, then prod after the environment's wait timer, which also tags and publishes a GitHub release. The workflow builds `vendor` and `public/build` on the runner, rsyncs them over SSH, resets the server's checkout to the commit and migrates (dev is `migrate:fresh --seed`). Setup and required repo settings are in `.github/DEPLOYMENTS.md`. Do not invoke deploys yourself.
 
 ## Architecture
 

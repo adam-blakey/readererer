@@ -64,12 +64,12 @@ jobs:
       actions: write
       contents: write
     strategy:
-      max-parallel: 1 # dev, then qa, then production; a failure skips the rest
+      max-parallel: 1 # dev, then qa, then prod; a failure skips the rest
       matrix:
-        environment: [dev, qa, production]
+        environment: [dev, qa, prod]
         exclude:
           - environment: ${{ github.event_name == 'pull_request' && 'qa' || '' }}
-          - environment: ${{ github.event_name == 'pull_request' && 'production' || '' }}
+          - environment: ${{ github.event_name == 'pull_request' && 'prod' || '' }}
     concurrency: deploy-${{ matrix.environment }}
     environment:
       name: ${{ matrix.environment }}
@@ -79,7 +79,7 @@ jobs:
       HOST: ${{ vars.DEPLOY_SSH_USER }}@${{ vars.DEPLOY_SSH_HOST }}
     steps:
       - name: Cancel if a newer run is on its way
-        if: matrix.environment == 'production'
+        if: matrix.environment == 'prod'
         env:
           GH_TOKEN: ${{ github.token }}
           GH_REPO: ${{ github.repository }}
@@ -90,7 +90,7 @@ jobs:
             sleep 300
           fi
       - id: version
-        if: matrix.environment == 'production'
+        if: matrix.environment == 'prod'
         uses: mathieudutour/github-tag-action@v7
         with:
           github_token: ${{ github.token }}
@@ -118,7 +118,7 @@ jobs:
               exit 1
             fi
             rm -f bootstrap/cache/*.php
-            if [ '${{ matrix.environment }}' = 'production' ]; then
+            if [ '${{ matrix.environment }}' = 'prod' ]; then
               tag='${{ steps.version.outputs.new_tag || steps.version.outputs.previous_tag }}'
             else
               tag="$(git describe --tags --always)${{ github.event.pull_request.number && format('+pr{0}', github.event.pull_request.number) || '' }}"
@@ -136,7 +136,7 @@ jobs:
             php artisan event:cache
             php artisan queue:restart
           EOF
-      - if: matrix.environment == 'production'
+      - if: matrix.environment == 'prod'
         uses: softprops/action-gh-release@v2.6.2
         with:
           tag_name: ${{ steps.version.outputs.new_tag || steps.version.outputs.previous_tag }}
