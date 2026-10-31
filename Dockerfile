@@ -70,7 +70,7 @@ COPY --from=vendor /app /var/www/html
 COPY --from=assets /app/public/build /var/www/html/public/build
 
 # Read by config/_version.php for the footer; .git is not in the build context,
-# so the CI workflows compute these and pass them in.
+# so these are passed in as build arguments.
 ARG APP_VERSION_TAG=""
 ARG APP_VERSION_HASH=""
 ARG APP_VERSION_DATE=""

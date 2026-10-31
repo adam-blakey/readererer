@@ -9,8 +9,8 @@ use Carbon\Carbon;
 |
 | version.json is produced by the build process — `php artisan
 | app:generate-version` runs from composer's post-autoload-dump hook (local
-| installs and Envoy deploys), and the Dockerfile bakes the file in from
-| build arguments supplied by the GitHub Actions workflows. No git commands
+| installs) and the deploy workflow (with the release tag), and the
+| Dockerfile bakes the file in from build arguments. No git commands
 | are executed while the application is running; when the file is missing
 | (e.g. a fresh checkout) the placeholders below are used.
 */
