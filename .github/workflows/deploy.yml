@@ -64,13 +64,12 @@ jobs:
       actions: write
       contents: write
     strategy:
-      max-parallel: 1 # qa first; a failure there skips production
+      max-parallel: 1 # dev, then qa, then production; a failure skips the rest
       matrix:
         environment: [dev, qa, production]
         exclude:
           - environment: ${{ github.event_name == 'pull_request' && 'qa' || '' }}
           - environment: ${{ github.event_name == 'pull_request' && 'production' || '' }}
-          - environment: ${{ github.event_name != 'pull_request' && 'dev' || '' }}
     concurrency: deploy-${{ matrix.environment }}
     environment:
       name: ${{ matrix.environment }}

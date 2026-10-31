@@ -5,8 +5,8 @@ All three environments are hosted on Krystal and deployed by
 
 | Environment  | Trigger                         | Database                         |
 | ------------ | ------------------------------- | -------------------------------- |
-| `dev`        | Pull request opened / updated   | `migrate:fresh --seed` each time |
-| `qa`         | Push to `main`                  | `migrate`                        |
+| `dev`        | Pull request opened / updated, and push to `main` | `migrate:fresh --seed` each time |
+| `qa`         | Push to `main`, after `dev`     | `migrate`                        |
 | `production` | Push to `main`, after `qa`      | `migrate`                        |
 
 ## How it works
@@ -15,8 +15,8 @@ All three environments are hosted on Krystal and deployed by
    reinstalls Composer dependencies without dev packages and uploads `vendor`
    and `public/build` as the `build` artifact. On `main` it also smoke-tests
    `php artisan optimize --env=production`.
-2. **`deploy`** runs once per environment, one at a time (`qa` before
-   `production`, so a `qa` failure skips production). For each domain it:
+2. **`deploy`** runs once per environment, one at a time (on `main`: `dev`, then
+   `qa`, then `production`, so a failure skips the environments after it). For each domain it:
    - rsyncs `vendor` and `public/build` to `~/domains/<domain>/`;
    - fetches the exact commit on the server and `git reset --hard`s to it;
    - writes `version.json` (production: the new release tag; dev/qa:
@@ -33,7 +33,8 @@ Node and Composer are no longer needed on the server; only PHP and git.
 Fork pull requests and Dependabot pull requests build and test but do not
 deploy (they have no access to the secrets).
 
-`dev` is shared: whichever pull request deployed last is what is on dev.
+`dev` is shared: whichever pull request or `main` push deployed last is what
+is on dev.
 
 ## Repository configuration
 
