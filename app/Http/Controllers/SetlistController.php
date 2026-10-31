@@ -47,15 +47,6 @@ class SetlistController extends Controller
         return redirect()->back()->with('status', __('Record deleted.'));
     }
 
-    public function purgeTrashed()
-    {
-        Setlist::onlyTrashed()->get()->each(function ($model) {
-            $model->forceDelete();
-        });
-
-        return redirect()->back()->with('status', __('All soft-deleted records permanently removed.'));
-    }
-
     public function restore(int $id)
     {
         $entity = Setlist::withTrashed()->findOrFail($id);

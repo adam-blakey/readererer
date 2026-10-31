@@ -90,15 +90,6 @@ class EnsembleController extends Controller
         return redirect()->back()->with('status', __('Record deleted.'));
     }
 
-    public function purgeTrashed()
-    {
-        Ensemble::onlyTrashed()->get()->each(function ($model) {
-            $model->forceDelete();
-        });
-
-        return redirect()->back()->with('status', __('All soft-deleted records permanently removed.'));
-    }
-
     public function restore(int $id)
     {
         $entity = Ensemble::withTrashed()->findOrFail($id);

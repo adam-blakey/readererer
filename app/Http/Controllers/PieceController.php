@@ -53,15 +53,6 @@ class PieceController extends Controller
         return redirect()->back()->with('status', __('Record deleted.'));
     }
 
-    public function purgeTrashed()
-    {
-        Piece::onlyTrashed()->get()->each(function ($model) {
-            $model->forceDelete();
-        });
-
-        return redirect()->back()->with('status', __('All soft-deleted records permanently removed.'));
-    }
-
     public function restore(int $id)
     {
         $entity = Piece::withTrashed()->findOrFail($id);

@@ -114,15 +114,6 @@ class SetupGroupController extends Controller
         return redirect()->back()->with('status', __('Record deleted.'));
     }
 
-    public function purgeTrashed()
-    {
-        SetupGroup::onlyTrashed()->get()->each(function ($model) {
-            $model->forceDelete();
-        });
-
-        return redirect()->back()->with('status', __('All soft-deleted records permanently removed.'));
-    }
-
     public function restore(int $id)
     {
         $entity = SetupGroup::withTrashed()->findOrFail($id);

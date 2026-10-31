@@ -3,8 +3,6 @@
 namespace App\Http\Controllers;
 
 use App\Enums\AttendanceStatus;
-use App\Http\Requests\StoreAttendanceRequest;
-use App\Http\Requests\UpdateAttendanceRequest;
 use App\Models\Attendance;
 use App\Models\Ensemble;
 use App\Models\InstrumentFamily;
@@ -85,16 +83,4 @@ class AttendanceController extends Controller
 
         return redirect()->route('attendance.poll', ['ensemble' => $ensemble, 'term' => $term]);
     }
-
-    public function create() {}
-
-    public function store(StoreAttendanceRequest $request) {}
-
-    public function show(Attendance $attendance) {}
-
-    public function edit(Attendance $attendance) {}
-
-    public function update(UpdateAttendanceRequest $request, Attendance $attendance) {}
-
-    public function destroy(Attendance $attendance) {}
 }
