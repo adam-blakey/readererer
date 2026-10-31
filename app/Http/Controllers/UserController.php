@@ -18,6 +18,11 @@ use Illuminate\View\View;
 
 class UserController extends Controller
 {
+    public function __construct()
+    {
+        $this->authorizeResource(User::class);
+    }
+
     public function index()
     {
         $query = User::query();
@@ -46,6 +51,7 @@ class UserController extends Controller
         $fields['last_name']['width'] = 6;
         unset($fields['password']);
         unset($fields['image']);
+        $fields['role']['options'] = array_filter($fields['role']['options'], fn ($role) => $role <= auth()->user()->role->value, ARRAY_FILTER_USE_KEY);
 
         return view('auto-entities.form', [
             'page_name' => __('Users'),
@@ -81,7 +87,7 @@ class UserController extends Controller
 
         return view('users.edit', [
             'user' => $user,
-            'roles' => UserRole::cases(),
+            'roles' => UserRole::assignableBy(auth()->user()),
             'setupGroups' => SetupGroup::orderBy('name')->get(),
             'ensembles' => Ensemble::orderBy('name')->get(),
             'allInstrumentFamilies' => InstrumentFamily::orderBy('name')->get(),
@@ -128,6 +134,7 @@ class UserController extends Controller
     public function restore(int $userId)
     {
         $user = User::withTrashed()->findOrFail($userId);
+        $this->authorize('restore', $user);
         $user->restore();
 
         return redirect()->back()->with('status', __('User restored.'));
@@ -135,6 +142,8 @@ class UserController extends Controller
 
     public function attachEnsemble(Request $request, User $user): RedirectResponse
     {
+        $this->authorize('update', $user);
+
         $validated = $request->validate([
             'ensemble_id' => 'required|exists:ensembles,id',
             'instrument_family_id' => 'required|exists:instrument_families,id',
@@ -161,6 +170,8 @@ class UserController extends Controller
 
     public function detachEnsemble(User $user, Ensemble $ensemble): RedirectResponse
     {
+        $this->authorize('update', $user);
+
         $pivot = UserEnsemble::where('user_id', $user->id)
             ->where('ensemble_id', $ensemble->id)
             ->firstOrFail();

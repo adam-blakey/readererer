@@ -11,7 +11,7 @@ function make_setup_group_for_users(): SetupGroup
 }
 
 test('the user index, create form and show page render', function () {
-    $viewer = make_user(UserRole::Member);
+    $viewer = make_user(UserRole::Moderator);
     $shown = make_user(UserRole::Member);
 
     $this->actingAs($viewer)->get(route('users.index'))->assertOk();
@@ -370,4 +370,40 @@ test('a user can be removed from an ensemble from the edit page', function () {
         ->assertRedirect();
 
     expect($user->fresh()->ensembles->contains('id', $ensemble->id))->toBeFalse();
+});
+
+test('ensemble logins and members cannot manage users', function (UserRole $role) {
+    $actor = make_user($role);
+    $target = make_user(UserRole::Member);
+    $ensemble = Ensemble::factory()->create();
+    join_ensemble($target, $ensemble);
+    $payload = ['first_name' => 'A', 'last_name' => 'B', 'email' => 'a@example.com', 'role' => UserRole::Admin->value];
+
+    $this->actingAs($actor)->get(route('users.index'))->assertForbidden();
+    $this->actingAs($actor)->post(route('users.store'), $payload)->assertForbidden();
+    $this->actingAs($actor)->patch(route('users.update', $actor), $payload)->assertForbidden();
+    $this->actingAs($actor)->delete(route('users.destroy', $target))->assertForbidden();
+    $this->actingAs($actor)->delete(route('users.ensembles.detach', [$target, $ensemble]))->assertForbidden();
+
+    expect($actor->fresh()->role)->toBe($role);
+    expect($target->fresh()->trashed())->toBeFalse();
+    expect($target->fresh()->ensembles)->toHaveCount(1);
+})->with([UserRole::Ensemble, UserRole::Member]);
+
+test('moderators cannot grant a role above their own or edit an admin', function () {
+    $moderator = make_user(UserRole::Moderator);
+    $member = make_user(UserRole::Member);
+    $admin = make_user(UserRole::Admin);
+    $payload = ['first_name' => 'A', 'last_name' => 'B', 'email' => 'a@example.com'];
+
+    $this->actingAs($moderator)
+        ->patch(route('users.update', $member), $payload + ['role' => UserRole::Admin->value])
+        ->assertSessionHasErrors('role');
+    $this->actingAs($moderator)
+        ->patch(route('users.update', $admin), $payload + ['role' => UserRole::Member->value])
+        ->assertForbidden();
+    $this->actingAs($moderator)->delete(route('users.destroy', $admin))->assertForbidden();
+
+    expect($member->fresh()->role)->toBe(UserRole::Member);
+    expect($admin->fresh()->role)->toBe(UserRole::Admin);
 });

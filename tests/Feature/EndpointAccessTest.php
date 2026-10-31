@@ -39,10 +39,14 @@ test('the ensembles index is admin only', function () {
     $this->actingAs(make_user(UserRole::Admin))->get('/ensembles')->assertOk();
 });
 
-test('term, user and setup group indexes only require authentication', function (string $uri) {
-    // These controllers do not call authorizeResource, so any logged-in user may view them.
+test('term and setup group indexes only require authentication', function (string $uri) {
     $this->actingAs(make_user(UserRole::Member))->get($uri)->assertOk();
-})->with(['/terms', '/users', '/setupgroups']);
+})->with(['/terms', '/setupgroups']);
+
+test('the user index requires moderator or above', function () {
+    $this->actingAs(make_user(UserRole::Member))->get('/users')->assertForbidden();
+    $this->actingAs(make_user(UserRole::Moderator))->get('/users')->assertOk();
+});
 
 test('ensemble show is limited to moderators and members of that ensemble', function () {
     $ensemble = Ensemble::factory()->create();
