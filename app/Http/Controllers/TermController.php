@@ -10,6 +10,7 @@ use App\Models\User;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Arr;
+use Illuminate\Support\Facades\DB;
 use Illuminate\View\View;
 
 class TermController extends Controller
@@ -73,8 +74,12 @@ class TermController extends Controller
             'term_dates.*.van_driver_id' => 'nullable|integer|exists:users,id',
         ]);
 
-        $term = Term::create(Arr::only($validated, ['name', 'slug']));
-        $this->syncTermDates($term, $validated['term_dates'] ?? []);
+        $term = DB::transaction(function () use ($validated) {
+            $term = Term::create(Arr::only($validated, ['name', 'slug']));
+            $this->syncTermDates($term, $validated['term_dates'] ?? []);
+
+            return $term;
+        });
 
         return redirect()->route('terms.show', $term);
     }
@@ -111,8 +116,10 @@ class TermController extends Controller
 
     public function update(UpdateTermRequest $request, Term $term)
     {
-        $this->syncTermDates($term, $request->validated('term_dates', []));
-        $term->update($request->safe()->only(['name', 'slug']));
+        DB::transaction(function () use ($request, $term) {
+            $this->syncTermDates($term, $request->validated('term_dates', []));
+            $term->update($request->safe()->only(['name', 'slug']));
+        });
 
         return redirect()->route('terms.show', $term);
     }
