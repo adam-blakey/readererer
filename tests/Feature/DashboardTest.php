@@ -120,3 +120,21 @@ test('the dashboard shows the user\'s next van drive from the setup group rotati
     $response->assertOk();
     expect($response->viewData('nextVanDrive')->id)->toBe($termDate->id);
 });
+
+test('a member in no ensemble is not offered a next rehearsal', function () {
+    $term = Term::factory()->create();
+    TermDate::forceCreate([
+        'term_id' => $term->id,
+        'start_datetime' => now()->addWeek(),
+        'end_datetime' => now()->addWeek()->addHours(2),
+    ]);
+
+    $response = $this->actingAs(make_user(UserRole::Member))->get('/dashboard');
+
+    $response->assertOk();
+    expect($response->viewData('nextRehearsal'))->toBeNull();
+});
+
+test('an ensemble login that is not linked to an ensemble is refused rather than erroring', function () {
+    $this->actingAs(make_user(UserRole::Ensemble))->get('/dashboard')->assertForbidden();
+});
