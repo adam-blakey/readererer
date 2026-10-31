@@ -329,3 +329,18 @@ test('the term edit form renders the setup group, van driver and row template', 
         ->assertSee('Van driver override')
         ->assertSee('term-date-row-template', false);
 });
+
+test('a term cannot be renamed to another term\'s slug but may keep its own', function () {
+    Term::factory()->create(['slug' => 'autumn-2026']);
+    $term = Term::factory()->create(['slug' => 'spring-2027']);
+    $admin = make_user(UserRole::Admin);
+
+    $this->actingAs($admin)
+        ->patch(route('terms.update', $term), ['name' => 'Spring', 'slug' => 'autumn-2026'])
+        ->assertSessionHasErrors('slug');
+    expect($term->fresh()->slug)->toBe('spring-2027');
+
+    $this->actingAs($admin)
+        ->patch(route('terms.update', $term), ['name' => 'Spring', 'slug' => 'spring-2027'])
+        ->assertSessionHasNoErrors();
+});

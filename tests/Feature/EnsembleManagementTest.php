@@ -382,3 +382,14 @@ test('the ensemble page only lists terms that still have dates to come', functio
 
     expect($response->viewData('upcomingTerms')->pluck('id')->all())->toBe([$currentTerm->id]);
 });
+
+test('an ensemble whose name gives an existing slug is rejected with a validation error', function () {
+    $existing = Ensemble::factory()->create(['name' => 'Wind Band', 'slug' => 'wind_band']);
+    $existing->delete();
+
+    $this->actingAs(make_user(UserRole::Admin))
+        ->post(route('ensembles.store'), ['name' => 'Wind-Band'])
+        ->assertSessionHasErrors('name');
+
+    expect(Ensemble::withTrashed()->count())->toBe(1);
+});

@@ -4,6 +4,7 @@ namespace App\Http\Requests;
 
 use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Rule;
 
 class UpdateTermRequest extends FormRequest
 {
@@ -17,7 +18,7 @@ class UpdateTermRequest extends FormRequest
     {
         return [
             'name' => 'required|string|max:255',
-            'slug' => 'required|string|max:255',
+            'slug' => ['required', 'string', 'max:255', Rule::unique('terms', 'slug')->ignore($this->term)],
 
             'term_dates' => 'array',
             'term_dates.*.id' => 'nullable|integer',
