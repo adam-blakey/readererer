@@ -4,12 +4,12 @@ All three app environments and the static docs site are hosted on Krystal
 and deployed by `.github/workflows/deploy.yml`, the same pipeline as the
 website repo.
 
-| Environment  | Trigger                         | Database                         |
-| ------------ | ------------------------------- | -------------------------------- |
-| `dev`        | Pull request opened / updated, and push to `main` | `migrate:fresh --seed` each time |
-| `qa`         | Push to `main`, after `dev`     | `migrate`                        |
-| `prod`       | Push to `main`, after `qa`      | `migrate`                        |
-| `docs`       | Push to `main`, after `prod`    | None (static files from `site/`) |
+| Environment | Trigger                                           | Database                         |
+| ----------- | ------------------------------------------------- | -------------------------------- |
+| `dev`       | Pull request opened / updated, and push to `main` | `migrate:fresh --seed` each time |
+| `qa`        | Push to `main`, after `dev`                       | `migrate`                        |
+| `prod`      | Push to `main`, after `qa`                        | `migrate`                        |
+| `docs`      | Push to `main`, after `prod`                      | None (static files from `site/`) |
 
 The app's prod site is `readererer-prod.blakey.family`; the docs site is
 `readererer.blakey.family`.
@@ -70,14 +70,14 @@ the environment (Settings → Environments → *name*) or once on the repository
 repository one. If all three sites share one cPanel account, set `APP_DOMAIN`
 per environment and the rest once on the repository.
 
-| Name                        | Example                  | Description                                                              |
-| --------------------------- | ------------------------ | ------------------------------------------------------------------------ |
-| `APP_DOMAIN` (per env)      | `readererer-prod.blakey.family` | The site's domain; also its folder under `~/domains/` on the server.      |
-| `DEPLOY_SSH_HOST`           | `ssh.example.krystal.uk` | SSH host.                                                                |
-| `DEPLOY_SSH_PORT`           | `722`                    | SSH port (Krystal uses 722).                                             |
-| `DEPLOY_SSH_USER`           | `readererer`             | cPanel username.                                                         |
-| `DEPLOY_GIT_KEY`            | `github_readererer`      | File name, in the server's `~/.ssh/`, of the key the server fetches from GitHub with. |
-| `SSH_PRIVATE_KEY` (secret)  |                          | Private key GitHub logs in to the server with.                           |
+| Name                       | Example                         | Description                                                                           |
+| -------------------------- | ------------------------------- | ------------------------------------------------------------------------------------- |
+| `APP_DOMAIN` (per env)     | `readererer-prod.blakey.family` | The site's domain; also its folder under `~/domains/` on the server.                  |
+| `DEPLOY_SSH_HOST`          | `ssh.example.krystal.uk`        | SSH host.                                                                             |
+| `DEPLOY_SSH_PORT`          | `722`                           | SSH port (Krystal uses 722).                                                          |
+| `DEPLOY_SSH_USER`          | `readererer`                    | cPanel username.                                                                      |
+| `DEPLOY_GIT_KEY`           | `github_readererer`             | File name, in the server's `~/.ssh/`, of the key the server fetches from GitHub with. |
+| `SSH_PRIVATE_KEY` (secret) |                                 | Private key GitHub logs in to the server with.                                        |
 
 The live environment is now called `prod`. Recreate the old `production`
 environment's `APP_DOMAIN`, any secrets and its protection rules on `prod`,
