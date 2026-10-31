@@ -13,7 +13,13 @@
 						{!! __('Copyright &copy; 2024–:year :author. All rights reserved.', ['year' => date('Y'), 'author' => '<a class="link-secondary" href="https://adam.blakey.family" target="_blank">Adam Blakey</a>']) !!}
 					</li>
 					<li class="list-inline-item">
-						<p>v{{ config('app.version') }}</p>
+						@php
+							$version = ltrim(config('app.version'), 'v');
+							$versionUrl = preg_match('/\+pr(\d+)$/', $version, $pullRequest)
+								? "https://github.com/adam-blakey/readererer/pull/{$pullRequest[1]}"
+								: 'https://github.com/adam-blakey/readererer/releases/tag/v'.strtok($version, '-+');
+						@endphp
+						<a class="link-secondary" href="{{ $versionUrl }}" rel="noopener" target="_blank">v{{ $version }}</a>
 					</li>
 				</ul>
 			</div>

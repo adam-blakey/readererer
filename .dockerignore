@@ -12,5 +12,5 @@ storage/logs/*.log
 Envoy.blade.php
 README.md
 tests
-version.json
+VERSION
 bootstrap/cache/*.php

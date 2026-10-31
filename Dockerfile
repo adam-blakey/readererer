@@ -69,14 +69,9 @@ WORKDIR /var/www/html
 COPY --from=vendor /app /var/www/html
 COPY --from=assets /app/public/build /var/www/html/public/build
 
-# Read by config/_version.php for the footer; .git is not in the build context,
-# so these are passed in as build arguments.
-ARG APP_VERSION_TAG=""
-ARG APP_VERSION_HASH=""
-ARG APP_VERSION_DATE=""
-RUN printf '{"tag":"%s","hash":"%s","date":"%s"}\n' \
-        "$APP_VERSION_TAG" "$APP_VERSION_HASH" "$APP_VERSION_DATE" \
-        > version.json
+# Read by config/app.php for the footer; .git is not in the build context.
+ARG APP_VERSION=""
+RUN if [ -n "$APP_VERSION" ]; then echo "$APP_VERSION" > VERSION; fi
 
 RUN chown -R www-data:www-data storage bootstrap/cache database \
     && chmod -R ug+rwX storage bootstrap/cache database
