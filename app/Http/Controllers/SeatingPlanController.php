@@ -130,10 +130,8 @@ class SeatingPlanController extends Controller
 
         $instrumentFamilies = InstrumentFamily::whereIn('id', $members->pluck('pivot.instrument_family_id'))->orderBy('name')->get()->keyBy('id');
 
-        Pdf::setOption(['debugCss' => true]);
-        $pdf = Pdf::loadView('mail.seating-plan-pdf', compact('ensemble', 'termDate', 'members', 'instrumentFamilies'))->setPaper('a4', 'landscape');
-
-        return $pdf->stream();
-
+        return Pdf::loadView('mail.seating-plan-pdf', compact('ensemble', 'termDate', 'members', 'instrumentFamilies'))
+            ->setPaper('a4', 'landscape')
+            ->stream();
     }
 }
