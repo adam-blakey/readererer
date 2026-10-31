@@ -1,13 +1,18 @@
 # Deployments
 
-All three environments are hosted on Krystal and deployed by
-`.github/workflows/deploy.yml`, the same pipeline as the website repo.
+All three app environments and the static docs site are hosted on Krystal
+and deployed by `.github/workflows/deploy.yml`, the same pipeline as the
+website repo.
 
 | Environment  | Trigger                         | Database                         |
 | ------------ | ------------------------------- | -------------------------------- |
 | `dev`        | Pull request opened / updated, and push to `main` | `migrate:fresh --seed` each time |
 | `qa`         | Push to `main`, after `dev`     | `migrate`                        |
 | `prod`       | Push to `main`, after `qa`      | `migrate`                        |
+| `docs`       | Push to `main`, after `prod`    | None (static files from `site/`) |
+
+The app's prod site is `readererer-prod.blakey.family`; the docs site is
+`readererer.blakey.family`.
 
 ## How it works
 
@@ -27,6 +32,11 @@ All three environments are hosted on Krystal and deployed by
    run is in progress, works out the next version from the Conventional
    Commits since the last tag, and after deploying publishes a GitHub release
    with that tag and generated notes.
+4. **`docs`** runs after every environment has deployed. It rsyncs `site/`
+   (following the logo symlink into `resources/images/`) to
+   `~/domains/<domain>/public/`, deleting anything else in that folder. It
+   refuses to run if `~/domains/<domain>/artisan` exists, so it cannot
+   overwrite a folder that still holds the app.
 
 Node and Composer are no longer needed on the server; only PHP and git.
 
@@ -50,6 +60,7 @@ Create `dev`, `qa` and `prod` (names must match exactly), with:
 - **`prod`** — Deployment branches: `main` only, and a **Wait timer**
   (the batching window: runs that find a newer one in progress when the timer
   ends cancel themselves). Optionally add Required reviewers.
+- **`docs`** — Deployment branches: `main` only.
 
 ### Variables and secret
 
@@ -61,7 +72,7 @@ per environment and the rest once on the repository.
 
 | Name                        | Example                  | Description                                                              |
 | --------------------------- | ------------------------ | ------------------------------------------------------------------------ |
-| `APP_DOMAIN` (per env)      | `dev.readererer.com`     | The site's domain; also its folder under `~/domains/` on the server.      |
+| `APP_DOMAIN` (per env)      | `readererer-prod.blakey.family` | The site's domain; also its folder under `~/domains/` on the server.      |
 | `DEPLOY_SSH_HOST`           | `ssh.example.krystal.uk` | SSH host.                                                                |
 | `DEPLOY_SSH_PORT`           | `722`                    | SSH port (Krystal uses 722).                                             |
 | `DEPLOY_SSH_USER`           | `readererer`             | cPanel username.                                                         |
@@ -90,6 +101,35 @@ then delete `production`. Its `UNIX_USERNAME`, `SERVER_DOMAIN` and
    `pdo_mysql`/`pdo_sqlite`, `mbstring`, `gd`, `zip`, `bcmath`, `exif` and
    `fileinfo` enabled. The deploy runs `php artisan` over SSH, so check
    `php -v` in **Terminal** reports 8.4 too.
+
+### Moving prod to `readererer-prod.blakey.family` and adding the docs site
+
+The folder on the server is named after `APP_DOMAIN`, so changing prod's
+domain moves the app to a new folder. If prod currently lives at
+`readererer.blakey.family`:
+
+1. In cPanel create the domain `readererer-prod.blakey.family` with document
+   root `domains/readererer-prod.blakey.family/public` and run AutoSSL.
+2. In **Terminal**, put prod in maintenance mode and move it:
+   `cd ~/domains/readererer.blakey.family && php artisan down`, then
+   `mv ~/domains/readererer.blakey.family ~/domains/readererer-prod.blakey.family`.
+3. In the moved `.env` set `APP_URL=https://readererer-prod.blakey.family`, and
+   if `DB_DATABASE` is an absolute SQLite path, update it to the new folder.
+   Then `php artisan optimize && php artisan up`.
+4. In GitHub, set the `prod` environment's `APP_DOMAIN` to
+   `readererer-prod.blakey.family`.
+5. Create the `docs` environment (Deployment branches: `main` only) with
+   `APP_DOMAIN` = `readererer.blakey.family`. The SSH variables and secret are
+   shared if they are set on the repository; if they are set per environment,
+   copy them to `docs` too.
+6. The `readererer.blakey.family` cPanel domain keeps its document root
+   (`domains/readererer.blakey.family/public`), which after step 2 points at
+   an empty folder until the next `main` deploy fills it. To fill it straight
+   away, re-run the latest **Build, Test & Deploy** run on `main`.
+
+If prod was somewhere else, skip steps 2–3 and set up the new prod domain as
+in "once per site" below, and create `readererer.blakey.family` in cPanel with
+document root `domains/readererer.blakey.family/public` before step 6.
 
 ### cPanel, once per site
 

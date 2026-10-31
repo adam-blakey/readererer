@@ -142,3 +142,25 @@ jobs:
           tag_name: ${{ steps.version.outputs.new_tag || steps.version.outputs.previous_tag }}
           target_commitish: ${{ github.sha }}
           generate_release_notes: true
+
+  docs:
+    if: github.ref == 'refs/heads/main'
+    needs: deploy
+    runs-on: ubuntu-24.04
+    concurrency: deploy-docs
+    environment:
+      name: docs
+      url: https://${{ vars.APP_DOMAIN }}
+    env:
+      SSH: ssh -i ~/.ssh/deploy -p ${{ vars.DEPLOY_SSH_PORT }} -o StrictHostKeyChecking=no
+      HOST: ${{ vars.DEPLOY_SSH_USER }}@${{ vars.DEPLOY_SSH_HOST }}
+    steps:
+      - uses: actions/checkout@v5
+      - run: |
+          test -n '${{ vars.APP_DOMAIN }}'
+          mkdir -p ~/.ssh
+          echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/deploy
+          chmod 600 ~/.ssh/deploy
+      # Refuse to overwrite a folder that still holds the app (and its .env and database).
+      - run: $SSH $HOST "test ! -e domains/${{ vars.APP_DOMAIN }}/artisan && mkdir -p domains/${{ vars.APP_DOMAIN }}/public"
+      - run: rsync -rtzL --delete -e "$SSH" site/ "$HOST:domains/${{ vars.APP_DOMAIN }}/public/"
