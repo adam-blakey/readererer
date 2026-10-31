@@ -8,7 +8,7 @@
     <div class="container">
         <div class="row align-items-center">
             <div class="col-auto">
-                <span class="rounded avatar avatar-lg" style="background-image: url({{ $ensemble->image }})"></span>
+                <span class="rounded avatar avatar-lg" style="background-image: url({{ $ensemble->image_url }})"></span>
             </div>
             <div class="col">
                 <h1 class="my-0 font-bold">{{ $ensemble->name }}</h1>
@@ -32,7 +32,7 @@
 							<h2 class="mb-0 card-heading">{{ __('Edit ensemble details') }}</h2>
 						</div>
 						<div class="card-body">
-							<form action="{{ route('ensembles.update', ['ensemble' => $ensemble]) }}" id="ensemble-edit-form" method="POST" data-dirty-check>
+							<form action="{{ route('ensembles.update', ['ensemble' => $ensemble]) }}" enctype="multipart/form-data" id="ensemble-edit-form" method="POST" data-dirty-check>
 								@csrf
 								@method('PUT')
 
@@ -49,6 +49,16 @@
 												<x-forms.input-error :messages="$message" />
 											@enderror
 										</div>
+										<div class="mb-3">
+											<label class="form-label" for="slug">{{ __('Slug') }}</label>
+											<input class="form-control @error('slug') is-invalid @enderror" id="slug" name="slug" placeholder="ensemble_slug" type="text" value="{{ old('slug', $ensemble->slug) }}" data-initial="{{ $ensemble->slug }}">
+											<div class="form-hint">{{ __('Used in attendance links, so changing it breaks any link already shared.') }}</div>
+											@error('slug')
+												<x-forms.input-error :messages="$message" />
+											@enderror
+										</div>
+										<hr />
+										<x-forms.image-upload :model="$ensemble" :label="__('Ensemble image')" />
 										<hr />
 										<div class="mb-3">
 											<label class="form-check form-switch">

@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use App\Enums\UserRole;
+use App\Traits\HasImage;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Foundation\Auth\User as Authenticatable;
@@ -13,7 +14,7 @@ use SDamian\Larasort\AutoSortable;
 
 class User extends Authenticatable
 {
-    use AutoSortable, HasFactory, Notifiable, SoftDeletes;
+    use AutoSortable, HasFactory, HasImage, Notifiable, SoftDeletes;
 
     protected $visible = [
         'image',

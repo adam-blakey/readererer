@@ -12,7 +12,7 @@
     <div class="container">
         <div class="row align-items-center">
             <div class="col-auto">
-                <span class="rounded avatar avatar-lg" style="background-image: url({{ $ensemble->image }})"></span>
+                <span class="rounded avatar avatar-lg" style="background-image: url({{ $ensemble->image_url }})"></span>
             </div>
             <div class="col">
                 <h1 class="my-0 font-bold">{{ $ensemble->name }}</h1>
