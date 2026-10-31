@@ -26,7 +26,6 @@ class Term extends Model
         'updated_at',
     ];
 
-    // Friendlier, shorter labels for the wordier columns when rendered in tables.
     public array $column_labels = [
         'number_of_rehearsals' => 'Rehearsals',
         'number_of_concerts' => 'Concerts',
@@ -107,7 +106,6 @@ class Term extends Model
             $first = $this->earliestDate;
             $last = $this->latestDate;
 
-            // Get human-readable length.
             $months = $first->diff($last)->months;
 
             if ($months == 0) {

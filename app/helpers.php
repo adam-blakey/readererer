@@ -117,7 +117,6 @@ function register_status_totals($entries, int $expected_members): array
         $counted++;
     }
 
-    // Members with no entry at all have not been marked either.
     $totals['unmarked'] += max(0, $expected_members - $counted);
 
     return $totals;

@@ -9,41 +9,26 @@ use Illuminate\Auth\Access\Response;
 
 class SetlistPolicy
 {
-    /**
-     * Determine whether the user can view any models.
-     */
     public function viewAny(User $user)
     {
         return Response::deny();
     }
 
-    /**
-     * Determine whether the user can view the model.
-     */
     public function view(User $user, Setlist $setlist)
     {
         return Response::deny();
     }
 
-    /**
-     * Determine whether the user can create models.
-     */
     public function create(User $user)
     {
         return Response::deny();
     }
 
-    /**
-     * Determine whether the user can update the model.
-     */
     public function update(User $user, Setlist $setlist)
     {
         return Response::deny();
     }
 
-    /**
-     * Determine whether the user can delete the model.
-     */
     public function delete(User $user, Setlist $setlist)
     {
         if ($user->role->value >= UserRole::Admin->value) {
@@ -53,17 +38,11 @@ class SetlistPolicy
         return Response::deny();
     }
 
-    /**
-     * Determine whether the user can restore the model.
-     */
     public function restore(User $user, Setlist $setlist)
     {
         return Response::deny();
     }
 
-    /**
-     * Determine whether the user can permanently delete the model.
-     */
     public function forceDelete(User $user, Setlist $setlist)
     {
         return Response::deny();

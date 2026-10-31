@@ -21,17 +21,11 @@
 	        });
 	        $sort_attribute = 'instrument_family';
 	        break;
-	    default: // Defaults to first_name.
+	    default:
 	        $members = $members->sortBy('first_name');
 	        $sort_attribute = 'first_name_initial';
 	        break;
 	}
-
-//	$term_dates = $term
-//        ->term_dates
-//        ->whereNull('concert_ensemble_id')
-////        ->orWhere('concert_ensemble_id', $ensemble->id)
-//        ->sortBy('start_datetime');
 
     $term_dates = $term
         ->term_dates

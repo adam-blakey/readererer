@@ -20,9 +20,6 @@ class TermSeeder extends Seeder
         $this->faker = Factory::create();
     }
 
-    /**
-     * Run the database seeds.
-     */
     public function run(): void
     {
         $setlist = Setlist::all()->random(1)->first();

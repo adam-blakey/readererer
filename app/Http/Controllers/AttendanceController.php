@@ -13,9 +13,6 @@ use Illuminate\Support\Facades\Auth;
 
 class AttendanceController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
     public function index()
     {
         $attendances = Attendance::with(['user', 'edit_user', 'term_date'])
@@ -31,12 +28,8 @@ class AttendanceController extends Controller
         ]);
     }
 
-    /**
-     * Display the attendance poll.
-     */
     public function poll(Ensemble $ensemble, Term $term, Request $request)
     {
-        // Ensure the current user is allowed to view this ensemble (restrict ensemble users to their own ensemble)
         $this->authorize('view', $ensemble);
 
         $members = User::latest()
@@ -62,7 +55,6 @@ class AttendanceController extends Controller
 
     public function poll_store(Ensemble $ensemble, Term $term, Request $request)
     {
-        // Ensure the current user is allowed to view this ensemble (restrict ensemble users to their own ensemble)
         $this->authorize('view', $ensemble);
 
         $request_ip = $request->ip();
@@ -93,51 +85,15 @@ class AttendanceController extends Controller
         return redirect()->route('attendance.poll', ['ensemble' => $ensemble, 'term' => $term]);
     }
 
-    /**
-     * Show the form for creating a new resource.
-     */
-    public function create()
-    {
-        //
-    }
+    public function create() {}
 
-    /**
-     * Store a newly created resource in storage.
-     */
-    public function store(StoreAttendanceRequest $request)
-    {
-        //
-    }
+    public function store(StoreAttendanceRequest $request) {}
 
-    /**
-     * Display the specified resource.
-     */
-    public function show(Attendance $attendance)
-    {
-        //
-    }
+    public function show(Attendance $attendance) {}
 
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(Attendance $attendance)
-    {
-        //
-    }
+    public function edit(Attendance $attendance) {}
 
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(UpdateAttendanceRequest $request, Attendance $attendance)
-    {
-        //
-    }
+    public function update(UpdateAttendanceRequest $request, Attendance $attendance) {}
 
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(Attendance $attendance)
-    {
-        //
-    }
+    public function destroy(Attendance $attendance) {}
 }

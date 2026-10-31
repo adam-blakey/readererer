@@ -23,7 +23,7 @@
 					<div class="input-group input-group-flat">
 						<input autocomplete="new-password" class="form-control" id="password" name="password" placeholder="{{ __('Password') }}" required type="password">
 						<span class="input-group-text">
-							<a aria-label="{{ __('Show password') }}" class="link-secondary" data-bs-original-title="{{ __('Show password') }}" data-bs-toggle="tooltip" href="#"><!-- Download SVG icon from http://tabler.io/icons/icon/eye -->
+							<a aria-label="{{ __('Show password') }}" class="link-secondary" data-bs-original-title="{{ __('Show password') }}" data-bs-toggle="tooltip" href="#">
 								<svg class="icon" fill="none" height="24" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" stroke="currentColor" viewBox="0 0 24 24" width="24" xmlns="http://www.w3.org/2000/svg">
 									<path d="M0 0h24v24H0z" fill="none" stroke="none"></path>
 									<path d="M10 12a2 2 0 1 0 4 0a2 2 0 0 0 -4 0"></path>
@@ -38,7 +38,7 @@
 					<div class="input-group input-group-flat">
 						<input autocomplete="new-password" class="form-control" id="password_confirmation" name="password_confirmation" placeholder="{{ __('Password') }}" required type="password">
 						<span class="input-group-text">
-							<a aria-label="{{ __('Show password') }}" class="link-secondary" data-bs-original-title="{{ __('Show password') }}" data-bs-toggle="tooltip" href="#"><!-- Download SVG icon from http://tabler.io/icons/icon/eye -->
+							<a aria-label="{{ __('Show password') }}" class="link-secondary" data-bs-original-title="{{ __('Show password') }}" data-bs-toggle="tooltip" href="#">
 								<svg class="icon" fill="none" height="24" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" stroke="currentColor" viewBox="0 0 24 24" width="24" xmlns="http://www.w3.org/2000/svg">
 									<path d="M0 0h24v24H0z" fill="none" stroke="none"></path>
 									<path d="M10 12a2 2 0 1 0 4 0a2 2 0 0 0 -4 0"></path>

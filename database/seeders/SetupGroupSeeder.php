@@ -7,9 +7,6 @@ use Illuminate\Database\Seeder;
 
 class SetupGroupSeeder extends Seeder
 {
-    /**
-     * Run the database seeds.
-     */
     public function run(): void
     {
         $colors = ['purple', 'yellow', 'azure', 'teal'];

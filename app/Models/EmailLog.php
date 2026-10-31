@@ -28,9 +28,6 @@ class EmailLog extends Model
         'status' => EmailStatus::class,
     ];
 
-    /**
-     * Friendly names for the notification types, keyed by mailable class.
-     */
     public const TYPE_LABELS = [
         AttendanceListMail::class => 'Attendance list',
         SetupReminderMail::class => 'Setup-group reminder',

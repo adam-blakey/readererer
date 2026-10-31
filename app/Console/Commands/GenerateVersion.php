@@ -7,26 +7,13 @@ use Illuminate\Support\Facades\Process;
 
 class GenerateVersion extends Command
 {
-    /**
-     * The name and signature of the console command.
-     *
-     * @var string
-     */
     protected $signature = 'app:generate-version
                             {--tag= : Record this tag instead of asking git}
                             {--hash= : Record this commit hash instead of asking git}
                             {--date= : Record this commit date instead of asking git}';
 
-    /**
-     * The console command description.
-     *
-     * @var string
-     */
     protected $description = 'Write version.json from git metadata so the app never runs git at runtime (read by config/_version.php)';
 
-    /**
-     * Execute the console command.
-     */
     public function handle(): int
     {
         $version = [

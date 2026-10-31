@@ -32,10 +32,6 @@ enum RegisterStatus: int
         };
     }
 
-    /**
-     * The Tabler colour used for this status wherever it is rendered as a badge
-     * or a button.
-     */
     public function color(): string
     {
         return match ($this) {

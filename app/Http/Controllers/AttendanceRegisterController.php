@@ -21,9 +21,6 @@ use Illuminate\Validation\Rule;
  */
 class AttendanceRegisterController extends Controller
 {
-    /**
-     * List the dates a register can be taken for, most recent first.
-     */
     public function index(Request $request)
     {
         $this->authorize('viewAny', RegisterEntry::class);
@@ -44,9 +41,6 @@ class AttendanceRegisterController extends Controller
         ]);
     }
 
-    /**
-     * Show the register for one ensemble on one date.
-     */
     public function show(Ensemble $ensemble, TermDate $termDate, Request $request)
     {
         $this->authorize('viewAny', RegisterEntry::class);
@@ -69,9 +63,6 @@ class AttendanceRegisterController extends Controller
         ]);
     }
 
-    /**
-     * Record the register for one ensemble on one date.
-     */
     public function store(Ensemble $ensemble, TermDate $termDate, Request $request)
     {
         $this->authorize('create', RegisterEntry::class);
@@ -161,9 +152,6 @@ class AttendanceRegisterController extends Controller
         return $members->sortBy('first_name')->values();
     }
 
-    /**
-     * The instrument families played in this ensemble, keyed by id.
-     */
     private function instrument_families(Ensemble $ensemble): Collection
     {
         $ids = $ensemble->users->pluck('pivot.instrument_family_id')->filter()->unique();
@@ -171,9 +159,6 @@ class AttendanceRegisterController extends Controller
         return InstrumentFamily::whereIn('id', $ids)->get()->keyBy('id');
     }
 
-    /**
-     * The register as it currently stands, keyed by user id.
-     */
     private function entries(Ensemble $ensemble, TermDate $termDate): Collection
     {
         return RegisterEntry::where('ensemble_id', $ensemble->id)

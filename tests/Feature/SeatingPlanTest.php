@@ -139,7 +139,6 @@ test('updating the seating plan is forbidden without permission to update the en
         ->post(route('ensembles.seating-plan.update', $ensemble), $payload)
         ->assertForbidden();
 
-    // The seat was not moved.
     $pivot = $ensemble->users()->first()->pivot;
     expect($pivot->seat_row)->toEqual('A');
     expect($pivot->seat_column)->toEqual(1);

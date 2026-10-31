@@ -53,13 +53,7 @@
 										<div class="mb-3">
     							            <label class="card-title">{{ __('Term dates') }}</label>
 
-                                            {{--
-                                                A single source of truth for a term-date row. The server-rendered
-                                                rows below reuse the same column layout, and the "Add date" /
-                                                "Duplicate" buttons clone this template, so new rows always carry
-                                                every field (start, end, concert, setup group, van driver) and
-                                                stay consistent with the existing ones.
-                                            --}}
+                                            {{-- Row template cloned by "Add date" / "Duplicate"; keep it in step with the server-rendered rows below. --}}
                                             <template id="term-date-row-template">
                                                 <div class="row g-2 align-items-end term-date-row mb-2" data-index="__INDEX__">
                                                     <div class="col-6 col-md-4 col-lg-2">
@@ -272,7 +266,6 @@
 
 			addBtn?.addEventListener('click', addRow);
 
-			// Wire up the fields and rows rendered by the server.
 			form?.querySelectorAll('[data-initial]').forEach(attachChangeWatcher);
 			list.querySelectorAll('.term-date-row').forEach(row => {
 				row.querySelector('.remove-term-date')?.addEventListener('click', () => row.remove());

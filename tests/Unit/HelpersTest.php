@@ -8,8 +8,6 @@ use App\Models\Ensemble;
 use App\Models\SetupGroup;
 use App\Models\Term;
 
-// get_route_name_from_model / get_class_name_from_model
-
 test('get_route_name_from_model builds the show route name by default', function () {
     expect(get_route_name_from_model(new Composer))->toBe('composers.show');
 });
@@ -24,15 +22,11 @@ test('get_class_name_from_model returns the lowercased base class name', functio
     expect(get_class_name_from_model(new SetupGroup))->toBe('setupgroup');
 });
 
-// clean_attribute_name
-
 test('clean_attribute_name replaces underscores and capitalises the first word', function () {
     expect(clean_attribute_name('first_name'))->toBe('First name');
     expect(clean_attribute_name('name'))->toBe('Name');
     expect(clean_attribute_name('emergency_contact_number'))->toBe('Emergency contact number');
 });
-
-// column_label
 
 test('column_label uses the model\'s column_labels map when the attribute is listed', function () {
     $term = new Term;
@@ -52,8 +46,6 @@ test('column_label falls back for models without a column_labels map', function 
     expect(column_label(new Composer, 'first_name'))->toBe('First name');
 });
 
-// call_or_default
-
 test('call_or_default calls the method when it exists', function () {
     $setupGroup = new SetupGroup;
 
@@ -71,8 +63,6 @@ test('call_or_default falls back to the default when the method returns null', f
 
     expect(call_or_default($setupGroup, 'getIconForAttribute', 'no_such_attribute', 'pencil'))->toBe('pencil');
 });
-
-// map_database_type_to_html
 
 test('map_database_type_to_html ignores casts that are not enums and falls back to the database type', function () {
     expect(map_database_type_to_html('status', 'integer', ['status' => 'boolean']))->toBe('number');
@@ -122,8 +112,6 @@ test('map_database_type_to_html maps database types to html input types', functi
     ['VARCHAR', 'text'],
 ]);
 
-// get_enum_class_for_attribute / get_enum_options / enum_case_label / get_enum_default
-
 test('get_enum_class_for_attribute returns the enum class behind an enum cast', function () {
     expect(get_enum_class_for_attribute(['color' => Color::class], 'color'))->toBe(Color::class);
 });
@@ -168,8 +156,6 @@ test('get_enum_default returns null when there is no matching case', function ()
     expect(get_enum_default(Color::class, 'beige'))->toBeNull();
     expect(get_enum_default(UserRole::class, '99'))->toBeNull();
 });
-
-// color_name_to_hex
 
 test('color_name_to_hex maps known Tabler colour names to hex values', function (string $name, string $hex) {
     expect(color_name_to_hex($name))->toBe($hex);

@@ -9,9 +9,6 @@ use Illuminate\Database\Seeder;
 
 class UserSeeder extends Seeder
 {
-    /**
-     * Run the database seeds.
-     */
     public function run(): void
     {
         $users = User::factory(10)->create();
@@ -25,7 +22,6 @@ class UserSeeder extends Seeder
             }
         });
 
-        // Create a user for each type of user role.
         $roleNames = ['Guest', 'Ensemble', 'Member', 'Moderator', 'Admin'];
         $i = 0;
         foreach (UserRole::cases() as $role) {

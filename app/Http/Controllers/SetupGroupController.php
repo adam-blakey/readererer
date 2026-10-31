@@ -11,9 +11,6 @@ use Illuminate\View\View;
 
 class SetupGroupController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
     public function index()
     {
         $query = SetupGroup::query();
@@ -35,9 +32,6 @@ class SetupGroupController extends Controller
         ]);
     }
 
-    /**
-     * Show the form for creating a new resource.
-     */
     public function create(): View
     {
         $dummy = new SetupGroup;
@@ -52,9 +46,6 @@ class SetupGroupController extends Controller
         ]);
     }
 
-    /**
-     * Store a newly created resource in storage.
-     */
     public function store(StoreSetupGroupRequest $request): RedirectResponse
     {
         $attributes = $request->validated();
@@ -84,9 +75,6 @@ class SetupGroupController extends Controller
         ]);
     }
 
-    /**
-     * Store a newly created resource in storage.
-     */
     public function update(UpdateSetupGroupRequest $request, SetupGroup $setupGroup): RedirectResponse
     {
         $attributes = $request->validated();
@@ -102,9 +90,6 @@ class SetupGroupController extends Controller
         return to_route('setupgroups.show', $setupGroup);
     }
 
-    /**
-     * Display the specified resource.
-     */
     public function show(SetupGroup $setupGroup)
     {
         return view('auto-entities.show', [
@@ -117,9 +102,6 @@ class SetupGroupController extends Controller
         ]);
     }
 
-    /**
-     * Remove the specified resource from storage.
-     */
     public function destroy(SetupGroup $setupGroup)
     {
         $setupGroup->delete();

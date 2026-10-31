@@ -10,9 +10,6 @@ use Illuminate\Database\Seeder;
 
 class EnsembleSeeder extends Seeder
 {
-    /**
-     * Run the database seeds.
-     */
     public function run(): void
     {
         $instrument_families = InstrumentFamily::all();

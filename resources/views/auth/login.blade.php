@@ -10,11 +10,8 @@
 			<div class="col-md-12">
 				<div class="container py-4 container-tight">
 					<div class="mb-4 text-center">
-						{{-- Tab order on this page is set explicitly (1..7) so that the "I forgot
-						     password" link is reached last, after "Login with Google", despite
-						     sitting next to the password field in the markup. A positive tabindex
-						     always precedes elements in natural order, so every focusable element
-						     in the form has to be numbered for the ordering to hold. --}}
+						{{-- Explicit tab order (1..7) puts "I forgot password" last. A positive tabindex
+						     precedes natural order, so every focusable element must be numbered. --}}
 						<x-a class="autodark" :route="'home'" tabindex="1">
 							<img src="{{ Vite::asset('resources/images/readererer-long-logo.svg') }}">
 						</x-a>

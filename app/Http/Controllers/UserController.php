@@ -18,9 +18,6 @@ use Illuminate\View\View;
 
 class UserController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
     public function index()
     {
         $query = User::query();
@@ -136,9 +133,6 @@ class UserController extends Controller
         return redirect()->back()->with('status', __('User restored.'));
     }
 
-    /**
-     * Add the user to an ensemble from the user edit page.
-     */
     public function attachEnsemble(Request $request, User $user): RedirectResponse
     {
         $validated = $request->validate([
@@ -165,9 +159,6 @@ class UserController extends Controller
         return redirect()->back()->with('status', __('User added to ensemble.'));
     }
 
-    /**
-     * Remove the user from an ensemble from the user edit page.
-     */
     public function detachEnsemble(User $user, Ensemble $ensemble): RedirectResponse
     {
         $pivot = UserEnsemble::where('user_id', $user->id)
