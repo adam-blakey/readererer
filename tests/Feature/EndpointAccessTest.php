@@ -143,15 +143,24 @@ test('the attendance poll page requires permission to view the ensemble', functi
     $this->actingAs(make_user(UserRole::Moderator))->get($url)->assertOk();
 });
 
-test('submitting the attendance poll requires the admin-only create permission', function () {
+test('submitting the attendance poll requires permission to view the ensemble', function () {
     $ensemble = Ensemble::factory()->create();
     $term = Term::factory()->create();
     $url = route('attendance.poll-store', ['ensemble' => $ensemble->slug, 'term' => $term->slug]);
 
     $this->post($url)->assertForbidden();
-    $this->actingAs(make_user(UserRole::Ensemble))->post($url)->assertForbidden();
-    $this->actingAs(make_user(UserRole::Member))->post($url)->assertForbidden();
-    $this->actingAs(make_user(UserRole::Moderator))->post($url)->assertForbidden();
+
+    foreach ([UserRole::Ensemble, UserRole::Member] as $role) {
+        $insider = make_user($role);
+        join_ensemble($insider, $ensemble);
+        $this->actingAs($insider)->post($url)->assertRedirect();
+
+        $outsider = make_user($role);
+        join_ensemble($outsider, Ensemble::factory()->create());
+        $this->actingAs($outsider)->post($url)->assertForbidden();
+    }
+
+    $this->actingAs(make_user(UserRole::Moderator))->post($url)->assertRedirect();
     $this->actingAs(make_user(UserRole::Admin))->post($url)->assertRedirect();
 });
 
