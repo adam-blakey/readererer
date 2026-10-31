@@ -63,39 +63,27 @@ class Term extends Model
 
     public function getNumberOfRehearsalsAttribute(): int
     {
-        return $this->term_dates()->whereNull('concert_ensemble_id')->count();
+        return $this->term_dates->whereNull('concert_ensemble_id')->count();
     }
 
     public function getNumberOfConcertsAttribute(): int
     {
-        return $this->term_dates()->whereNotNull('concert_ensemble_id')->count();
+        return $this->term_dates->whereNotNull('concert_ensemble_id')->count();
     }
 
     public function getNumberOfTermDatesAttribute(): int
     {
-        return $this->term_dates()->count();
+        return $this->term_dates->count();
     }
 
     public function getEarliestDateAttribute(): ?Carbon
     {
-        $earliest_termdate = $this
-            ->term_dates()
-            ->orderBy('start_datetime', 'asc')
-            ->first();
-
-        return $earliest_termdate?->start_datetime;
+        return $this->term_dates->first()?->start_datetime;
     }
 
     public function getLatestDateAttribute(): ?Carbon
     {
-        $number_of_termdates = $this->term_dates()->count();
-        $latest_termdate = $this
-            ->term_dates()
-            ->orderBy('start_datetime', 'desc')
-            ->skip($number_of_termdates - 1)
-            ->first();
-
-        return $latest_termdate?->start_datetime;
+        return $this->term_dates->last()?->start_datetime;
     }
 
     public function getFormattedTermDateRangeAttribute(): string
