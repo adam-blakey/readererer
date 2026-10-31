@@ -10,10 +10,10 @@ trait ShowEnsemble
 {
     public function show(Ensemble $ensemble)
     {
-        $upcoming_terms = Term::where('latest_date', '>', Carbon::now())
+        $upcoming_terms = Term::whereHas('term_dates', fn ($query) => $query->where('start_datetime', '>', Carbon::now()))
             ->with('term_dates')
-            ->get();
-        $upcoming_terms = $upcoming_terms->sortBy('latest_date');
+            ->get()
+            ->sortBy('latest_date');
 
         $next_rehearsal = $upcoming_terms
             ->flatMap(fn ($term) => $term->term_dates)

@@ -2,6 +2,8 @@
 
 use App\Enums\UserRole;
 use App\Models\Ensemble;
+use App\Models\Term;
+use App\Models\TermDate;
 use App\Models\UserEnsemble;
 
 test('an admin can create an ensemble and the slug is generated from the name', function () {
@@ -354,4 +356,29 @@ test('the ensemble members table hides removal controls from ordinary members', 
         ->get(route('ensembles.members', $ensemble))
         ->assertOk()
         ->assertDontSee('Add user');
+});
+
+test('the ensemble page only lists terms that still have dates to come', function () {
+    $ensemble = Ensemble::factory()->create();
+    $pastTerm = Term::factory()->create();
+    TermDate::forceCreate([
+        'term_id' => $pastTerm->id,
+        'start_datetime' => now()->subYear(),
+        'end_datetime' => now()->subYear()->addHours(2),
+    ]);
+    $currentTerm = Term::factory()->create();
+    TermDate::forceCreate([
+        'term_id' => $currentTerm->id,
+        'start_datetime' => now()->subWeek(),
+        'end_datetime' => now()->subWeek()->addHours(2),
+    ]);
+    TermDate::forceCreate([
+        'term_id' => $currentTerm->id,
+        'start_datetime' => now()->addWeek(),
+        'end_datetime' => now()->addWeek()->addHours(2),
+    ]);
+
+    $response = $this->actingAs(make_user(UserRole::Admin))->get(route('ensembles.show', $ensemble));
+
+    expect($response->viewData('upcomingTerms')->pluck('id')->all())->toBe([$currentTerm->id]);
 });
