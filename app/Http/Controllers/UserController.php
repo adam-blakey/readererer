@@ -10,11 +10,13 @@ use App\Models\InstrumentFamily;
 use App\Models\SetupGroup;
 use App\Models\User;
 use App\Models\UserEnsemble;
+use Illuminate\Database\UniqueConstraintViolationException;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Str;
 use Illuminate\View\View;
+use Throwable;
 
 class UserController extends Controller
 {
@@ -65,12 +67,13 @@ class UserController extends Controller
     public function store(StoreUserRequest $request): RedirectResponse
     {
         $attributes = $request->validated();
-
-        $attributes['username'] = User::generateUniqueUsername($attributes['first_name'], $attributes['last_name']);
         $attributes['password'] = Str::password(16);
-
         $setup_group_id = Arr::pull($attributes, 'setup_group');
-        $user = User::create($attributes);
+
+        // Someone else may take the generated username between the check and the insert.
+        $user = retry(3, fn () => User::create($attributes + [
+            'username' => User::generateUniqueUsername($attributes['first_name'], $attributes['last_name']),
+        ]), when: fn (Throwable $exception) => $exception instanceof UniqueConstraintViolationException);
         $user->setup_group()->associate($setup_group_id ? SetupGroup::find($setup_group_id) : null);
         $user->save();
 

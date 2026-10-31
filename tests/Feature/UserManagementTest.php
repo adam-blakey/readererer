@@ -407,3 +407,23 @@ test('moderators cannot grant a role above their own or edit an admin', function
     expect($member->fresh()->role)->toBe(UserRole::Member);
     expect($admin->fresh()->role)->toBe(UserRole::Admin);
 });
+
+test('creating a user retries with a fresh username if the generated one is taken meanwhile', function () {
+    $raced = false;
+    User::creating(function (User $user) use (&$raced) {
+        if (! $raced && $user->username === 'ada.lovelace') {
+            $raced = true;
+            make_user(UserRole::Member, ['username' => 'ada.lovelace']);
+        }
+    });
+
+    $this->actingAs(make_user(UserRole::Admin))->post(route('users.store'), [
+        'first_name' => 'Ada',
+        'last_name' => 'Lovelace',
+        'email' => 'ada@example.com',
+        'role' => UserRole::Member->value,
+    ])->assertRedirect();
+
+    expect($raced)->toBeTrue();
+    expect(User::where('email', 'ada@example.com')->value('username'))->toBe('ada.lovelace.2');
+});
