@@ -110,8 +110,13 @@ jobs:
             set -e
             cd domains/${{ vars.APP_DOMAIN }}
             export GIT_SSH_COMMAND="ssh -i ~/.ssh/${{ vars.DEPLOY_GIT_KEY }} -o IdentitiesOnly=yes"
-            git fetch --tags --force origin ${{ github.sha }}
+            git init -q
+            git fetch --tags --force git@github.com:${{ github.repository }}.git ${{ github.sha }}
             git reset --hard FETCH_HEAD
+            if [ ! -f .env ]; then
+              echo "No .env in ~/domains/${{ vars.APP_DOMAIN }}: copy .env.example to .env, fill it in, then re-run this deploy." >&2
+              exit 1
+            fi
             rm -f bootstrap/cache/*.php
             if [ '${{ matrix.environment }}' = 'production' ]; then
               tag='${{ steps.version.outputs.new_tag || steps.version.outputs.previous_tag }}'

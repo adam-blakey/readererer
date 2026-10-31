@@ -94,13 +94,10 @@ The old `production` variables `UNIX_USERNAME`, `SERVER_DOMAIN` and
 1. **Domain.** In **Domains** → **Create A New Domain**, enter the domain,
    untick *Share document root*, and set the document root to
    `domains/<domain>/public`. Then run **SSL/TLS Status** → **Run AutoSSL**.
-2. **Checkout.** In **Terminal**:
-   ```bash
-   GIT_SSH_COMMAND="ssh -i ~/.ssh/github_readererer -o IdentitiesOnly=yes" \
-     git clone git@github.com:adam-blakey/readererer.git ~/domains/<domain>
-   ```
-   If the folder already holds a clone (production, from the old Envoy
-   deploy), skip this.
+2. **First deploy.** Run a deploy to the environment. It turns the folder
+   into a git checkout of the commit (no clone needed), then stops because
+   there is no `.env` yet. Delete any placeholder page cPanel put in
+   `public/` (such as `index.html`), as it would be served instead of the app.
 3. **Database.** Each site needs its own database; dev's is wiped and reseeded
    on every deploy. For MySQL use **MySQL Database Wizard** to create a
    database and user with all privileges. For SQLite run
@@ -111,7 +108,7 @@ The old `production` variables `UNIX_USERNAME`, `SERVER_DOMAIN` and
    absolute path, `/home/<user>/domains/<domain>/database/database.sqlite`) and
    the mail settings. For `APP_KEY`, run
    `php -r "echo 'base64:'.base64_encode(random_bytes(32)).PHP_EOL;"` and paste
-   the output. Keep production's existing key.
+   the output. Keep production's existing key. Then re-run the deploy.
 
 No cron jobs are needed: the app has no scheduled tasks or queued jobs.
 
