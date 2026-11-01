@@ -1,0 +1,63 @@
+name: Deploy over SSH
+description: Rsyncs the build artifact, resets the server's checkout to this commit and migrates.
+
+inputs:
+  domain:
+    required: true
+  ssh-host:
+    required: true
+  ssh-port:
+    required: true
+  ssh-user:
+    required: true
+  ssh-private-key:
+    required: true
+  git-key:
+    description: Name of the key in the server's ~/.ssh that can fetch the repository.
+    required: true
+  fresh-database:
+    description: Run migrate:fresh --seed instead of migrate.
+    default: 'false'
+
+runs:
+  using: composite
+  steps:
+    - uses: actions/download-artifact@v8
+      with:
+        name: build
+    - shell: bash
+      run: |
+        test -n '${{ inputs.domain }}'
+        mkdir -p ~/.ssh
+        echo "${{ inputs.ssh-private-key }}" > ~/.ssh/deploy
+        chmod 600 ~/.ssh/deploy
+        echo "SSH=ssh -i ~/.ssh/deploy -p ${{ inputs.ssh-port }} -o StrictHostKeyChecking=no" >> "$GITHUB_ENV"
+        echo "HOST=${{ inputs.ssh-user }}@${{ inputs.ssh-host }}" >> "$GITHUB_ENV"
+    - shell: bash
+      run: rsync -rltz --delete -e "$SSH" vendor public/build --relative "$HOST:domains/${{ inputs.domain }}/"
+    - shell: bash
+      run: |
+        $SSH $HOST bash -es <<'EOF'
+          set -e
+          cd domains/${{ inputs.domain }}
+          export GIT_SSH_COMMAND="ssh -i ~/.ssh/${{ inputs.git-key }} -o IdentitiesOnly=yes"
+          git init -q
+          git fetch --tags --force git@github.com:${{ github.repository }}.git ${{ github.sha }}
+          git reset --hard FETCH_HEAD
+          if [ ! -f .env ]; then
+            echo "No .env in ~/domains/${{ inputs.domain }}: copy .env.example to .env, fill it in, then re-run this deploy." >&2
+            exit 1
+          fi
+          echo "$(git describe --tags --always)${{ github.event.pull_request.number && format('+pr{0}', github.event.pull_request.number) || '' }}" > VERSION
+          rm -f bootstrap/cache/*.php
+          php artisan down
+          trap 'php artisan up' EXIT
+          if [ '${{ inputs.fresh-database }}' = 'true' ]; then
+            php artisan migrate:fresh --seed --force
+          else
+            php artisan migrate --force
+          fi
+          php artisan optimize
+          php artisan event:cache
+          php artisan queue:restart
+        EOF
