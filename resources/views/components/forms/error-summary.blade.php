@@ -1,6 +1,6 @@
 @props(['fields' => []])
 
-@php($messages = unhandled_error_messages($errors ?? null, (array) $fields))
+@php($messages = unhandled_error_messages($errors ?? null, $fields))
 
 @if (filled($messages))
     <div class="alert alert-danger" role="alert">

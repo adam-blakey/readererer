@@ -5,31 +5,13 @@ use App\Models\Ensemble;
 use App\Models\Term;
 use Illuminate\Support\Facades\Blade;
 use Illuminate\Support\Facades\View;
-use Illuminate\Support\MessageBag;
-use Illuminate\Support\ViewErrorBag;
 
-/**
- * The session's error bag, as a failed validation pass would leave it.
- */
-function error_session(array $errors): array
-{
-    return ['errors' => (new ViewErrorBag)->put('default', new MessageBag($errors))];
-}
-
-/**
- * Render the summary component directly with a bag of errors against it.
- */
 function render_error_summary(array $errors, array $fields): string
 {
-    $bag = new ViewErrorBag;
-    $bag->put('default', new MessageBag($errors));
-
-    View::share('errors', $bag);
+    View::share('errors', view_errors($errors));
 
     return Blade::render('<x-forms.error-summary :fields="$fields" />', ['fields' => $fields]);
 }
-
-// The component
 
 test('an error keyed on a field the form renders is left to that field', function () {
     $html = render_error_summary(['name' => ['The name field is required.']], ['name']);
@@ -72,15 +54,11 @@ test('a message is escaped rather than rendered as markup', function () {
         ->not->toContain('<b>nope</b>');
 });
 
-// The forms it is wired into
-
 test('the generic form summarises an error on a field the controller removed', function () {
     $admin = make_user(UserRole::Admin);
 
-    // UserController@create drops password and image from the generic form, so
-    // an error against either has nowhere of its own to be rendered.
     $response = $this->actingAs($admin)
-        ->withSession(error_session(['password' => ['The password is rubbish.']]))
+        ->withSession(['errors' => view_errors(['password' => ['The password is rubbish.']])])
         ->get(route('users.create'));
 
     $response->assertOk()
@@ -92,7 +70,7 @@ test('the generic form leaves an error on a rendered field to that field', funct
     $admin = make_user(UserRole::Admin);
 
     $response = $this->actingAs($admin)
-        ->withSession(error_session(['first_name' => ['The first name field is required.']]))
+        ->withSession(['errors' => view_errors(['first_name' => ['The first name field is required.']])])
         ->get(route('users.create'));
 
     $response->assertOk()
@@ -105,7 +83,7 @@ test('the term form summarises an error that has no field of its own', function 
     $term = Term::factory()->create();
 
     $response = $this->actingAs($admin)
-        ->withSession(error_session(['term_dates' => ['A term needs at least one date.']]))
+        ->withSession(['errors' => view_errors(['term_dates' => ['A term needs at least one date.']])])
         ->get(route('terms.edit', $term));
 
     $response->assertOk()
@@ -117,7 +95,7 @@ test('the user edit form summarises an error from the add-to-ensemble form', fun
     $admin = make_user(UserRole::Admin);
 
     $response = $this->actingAs($admin)
-        ->withSession(error_session(['ensemble_id' => ['This user is already a member.']]))
+        ->withSession(['errors' => view_errors(['ensemble_id' => ['This user is already a member.']])])
         ->get(route('users.edit', $admin));
 
     $response->assertOk()
@@ -130,7 +108,7 @@ test('the ensemble edit form summarises an error that has no field of its own', 
     $ensemble = Ensemble::factory()->create();
 
     $response = $this->actingAs($admin)
-        ->withSession(error_session(['seating_plan_enabled' => ['The seating plan cannot be turned off.']]))
+        ->withSession(['errors' => view_errors(['seating_plan_enabled' => ['The seating plan cannot be turned off.']])])
         ->get(route('ensembles.edit', $ensemble));
 
     $response->assertOk()
