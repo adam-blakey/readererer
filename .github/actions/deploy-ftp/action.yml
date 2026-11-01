@@ -30,7 +30,15 @@ runs:
         echo '${{ inputs.version }}' > VERSION
         echo '{}' > down
         sudo apt-get install -y -qq lftp
-        lftp <<'EOF'
+        lftp -c "set ftp:ssl-force true; set ssl:verify-certificate true; open --env-password -u '${{ inputs.ftp-user }}' '${{ inputs.ftp-host }}'; get composer.lock -o server-composer.lock" || true
+        # Fresh timestamps make mirror re-send vendor; vendor/composer's classmap includes app classes.
+        if cmp -s composer.lock server-composer.lock; then
+          echo 'composer.lock unchanged: uploading vendor/composer only'
+          vendor_dir=vendor/composer
+        else
+          vendor_dir=vendor
+        fi
+        lftp <<EOF
         set cmd:fail-exit true
         set ftp:ssl-force true
         set ssl:verify-certificate true
@@ -39,7 +47,7 @@ runs:
         put down -o storage/framework/down
         mirror -R --delete --parallel=8 bootstrap bootstrap
         mirror -R --delete --parallel=8 --exclude-glob *.sqlite* database database
-        mirror -R --delete --parallel=8 vendor vendor
+        mirror -R --delete --parallel=8 $vendor_dir $vendor_dir
         mirror -R --delete --parallel=8 app app
         mirror -R --delete --parallel=8 config config
         mirror -R --delete --parallel=8 lang lang
