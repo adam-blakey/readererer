@@ -115,25 +115,21 @@ jobs:
             gh run cancel ${{ github.run_id }}
             sleep 300
           fi
+      # Tagged before deploying: .cpanel.yml writes `git describe --tags` to VERSION.
       - id: version
         uses: mathieudutour/github-tag-action@v7
         with:
           github_token: ${{ github.token }}
           default_bump: minor
-          dry_run: true
       - uses: actions/checkout@v7
-      - uses: ./.github/actions/deploy-ftp
+      - uses: ./.github/actions/deploy-cpanel
         with:
-          domain: ${{ vars.APP_DOMAIN }}
-          ftp-host: ${{ vars.DEPLOY_FTP_HOST }}
-          ftp-user: ${{ vars.DEPLOY_FTP_USER }}
-          ftp-password: ${{ secrets.DEPLOY_FTP_PASSWORD }}
-          deploy-token: ${{ secrets.DEPLOY_TOKEN }}
-          version: ${{ steps.version.outputs.new_tag || steps.version.outputs.previous_tag }}
-      - if: steps.version.outputs.new_tag
-        uses: softprops/action-gh-release@v3
+          host: ${{ vars.CPANEL_HOST }}
+          user: ${{ vars.CPANEL_USER }}
+          token: ${{ secrets.CPANEL_TOKEN }}
+      - uses: softprops/action-gh-release@v3
         with:
-          tag_name: ${{ steps.version.outputs.new_tag }}
+          tag_name: ${{ steps.version.outputs.new_tag || steps.version.outputs.previous_tag }}
           target_commitish: ${{ github.sha }}
           generate_release_notes: true
 

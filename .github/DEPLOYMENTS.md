@@ -25,38 +25,53 @@ The app's prod site is `readererer-prod.blakey.family`; the docs site is
    `qa`, then `prod`, so a failure skips the environments after it). For each domain it:
    - rsyncs `vendor` and `public/build` to `~/domains/<domain>/`;
    - fetches the exact commit on the server and `git reset --hard`s to it;
-   - writes `VERSION` (prod: the new release tag; dev/qa:
-     `git describe`, plus `+pr<n>` on dev);
+   - writes `VERSION` (`git describe`, plus `+pr<n>` on dev);
    - puts the app in maintenance mode, migrates, runs `optimize`,
      `event:cache` and `queue:restart`, and brings it back up.
 
-   `prod` has no SSH, so it is deployed over FTP instead (FTPS, with `lftp`):
-   - uploads `storage/framework/down` to put the app in maintenance mode;
-   - mirrors the app's folders (`app`, `bootstrap`, `config`, `database`,
-     `lang`, `resources`, `routes`, `vendor`, `public/build`, `public/js`) with
-     deletion, which also clears `bootstrap/cache`, and uploads the root files,
-     `public/index.php` and friends and `VERSION`. `.env`, `storage`, SQLite
-     databases and anything else on the server outside those folders are left
-     alone;
-   - calls `POST /_deploy` with the `DEPLOY_TOKEN` as a bearer token. The
-     endpoint answers during maintenance mode, migrates, runs `optimize`,
-     `event:cache` and `queue:restart`, and brings the app back up. Without a
-     matching `DEPLOY_TOKEN` in the server's `.env` it is a 404.
+   `prod` has no SSH, so it is deployed by cPanel's **Git™ Version Control**,
+   driven from the runner through the cPanel API (`:2083/execute`) by
+   `.github/actions/deploy-cpanel`:
+   - `VersionControl/update` pulls `main` into the cPanel clone
+     (`~/repositories/readererer`), and `VersionControlDeployment/create`
+     runs the tasks in `.cpanel.yml`. The job then polls
+     `VersionControlDeployment/retrieve` until the deployment succeeds or
+     fails (for up to 30 minutes).
+   - `.cpanel.yml` copies the clone to `~/readererer-build` (which keeps
+     `vendor` and `node_modules` between deploys), writes `VERSION`, runs
+     `composer install --no-dev --no-scripts` (the host disables
+     `proc_open`, which Composer scripts need), `npm ci` and `npm run build`.
+     Only then does it put the app in maintenance mode. It rsyncs the app's
+     folders (`app`, `bootstrap`, `config`, `database`, `lang`, `resources`,
+     `routes`, `vendor`, `public/build`, `public/js`) into
+     `~/domains/readererer-prod.blakey.family` with deletion, which also clears
+     `bootstrap/cache`, and copies the root files and `public/index.php` and
+     friends. `.env`, `storage`, SQLite databases and anything else outside
+     those folders are left alone. Finally it runs `package:discover`,
+     `migrate`, `optimize`, `event:cache` and `queue:restart`, and brings the
+     app back up.
+   - The build happens outside the clone, because cPanel refuses to deploy
+     a clone with uncommitted or untracked files.
 
-   If the upload or the endpoint fails, prod stays in maintenance mode. Fix
-   the cause and re-run the deploy, or delete `storage/framework/down` over FTP
-   to bring the old code back up.
+   A failing task stops the rest. Before `down` the live site is untouched;
+   after it, prod stays in maintenance mode. The job prints the path of the
+   deployment log (`~/.cpanel/logs/vc_<id>_git_deploy.log`), which you read in
+   **File Manager**. Fix the cause and re-run the deploy.
 3. **`prod` only:** before deploying it cancels itself if a newer `main`
-   run is in progress, works out the next version from the Conventional
-   Commits since the last tag, and after deploying publishes a GitHub release
-   with that tag and generated notes.
+   run is in progress, then works out the next version from the Conventional
+   Commits since the last tag and pushes that tag, so that the server's
+   `git describe` names the release. After the deploy succeeds it publishes a
+   GitHub release for the tag with generated notes. If the deploy fails, the
+   tag exists without a release until the job is re-run.
 4. **`docs`** runs after every environment has deployed. It rsyncs `site/`
    (following the logo symlink into `resources/images/`) to
    `~/domains/<domain>/public/`, deleting anything else in that folder. It
    refuses to run if `~/domains/<domain>/artisan` exists, so it cannot
    overwrite a folder that still holds the app.
 
-Node and Composer are no longer needed on the server; only PHP and git.
+Dev and qa need only PHP and git on the server. Prod also builds there, with
+Composer and CloudLinux's Node 24 (`/opt/alt/alt-nodejs24`, which
+`.cpanel.yml` puts on `PATH`).
 
 A new push to a pull request cancels that pull request's earlier run; runs on
 `main` are never cancelled this way.
@@ -91,20 +106,22 @@ the environment (Settings → Environments → *name*) or once on the repository
 repository one. If all three sites share one cPanel account, set `APP_DOMAIN`
 per environment and the rest once on the repository.
 
-| Name                       | Example                         | Description                                                                           |
-| -------------------------- | ------------------------------- | ------------------------------------------------------------------------------------- |
-| `APP_DOMAIN` (per env)     | `readererer-prod.blakey.family` | The site's domain; also its folder under `~/domains/` on the server.                  |
-| `DEPLOY_SSH_HOST`          | `ssh.example.krystal.uk`        | SSH host.                                                                             |
-| `DEPLOY_SSH_PORT`          | `722`                           | SSH port (Krystal uses 722).                                                          |
-| `DEPLOY_SSH_USER`          | `readererer`                    | cPanel username.                                                                      |
-| `DEPLOY_GIT_KEY`           | `github_readererer`             | File name, in the server's `~/.ssh/`, of the key the server fetches from GitHub with. |
-| `SSH_PRIVATE_KEY` (secret) |                                 | Private key GitHub logs in to the server with.                                        |
-| `DEPLOY_FTP_HOST` (prod)   | `ftp.example.krystal.uk`        | FTP host; must offer FTPS.                                                            |
-| `DEPLOY_FTP_USER` (prod)   | `readererer`                    | FTP user whose root is the site's folder (`domains/<domain>`).             |
-| `DEPLOY_FTP_PASSWORD` (secret, prod) |                       | That FTP user's password.                                                             |
-| `DEPLOY_TOKEN` (secret, prod) |                              | Long random token for `POST /_deploy`; the same value goes in prod's `.env`.          |
+| Name                          | Example                         | Description                                                                           |
+| ----------------------------- | ------------------------------- | ------------------------------------------------------------------------------------- |
+| `APP_DOMAIN` (per env)        | `readererer-prod.blakey.family` | The site's domain; also its folder under `~/domains/` on the server.                  |
+| `DEPLOY_SSH_HOST`             | `ssh.example.krystal.uk`        | SSH host.                                                                             |
+| `DEPLOY_SSH_PORT`             | `722`                           | SSH port (Krystal uses 722).                                                          |
+| `DEPLOY_SSH_USER`             | `readererer`                    | cPanel username.                                                                      |
+| `DEPLOY_GIT_KEY`              | `github_readererer`             | File name, in the server's `~/.ssh/`, of the key the server fetches from GitHub with. |
+| `SSH_PRIVATE_KEY` (secret)    |                                 | Private key GitHub logs in to the server with.                                        |
+| `CPANEL_HOST` (prod)          | `server.example.krystal.uk`     | cPanel host; the API is on port 2083.                                                 |
+| `CPANEL_USER` (prod)          | `readererer`                    | Prod's cPanel username.                                                               |
+| `CPANEL_TOKEN` (secret, prod) |                                 | A cPanel API token for that account.                                                  |
 
-The SSH values are not used by `prod`; `docs` still needs them.
+The SSH values are not used by `prod`; `docs` still needs them. The old
+`DEPLOY_FTP_HOST`, `DEPLOY_FTP_USER`, `DEPLOY_FTP_PASSWORD` and `DEPLOY_TOKEN`
+settings are no longer read and can be deleted, along with `DEPLOY_TOKEN` in
+prod's `.env`.
 
 The live environment is now called `prod`. Recreate the old `production`
 environment's `APP_DOMAIN`, any secrets and its protection rules on `prod`,
@@ -128,6 +145,35 @@ then delete `production`. Its `UNIX_USERNAME`, `SERVER_DOMAIN` and
    `pdo_mysql`/`pdo_sqlite`, `mbstring`, `gd`, `zip`, `bcmath`, `exif` and
    `fileinfo` enabled. The deploy runs `php artisan` over SSH, so check
    `php -v` in **Terminal** reports 8.5 too.
+
+### cPanel Git deployment, once for prod
+
+Prod's account has no SSH or Terminal, so it is set up in cPanel:
+
+1. **PHP.** In **Select PHP Version** choose 8.5 with `pdo_sqlite`,
+   `mbstring`, `openssl`, `fileinfo` and `zip` ticked. Deploy tasks run plain
+   `php`, which follows this setting.
+2. **Clone.** In **Git™ Version Control** → **Create**, turn on *Clone a
+   Repository*, use `https://github.com/adam-blakey/readererer.git` (public, so
+   no key is needed) with repository path `repositories/readererer`. It
+   checks out `main`. Never edit files in the clone: cPanel will not deploy
+   one with local changes.
+3. **API token.** In **Security** → **Manage API Tokens** create a token (no
+   expiry, or remember to renew it) and put it in the `prod` environment's
+   `CPANEL_TOKEN` secret. Set `CPANEL_HOST` and `CPANEL_USER` too.
+4. Check that the app lives in `~/domains/readererer-prod.blakey.family`
+   (the path `.cpanel.yml` deploys to) with its `.env`. The first deploy
+   stops before touching the site if that `.env` is missing.
+
+`.cpanel.yml` tasks need `rsync` and `git` on the server. If a deploy fails at
+the first `rsync` or at `git describe`, one of them is missing (check the
+deployment log). To see a clone's local changes without Terminal, add a
+one-off cron job running
+`cd ~/repositories/readererer && git status --porcelain > ~/git-status.txt`.
+
+`.cpanel.yml` would also run in any other cPanel account that clones this
+repository and deploys it from Git™ Version Control. Dev and qa are
+deployed over SSH and do not use it.
 
 ### Moving prod to `readererer-prod.blakey.family` and adding the docs site
 
@@ -176,9 +222,7 @@ document root `domains/readererer.blakey.family/public` before step 6.
    specially), `APP_DEBUG=false` (except dev),
    `APP_URL=https://<domain>`, the `DB_*` values from step 3 (SQLite needs the
    absolute path, `/home/<user>/domains/<domain>/database/database.sqlite`) and
-   the mail settings. On prod also set `DEPLOY_TOKEN` (generate one with
-   `openssl rand -hex 32`, and put the same value in the `DEPLOY_TOKEN`
-   secret) and keep `APP_MAINTENANCE_DRIVER=file`. For `APP_KEY`, run
+   the mail settings. On prod keep `APP_MAINTENANCE_DRIVER=file`. For `APP_KEY`, run
    `php -r "echo 'base64:'.base64_encode(random_bytes(32)).PHP_EOL;"` and paste
    the output. Keep prod's existing key. Then re-run the deploy.
 

@@ -1,0 +1,25 @@
+---
+deployment:
+  tasks:
+    - export APP=$HOME/domains/readererer-prod.blakey.family
+    - export BUILD=$HOME/readererer-build
+    - export PATH=/opt/alt/alt-nodejs24/root/usr/bin:$PATH:/usr/local/cpanel/3rdparty/bin
+    - test -f $APP/.env
+    - mkdir -p $BUILD
+    - rsync -a --delete --exclude=/.git --exclude=/vendor --exclude=/node_modules ./ $BUILD/
+    - git describe --tags --always > $BUILD/VERSION
+    - cd $BUILD && composer install --no-dev --no-scripts --no-interaction --no-progress --optimize-autoloader
+    - cd $BUILD && npm ci --no-audit --no-fund
+    - cd $BUILD && npm run build
+    - cd $APP && php artisan down
+    - rsync -a --delete $BUILD/app $BUILD/bootstrap $BUILD/config $BUILD/lang $BUILD/resources $BUILD/routes $BUILD/vendor $APP/
+    - rsync -a --delete '--exclude=*.sqlite*' $BUILD/database/ $APP/database/
+    - rsync -a --delete $BUILD/public/build $BUILD/public/js $APP/public/
+    - cp $BUILD/artisan $BUILD/composer.json $BUILD/composer.lock $BUILD/VERSION $APP/
+    - cp $BUILD/public/index.php $BUILD/public/.htaccess $BUILD/public/favicon.ico $BUILD/public/robots.txt $APP/public/
+    - cd $APP && php artisan package:discover
+    - cd $APP && php artisan migrate --force
+    - cd $APP && php artisan optimize
+    - cd $APP && php artisan event:cache
+    - cd $APP && php artisan queue:restart
+    - cd $APP && php artisan up
