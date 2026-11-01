@@ -75,6 +75,7 @@ class UserController extends Controller
             'username' => User::generateUniqueUsername($attributes['first_name'], $attributes['last_name']),
         ]), when: fn (Throwable $exception) => $exception instanceof UniqueConstraintViolationException);
         $user->setup_group()->associate($setup_group_id ? SetupGroup::find($setup_group_id) : null);
+        $user->must_change_password = true;
         $user->save();
 
         return to_route('users.show', $user);

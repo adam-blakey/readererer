@@ -30,6 +30,7 @@ test('a user can be created with a generated username', function () {
     expect($user->username)->toBe('ada.lovelace');
     expect($user->role)->toBe(UserRole::Member);
     expect($user->setup_group_id)->toBe($setupGroup->id);
+    expect($user->must_change_password)->toBeTrue();
     $response->assertRedirect(route('users.show', $user));
 });
 

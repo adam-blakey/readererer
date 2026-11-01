@@ -43,12 +43,13 @@ class CreateUser extends Command
 
         $password = Str::password(16);
 
-        $user = retry(3, fn () => User::create([
+        $user = retry(3, fn () => User::forceCreate([
             'first_name' => $input['first_name'],
             'last_name' => $input['last_name'],
             'email' => $input['email'],
             'role' => UserRole::cases()[array_search($input['role'], $roles)],
             'password' => $password,
+            'must_change_password' => true,
             'username' => User::generateUniqueUsername($input['first_name'], $input['last_name']),
         ]), when: fn (Throwable $exception) => $exception instanceof UniqueConstraintViolationException);
 

@@ -16,7 +16,8 @@ test('it creates a user with the given role and prints their login', function ()
 
     $user = User::where('email', 'ada@example.com')->sole();
     expect($user->role)->toBe(UserRole::Admin)
-        ->and($user->username)->toBe('ada.lovelace');
+        ->and($user->username)->toBe('ada.lovelace')
+        ->and($user->must_change_password)->toBeTrue();
 });
 
 test('the printed password is the stored one', function () {

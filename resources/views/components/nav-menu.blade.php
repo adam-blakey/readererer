@@ -110,6 +110,7 @@
 					</a>
 					<div class="dropdown-menu dropdown-menu-end dropdown-menu-arrow">
                         <x-a class="dropdown-item" :route="'settings.edit'">{{ __('Settings') }}</x-a>
+                        <x-a class="dropdown-item" :route="'password.edit'">{{ __('Change password') }}</x-a>
 						<form action="{{ route('logout') }}" method="POST">
 							@csrf
 							<a class="dropdown-item" href="{{ route('logout') }}" onclick="event.preventDefault(); this.closest('form').submit();">{{ __('Logout') }}</a>
