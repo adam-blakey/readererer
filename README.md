@@ -16,7 +16,7 @@
 </p>
 
 <p align="center">
-  <a href="https://github.com/adam-blakey/readererer/actions/workflows/main.yml"><img alt="Main" src="https://github.com/adam-blakey/readererer/actions/workflows/main.yml/badge.svg?branch=main"></a>
+  <a href="https://github.com/adam-blakey/readererer/actions/workflows/main.yml"><img alt="Build, Test &amp; Deploy" src="https://github.com/adam-blakey/readererer/actions/workflows/main.yml/badge.svg?branch=main"></a>
   <a href="https://github.com/adam-blakey/readererer/actions/workflows/ci.yml"><img alt="CI" src="https://github.com/adam-blakey/readererer/actions/workflows/ci.yml/badge.svg?branch=main"></a>
   <a href="https://github.com/adam-blakey/readererer/actions/workflows/codeql.yml"><img alt="CodeQL" src="https://github.com/adam-blakey/readererer/actions/workflows/codeql.yml/badge.svg?branch=main"></a>
   <a href="https://github.com/adam-blakey/readererer/actions/workflows/php-security.yml"><img alt="PHP Security" src="https://github.com/adam-blakey/readererer/actions/workflows/php-security.yml/badge.svg?branch=main"></a>
