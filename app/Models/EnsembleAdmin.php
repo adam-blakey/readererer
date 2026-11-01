@@ -9,9 +9,7 @@ class EnsembleAdmin extends Pivot
 {
     use HasFactory;
 
-    // A pivot names its table in the singular, and has neither an
-    // auto-incrementing key nor timestamps by default; ensemble_admins has the
-    // key, but no timestamp columns.
+    // Pivot defaults assume a singular table name, no incrementing key and timestamps.
     protected $table = 'ensemble_admins';
 
     public $incrementing = true;

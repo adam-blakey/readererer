@@ -2,11 +2,6 @@
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 
-/**
- * Tests should be able to reach for a factory rather than hand-rolling a
- * record and knowing which columns the table insists on, so every factory has
- * to be able to create its model unaided.
- */
 test('every factory creates its model', function (string $factory) {
     $model = $factory::new()->create();
 

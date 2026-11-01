@@ -45,14 +45,10 @@ function join_ensemble(User $user, Ensemble $ensemble, ?InstrumentFamily $instru
     ]);
 }
 
-/**
- * A term date: a rehearsal by default, or that ensemble's concert when one is
- * given, tomorrow evening either way.
- */
 function make_term_date(?Term $term = null, ?Ensemble $concertEnsemble = null): TermDate
 {
     return TermDate::factory()->create([
-        'term_id' => ($term ?? Term::factory()->create())->id,
+        'term_id' => $term ?? Term::factory(),
         'start_datetime' => now()->addDay()->setTime(19, 0),
         'end_datetime' => now()->addDay()->setTime(21, 0),
         'concert_ensemble_id' => $concertEnsemble?->id,

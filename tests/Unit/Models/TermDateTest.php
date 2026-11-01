@@ -6,15 +6,6 @@ use App\Models\Term;
 use App\Models\TermDate;
 use App\Models\User;
 
-function make_setup_group(array $attributes = []): SetupGroup
-{
-    return SetupGroup::factory()->create(array_merge([
-        'name' => 'Group A',
-        'week' => 1,
-        'color' => 'blue',
-    ], $attributes));
-}
-
 function term_date_at(string $start, string $end, array $attributes = []): TermDate
 {
     return TermDate::forceCreate(array_merge([
@@ -91,7 +82,7 @@ test('term dates belong to a term and optionally to a concert ensemble', functio
 });
 
 test('an explicitly assigned van driver wins over the rotation', function () {
-    $setupGroup = make_setup_group();
+    $setupGroup = SetupGroup::factory()->create();
     $explicitDriver = User::factory()->create();
     $rotationDriver = User::factory()->create();
     $setupGroup->van_drivers()->attach($rotationDriver->id, ['sort' => 0]);
@@ -111,7 +102,7 @@ test('there is no inferred van driver without a setup group', function () {
 });
 
 test('there is no inferred van driver when the setup group has no van drivers', function () {
-    $setupGroup = make_setup_group();
+    $setupGroup = SetupGroup::factory()->create();
 
     $termDate = term_date_at('2026-01-05 19:00:00', '2026-01-05 21:00:00', [
         'setup_group_id' => $setupGroup->id,
@@ -121,7 +112,7 @@ test('there is no inferred van driver when the setup group has no van drivers', 
 });
 
 test('van drivers rotate across a setup group\'s term dates in start order', function () {
-    $setupGroup = make_setup_group();
+    $setupGroup = SetupGroup::factory()->create();
     $driverOne = User::factory()->create();
     $driverTwo = User::factory()->create();
     $setupGroup->van_drivers()->attach($driverOne->id, ['sort' => 0]);
