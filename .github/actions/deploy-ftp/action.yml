@@ -49,4 +49,6 @@ runs:
         mirror -R --delete --parallel=8 public/js public/js
         mput -d artisan composer.json composer.lock VERSION public/index.php public/.htaccess public/favicon.ico public/robots.txt
         EOF
-        curl --fail-with-body -sS -X POST -H "Authorization: Bearer $DEPLOY_TOKEN" 'https://${{ inputs.domain }}/_deploy'
+        curl --fail-with-body -sS -X POST -H "Authorization: Bearer $DEPLOY_TOKEN" 'https://${{ inputs.domain }}/_deploy' | tee deploy-response.txt
+        # A bot-protection challenge page also returns 200, so require the output of `artisan up`.
+        grep -qE 'Application is (now live|already up)' deploy-response.txt || { echo '::error::/_deploy did not bring the app up; the site is still in maintenance mode.'; exit 1; }
