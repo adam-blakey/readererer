@@ -84,3 +84,9 @@ test('a page without a trail renders no breadcrumbs', function () {
     $response->assertOk();
     $response->assertDontSee('breadcrumb', false);
 });
+
+test('an unknown URL renders the 404 page', function () {
+    $this->get('/no-such-page')
+        ->assertNotFound()
+        ->assertSee('Not found');
+});
