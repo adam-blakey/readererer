@@ -124,10 +124,10 @@ then delete `production`. Its `UNIX_USERNAME`, `SERVER_DOMAIN` and
    `cat ~/.ssh/github_readererer.pub`. Add that as a read-only deploy key in
    GitHub → Settings → **Deploy keys**. `github_readererer` is the
    `DEPLOY_GIT_KEY` value.
-3. **PHP.** In **Select PHP Version** (or **MultiPHP Manager**) choose 8.4 with
+3. **PHP.** In **Select PHP Version** (or **MultiPHP Manager**) choose 8.5 with
    `pdo_mysql`/`pdo_sqlite`, `mbstring`, `gd`, `zip`, `bcmath`, `exif` and
    `fileinfo` enabled. The deploy runs `php artisan` over SSH, so check
-   `php -v` in **Terminal** reports 8.4 too.
+   `php -v` in **Terminal** reports 8.5 too.
 
 ### Moving prod to `readererer-prod.blakey.family` and adding the docs site
 
