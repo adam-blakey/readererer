@@ -8,7 +8,7 @@
 
 <p align="center">
   <img alt="Laravel 13" src="https://img.shields.io/badge/Laravel-13-FF2D20?logo=laravel&logoColor=white">
-  <img alt="PHP 8.4.27+" src="https://img.shields.io/badge/PHP-8.4.27%2B-777BB4?logo=php&logoColor=white">
+  <img alt="PHP 8.5+" src="https://img.shields.io/badge/PHP-8.5%2B-777BB4?logo=php&logoColor=white">
   <img alt="Tabler UI" src="https://img.shields.io/badge/UI-Tabler-0054A6">
   <a href="https://github.com/adam-blakey/readererer/releases"><img alt="Latest release" src="https://img.shields.io/github/v/release/adam-blakey/readererer"></a>
   <img alt="SQLite" src="https://img.shields.io/badge/DB-SQLite-003B57?logo=sqlite&logoColor=white">
@@ -81,7 +81,7 @@ history, and totals use the latest reply for each member.
 
 | Layer      | Choice                                                             |
 | ---------- | ------------------------------------------------------------------ |
-| Framework  | Laravel 13 (PHP 8.4.27+)                                           |
+| Framework  | Laravel 13 (PHP 8.5+)                                           |
 | Frontend   | Blade + [Tabler](https://tabler.io) UI, bundled by Vite           |
 | Database   | SQLite (`database/database.sqlite`)                               |
 | PDFs       | `barryvdh/laravel-dompdf`                                          |
@@ -91,7 +91,7 @@ history, and totals use the latest reply for each member.
 
 ## Getting started
 
-**Requirements:** PHP 8.4.27+, Composer, and Node.js.
+**Requirements:** PHP 8.5+, Composer, and Node.js.
 
 ```bash
 # Install dependencies
@@ -152,7 +152,7 @@ Tests and the Pint check run on every pull request, in the `Pest test suite` job
 
 ## Docker
 
-The `Dockerfile` builds an image containing Apache, PHP 8.4, the built assets and the
+The `Dockerfile` builds an image containing Apache, PHP 8.5, the built assets and the
 Composer dependencies. Build it with `docker build -t readererer .`. The image contains no `.env` file, so configuration is passed as
 environment variables:
 

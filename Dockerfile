@@ -9,7 +9,7 @@ RUN npm run build
 
 # Installs on the same PHP the runtime uses, so composer.lock's platform
 # requirements are checked against the real target rather than composer:2's PHP.
-FROM php:8.4-cli-bookworm AS vendor
+FROM php:8.5-cli-bookworm AS vendor
 COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
 RUN apt-get update && apt-get install -y --no-install-recommends \
         git \
@@ -26,8 +26,8 @@ RUN composer install \
 
 RUN php artisan package:discover --ansi
 
-# Pinned to bookworm because the unqualified php:8.4-apache tag floats to trixie.
-FROM php:8.4-apache-bookworm AS runtime
+# Pinned to bookworm because the unqualified php:8.5-apache tag floats to trixie.
+FROM php:8.5-apache-bookworm AS runtime
 
 RUN apt-get update && apt-get install -y --no-install-recommends \
         libzip-dev \
