@@ -131,7 +131,7 @@ jobs:
           deploy-token: ${{ secrets.DEPLOY_TOKEN }}
           version: ${{ steps.version.outputs.new_tag || steps.version.outputs.previous_tag }}
       - if: steps.version.outputs.new_tag
-        uses: softprops/action-gh-release@v2.6.2
+        uses: softprops/action-gh-release@v3
         with:
           tag_name: ${{ steps.version.outputs.new_tag }}
           target_commitish: ${{ github.sha }}
