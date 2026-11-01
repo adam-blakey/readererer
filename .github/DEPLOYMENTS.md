@@ -29,6 +29,23 @@ The app's prod site is `readererer-prod.blakey.family`; the docs site is
      `git describe`, plus `+pr<n>` on dev);
    - puts the app in maintenance mode, migrates, runs `optimize`,
      `event:cache` and `queue:restart`, and brings it back up.
+
+   `prod` has no SSH, so it is deployed over FTP instead (FTPS, with `lftp`):
+   - uploads `storage/framework/down` to put the app in maintenance mode;
+   - mirrors the app's folders (`app`, `bootstrap`, `config`, `database`,
+     `lang`, `resources`, `routes`, `vendor`, `public/build`, `public/js`) with
+     deletion, which also clears `bootstrap/cache`, and uploads the root files,
+     `public/index.php` and friends and `VERSION`. `.env`, `storage`, SQLite
+     databases and anything else on the server outside those folders are left
+     alone;
+   - calls `POST /_deploy` with the `DEPLOY_TOKEN` as a bearer token. The
+     endpoint answers during maintenance mode, migrates, runs `optimize`,
+     `event:cache` and `queue:restart`, and brings the app back up. Without a
+     matching `DEPLOY_TOKEN` in the server's `.env` it is a 404.
+
+   If the upload or the endpoint fails, prod stays in maintenance mode. Fix
+   the cause and re-run the deploy, or delete `storage/framework/down` over FTP
+   to bring the old code back up.
 3. **`prod` only:** before deploying it cancels itself if a newer `main`
    run is in progress, works out the next version from the Conventional
    Commits since the last tag, and after deploying publishes a GitHub release
@@ -82,6 +99,12 @@ per environment and the rest once on the repository.
 | `DEPLOY_SSH_USER`          | `readererer`                    | cPanel username.                                                                      |
 | `DEPLOY_GIT_KEY`           | `github_readererer`             | File name, in the server's `~/.ssh/`, of the key the server fetches from GitHub with. |
 | `SSH_PRIVATE_KEY` (secret) |                                 | Private key GitHub logs in to the server with.                                        |
+| `DEPLOY_FTP_HOST` (prod)   | `ftp.example.krystal.uk`        | FTP host; must offer FTPS.                                                            |
+| `DEPLOY_FTP_USER` (prod)   | `readererer`                    | FTP user whose root is the account's home folder (`domains/` sits in it).             |
+| `DEPLOY_FTP_PASSWORD` (secret, prod) |                       | That FTP user's password.                                                             |
+| `DEPLOY_TOKEN` (secret, prod) |                              | Long random token for `POST /_deploy`; the same value goes in prod's `.env`.          |
+
+The SSH values are not used by `prod`; `docs` still needs them.
 
 The live environment is now called `prod`. Recreate the old `production`
 environment's `APP_DOMAIN`, any secrets and its protection rules on `prod`,
@@ -153,7 +176,9 @@ document root `domains/readererer.blakey.family/public` before step 6.
    specially), `APP_DEBUG=false` (except dev),
    `APP_URL=https://<domain>`, the `DB_*` values from step 3 (SQLite needs the
    absolute path, `/home/<user>/domains/<domain>/database/database.sqlite`) and
-   the mail settings. For `APP_KEY`, run
+   the mail settings. On prod also set `DEPLOY_TOKEN` (generate one with
+   `openssl rand -hex 32`, and put the same value in the `DEPLOY_TOKEN`
+   secret) and keep `APP_MAINTENANCE_DRIVER=file`. For `APP_KEY`, run
    `php -r "echo 'base64:'.base64_encode(random_bytes(32)).PHP_EOL;"` and paste
    the output. Keep prod's existing key. Then re-run the deploy.
 
