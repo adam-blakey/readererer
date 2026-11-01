@@ -85,7 +85,7 @@ test('is_over_18 is true for someone 18 or older', function () {
 });
 
 test('users belong to a setup group', function () {
-    $setupGroup = SetupGroup::create(['name' => 'Group A', 'week' => 1, 'color' => 'blue']);
+    $setupGroup = SetupGroup::factory()->create(['name' => 'Group A', 'week' => 1, 'color' => 'blue']);
     $user = User::factory()->create(['setup_group_id' => $setupGroup->id]);
 
     expect($user->setup_group->name)->toBe('Group A');

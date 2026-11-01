@@ -48,7 +48,7 @@ test('term, user and setup group indexes require moderator or above', function (
 test('members cannot change terms, setup groups or ensemble membership', function () {
     $member = make_user(UserRole::Member);
     $term = Term::factory()->create();
-    $setupGroup = SetupGroup::create(['name' => 'Group A', 'week' => 1, 'color' => 'blue']);
+    $setupGroup = SetupGroup::factory()->create();
     $ensemble = Ensemble::factory()->create();
     $player = make_user(UserRole::Member);
     join_ensemble($player, $ensemble);
