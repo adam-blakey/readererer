@@ -35,6 +35,27 @@ test('correct password must be provided to update password', function () {
         ]);
 
     $response
-        ->assertSessionHasErrorsIn('updatePassword', 'current_password')
+        ->assertSessionHasErrors('current_password')
         ->assertRedirect('/profile');
+});
+
+test('the new password must differ from the current one', function () {
+    $user = User::factory()->create();
+
+    $this->actingAs($user)
+        ->from(route('password.edit'))
+        ->put('/password', [
+            'current_password' => 'password',
+            'password' => 'password',
+            'password_confirmation' => 'password',
+        ])
+        ->assertSessionHasErrors('password');
+});
+
+test('the change password page asks for the current password and is linked from the user menu', function () {
+    $this->actingAs(make_user())
+        ->get(route('password.edit'))
+        ->assertOk()
+        ->assertSee('name="current_password"', false)
+        ->assertSee('href="'.route('password.edit').'"', false);
 });

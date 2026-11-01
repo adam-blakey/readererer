@@ -97,6 +97,7 @@ class User extends Authenticatable
             'created_at' => 'datetime',
             'updated_at' => 'datetime',
             'is_over_18' => 'boolean',
+            'must_change_password' => 'boolean',
         ];
     }
 

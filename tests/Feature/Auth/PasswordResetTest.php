@@ -58,3 +58,25 @@ test('password can be reset with valid token', function () {
         return true;
     });
 });
+
+test('resetting a password clears a pending forced change', function () {
+    Notification::fake();
+
+    $user = User::factory()->create();
+    $user->forceFill(['must_change_password' => true])->save();
+
+    $this->post('/forgot-password', ['email' => $user->email]);
+
+    Notification::assertSentTo($user, ResetPassword::class, function ($notification) use ($user) {
+        $this->post('/reset-password', [
+            'token' => $notification->token,
+            'email' => $user->email,
+            'password' => 'a-new-password',
+            'password_confirmation' => 'a-new-password',
+        ]);
+
+        return true;
+    });
+
+    expect($user->refresh()->must_change_password)->toBeFalse();
+});

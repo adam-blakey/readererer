@@ -42,6 +42,19 @@ test('users can authenticate using the login screen', function () {
     $response->assertRedirect(route('dashboard', absolute: false));
 });
 
+test('ticking remember me keeps the user logged in on this device', function (bool $remember) {
+    $user = User::factory()->create();
+
+    $response = $this->post('/login', array_filter([
+        'username' => $user->username,
+        'password' => 'password',
+        'remember_me' => $remember ? 'on' : null,
+    ]));
+
+    $recaller = auth()->guard()->getRecallerName();
+    $remember ? $response->assertCookie($recaller) : $response->assertCookieMissing($recaller);
+})->with(['ticked' => true, 'unticked' => false]);
+
 test('users can not authenticate with invalid password', function () {
     $user = User::factory()->create();
 

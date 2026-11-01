@@ -28,6 +28,11 @@ Breadcrumbs::for('password.reset', function (BreadcrumbTrail $trail, string $ent
     $trail->push(__('Reset password'), route('password.reset', $entity));
 });
 
+Breadcrumbs::for('password.edit', function (BreadcrumbTrail $trail) {
+    $trail->parent('home');
+    $trail->push(__('Change password'), route('password.edit'));
+});
+
 Breadcrumbs::for('dashboard', function (BreadcrumbTrail $trail) {
     $trail->parent('home');
     $trail->push(__('Dashboard'), route('dashboard'));
