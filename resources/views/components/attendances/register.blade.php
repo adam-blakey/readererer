@@ -42,7 +42,7 @@
 		</div>
 	</div>
 	<div class="ms-auto btn-list">
-		<x-a class="btn btn-sm" href="{{ route('attendance.poll', ['ensemble' => $ensemble, 'term' => $term_date->term]) }}">
+		<x-a class="btn btn-sm" href="{{ route('attendance.poll.show', ['ensemble' => $ensemble, 'term' => $term_date->term]) }}">
 			<x-icon name="square-check" />
 			{{ __('Poll') }}
 		</x-a>

@@ -20,7 +20,7 @@ test('an admin can mark a member as attending on the poll and save it', function
 
     $this->actingAs(make_user(UserRole::Admin));
 
-    $pollPath = route('attendance.poll', ['ensemble' => $ensemble, 'term' => $term], absolute: false);
+    $pollPath = route('attendance.poll.show', ['ensemble' => $ensemble, 'term' => $term], absolute: false);
 
     visit($pollPath)
         ->assertSee('Jo Bloggs')

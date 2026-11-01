@@ -112,7 +112,7 @@ class EnsembleController extends Controller
         ]);
     }
 
-    public function add_user(Ensemble $ensemble)
+    public function addMember(Ensemble $ensemble)
     {
         $this->authorize('update', $ensemble);
 
@@ -134,7 +134,7 @@ class EnsembleController extends Controller
         return redirect()->back()->with('status', __('User added to ensemble.'));
     }
 
-    public function remove_user(Ensemble $ensemble, User $user)
+    public function removeMember(Ensemble $ensemble, User $user)
     {
         $this->authorize('update', $ensemble);
 

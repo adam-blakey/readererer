@@ -28,7 +28,7 @@
             @if ($canManage)
                 <div class="col-auto ms-auto">
                     <div class="btn-list">
-                        <x-a href="{{ route('ensembles.members', ['ensemble' => $ensemble]) }}" class="btn"><x-icon name="users" />{{ __('Members') }}</x-a>
+                        <x-a href="{{ route('ensembles.members.index', ['ensemble' => $ensemble]) }}" class="btn"><x-icon name="users" />{{ __('Members') }}</x-a>
                         @if ($ensemble->seating_plan_enabled)
                             <x-a href="{{ route('ensembles.seating-plan.show', ['ensemble' => $ensemble]) }}" class="btn"><x-icon name="users-group" />{{ __('Seating plan') }}</x-a>
                         @endif

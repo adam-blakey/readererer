@@ -13,7 +13,7 @@ test('the register links to the poll for its term', function () {
         ->get(route('attendance.register.show', ['ensemble' => $ensemble->slug, 'termDate' => $termDate->id]));
 
     $response->assertOk();
-    $response->assertSee(route('attendance.poll', ['ensemble' => $ensemble, 'term' => $term]), false);
+    $response->assertSee(route('attendance.poll.show', ['ensemble' => $ensemble, 'term' => $term]), false);
 });
 
 test('the poll links to the register for each of the term\'s dates', function () {
@@ -26,7 +26,7 @@ test('the poll links to the register for each of the term\'s dates', function ()
     $otherConcert = make_term_date($term, $otherEnsemble);
 
     $response = $this->actingAs(make_user(UserRole::Moderator))
-        ->get(route('attendance.poll', ['ensemble' => $ensemble->slug, 'term' => $term->slug]));
+        ->get(route('attendance.poll.show', ['ensemble' => $ensemble->slug, 'term' => $term->slug]));
 
     $response->assertOk();
     $response->assertSee(route('attendance.register.show', ['ensemble' => $ensemble, 'termDate' => $rehearsal]), false);
@@ -44,7 +44,7 @@ test('the poll offers no register to members who cannot take one', function () {
     join_ensemble($member, $ensemble);
 
     $response = $this->actingAs($member)
-        ->get(route('attendance.poll', ['ensemble' => $ensemble->slug, 'term' => $term->slug]));
+        ->get(route('attendance.poll.show', ['ensemble' => $ensemble->slug, 'term' => $term->slug]));
 
     $response->assertOk();
     $response->assertDontSee(route('attendance.register.show', ['ensemble' => $ensemble, 'termDate' => $termDate]), false);
@@ -62,7 +62,7 @@ test('the dashboard links its upcoming dates to the poll', function () {
     $response = $this->actingAs($member)->get('/dashboard');
 
     $response->assertOk();
-    $response->assertSee(route('attendance.poll', ['ensemble' => $ensemble, 'term' => $term]), false);
+    $response->assertSee(route('attendance.poll.show', ['ensemble' => $ensemble, 'term' => $term]), false);
     $response->assertDontSee(route('attendance.register.show', ['ensemble' => $ensemble, 'termDate' => $rehearsal]), false);
 
     $moderator = make_user(UserRole::Moderator);

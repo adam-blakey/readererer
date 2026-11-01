@@ -81,6 +81,6 @@ class AttendanceController extends Controller
             ]);
         }
 
-        return redirect()->route('attendance.poll', ['ensemble' => $ensemble, 'term' => $term]);
+        return redirect()->route('attendance.poll.show', ['ensemble' => $ensemble, 'term' => $term]);
     }
 }

@@ -95,12 +95,12 @@ test('the seating plan page offers downloads for upcoming rehearsals and own con
     $response->assertOk();
     $dates = $response->viewData('upcoming_term_dates');
     expect($dates->pluck('id')->all())->toBe([$upcomingRehearsal->id, $ownConcert->id]);
-    $response->assertSee(route('seating-plan.download', ['ensemble' => $ensemble, 'termDate' => $upcomingRehearsal]));
+    $response->assertSee(route('ensembles.seating-plan.download', ['ensemble' => $ensemble, 'termDate' => $upcomingRehearsal]));
 
     // Past dates are offered separately so the dropdown can filter them.
     $pastDates = $response->viewData('past_term_dates');
     expect($pastDates->pluck('id')->all())->toBe([$pastRehearsal->id]);
-    $response->assertSee(route('seating-plan.download', ['ensemble' => $ensemble, 'termDate' => $pastRehearsal]));
+    $response->assertSee(route('ensembles.seating-plan.download', ['ensemble' => $ensemble, 'termDate' => $pastRehearsal]));
 });
 
 test('updating the seating plan stores seat rows and columns on the pivot', function () {
@@ -109,7 +109,7 @@ test('updating the seating plan stores seat rows and columns on the pivot', func
     join_ensemble($member, $ensemble);
 
     $this->actingAs(make_user(UserRole::Admin))
-        ->post(route('ensembles.seating-plan.update', $ensemble), [
+        ->put(route('ensembles.seating-plan.update', $ensemble), [
             'seating_plan' => json_encode([
                 'A' => [['id' => $member->id, 'column' => 2]],
             ]),
@@ -133,11 +133,11 @@ test('updating the seating plan is forbidden without permission to update the en
     ];
 
     $this->actingAs($member)
-        ->post(route('ensembles.seating-plan.update', $ensemble), $payload)
+        ->put(route('ensembles.seating-plan.update', $ensemble), $payload)
         ->assertForbidden();
 
     $this->actingAs(make_user(UserRole::Moderator))
-        ->post(route('ensembles.seating-plan.update', $ensemble), $payload)
+        ->put(route('ensembles.seating-plan.update', $ensemble), $payload)
         ->assertForbidden();
 
     $pivot = $ensemble->users()->first()->pivot;
@@ -151,7 +151,7 @@ test('moving a member to unassigned clears their seat', function () {
     join_ensemble($member, $ensemble, null, 1, 'A');
 
     $this->actingAs(make_user(UserRole::Admin))
-        ->post(route('ensembles.seating-plan.update', $ensemble), [
+        ->put(route('ensembles.seating-plan.update', $ensemble), [
             'seating_plan' => json_encode([
                 'unassigned' => [['id' => $member->id]],
             ]),
@@ -176,7 +176,7 @@ test('the seating plan pdf downloads for authorised users', function () {
     join_ensemble($member, $ensemble, null, 1, 'A');
 
     $response = $this->actingAs(make_user(UserRole::Admin))
-        ->get(route('seating-plan.download', ['ensemble' => $ensemble, 'termDate' => $termDate->id]));
+        ->get(route('ensembles.seating-plan.download', ['ensemble' => $ensemble, 'termDate' => $termDate->id]));
 
     $response->assertOk();
     $response->assertHeader('content-type', 'application/pdf');
@@ -194,7 +194,7 @@ test('the seating plan pdf is forbidden without permission to view the ensemble'
     $member = make_user(UserRole::Member);
 
     $this->actingAs($member)
-        ->get(route('seating-plan.download', ['ensemble' => $ensemble, 'termDate' => $termDate->id]))
+        ->get(route('ensembles.seating-plan.download', ['ensemble' => $ensemble, 'termDate' => $termDate->id]))
         ->assertForbidden();
 });
 

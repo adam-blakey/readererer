@@ -59,7 +59,7 @@
         $subject = null;
 
         // Special-case mappings
-        if ($route === 'attendance.poll') {
+        if ($route === 'attendance.poll.show') {
             ;
         }
         elseif (Str::startsWith($route, 'setupgroup')) {

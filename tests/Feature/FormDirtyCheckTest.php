@@ -56,7 +56,7 @@ test('the attendance poll and register forms opt into the change check', functio
     join_ensemble($moderator, $ensemble);
 
     $this->actingAs($moderator)
-        ->get(route('attendance.poll', ['ensemble' => $ensemble->slug, 'term' => $term->slug]))
+        ->get(route('attendance.poll.show', ['ensemble' => $ensemble->slug, 'term' => $term->slug]))
         ->assertOk()
         ->assertSee('data-dirty-check', false);
 

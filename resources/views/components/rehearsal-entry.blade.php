@@ -21,7 +21,7 @@
                     @php
                         $suffix = $name_the_ensemble ? ': ' . $ensemble->name : '';
                     @endphp
-                    <x-a class="btn btn-sm" href="{{ route('attendance.poll', ['ensemble' => $ensemble, 'term' => $term_date->term]) }}">
+                    <x-a class="btn btn-sm" href="{{ route('attendance.poll.show', ['ensemble' => $ensemble, 'term' => $term_date->term]) }}">
                         <x-icon name="square-check" />
                         {{ __('Poll') . $suffix }}
                     </x-a>

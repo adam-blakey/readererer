@@ -79,7 +79,7 @@ The poll records what members said they *would* do and is append-only; the regis
 `User` and `Ensemble` use the `HasImage` trait: `image` holds either an external URL (seeders) or a path on the `public` disk, so views read `$model->image_url`. Edit forms post as `multipart/form-data`, render `<x-forms.image-upload>` and pass the file and "remove" checkbox to `applyImageInput()`. Saving deletes the file an image replaced, because the servers run no scheduler to sweep orphans.
 
 ### Seating plans & PDFs
-`SeatingPlanController` edits per-ensemble seating (seat_row/seat_column stored on the `user_ensemble` pivot). PDF output uses `barryvdh/laravel-dompdf` (`SeatingPlanPdfController`, `seating-plan.download` route).
+`SeatingPlanController` edits per-ensemble seating (seat_row/seat_column stored on the `user_ensemble` pivot). PDF output uses `barryvdh/laravel-dompdf` (`SeatingPlanPdfController`, `ensembles.seating-plan.download` route).
 
 ### Key domain relationships
 - `Term` hasMany `TermDate`; a `TermDate` with `concert_ensemble_id = null` is a rehearsal, otherwise it's that ensemble's concert (see `ShowEnsemble` trait). A term's `earliest_date`/`latest_date` are accessors over its dates, not columns, so they cannot be used in queries.

@@ -69,9 +69,9 @@ $auto_entity('setupgroups', 'Setup groups', 'New setup group');
 $auto_entity('terms', 'Terms', 'New term');
 $auto_entity('users', 'Users', 'New user');
 
-Breadcrumbs::for('ensembles.members', function (BreadcrumbTrail $trail, Ensemble $ensemble) {
+Breadcrumbs::for('ensembles.members.index', function (BreadcrumbTrail $trail, Ensemble $ensemble) {
     $trail->parent('ensembles.show', $ensemble);
-    $trail->push(__('Members'), route('ensembles.members', $ensemble));
+    $trail->push(__('Members'), route('ensembles.members.index', $ensemble));
 });
 
 Breadcrumbs::for('ensembles.seating-plan.show', function (BreadcrumbTrail $trail, Ensemble $ensemble) {
@@ -84,9 +84,9 @@ Breadcrumbs::for('attendance.index', function (BreadcrumbTrail $trail) {
     $trail->push(__('Attendance updates'), route('attendance.index'));
 });
 
-Breadcrumbs::for('attendance.poll', function (BreadcrumbTrail $trail, Ensemble $ensemble, Term $term) {
+Breadcrumbs::for('attendance.poll.show', function (BreadcrumbTrail $trail, Ensemble $ensemble, Term $term) {
     $trail->parent('attendance.index');
-    $trail->push($ensemble->name.': '.$term->name, route('attendance.poll', [$ensemble, $term]));
+    $trail->push($ensemble->name.': '.$term->name, route('attendance.poll.show', [$ensemble, $term]));
 });
 
 Breadcrumbs::for('attendance.register.index', function (BreadcrumbTrail $trail) {

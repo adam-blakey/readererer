@@ -291,7 +291,7 @@ test('a user can be added to an ensemble from the edit page', function () {
     $instrumentFamily = make_instrument_family('Brass');
 
     $this->actingAs(make_user(UserRole::Admin))
-        ->post(route('users.ensembles.attach', $user), [
+        ->post(route('users.ensembles.store', $user), [
             'ensemble_id' => $ensemble->id,
             'instrument_family_id' => $instrumentFamily->id,
             'seat_row' => 'B',
@@ -312,7 +312,7 @@ test('adding a user to a seating-plan-disabled ensemble from the edit page ignor
     $instrumentFamily = make_instrument_family('Brass');
 
     $this->actingAs(make_user(UserRole::Admin))
-        ->post(route('users.ensembles.attach', $user), [
+        ->post(route('users.ensembles.store', $user), [
             'ensemble_id' => $ensemble->id,
             'instrument_family_id' => $instrumentFamily->id,
             'seat_row' => 'B',
@@ -333,7 +333,7 @@ test('adding a user to an ensemble they already belong to does not duplicate the
     join_ensemble($user, $ensemble, $instrumentFamily);
 
     $this->actingAs(make_user(UserRole::Admin))
-        ->post(route('users.ensembles.attach', $user), [
+        ->post(route('users.ensembles.store', $user), [
             'ensemble_id' => $ensemble->id,
             'instrument_family_id' => $instrumentFamily->id,
         ])
@@ -346,7 +346,7 @@ test('adding a user to an ensemble validates the input', function () {
     $user = make_user(UserRole::Member);
 
     $this->actingAs(make_user(UserRole::Admin))
-        ->post(route('users.ensembles.attach', $user), [
+        ->post(route('users.ensembles.store', $user), [
             'ensemble_id' => 999999,
             'instrument_family_id' => 999999,
         ])
@@ -359,7 +359,7 @@ test('a user can be removed from an ensemble from the edit page', function () {
     join_ensemble($user, $ensemble, make_instrument_family('Percussion'));
 
     $this->actingAs(make_user(UserRole::Admin))
-        ->delete(route('users.ensembles.detach', ['user' => $user, 'ensemble' => $ensemble]))
+        ->delete(route('users.ensembles.destroy', ['user' => $user, 'ensemble' => $ensemble]))
         ->assertRedirect();
 
     expect($user->fresh()->ensembles->contains('id', $ensemble->id))->toBeFalse();
@@ -376,7 +376,7 @@ test('ensemble logins and members cannot manage users', function (UserRole $role
     $this->actingAs($actor)->post(route('users.store'), $payload)->assertForbidden();
     $this->actingAs($actor)->patch(route('users.update', $actor), $payload)->assertForbidden();
     $this->actingAs($actor)->delete(route('users.destroy', $target))->assertForbidden();
-    $this->actingAs($actor)->delete(route('users.ensembles.detach', [$target, $ensemble]))->assertForbidden();
+    $this->actingAs($actor)->delete(route('users.ensembles.destroy', [$target, $ensemble]))->assertForbidden();
 
     expect($actor->fresh()->role)->toBe($role);
     expect($target->fresh()->trashed())->toBeFalse();

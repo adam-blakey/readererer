@@ -220,6 +220,12 @@ document.addEventListener('DOMContentLoaded', function () {
         csrfInput.value = csrfToken;
         form.appendChild(csrfInput);
 
+        const methodInput = document.createElement('input');
+        methodInput.type = 'hidden';
+        methodInput.name = '_method';
+        methodInput.value = 'PUT';
+        form.appendChild(methodInput);
+
         const dataInput = document.createElement('input');
         dataInput.type = 'hidden';
         dataInput.name = 'seating_plan';

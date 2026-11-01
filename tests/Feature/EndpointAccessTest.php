@@ -27,7 +27,7 @@ test('the dashboard is available to every authenticated role', function (UserRol
 
 test('resource indexes redirect guests to the login page', function (string $uri) {
     $this->get($uri)->assertRedirect('/login');
-})->with(['/composers', '/ensembles', '/pieces', '/setlists', '/terms', '/users', '/setupgroups']);
+})->with(['/composers', '/ensembles', '/pieces', '/setlists', '/terms', '/users', '/setup-groups']);
 
 test('composer, piece and setlist indexes are forbidden for every role', function (string $uri, UserRole $role) {
     // The Composer, Piece and Setlist policies currently deny viewAny to everyone.
@@ -43,7 +43,7 @@ test('the ensembles index is admin only', function () {
 test('term, user and setup group indexes require moderator or above', function (string $uri) {
     $this->actingAs(make_user(UserRole::Member))->get($uri)->assertForbidden();
     $this->actingAs(make_user(UserRole::Moderator))->get($uri)->assertOk();
-})->with(['/terms', '/users', '/setupgroups']);
+})->with(['/terms', '/users', '/setup-groups']);
 
 test('members cannot change terms, setup groups or ensemble membership', function () {
     $member = make_user(UserRole::Member);
@@ -56,8 +56,8 @@ test('members cannot change terms, setup groups or ensemble membership', functio
     $this->actingAs($member)->post(route('terms.store'), ['name' => 'New', 'slug' => 'new'])->assertForbidden();
     $this->actingAs($member)->delete(route('terms.destroy', $term))->assertForbidden();
     $this->actingAs($member)->delete(route('setupgroups.destroy', $setupGroup))->assertForbidden();
-    $this->actingAs($member)->post(route('ensembles.remove_user', [$ensemble, $player]))->assertForbidden();
-    $this->actingAs($member)->post(route('ensembles.add_user', $ensemble), [
+    $this->actingAs($member)->delete(route('ensembles.members.destroy', [$ensemble, $player]))->assertForbidden();
+    $this->actingAs($member)->post(route('ensembles.members.store', $ensemble), [
         'user_id' => $member->id,
         'instrument_family_id' => make_instrument_family()->id,
     ])->assertForbidden();
@@ -119,7 +119,7 @@ test('the attendance poll page requires permission to view the ensemble', functi
         'start_datetime' => now()->addWeek(),
         'end_datetime' => now()->addWeek()->addHours(2),
     ]);
-    $url = route('attendance.poll', ['ensemble' => $ensemble->slug, 'term' => $term->slug]);
+    $url = route('attendance.poll.show', ['ensemble' => $ensemble->slug, 'term' => $term->slug]);
 
     $this->get($url)->assertForbidden();
 
@@ -141,7 +141,7 @@ test('the attendance poll page requires permission to view the ensemble', functi
 test('submitting the attendance poll requires permission to view the ensemble', function () {
     $ensemble = Ensemble::factory()->create();
     $term = Term::factory()->create();
-    $url = route('attendance.poll-store', ['ensemble' => $ensemble->slug, 'term' => $term->slug]);
+    $url = route('attendance.poll.store', ['ensemble' => $ensemble->slug, 'term' => $term->slug]);
 
     $this->post($url)->assertForbidden();
 
