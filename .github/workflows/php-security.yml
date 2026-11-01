@@ -19,7 +19,7 @@ jobs:
     runs-on: ubuntu-24.04
     steps:
     - name: Checkout repository
-      uses: actions/checkout@v5
+      uses: actions/checkout@v7
 
     - name: Check composer.lock for known vulnerabilities
       id: security-check
@@ -57,7 +57,7 @@ jobs:
       actions: read
     steps:
     - name: Checkout repository
-      uses: actions/checkout@v5
+      uses: actions/checkout@v7
 
     # Not psalm/psalm-github-security-scan: it is unmaintained and ships PHP 8.2, too old for these dependencies.
     - name: Setup PHP
