@@ -109,7 +109,9 @@
 						<x-name-and-role :user="Auth::user()" />
 					</a>
 					<div class="dropdown-menu dropdown-menu-end dropdown-menu-arrow">
-                        <x-a class="dropdown-item" :route="'settings.edit'">{{ __('Settings') }}</x-a>
+                        @can('edit.settings')
+                            <x-a class="dropdown-item" :route="'settings.edit'">{{ __('Settings') }}</x-a>
+                        @endcan
                         <x-a class="dropdown-item" :route="'password.edit'">{{ __('Change password') }}</x-a>
 						<form action="{{ route('logout') }}" method="POST">
 							@csrf

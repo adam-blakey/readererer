@@ -159,7 +159,9 @@ test('submitting the attendance poll requires permission to view the ensemble', 
     $this->actingAs(make_user(UserRole::Admin))->post($url)->assertRedirect();
 });
 
-test('the settings page requires authentication', function () {
+test('the settings page is for admins only', function () {
     $this->get('/settings')->assertRedirect('/login');
-    $this->actingAs(make_user())->get('/settings')->assertOk();
+    $this->actingAs(make_user(UserRole::Moderator))->get('/settings')->assertForbidden();
+    $this->actingAs(make_user(UserRole::Moderator))->put('/settings')->assertForbidden();
+    $this->actingAs(make_user(UserRole::Admin))->get('/settings')->assertOk();
 });

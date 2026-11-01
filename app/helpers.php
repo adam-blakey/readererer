@@ -21,6 +21,28 @@ function logo_url(): string
     return filled($logo) ? asset($logo) : Vite::asset('resources/images/readererer-long-logo.svg');
 }
 
+function apply_terminology(string $line, array $terminology): string
+{
+    $terminology = array_filter($terminology, 'filled');
+
+    if ($terminology === []) {
+        return $line;
+    }
+
+    $words = implode('|', array_map(fn ($word) => preg_quote($word, '/'), array_keys($terminology)));
+
+    // The lookbehind skips :placeholders that share a word's name.
+    return preg_replace_callback("/(?<![:\\w])($words)(?!\\w)/i", function ($match) use ($terminology) {
+        $replacement = $terminology[Str::lower($match[0])];
+
+        return match (true) {
+            $match[0] === Str::upper($match[0]) => Str::upper($replacement),
+            ctype_upper($match[0][0]) => Str::ucfirst($replacement),
+            default => $replacement,
+        };
+    }, $line);
+}
+
 function get_route_name_from_model($model, $route = 'show')
 {
     $class_name = get_class_name_from_model($model);
