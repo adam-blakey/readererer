@@ -21,3 +21,5 @@ yarn-error.log
 /storage/debugbar
 /VERSION
 /tests/Browser/Screenshots
+/error_log
+/public/error_log
