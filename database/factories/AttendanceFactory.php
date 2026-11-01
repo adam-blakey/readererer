@@ -18,20 +18,20 @@ class AttendanceFactory extends Factory
     /** @return array<string, mixed> */
     public function definition(): array
     {
-        $ensemble = Ensemble::inRandomOrder()->first();
-        $user = User::inRandomOrder()
-            ->where('role', '!=', UserRole::Ensemble)
-            ->whereHas('ensembles', function ($query) use ($ensemble) {
-                $query->where('ensemble_id', $ensemble->id);
-            })
-            ->first();
+        $ensemble = Ensemble::inRandomOrder()->first() ?? Ensemble::factory()->create();
+        $user = $ensemble->users()->where('role', '!=', UserRole::Ensemble)->inRandomOrder()->first();
+
+        if ($user === null) {
+            $user = User::factory()->create(['role' => UserRole::Member]);
+            $user->ensembles()->attach($ensemble);
+        }
 
         return [
             'status' => $this->faker->randomElement(AttendanceStatus::cases()),
-            'edit_ip' => $this->faker->ipv4,
+            'edit_ip' => $this->faker->ipv4(),
             'user_id' => $user->id,
-            'edit_user_id' => User::inRandomOrder()->first(),
-            'term_date_id' => TermDate::inRandomOrder()->first(),
+            'edit_user_id' => $user->id,
+            'term_date_id' => (TermDate::inRandomOrder()->first() ?? TermDate::factory()->create())->id,
             'ensemble_id' => $ensemble->id,
         ];
     }
