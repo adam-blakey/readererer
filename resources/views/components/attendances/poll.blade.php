@@ -54,7 +54,7 @@
 @endif
 
 <div class="table-responsive">
-	<form action="{{ route('attendance.poll-store', ['ensemble' => $ensemble, 'term' => $term]) }}" method="POST" data-dirty-check>
+	<form action="{{ route('attendance.poll.store', ['ensemble' => $ensemble, 'term' => $term]) }}" method="POST" data-dirty-check>
 		@csrf
 		<table class="table table-vcenter card-table text-nowrap datatable">
 			<tbody>

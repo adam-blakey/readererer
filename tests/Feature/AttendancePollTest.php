@@ -29,7 +29,7 @@ test('the poll lists ensemble members who have an instrument family', function (
     join_ensemble($outsider, Ensemble::factory()->create());
 
     $response = $this->actingAs(make_user(UserRole::Admin))
-        ->get(route('attendance.poll', ['ensemble' => $ensemble->slug, 'term' => $term->slug]));
+        ->get(route('attendance.poll.show', ['ensemble' => $ensemble->slug, 'term' => $term->slug]));
 
     $response->assertOk();
     expect($response->viewData('members')->pluck('id')->all())->toBe([$playingMember->id]);
@@ -50,11 +50,11 @@ test('submitting the poll records attendance for each member and term date', fun
     $admin = make_user(UserRole::Admin);
 
     $response = $this->actingAs($admin)->post(
-        route('attendance.poll-store', ['ensemble' => $ensemble->slug, 'term' => $term->slug]),
+        route('attendance.poll.store', ['ensemble' => $ensemble->slug, 'term' => $term->slug]),
         ["status-t{$termDate->id}m{$member->id}" => AttendanceStatus::Attending->value]
     );
 
-    $response->assertRedirect(route('attendance.poll', ['ensemble' => $ensemble, 'term' => $term]));
+    $response->assertRedirect(route('attendance.poll.show', ['ensemble' => $ensemble, 'term' => $term]));
 
     $attendance = Attendance::first();
     expect($attendance)->not->toBeNull();
@@ -81,7 +81,7 @@ test('a poll submission can update several members at once', function () {
     join_ensemble($memberTwo, $ensemble);
 
     $this->actingAs(make_user(UserRole::Admin))->post(
-        route('attendance.poll-store', ['ensemble' => $ensemble->slug, 'term' => $term->slug]),
+        route('attendance.poll.store', ['ensemble' => $ensemble->slug, 'term' => $term->slug]),
         [
             "status-t{$termDate->id}m{$memberOne->id}" => AttendanceStatus::Attending->value,
             "status-t{$termDate->id}m{$memberTwo->id}" => AttendanceStatus::NotAttending->value,
@@ -99,11 +99,11 @@ test('the poll page is not found for unknown ensembles or terms', function () {
     $admin = make_user(UserRole::Admin);
 
     $this->actingAs($admin)
-        ->get(route('attendance.poll', ['ensemble' => 'no-such-ensemble', 'term' => $term->slug]))
+        ->get(route('attendance.poll.show', ['ensemble' => 'no-such-ensemble', 'term' => $term->slug]))
         ->assertNotFound();
 
     $this->actingAs($admin)
-        ->get(route('attendance.poll', ['ensemble' => $ensemble->slug, 'term' => 'no-such-term']))
+        ->get(route('attendance.poll.show', ['ensemble' => $ensemble->slug, 'term' => 'no-such-term']))
         ->assertNotFound();
 });
 
@@ -112,7 +112,7 @@ test('an empty poll submission records nothing', function () {
     $term = Term::factory()->create();
 
     $this->actingAs(make_user(UserRole::Admin))
-        ->post(route('attendance.poll-store', ['ensemble' => $ensemble->slug, 'term' => $term->slug]), [])
+        ->post(route('attendance.poll.store', ['ensemble' => $ensemble->slug, 'term' => $term->slug]), [])
         ->assertRedirect();
 
     expect(Attendance::count())->toBe(0);
@@ -130,7 +130,7 @@ test('repeated poll submissions append new attendance records rather than replac
     $member = make_user(UserRole::Member);
     join_ensemble($member, $ensemble);
 
-    $url = route('attendance.poll-store', ['ensemble' => $ensemble->slug, 'term' => $term->slug]);
+    $url = route('attendance.poll.store', ['ensemble' => $ensemble->slug, 'term' => $term->slug]);
     $admin = make_user(UserRole::Admin);
 
     $this->actingAs($admin)->post($url, ["status-t{$termDate->id}m{$member->id}" => AttendanceStatus::Attending->value]);
@@ -168,7 +168,7 @@ test('a poll submission ignores members, dates and statuses that do not belong t
     join_ensemble($outsider, $otherEnsemble);
 
     $this->actingAs(make_user(UserRole::Admin))->post(
-        route('attendance.poll-store', ['ensemble' => $ensemble->slug, 'term' => $term->slug]),
+        route('attendance.poll.store', ['ensemble' => $ensemble->slug, 'term' => $term->slug]),
         [
             "status-t{$rehearsal->id}m{$outsider->id}" => AttendanceStatus::Attending->value,
             "status-t{$otherTermDate->id}m{$member->id}" => AttendanceStatus::Attending->value,
@@ -219,7 +219,7 @@ test('the poll and the register agree on a member\'s latest answer for their ens
         'updated_at' => $sameSecond->copy()->addMinute(),
     ]);
 
-    $poll = $this->actingAs($admin)->get(route('attendance.poll', ['ensemble' => $orchestra->slug, 'term' => $term->slug]));
+    $poll = $this->actingAs($admin)->get(route('attendance.poll.show', ['ensemble' => $orchestra->slug, 'term' => $term->slug]));
     $totals = member_status_totals($poll->viewData('members'), $rehearsal, $orchestra);
 
     $register = $this->actingAs($admin)->get(route('attendance.register.show', ['ensemble' => $orchestra->slug, 'termDate' => $rehearsal]));
@@ -242,7 +242,7 @@ test('the poll runs the same number of queries however many members there are', 
         'end_datetime' => now()->addWeeks($week)->addHours(2),
     ]));
     $admin = make_user(UserRole::Admin);
-    $url = route('attendance.poll', ['ensemble' => $ensemble->slug, 'term' => $term->slug]);
+    $url = route('attendance.poll.show', ['ensemble' => $ensemble->slug, 'term' => $term->slug]);
 
     $countQueries = function () use ($admin, $url) {
         DB::flushQueryLog();
@@ -289,7 +289,7 @@ test('repeating poll headings start again for each instrument family', function 
     }
 
     $html = $this->actingAs(make_user(UserRole::Admin))
-        ->get(route('attendance.poll', ['ensemble' => $ensemble->slug, 'term' => $term->slug, 'sortby' => 'instrument_family']))
+        ->get(route('attendance.poll.show', ['ensemble' => $ensemble->slug, 'term' => $term->slug, 'sortby' => 'instrument_family']))
         ->assertOk()
         ->getContent();
 

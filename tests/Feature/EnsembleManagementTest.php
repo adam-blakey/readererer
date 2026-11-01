@@ -131,7 +131,7 @@ test('a user can be added to an ensemble with an instrument family and seat', fu
     $instrumentFamily = make_instrument_family('Percussion');
 
     $this->actingAs(make_user(UserRole::Admin))
-        ->post(route('ensembles.add_user', $ensemble), [
+        ->post(route('ensembles.members.store', $ensemble), [
             'user_id' => $member->id,
             'instrument_family_id' => $instrumentFamily->id,
             'seat_row' => '2',
@@ -151,7 +151,7 @@ test('adding a user to a seating-plan-disabled ensemble ignores the seat', funct
     $instrumentFamily = make_instrument_family('Percussion');
 
     $this->actingAs(make_user(UserRole::Admin))
-        ->post(route('ensembles.add_user', $ensemble), [
+        ->post(route('ensembles.members.store', $ensemble), [
             'user_id' => $member->id,
             'instrument_family_id' => $instrumentFamily->id,
             'seat_row' => '2',
@@ -214,7 +214,7 @@ test('adding a user to an ensemble validates the user and instrument family', fu
     $ensemble = Ensemble::factory()->create();
 
     $this->actingAs(make_user(UserRole::Admin))
-        ->post(route('ensembles.add_user', $ensemble), [
+        ->post(route('ensembles.members.store', $ensemble), [
             'user_id' => 999999,
             'instrument_family_id' => 999999,
         ])
@@ -229,7 +229,7 @@ test('a user can be removed from an ensemble', function () {
     join_ensemble($member, $ensemble);
 
     $this->actingAs(make_user(UserRole::Admin))
-        ->post(route('ensembles.remove_user', [$ensemble, $member]))
+        ->delete(route('ensembles.members.destroy', [$ensemble, $member]))
         ->assertRedirect();
 
     expect(UserEnsemble::where('user_id', $member->id)->where('ensemble_id', $ensemble->id)->exists())
@@ -246,7 +246,7 @@ test('guests cannot add users to an ensemble', function () {
     $ensemble = Ensemble::factory()->create();
     $member = make_user(UserRole::Member);
 
-    $this->post(route('ensembles.add_user', $ensemble), [
+    $this->post(route('ensembles.members.store', $ensemble), [
         'user_id' => $member->id,
         'instrument_family_id' => make_instrument_family()->id,
     ])->assertRedirect('/login');
@@ -259,7 +259,7 @@ test('removing a user who is not in the ensemble returns not found', function ()
     $member = make_user(UserRole::Member);
 
     $this->actingAs(make_user(UserRole::Admin))
-        ->post(route('ensembles.remove_user', [$ensemble, $member]))
+        ->delete(route('ensembles.members.destroy', [$ensemble, $member]))
         ->assertNotFound();
 });
 
@@ -321,7 +321,7 @@ test('the ensemble members table lists members with their instrument and seat', 
     join_ensemble($member, $ensemble, $instrumentFamily, '2', 'C');
 
     $this->actingAs(make_user(UserRole::Moderator))
-        ->get(route('ensembles.members', $ensemble))
+        ->get(route('ensembles.members.index', $ensemble))
         ->assertOk()
         ->assertSee('Ada Lovelace')
         ->assertSee('Strings')
@@ -334,7 +334,7 @@ test('a member of an ensemble can view its members table', function () {
     join_ensemble($member, $ensemble);
 
     $this->actingAs($member)
-        ->get(route('ensembles.members', $ensemble))
+        ->get(route('ensembles.members.index', $ensemble))
         ->assertOk();
 });
 
@@ -343,7 +343,7 @@ test('a non-member without a management role cannot view an ensemble members tab
     $outsider = make_user(UserRole::Member);
 
     $this->actingAs($outsider)
-        ->get(route('ensembles.members', $ensemble))
+        ->get(route('ensembles.members.index', $ensemble))
         ->assertForbidden();
 });
 
@@ -353,7 +353,7 @@ test('the ensemble members table hides removal controls from ordinary members', 
     join_ensemble($member, $ensemble);
 
     $this->actingAs($member)
-        ->get(route('ensembles.members', $ensemble))
+        ->get(route('ensembles.members.index', $ensemble))
         ->assertOk()
         ->assertDontSee('Add user');
 });

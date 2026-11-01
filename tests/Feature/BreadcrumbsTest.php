@@ -15,7 +15,7 @@ test('every named GET page has a breadcrumb trail', function () {
         'password.confirm',
         'verification.notice',
         'verification.verify',
-        'seating-plan.download',
+        'ensembles.seating-plan.download',
         'health',
     ];
 
@@ -50,7 +50,7 @@ test('a record sits under its index, and its edit form under the record', functi
 test('an ensemble page nests under the ensemble it belongs to', function () {
     $ensemble = Ensemble::factory()->create(['name' => 'Concert Band']);
 
-    expect(Breadcrumbs::generate('ensembles.members', $ensemble)->pluck('title')->all())
+    expect(Breadcrumbs::generate('ensembles.members.index', $ensemble)->pluck('title')->all())
         ->toBe(['Home', 'Ensembles', 'Concert Band', 'Members'])
         ->and(Breadcrumbs::generate('ensembles.seating-plan.show', $ensemble)->pluck('title')->all())
         ->toBe(['Home', 'Ensembles', 'Concert Band', 'Seating plan']);
@@ -62,7 +62,7 @@ test('a poll and a register hang off their own index', function () {
     $term = Term::factory()->create(['name' => 'Autumn 2026']);
     $term_date = make_term_date($term);
 
-    expect(Breadcrumbs::generate('attendance.poll', $ensemble, $term)->pluck('title')->all())
+    expect(Breadcrumbs::generate('attendance.poll.show', $ensemble, $term)->pluck('title')->all())
         ->toBe(['Home', 'Attendance updates', 'Concert Band: Autumn 2026'])
         ->and(Breadcrumbs::generate('attendance.register.show', $ensemble, $term_date)->pluck('title')->all())
         ->toBe(['Home', 'Attendance registers', 'Concert Band: '.$term_date->date_label]);

@@ -27,10 +27,10 @@ test('a shared ensemble login can open its own poll but not another ensemble\'s'
 
     $this->actingAs($ensembleLogin);
 
-    visit(route('attendance.poll', ['ensemble' => $ownEnsemble, 'term' => $term], absolute: false))
+    visit(route('attendance.poll.show', ['ensemble' => $ownEnsemble, 'term' => $term], absolute: false))
         ->assertSee("{$ownEnsemble->name}: {$term->name}")
         ->assertDontSee('Forbidden');
 
-    visit(route('attendance.poll', ['ensemble' => $otherEnsemble, 'term' => $term], absolute: false))
+    visit(route('attendance.poll.show', ['ensemble' => $otherEnsemble, 'term' => $term], absolute: false))
         ->assertSee('Forbidden');
 });
