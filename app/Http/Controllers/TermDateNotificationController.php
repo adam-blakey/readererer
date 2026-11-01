@@ -15,10 +15,7 @@ class TermDateNotificationController extends Controller
 {
     public function __construct(private EmailDispatcher $dispatcher) {}
 
-    /**
-     * Email the current attendance list for a term date to the relevant
-     * ensemble admins.
-     */
+    /** Email the attendance list to the concert ensemble's admins, or every ensemble's admins for a rehearsal. */
     public function sendAttendanceList(TermDate $termDate): RedirectResponse
     {
         $this->authorize('sendNotifications', $termDate);
@@ -34,10 +31,7 @@ class TermDateNotificationController extends Controller
         return back()->with('status', trans_choice('Attendance list sent to :count recipient.|Attendance list sent to :count recipients.', $recipients->count()));
     }
 
-    /**
-     * Email a setup reminder to the members and van drivers of the term
-     * date's setup group.
-     */
+    /** Email a setup reminder to the members and van drivers of the date's setup group. */
     public function sendSetupReminder(TermDate $termDate): RedirectResponse
     {
         $this->authorize('sendNotifications', $termDate);
@@ -63,10 +57,7 @@ class TermDateNotificationController extends Controller
         return back()->with('status', trans_choice('Setup reminder sent to :count recipient.|Setup reminder sent to :count recipients.', $recipients->count()));
     }
 
-    /**
-     * Email a reminder to the van driver responsible for the term date
-     * (explicitly assigned, or inferred from the setup group's rotation).
-     */
+    /** Email the date's van driver: the one assigned, or inferred from the setup group's rotation. */
     public function sendVanDriverReminder(TermDate $termDate): RedirectResponse
     {
         $this->authorize('sendNotifications', $termDate);
@@ -86,11 +77,6 @@ class TermDateNotificationController extends Controller
         return back()->with('status', __('Van driver reminder sent to :name.', ['name' => $driver->name]));
     }
 
-    /**
-     * The admins who should receive the attendance list: the concert
-     * ensemble's admins for a concert, or every ensemble's admins for a
-     * shared rehearsal.
-     */
     private function attendanceListRecipients(TermDate $termDate): Collection
     {
         if ($termDate->concert_ensemble_id !== null) {

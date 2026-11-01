@@ -1,15 +1,8 @@
-// Greys out a form's save buttons until something on the form has actually
-// changed.
-//
-// Opt a form in with data-dirty-check: its submit buttons start disabled and
-// are enabled as soon as the form's values differ from the ones the page was
-// rendered with. Buttons placed outside the form and wired up with the
-// form="..." attribute are picked up too; an individual button can opt out
-// with data-dirty-ignore.
+// Disables the submit buttons of forms marked data-dirty-check until their values
+// change; a button can opt out with data-dirty-ignore.
 
 const FORM_SELECTOR = 'form[data-dirty-check]';
 
-// Laravel's own bookkeeping fields never count as a change.
 const IGNORED_FIELDS = ['_token', '_method'];
 
 // Files can't be serialised, so identify them by what a change would alter.
@@ -17,7 +10,6 @@ function fieldValue(value) {
     return value instanceof File ? `${value.name}:${value.size}:${value.lastModified}` : value;
 }
 
-// A snapshot of everything the form would submit right now.
 function signature(form) {
     const entries = [];
 
@@ -40,13 +32,10 @@ function isSubmitButton(element) {
         : element.type === 'submit' || element.type === 'image';
 }
 
-// Buttons inside the form, plus any outside it that name it with form="...".
 function submitButtons(form) {
     const candidates = Array.from(form.querySelectorAll('button, input'));
 
-    // Read the id from the attribute: a form's own named controls shadow its
-    // properties, so a field called "id" (as the term and ensemble forms have)
-    // would otherwise hand back that input instead of the form's id.
+    // Not form.id: a field named "id" shadows the form's own property.
     const id = form.getAttribute('id');
 
     if (id) {
@@ -89,9 +78,7 @@ export function watchForm(form) {
 
     const baseline = signature(form);
 
-    // A form re-rendered after a failed validation already holds the user's
-    // unsaved input, so it starts dirty — otherwise their changes would be
-    // stuck behind a greyed-out button.
+    // A form re-rendered after failed validation holds unsaved input, so it starts dirty.
     const startsDirty = form.querySelector('.is-invalid, .invalid-feedback') !== null;
 
     function refresh() {
@@ -100,8 +87,7 @@ export function watchForm(form) {
         submitButtons(form).forEach((button) => setDisabled(button, !dirty));
     }
 
-    // Listened for on the document so that fields associated with the form
-    // from outside it (form="...") are covered as well as the ones inside.
+    // On the document, to catch fields outside the form that name it with form="...".
     function handle(event) {
         if (event.target.form === form || form.contains(event.target)) {
             refresh();
@@ -111,9 +97,7 @@ export function watchForm(form) {
     document.addEventListener('input', handle);
     document.addEventListener('change', handle);
 
-    // Rows and fields can be added or removed after load (term dates, the
-    // attendance poll's hidden status inputs), which changes what the form
-    // would submit without firing an input event.
+    // Rows added or removed after load change what the form submits without an input event.
     new MutationObserver(refresh).observe(form, { childList: true, subtree: true });
 
     refresh();

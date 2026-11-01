@@ -9,27 +9,22 @@
     $required = (bool) $data['required'];
     $multiple = $type === 'class' && $data['select_multiple'];
 
-    // Multi-selects post an array, so the control's name has to say so.
     $input_name = $multiple ? $name.'[]' : $name;
     $id = 'field-'.$name;
 
     $value = old($name, $data['value'] ?? null);
 
-    // The colour picker is a swatch grid and the boolean switch is a control of
-    // its own shape; neither sits inside the input-icon wrapper the rest use.
+    // The colour picker and the switch don't fit inside the input-icon wrapper.
     $is_color = $type === 'color';
     $show_icon = ! $is_color && $type !== 'boolean';
 
-    // A textarea or a multi-select is taller than a single row, so the icon has
-    // to sit against the first row rather than the middle of the control.
+    // Taller controls keep the icon against their first row.
     $icon_at_top = $type === 'textarea' || $multiple;
 
     $control_classes = ['form-control', 'is-invalid' => $has_error];
     $select_classes = ['form-select', 'is-invalid' => $has_error];
 
-    // Relationship selects post ids. The value reaching them is a model, a
-    // collection of models, or — after a failed validation pass — raw ids from
-    // the old input, so normalise all three to a collection of id strings.
+    // The value may be a model, a collection of models, or raw ids from old input.
     $selected_ids = collect();
 
     if ($type === 'class') {
@@ -39,8 +34,7 @@
             ->map(fn ($id) => (string) $id);
     }
 
-    // Date inputs only accept their own formats, and the value may arrive as a
-    // Carbon instance (a date cast), a database string, or old input.
+    // The value may be a Carbon instance, a database string, or old input.
     $date_value = null;
 
     if ($type === 'date' || $type === 'datetime') {
@@ -117,8 +111,7 @@
                 @break
             @case('enum')
                 @php
-                    // The value may be an enum instance off the model, or the raw
-                    // backing value coming back from old input.
+                    // An enum instance from the model, or a raw backing value from old input.
                     $selected = $value ?: $data['default_option'];
                     $selected = $selected instanceof \UnitEnum ? enum_case_value($selected) : $selected;
                 @endphp

@@ -4,13 +4,7 @@ use App\Models\Ensemble;
 use App\Models\SetupGroup;
 use App\Models\Term;
 
-/*
- * Components that show an abbreviation — a bare setup-group week number, a
- * stack of date fragments, a pair of initials — carry hover text spelling out
- * what they mean. Tabler initialises anything marked
- * data-bs-toggle="tooltip" on page load, and Bootstrap falls back to the
- * title attribute, so both have to be on the element.
- */
+/* Tabler initialises data-bs-toggle="tooltip" on load and Bootstrap reads the title attribute, so hover text needs both. */
 
 test('the setup group badge says which group it is on hover', function () {
     $setupGroup = SetupGroup::factory()->create([

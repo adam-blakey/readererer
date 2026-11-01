@@ -125,7 +125,7 @@ test('an enum column without a database default has no default option', function
 });
 
 test('enum casts are picked up from a $casts property as well as a casts() method', function () {
-    // EmailLog declares its casts as a property rather than overriding casts().
+    // EmailLog declares a $casts property rather than a casts() method.
     $fields = get_create_fields(new EmailLog);
 
     expect($fields['status']['type'])->toBe('enum');

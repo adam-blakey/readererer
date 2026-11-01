@@ -121,7 +121,6 @@ class EnsembleController extends Controller
             'seat_column' => 'nullable|string|max:10',
         ]);
 
-        // A seat is only meaningful for ensembles that run a seating plan.
         $seat = $ensemble->seating_plan_enabled
             ? ['seat_row' => $validated['seat_row'] ?? null, 'seat_column' => $validated['seat_column'] ?? null]
             : ['seat_row' => null, 'seat_column' => null];

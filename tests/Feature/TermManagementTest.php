@@ -140,7 +140,6 @@ test('updating a term rejects term dates with missing or invalid fields', functi
         ])
         ->assertSessionHasErrors('term_dates.0.ensemble_id');
 
-    // Nothing changed on either failed attempt.
     $term->refresh();
     expect($term->name)->toBe('Original');
     expect($term->term_dates->pluck('id')->all())->toBe([$existing->id]);
@@ -195,7 +194,6 @@ test('the term show page lists its dates in a table', function () {
     $setupGroup = SetupGroup::factory()->create();
     $term = Term::factory()->create();
 
-    // A concert date with a setup group, and a plain rehearsal.
     TermDate::forceCreate([
         'term_id' => $term->id,
         'start_datetime' => '2026-05-01 19:00:00',

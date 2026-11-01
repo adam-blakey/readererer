@@ -3,20 +3,11 @@
 use App\View\Components\Icon;
 
 /*
- * These tests guard against the whole-app "no icons anywhere" regression:
- * <x-icon> reads SVGs from public/build/icons/<name>.svg, which are put there
- * by the vite-plugin-static-copy target in vite.config.js. If that copy lands
- * the files anywhere else (e.g., nested under icons/node_modules/... as happens
- * without `rename: { stripBase: true }`), Icon::render() silently returns an
- * empty string for every icon and nothing shows.
- *
- * They require built assets, so run `npm run build` before the suite.
+ * <x-icon> reads public/build/icons/<name>.svg, copied there by vite.config.js;
+ * if the copy lands anywhere else every icon silently renders empty.
+ * Needs built assets: run `npm run build` first.
  */
 
-/**
- * A representative spread of icon names actually referenced in the app
- * (resources/views/**.blade.php via <x-icon>, and #[Icon(...)] on models).
- */
 dataset('used icon names', [
     'login',
     'logout',
@@ -44,11 +35,7 @@ test('the icon build directory is populated at the flat path the component reads
     expect(is_dir($iconsDir))->toBeTrue('public/build/icons is missing — run `npm run build`.')
         ->and(file_exists($iconsDir.'/login.svg'))
         ->toBeTrue('Expected build/icons/login.svg. If the tabler icons are nested under '
-            .'build/icons/node_modules/... the vite copy target is missing `rename: { stripBase: true }`.');
-
-    // Guards the copy destination itself: the SVGs must sit directly in
-    // build/icons, not nested under a preserved source path.
-});
+            .'build/icons/node_modules/... the vite copy target is missing `rename: { stripBase: true }`.');});
 
 test('the icon component returns an empty string for an unknown icon name', function () {
     expect(new Icon('this-icon-does-not-exist')->render())->toBe('');

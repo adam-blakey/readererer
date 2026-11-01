@@ -16,12 +16,7 @@ use Illuminate\Support\Collection;
 
 class EmailLogSeeder extends Seeder
 {
-    /**
-     * Seed a realistic email history: fully successful sends, a partial
-     * failure (one bad address in an otherwise fine batch), and a total
-     * failure (mail server unreachable), so the notifications overview has
-     * every state to show.
-     */
+    /** An email history with every state for the notifications overview: sent, partly failed and wholly failed. */
     public function run(): void
     {
         $termDates = TermDate::orderBy('start_datetime')->take(4)->get();
@@ -31,7 +26,6 @@ class EmailLogSeeder extends Seeder
             return;
         }
 
-        // A fully successful attendance list.
         $this->seedLog(
             termDate: $termDates[0],
             mailable: AttendanceListMail::class,
@@ -40,8 +34,6 @@ class EmailLogSeeder extends Seeder
             recipients: $users->take(2)->map(fn ($user) => [$user, EmailStatus::Sent, null]),
         );
 
-        // A setup reminder where one recipient's address was rejected by the
-        // receiving server, but the rest of the batch went through.
         $this->seedLog(
             termDate: $termDates[1] ?? $termDates[0],
             mailable: SetupReminderMail::class,
@@ -52,8 +44,6 @@ class EmailLogSeeder extends Seeder
                 : [$user, EmailStatus::Sent, null]),
         );
 
-        // A van driver reminder where the mail server was unreachable, so
-        // every recipient failed.
         $this->seedLog(
             termDate: $termDates[2] ?? $termDates[0],
             mailable: VanDriverReminderMail::class,
@@ -62,7 +52,6 @@ class EmailLogSeeder extends Seeder
             recipients: $users->take(1)->map(fn ($user) => [$user, EmailStatus::Failed, 'Connection could not be established with host "smtp.example.com:587": stream_socket_client(): Unable to connect (Connection refused)']),
         );
 
-        // A recent, successful "setup groups/driver changed" alert.
         $this->seedLog(
             termDate: $termDates[3] ?? $termDates[0],
             mailable: RosterChangedMail::class,

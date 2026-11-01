@@ -229,8 +229,7 @@ test('the show page for a soft-deleted user is not found', function () {
 });
 
 test('a user can be soft deleted and restored through the endpoints', function () {
-    // Regression test: User used to declare a `deleted_at` property that
-    // shadowed the Eloquent attribute, making these endpoints error.
+    // Regression: a declared `deleted_at` property shadowed the attribute and broke these endpoints.
     $user = make_user(UserRole::Member);
     $admin = make_user(UserRole::Admin);
 
@@ -251,7 +250,6 @@ test('the user edit form renders', function () {
 });
 
 test('the user edit page renders for a user with a setup group and ensembles', function () {
-    // Regression test: the edit page used to 500 for a fully populated user.
     $setupGroup = SetupGroup::factory()->create();
     $user = make_user(UserRole::Member, ['setup_group_id' => $setupGroup->id]);
     $ensemble = Ensemble::factory()->create();

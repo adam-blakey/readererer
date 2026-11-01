@@ -35,11 +35,6 @@ class AttendanceListMail extends Mailable
         );
     }
 
-    /**
-     * The members whose attendance is relevant to this date: the concert
-     * ensemble's players for a concert, or every ensemble's players for a
-     * shared rehearsal.
-     */
     private function members(): Collection
     {
         if ($this->termDate->concert_ensemble_id !== null) {
