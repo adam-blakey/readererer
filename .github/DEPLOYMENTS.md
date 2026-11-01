@@ -1,6 +1,6 @@
 # Deployments
 
-All three app environments and the static docs site are hosted on Krystal
+The app environments and the static docs site are hosted on Krystal
 and deployed by `.github/workflows/deploy.yml`, the same pipeline as the
 website repo.
 
@@ -9,9 +9,11 @@ website repo.
 | `dev`       | Pull request opened / updated, and push to `main` | `migrate:fresh --seed` each time |
 | `qa`        | Push to `main`, after `dev`                       | `migrate`                        |
 | `prod`      | Push to `main`, after `qa`                        | `migrate`                        |
-| `docs`      | Push to `main`, after `prod`                      | None (static files from `site/`) |
+| `nsw-beta`  | Push to `main`, after `qa`, alongside `prod`      | `migrate`                        |
+| `docs`      | Push to `main`, after `prod` and `nsw-beta`       | None (static files from `site/`) |
 
-The app's prod site is `readererer-prod.blakey.family`; the docs site is
+`prod` and `nsw-beta` are both production sites (`readererer-prod.blakey.family`
+and `attendance-beta.nsw.org.uk`); the docs site is
 `readererer.blakey.family`.
 
 ## How it works
@@ -29,40 +31,53 @@ The app's prod site is `readererer-prod.blakey.family`; the docs site is
    - puts the app in maintenance mode, migrates, runs `optimize`,
      `event:cache` and `queue:restart`, and brings it back up.
 
-   `prod` has no SSH, so it is deployed by cPanel's **Git™ Version Control**,
+   The production sites (`prod`, `nsw-beta`) have no SSH, so they are
+   deployed by cPanel's **Git™ Version Control**,
    driven from the runner through the cPanel API (`:2083/execute`) by
    `.github/actions/deploy-cpanel`:
-   - `VersionControl/update` pulls `main` into the cPanel clone
-     (`~/repositories/readererer`), and `VersionControlDeployment/create`
+   - `VersionControl/update` pulls `main` into the cPanel clone, which is
+     the site's folder (`~/domains/<domain>`, passed to the action as
+     `repository-root`), and `VersionControlDeployment/create`
      runs the tasks in `.cpanel.yml`. The job then polls
      `VersionControlDeployment/retrieve` until the deployment succeeds or
      fails (for up to 30 minutes).
-   - `.cpanel.yml` copies the clone to `~/readererer-build` (which keeps
+   - `.cpanel.yml` works out the site from the clone it runs in, so the same
+     file serves every site. It extracts the commit (`git archive`) into
+     `~/readererer-build/<domain>` (which keeps
      `vendor` and `node_modules` between deploys), writes `VERSION`, runs
      `composer install --no-dev --no-scripts` (the host disables
      `proc_open`, which Composer scripts need), `npm ci` and `npm run build`.
      Only then does it put the app in maintenance mode. It rsyncs the app's
      folders (`app`, `bootstrap`, `config`, `database`, `lang`, `resources`,
-     `routes`, `vendor`, `public/build`, `public/js`) into
-     `~/domains/readererer-prod.blakey.family` with deletion, which also clears
+     `routes`, `vendor`, `public/build`, `public/js`) into the site's folder
+     with deletion, which also clears
      `bootstrap/cache`, and copies the root files and `public/index.php` and
      friends. `.env`, `storage`, SQLite databases and anything else outside
      those folders are left alone. Finally it runs `package:discover`,
      `migrate`, `optimize`, `event:cache` and `queue:restart`, and brings the
      app back up.
-   - The build happens outside the clone, because cPanel refuses to deploy
-     a clone with uncommitted or untracked files.
+   - Everything the deploy adds to the site's folder (`vendor`,
+     `public/build`, `bootstrap/cache`, `VERSION`) is git-ignored, so the
+     clone stays free of local changes, which cPanel requires before it
+     deploys.
 
-   A failing task stops the rest. Before `down` the live site is untouched;
-   after it, prod stays in maintenance mode. The job prints the path of the
+   The pull updates the site's tracked files straight away, so until `down`
+   the live site runs the new code with the previous `vendor`, assets, caches
+   and database schema. A failing task stops the rest; after `down`, the site
+   stays in maintenance mode. The job prints the path of the
    deployment log (`~/.cpanel/logs/vc_<id>_git_deploy.log`), which you read in
    **File Manager**. Fix the cause and re-run the deploy.
-3. **`prod` only:** before deploying it cancels itself if a newer `main`
-   run is in progress, then works out the next version from the Conventional
-   Commits since the last tag and pushes that tag, so that the server's
-   `git describe` names the release. After the deploy succeeds it publishes a
-   GitHub release for the tag with generated notes. If the deploy fails, the
-   tag exists without a release until the job is re-run.
+3. **Production releases** run as three jobs on `main`:
+   - **`release_tag`** runs in the `release` environment, whose wait timer
+     batches merges. It cancels the run if a newer `main` run is in
+     progress, then works out the next version from the Conventional Commits
+     since the last tag and pushes that tag, so that the servers'
+     `git describe` names the release.
+   - **`deploy_prod`** deploys every production site at once (a matrix over
+     `prod` and `nsw-beta`); one site failing does not stop the others.
+   - **`release`** publishes a GitHub release for the tag with generated
+     notes once every site has deployed. If a site fails, the tag exists
+     without a release until its job is re-run.
 4. **`docs`** runs after every environment has deployed. It rsyncs `site/`
    (following the logo symlink into `resources/images/`) to
    `~/domains/<domain>/public/`, deleting anything else in that folder. It
@@ -89,14 +104,22 @@ hand. They are what the pipeline relies on, matching the website repo's setup.
 
 ### Environments (Settings → Environments)
 
-Create `dev`, `qa` and `prod` (names must match exactly), with:
+Create `dev`, `qa`, `release`, `prod`, `nsw-beta` and `docs` (names must
+match exactly), with:
 
 - **`dev`** — no protection.
 - **`qa`** — Deployment branches: `main` only.
-- **`prod`** — Deployment branches: `main` only, and a **Wait timer**
+- **`release`** — Deployment branches: `main` only, and a **Wait timer**
   (the batching window: runs that find a newer one in progress when the timer
-  ends cancel themselves). Optionally add Required reviewers.
+  ends cancel themselves). Optionally add Required reviewers. It gates every
+  production site, so the wait timer formerly on `prod` moves here.
+- **`prod`**, **`nsw-beta`** — Deployment branches: `main` only, and no wait
+  timer (they deploy as soon as `release_tag` finishes).
 - **`docs`** — Deployment branches: `main` only.
+
+To add another production site, create its environment with the variables
+below, set it up in cPanel as in "cPanel Git deployment, once per production
+site", and add its name to the `deploy_prod` matrix in `deploy.yml`.
 
 ### Variables and secret
 
@@ -106,19 +129,19 @@ the environment (Settings → Environments → *name*) or once on the repository
 repository one. If all three sites share one cPanel account, set `APP_DOMAIN`
 per environment and the rest once on the repository.
 
-| Name                          | Example                         | Description                                                                           |
-| ----------------------------- | ------------------------------- | ------------------------------------------------------------------------------------- |
-| `APP_DOMAIN` (per env)        | `readererer-prod.blakey.family` | The site's domain; also its folder under `~/domains/` on the server.                  |
-| `DEPLOY_SSH_HOST`             | `ssh.example.krystal.uk`        | SSH host.                                                                             |
-| `DEPLOY_SSH_PORT`             | `722`                           | SSH port (Krystal uses 722).                                                          |
-| `DEPLOY_SSH_USER`             | `readererer`                    | cPanel username.                                                                      |
-| `DEPLOY_GIT_KEY`              | `github_readererer`             | File name, in the server's `~/.ssh/`, of the key the server fetches from GitHub with. |
-| `SSH_PRIVATE_KEY` (secret)    |                                 | Private key GitHub logs in to the server with.                                        |
-| `CPANEL_HOST` (prod)          | `server.example.krystal.uk`     | cPanel host; the API is on port 2083.                                                 |
-| `CPANEL_USER` (prod)          | `readererer`                    | Prod's cPanel username.                                                               |
-| `CPANEL_TOKEN` (secret, prod) |                                 | A cPanel API token for that account.                                                  |
+| Name                                | Example                         | Description                                                                           |
+| ----------------------------------- | ------------------------------- | ------------------------------------------------------------------------------------- |
+| `APP_DOMAIN` (per env)              | `readererer-prod.blakey.family` | The site's domain; also its folder under `~/domains/` on the server.                  |
+| `DEPLOY_SSH_HOST`                   | `ssh.example.krystal.uk`        | SSH host.                                                                             |
+| `DEPLOY_SSH_PORT`                   | `722`                           | SSH port (Krystal uses 722).                                                          |
+| `DEPLOY_SSH_USER`                   | `readererer`                    | cPanel username.                                                                      |
+| `DEPLOY_GIT_KEY`                    | `github_readererer`             | File name, in the server's `~/.ssh/`, of the key the server fetches from GitHub with. |
+| `SSH_PRIVATE_KEY` (secret)          |                                 | Private key GitHub logs in to the server with.                                        |
+| `CPANEL_HOST` (production)          | `server.example.krystal.uk`     | cPanel host; the API is on port 2083.                                                 |
+| `CPANEL_USER` (production)          | `readererer`                    | The site's cPanel username.                                                           |
+| `CPANEL_TOKEN` (secret, production) |                                 | A cPanel API token for that account.                                                  |
 
-The SSH values are not used by `prod`; `docs` still needs them. The old
+The SSH values are not used by the production sites; `docs` still needs them. The old
 `DEPLOY_FTP_HOST`, `DEPLOY_FTP_USER`, `DEPLOY_FTP_PASSWORD` and `DEPLOY_TOKEN`
 settings are no longer read and can be deleted, along with `DEPLOY_TOKEN` in
 prod's `.env`.
@@ -146,34 +169,34 @@ then delete `production`. Its `UNIX_USERNAME`, `SERVER_DOMAIN` and
    `fileinfo` enabled. The deploy runs `php artisan` over SSH, so check
    `php -v` in **Terminal** reports 8.5 too.
 
-### cPanel Git deployment, once for prod
+### cPanel Git deployment, once per production site
 
-Prod's account has no SSH or Terminal, so it is set up in cPanel:
+The production accounts have no SSH or Terminal, so each site is set up in
+cPanel (shown for `prod`; for `nsw-beta` use `attendance-beta.nsw.org.uk`):
 
 1. **PHP.** In **Select PHP Version** choose 8.5 with `pdo_sqlite`,
    `mbstring`, `openssl`, `fileinfo` and `zip` ticked. Deploy tasks run plain
    `php`, which follows this setting.
 2. **Clone.** In **Git™ Version Control** → **Create**, turn on *Clone a
    Repository*, use `https://github.com/adam-blakey/readererer.git` (public, so
-   no key is needed) with repository path `repositories/readererer`. It
-   checks out `main`. Never edit files in the clone: cPanel will not deploy
+   no key is needed) with repository path
+   `domains/readererer-prod.blakey.family`, the site's folder. It checks out
+   `main`. Never edit files in the clone: cPanel will not deploy
    one with local changes.
 3. **API token.** In **Security** → **Manage API Tokens** create a token (no
-   expiry, or remember to renew it) and put it in the `prod` environment's
-   `CPANEL_TOKEN` secret. Set `CPANEL_HOST` and `CPANEL_USER` too.
-4. Check that the app lives in `~/domains/readererer-prod.blakey.family`
-   (the path `.cpanel.yml` deploys to) with its `.env`. The first deploy
+   expiry, or remember to renew it) and put it in the site's environment's
+   `CPANEL_TOKEN` secret. Set `APP_DOMAIN`, `CPANEL_HOST` and `CPANEL_USER`
+   there too.
+4. Check that the site's folder has its `.env`. The first deploy
    stops before touching the site if that `.env` is missing.
 
 `.cpanel.yml` tasks need `rsync` and `git` on the server. If a deploy fails at
-the first `rsync` or at `git describe`, one of them is missing (check the
+`git archive` or the first `rsync`, one of them is missing (check the
 deployment log). To see a clone's local changes without Terminal, add a
 one-off cron job running
-`cd ~/repositories/readererer && git status --porcelain > ~/git-status.txt`.
+`cd ~/domains/readererer-prod.blakey.family && git status --porcelain > ~/git-status.txt`.
 
-`.cpanel.yml` would also run in any other cPanel account that clones this
-repository and deploys it from Git™ Version Control. Dev and qa are
-deployed over SSH and do not use it.
+Dev and qa are deployed over SSH and do not use `.cpanel.yml`.
 
 ### Moving prod to `readererer-prod.blakey.family` and adding the docs site
 

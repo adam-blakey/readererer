@@ -8,6 +8,9 @@ inputs:
     required: true
   token:
     required: true
+  repository-root:
+    description: Path of the cPanel Git Version Control clone, relative to the account's home directory.
+    required: true
 
 runs:
   using: composite
@@ -16,9 +19,9 @@ runs:
       env:
         AUTH: cpanel ${{ inputs.user }}:${{ inputs.token }}
         API: https://${{ inputs.host }}:2083/execute
-        REPO: /home/${{ inputs.user }}/repositories/readererer
+        REPO: /home/${{ inputs.user }}/${{ inputs.repository-root }}
       run: |
-        test -n '${{ inputs.host }}' -a -n '${{ inputs.user }}'
+        test -n '${{ inputs.host }}' -a -n '${{ inputs.user }}' -a -n '${{ inputs.repository-root }}'
         call() { curl -sS --fail-with-body --retry 3 -H "Authorization: $AUTH" "$API/$1"; }
         call "VersionControl/update?repository_root=$REPO&branch=main" | tee update.json
         jq -e '.status == 1 and (.data.deployable | tostring) == "1"' update.json > /dev/null || { echo '::error::cPanel says the repository is not deployable (invalid .cpanel.yml or uncommitted changes in the clone).'; exit 1; }
