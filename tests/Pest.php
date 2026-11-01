@@ -7,6 +7,8 @@ use App\Models\Term;
 use App\Models\TermDate;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\MessageBag;
+use Illuminate\Support\ViewErrorBag;
 use Tests\TestCase;
 
 uses(
@@ -66,4 +68,9 @@ function join_ensemble_without_instrument(User $user, Ensemble $ensemble): void
         'seat_row' => null,
         'seat_column' => null,
     ]);
+}
+
+function view_errors(array $errors): ViewErrorBag
+{
+    return (new ViewErrorBag)->put('default', new MessageBag($errors));
 }

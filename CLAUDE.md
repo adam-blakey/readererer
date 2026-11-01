@@ -90,6 +90,7 @@ Blade components live in `resources/views/components/` (Tabler-based: `card`, `t
 - Helper functions in `app/helpers.php` are global (snake_case); Blade leans on them heavily. Check there before writing new view-logic helpers.
 - `docs/development-plan.md` is the running TODO / priorities list — consult it for intended direction and known bugs (e.g. seating-plan row bugs, missing edit views).
 - Tabler icons are referenced by name through the `<x-icon>` component / `Icon` attribute, not raw SVG.
+- Every form starts with `<x-forms.error-summary :fields="..." />`, passing the field names it renders (wildcards allowed, e.g. `term_dates.*.start_datetime`). It lists the validation errors that have no field of their own to appear beside.
 - User-facing text is translatable: wrap it in `__()` (or `trans_choice()` for counts) using the English string as the key, and pass interpolated values as named `:placeholders` rather than concatenating. Enum labels are translated in the enum's own `label()` method; auto-entity column labels are translated centrally by `clean_attribute_name()`. Add new strings to `lang/en.json` — see `lang/README.md`.
 
 ## Working preferences
