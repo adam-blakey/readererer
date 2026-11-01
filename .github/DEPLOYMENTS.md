@@ -101,7 +101,7 @@ per environment and the rest once on the repository.
 | `SSH_PRIVATE_KEY` (secret) |                                 | Private key GitHub logs in to the server with.                                        |
 | `DEPLOY_FTP_HOST` (prod)   | `ftp.example.krystal.uk`        | FTP host; must offer FTPS.                                                            |
 | `DEPLOY_FTP_USER` (prod)   | `readererer`                    | FTP user whose root is the account's home folder (`domains/` sits in it).             |
-| `FTP_PASSWORD` (secret, prod) |                              | That FTP user's password.                                                             |
+| `DEPLOY_FTP_PASSWORD` (secret, prod) |                       | That FTP user's password.                                                             |
 | `DEPLOY_TOKEN` (secret, prod) |                              | Long random token for `POST /_deploy`; the same value goes in prod's `.env`.          |
 
 The SSH values are not used by `prod`; `docs` still needs them.

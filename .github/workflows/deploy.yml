@@ -103,7 +103,7 @@ jobs:
       - if: matrix.environment == 'prod'
         name: Upload over FTP and run the deploy endpoint
         env:
-          LFTP_PASSWORD: ${{ secrets.FTP_PASSWORD }}
+          LFTP_PASSWORD: ${{ secrets.DEPLOY_FTP_PASSWORD }}
           DEPLOY_TOKEN: ${{ secrets.DEPLOY_TOKEN }}
         run: |
           test -n '${{ vars.APP_DOMAIN }}'
