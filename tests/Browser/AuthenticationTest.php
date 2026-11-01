@@ -55,12 +55,12 @@ test('too many failed logins lock the account and tell the user to wait', functi
 });
 
 test('a guest opening a members-only page logs in and is taken back to it', function () {
-    visit('/settings')
+    visit('/password')
         ->assertPathIs('/login')
         ->type('username', 'member')
         ->type('password', 'password')
         ->click('button[type="submit"]')
-        ->assertPathIs('/settings');
+        ->assertPathIs('/password');
 });
 
 test('a logged-in user can log out from the user menu', function () {

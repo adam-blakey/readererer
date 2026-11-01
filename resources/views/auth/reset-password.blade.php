@@ -4,7 +4,7 @@
 	<div class="container py-4 container-tight">
 		<div class="mb-4 text-center">
 			<a class="navbar-brand navbar-brand-autodark" href="{{ route('home') }}">
-				<img src="{{ Vite::asset('resources/images/readererer-long-logo.svg') }}">
+				<img src="{{ logo_url() }}">
 			</a>
 		</div>
 		<form action="{{ route('password.store') }}" class="card card-md" method="POST">

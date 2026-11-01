@@ -57,6 +57,10 @@ history, and totals use the latest reply for each member.
   attendance on the day (present, absent or late) for each member, date and ensemble.
   Poll behaviour is set by the config keys `readererer_assume_attending`,
   `readererer_allow_change_to_unknown` and `readererer_repeating_headings`.
+- **Settings**: admins can change the site name, logo, poll options, image upload
+  limit and the words used for rehearsals, concerts, ensembles, terms, members, setup
+  groups and van drivers. Saved settings override the `.env` values, which stay as the
+  defaults (`READERERER_LOGO` takes an image URL, or a path under `public/`).
 - **Seating plans** set seat rows and columns for each ensemble and can be downloaded
   as a PDF.
 - **Setup groups and van drivers** are rosters of who sets up and who drives on each

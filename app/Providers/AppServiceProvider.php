@@ -3,9 +3,12 @@
 namespace App\Providers;
 
 use App\Enums\UserRole;
+use App\Models\Setting;
 use App\Models\User;
+use App\Translation\TerminologyLoader;
 use Barryvdh\Debugbar\Facades\Debugbar;
 use Illuminate\Auth\Notifications\ResetPassword;
+use Illuminate\Contracts\Translation\Loader;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Foundation\AliasLoader;
 use Illuminate\Notifications\Messages\MailMessage;
@@ -21,10 +24,14 @@ class AppServiceProvider extends ServiceProvider
         $loader->alias('Debugbar', Debugbar::class);
 
         $this->app->register(FakerServiceProvider::class);
+
+        $this->app->extend('translation.loader', fn (Loader $loader) => new TerminologyLoader($loader));
     }
 
     public function boot(): void
     {
+        Setting::applyToConfig();
+
         Paginator::defaultView('pagination::default');
 
         ResetPassword::toMailUsing(function (User $user, string $token) {
@@ -47,6 +54,10 @@ class AppServiceProvider extends ServiceProvider
 
         Gate::define('view.dashboard', function (User $user) {
             return true;
+        });
+
+        Gate::define('edit.settings', function (User $user) {
+            return $user->role === UserRole::Admin;
         });
 
         Gate::define('view.notifications', function (User $user) {

@@ -75,13 +75,19 @@ Models use `SoftDeletes`. Index controllers honour a `with_trashed` query param,
 Uses `s-damian/larasort` (`AutoSortable` trait + `$sortables` array on models). Index queries call `->autosort()`; the `<x-larasort-link>` Blade component renders sortable column headers.
 
 ### Attendance model
-`member_status_totals()` in `helpers.php` computes attending/not-attending/unknown counts for a term date, taking the latest attendance record per member. Behaviour is tuned by custom config keys in `config/app.php`: `readererer_assume_attending`, `readererer_allow_change_to_unknown`, `readererer_repeating_headings` (env-overridable). `AttendanceStatus` enum is `Unknown=0, Attending=1, NotAttending=2`.
+`member_status_totals()` in `helpers.php` computes attending/not-attending/unknown counts for a term date, taking the latest attendance record per member. Behaviour is tuned by custom config keys in `config/app.php`: `readererer_assume_attending`, `readererer_allow_change_to_unknown`, `readererer_repeating_headings` (env-overridable, and editable on the settings page). `AttendanceStatus` enum is `Unknown=0, Attending=1, NotAttending=2`.
 
 ### Attendance register
 The poll records what members said they *would* do and is append-only; the register (`RegisterEntry`, `AttendanceRegisterController`, `attendance.register.*` routes) records what actually happened on the day and holds one row per member per date per ensemble, updated in place (unique index on `term_date_id + ensemble_id + user_id`). `RegisterStatus` is `Unmarked=0, Present=1, Absent=2, Late=3`; clearing a member back to `Unmarked` with no note deletes their row. `register_status_totals()` in `helpers.php` counts a register, treating members with no row as unmarked. A register only exists for dates that apply to the ensemble — rehearsals apply to everyone, a concert only to the ensemble playing it (`TermDate::appliesToEnsemble()`).
 
 ### Uploaded images
 `User` and `Ensemble` use the `HasImage` trait: `image` holds either an external URL (seeders) or a path on the `public` disk, so views read `$model->image_url`. Edit forms post as `multipart/form-data`, render `<x-forms.image-upload>` and pass the file and "remove" checkbox to `applyImageInput()`. Saving deletes the file an image replaced, because the servers run no scheduler to sweep orphans.
+
+### Logo
+Views show the logo through `logo_url()` in `helpers.php`: the `readererer_logo` config key (`READERERER_LOGO`, a URL or a path under `public/`, or a logo uploaded on the settings page), falling back to the bundled Readererer logo.
+
+### Site settings
+Admins edit site-wide options on the settings page (`SettingController`, gated by `edit.settings`). Each is a row in the `settings` key/value table (`Setting`, value cast to JSON) that `Setting::applyToConfig()` copies over the matching config key in `AppServiceProvider::boot()`, so code keeps reading `config(...)` and the `.env` values are the defaults. To add one, map it in `Setting::CONFIG_KEYS` and add it to the form, `UpdateSettingsRequest` and the controller. The wording setting (`app.readererer_terminology`) renames the words in `Setting::TERMS`: `App\Translation\TerminologyLoader` decorates the translation loader and runs `apply_terminology()` over the JSON catalogue before placeholders are filled, so only strings in `lang/en.json` are renamed and interpolated names are left alone.
 
 ### Seating plans & PDFs
 `SeatingPlanController` edits per-ensemble seating (seat_row/seat_column stored on the `user_ensemble` pivot). PDF output uses `barryvdh/laravel-dompdf` (`SeatingPlanPdfController`, `ensembles.seating-plan.download` route).
