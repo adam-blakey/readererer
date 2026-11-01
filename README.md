@@ -117,6 +117,13 @@ npm run dev         # Vite dev server / HMR
 The seeder creates one user for each role: `guest`, `ensemble`, `member`, `moderator`
 and `admin`. All use the password `password`. The `admin` user has full access.
 
+To add a user from the command line (for example the first admin on a fresh site), run
+`user:create`. It prints the new username and a generated temporary password:
+
+```bash
+php artisan user:create Ada Lovelace ada@example.com --role=admin
+```
+
 To build assets for production instead of running the development server:
 
 ```bash
