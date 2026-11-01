@@ -1,17 +1,10 @@
 name: Build, Test & Deploy
 
 on:
-  pull_request:
-  push:
-    branches: [main]
-  workflow_dispatch:
+  workflow_call:
 
 permissions:
   contents: read
-
-concurrency:
-  group: deploy-${{ github.event.pull_request.number || github.run_id }}
-  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 
 jobs:
   build_and_test:
@@ -74,104 +67,3 @@ jobs:
           ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
           git-key: ${{ vars.DEPLOY_GIT_KEY }}
           fresh-database: 'true'
-
-  deploy_qa:
-    if: github.event_name != 'pull_request'
-    needs: deploy_dev
-    runs-on: ubuntu-24.04
-    concurrency: deploy-qa
-    environment:
-      name: qa
-      url: https://${{ vars.APP_DOMAIN }}
-    steps:
-      - uses: actions/checkout@v7
-      - uses: ./.github/actions/deploy-ssh
-        with:
-          domain: ${{ vars.APP_DOMAIN }}
-          ssh-host: ${{ vars.DEPLOY_SSH_HOST }}
-          ssh-port: ${{ vars.DEPLOY_SSH_PORT }}
-          ssh-user: ${{ vars.DEPLOY_SSH_USER }}
-          ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
-          git-key: ${{ vars.DEPLOY_GIT_KEY }}
-
-  release_tag:
-    needs: deploy_qa
-    runs-on: ubuntu-24.04
-    permissions:
-      actions: write
-      contents: write
-    concurrency: release
-    environment: release
-    outputs:
-      tag: ${{ steps.version.outputs.new_tag || steps.version.outputs.previous_tag }}
-    steps:
-      - name: Cancel if a newer run is on its way
-        env:
-          GH_TOKEN: ${{ github.token }}
-          GH_REPO: ${{ github.repository }}
-        run: |
-          newer=$(gh run list --workflow deploy.yml --branch main --json databaseId,status --jq 'map(select(.databaseId > ${{ github.run_id }} and .status != "completed")) | length')
-          if [ "$newer" -gt 0 ]; then
-            gh run cancel ${{ github.run_id }}
-            sleep 300
-          fi
-      # Tagged before deploying: .cpanel.yml writes `git describe --tags` to VERSION.
-      - id: version
-        uses: mathieudutour/github-tag-action@v7
-        with:
-          github_token: ${{ github.token }}
-          default_bump: minor
-
-  deploy_prod:
-    needs: release_tag
-    runs-on: ubuntu-24.04
-    strategy:
-      fail-fast: false
-      matrix:
-        environment: [prod, nsw-beta]
-    concurrency: deploy-${{ matrix.environment }}
-    environment:
-      name: ${{ matrix.environment }}
-      url: https://${{ vars.APP_DOMAIN }}
-    steps:
-      - uses: actions/checkout@v7
-      - uses: ./.github/actions/deploy-cpanel
-        with:
-          host: ${{ vars.CPANEL_HOST }}
-          user: ${{ vars.CPANEL_USER }}
-          token: ${{ secrets.CPANEL_TOKEN }}
-          repository-root: domains/${{ vars.APP_DOMAIN }}
-
-  release:
-    needs: [release_tag, deploy_prod]
-    runs-on: ubuntu-24.04
-    permissions:
-      contents: write
-    steps:
-      - uses: softprops/action-gh-release@v3
-        with:
-          tag_name: ${{ needs.release_tag.outputs.tag }}
-          target_commitish: ${{ github.sha }}
-          generate_release_notes: true
-
-  docs:
-    if: github.ref == 'refs/heads/main'
-    needs: deploy_prod
-    runs-on: ubuntu-24.04
-    concurrency: deploy-docs
-    environment:
-      name: docs
-      url: https://${{ vars.APP_DOMAIN }}
-    env:
-      SSH: ssh -i ~/.ssh/deploy -p ${{ vars.DEPLOY_SSH_PORT }} -o StrictHostKeyChecking=no
-      HOST: ${{ vars.DEPLOY_SSH_USER }}@${{ vars.DEPLOY_SSH_HOST }}
-    steps:
-      - uses: actions/checkout@v7
-      - run: |
-          test -n '${{ vars.APP_DOMAIN }}'
-          mkdir -p ~/.ssh
-          echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/deploy
-          chmod 600 ~/.ssh/deploy
-      # Refuse to overwrite a folder that still holds the app (and its .env and database).
-      - run: $SSH $HOST "test ! -e domains/${{ vars.APP_DOMAIN }}/artisan && mkdir -p domains/${{ vars.APP_DOMAIN }}/public"
-      - run: rsync -rtzL --delete -e "$SSH" site/ "$HOST:domains/${{ vars.APP_DOMAIN }}/public/"

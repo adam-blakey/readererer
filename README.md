@@ -16,7 +16,7 @@
 </p>
 
 <p align="center">
-  <a href="https://github.com/adam-blakey/readererer/actions/workflows/deploy.yml"><img alt="Build, Test &amp; Deploy" src="https://github.com/adam-blakey/readererer/actions/workflows/deploy.yml/badge.svg?branch=main"></a>
+  <a href="https://github.com/adam-blakey/readererer/actions/workflows/main.yml"><img alt="Main" src="https://github.com/adam-blakey/readererer/actions/workflows/main.yml/badge.svg?branch=main"></a>
   <a href="https://github.com/adam-blakey/readererer/actions/workflows/ci.yml"><img alt="CI" src="https://github.com/adam-blakey/readererer/actions/workflows/ci.yml/badge.svg?branch=main"></a>
   <a href="https://github.com/adam-blakey/readererer/actions/workflows/codeql.yml"><img alt="CodeQL" src="https://github.com/adam-blakey/readererer/actions/workflows/codeql.yml/badge.svg?branch=main"></a>
   <a href="https://github.com/adam-blakey/readererer/actions/workflows/php-security.yml"><img alt="PHP Security" src="https://github.com/adam-blakey/readererer/actions/workflows/php-security.yml/badge.svg?branch=main"></a>
@@ -148,7 +148,7 @@ reads the icons that the build copies into `public/build/icons` and fails if the
 missing.
 
 Tests and the Pint check run on every pull request, in the `Pest test suite` job of
-`.github/workflows/deploy.yml`.
+`.github/workflows/deploy.yml`, which `pull-request.yml` and `main.yml` both call.
 
 ## Docker
 
@@ -176,7 +176,8 @@ to the container's stderr and can be read with `docker logs readererer-dev`.
 
 ## Deployment
 
-Deployment runs through GitHub Actions (`.github/workflows/deploy.yml`) to three
+Deployment runs through GitHub Actions (`.github/workflows/pull-request.yml` and
+`main.yml`, both built on `deploy.yml`) to three
 Krystal environments over SSH. Pull requests deploy to dev. Merges to `main` deploy to
 dev, then QA, then prod after a wait timer, and publish a GitHub release whose version
 is derived from the Conventional Commit messages. See `.github/DEPLOYMENTS.md`.
