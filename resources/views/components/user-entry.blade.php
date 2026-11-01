@@ -8,14 +8,14 @@
 
 <div class="p-1 nav-link d-flex lh-1 text-reset {{ $draggable ? 'cursor-grab border border-2 rounded' : '' }}">
     <x-avatar :user="$user" size="sm" :$show_setup_group />
-    <div class="d-none d-xl-block ps-2">
-        <div>
+    <div class="entry-text ps-2">
+        <div class="text-truncate">
             {{ $user->name }}
             @if ($draggable)
                 <span class="seating-position-changed" data-bs-toggle="tooltip" style="display: none;" title="{{ __('Moved since the seating plan was last saved') }}">*</span>
             @endif
         </div>
-        <div class="mt-1 small text-muted">
+        <div class="mt-1 small text-muted text-truncate">
             @if ($accent_color)
                 <span class="badge badge-dot bg-{{ $accent_color }} me-1"></span>
             @endif
