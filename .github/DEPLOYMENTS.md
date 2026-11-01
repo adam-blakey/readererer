@@ -2,8 +2,8 @@
 
 The app environments and the static docs site are hosted on Krystal
 and deployed by GitHub Actions. `.github/workflows/deploy.yml` is a reusable
-workflow that builds, tests and deploys to `dev`. `pull-request.yml` (**Pull
-request**) calls it for pull requests, and `main.yml` (**Main**) calls it for
+workflow that builds, tests and deploys to `dev`. `pull-request.yml` (**Build, Test &
+Deploy (PR)**) calls it for pull requests, and `main.yml` (**Build, Test & Deploy**) calls it for
 pushes to `main` and then runs the `qa`, production and docs jobs, so pull
 requests show no skipped release jobs.
 
@@ -225,7 +225,7 @@ domain moves the app to a new folder. If prod currently lives at
 6. The `readererer.blakey.family` cPanel domain keeps its document root
    (`domains/readererer.blakey.family/public`), which after step 2 points at
    an empty folder until the next `main` deploy fills it. To fill it straight
-   away, re-run the latest **Main** run.
+   away, re-run the latest **Build, Test & Deploy** run.
 
 If prod was somewhere else, skip steps 2–3 and set up the new prod domain as
 in "once per site" below, and create `readererer.blakey.family` in cPanel with
@@ -262,7 +262,7 @@ signed commits, CodeQL, code quality, coverage) stays. Add:
 
 - **Require a pull request before merging.**
 - **Require status checks to pass**, with:
-  - `build / Pest test suite` (from Pull request)
+  - `build / Pest test suite` (from Build, Test & Deploy (PR))
   - `commit_messages` (from Conventional Commits)
 
 ### Merging
