@@ -83,6 +83,9 @@ The poll records what members said they *would* do and is append-only; the regis
 ### Uploaded images
 `User` and `Ensemble` use the `HasImage` trait: `image` holds either an external URL (seeders) or a path on the `public` disk, so views read `$model->image_url`. Edit forms post as `multipart/form-data`, render `<x-forms.image-upload>` and pass the file and "remove" checkbox to `applyImageInput()`. Saving deletes the file an image replaced, because the servers run no scheduler to sweep orphans.
 
+### Logo
+Views show the logo through `logo_url()` in `helpers.php`: the `readererer_logo` config key (`READERERER_LOGO`, a URL or a path under `public/`), falling back to the bundled Readererer logo.
+
 ### Seating plans & PDFs
 `SeatingPlanController` edits per-ensemble seating (seat_row/seat_column stored on the `user_ensemble` pivot). PDF output uses `barryvdh/laravel-dompdf` (`SeatingPlanPdfController`, `ensembles.seating-plan.download` route).
 

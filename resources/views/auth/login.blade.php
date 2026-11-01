@@ -13,7 +13,7 @@
 						{{-- Explicit tab order (1..7) puts "I forgot password" last. A positive tabindex
 						     precedes natural order, so every focusable element must be numbered. --}}
 						<x-a class="autodark" :route="'home'" tabindex="1">
-							<img src="{{ Vite::asset('resources/images/readererer-long-logo.svg') }}">
+							<img src="{{ logo_url() }}">
 						</x-a>
 					</div>
 					<div class="card card-md">

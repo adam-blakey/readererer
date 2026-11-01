@@ -10,8 +10,16 @@ use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Schema;
+use Illuminate\Support\Facades\Vite;
 use Illuminate\Support\Str;
 use Illuminate\Support\ViewErrorBag;
+
+function logo_url(): string
+{
+    $logo = config('app.readererer_logo');
+
+    return filled($logo) ? asset($logo) : Vite::asset('resources/images/readererer-long-logo.svg');
+}
 
 function get_route_name_from_model($model, $route = 'show')
 {

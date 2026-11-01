@@ -57,6 +57,8 @@ history, and totals use the latest reply for each member.
   attendance on the day (present, absent or late) for each member, date and ensemble.
   Poll behaviour is set by the config keys `readererer_assume_attending`,
   `readererer_allow_change_to_unknown` and `readererer_repeating_headings`.
+- **Logo**: set `READERERER_LOGO` to an image URL, or a path under `public/`, to replace
+  the Readererer logo on the menu bar, login pages and emails.
 - **Seating plans** set seat rows and columns for each ensemble and can be downloaded
   as a PDF.
 - **Setup groups and van drivers** are rosters of who sets up and who drives on each
