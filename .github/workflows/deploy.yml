@@ -127,6 +127,7 @@ jobs:
           host: ${{ vars.CPANEL_HOST }}
           user: ${{ vars.CPANEL_USER }}
           token: ${{ secrets.CPANEL_TOKEN }}
+          repository-root: domains/${{ vars.APP_DOMAIN }}
       - uses: softprops/action-gh-release@v3
         with:
           tag_name: ${{ steps.version.outputs.new_tag || steps.version.outputs.previous_tag }}

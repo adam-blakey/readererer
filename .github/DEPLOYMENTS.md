@@ -32,12 +32,14 @@ The app's prod site is `readererer-prod.blakey.family`; the docs site is
    `prod` has no SSH, so it is deployed by cPanel's **Git™ Version Control**,
    driven from the runner through the cPanel API (`:2083/execute`) by
    `.github/actions/deploy-cpanel`:
-   - `VersionControl/update` pulls `main` into the cPanel clone
-     (`~/repositories/readererer`), and `VersionControlDeployment/create`
+   - `VersionControl/update` pulls `main` into the cPanel clone, which is
+     the site's folder (`~/domains/<domain>`, passed to the action as
+     `repository-root`), and `VersionControlDeployment/create`
      runs the tasks in `.cpanel.yml`. The job then polls
      `VersionControlDeployment/retrieve` until the deployment succeeds or
      fails (for up to 30 minutes).
-   - `.cpanel.yml` copies the clone to `~/readererer-build` (which keeps
+   - `.cpanel.yml` extracts the commit (`git archive`) into
+     `~/readererer-build` (which keeps
      `vendor` and `node_modules` between deploys), writes `VERSION`, runs
      `composer install --no-dev --no-scripts` (the host disables
      `proc_open`, which Composer scripts need), `npm ci` and `npm run build`.
@@ -50,11 +52,15 @@ The app's prod site is `readererer-prod.blakey.family`; the docs site is
      those folders are left alone. Finally it runs `package:discover`,
      `migrate`, `optimize`, `event:cache` and `queue:restart`, and brings the
      app back up.
-   - The build happens outside the clone, because cPanel refuses to deploy
-     a clone with uncommitted or untracked files.
+   - Everything the deploy adds to the site's folder (`vendor`,
+     `public/build`, `bootstrap/cache`, `VERSION`) is git-ignored, so the
+     clone stays free of local changes, which cPanel requires before it
+     deploys.
 
-   A failing task stops the rest. Before `down` the live site is untouched;
-   after it, prod stays in maintenance mode. The job prints the path of the
+   The pull updates the site's tracked files straight away, so until `down`
+   the live site runs the new code with the previous `vendor`, assets, caches
+   and database schema. A failing task stops the rest; after `down`, prod
+   stays in maintenance mode. The job prints the path of the
    deployment log (`~/.cpanel/logs/vc_<id>_git_deploy.log`), which you read in
    **File Manager**. Fix the cause and re-run the deploy.
 3. **`prod` only:** before deploying it cancels itself if a newer `main`
@@ -155,21 +161,21 @@ Prod's account has no SSH or Terminal, so it is set up in cPanel:
    `php`, which follows this setting.
 2. **Clone.** In **Git™ Version Control** → **Create**, turn on *Clone a
    Repository*, use `https://github.com/adam-blakey/readererer.git` (public, so
-   no key is needed) with repository path `repositories/readererer`. It
-   checks out `main`. Never edit files in the clone: cPanel will not deploy
+   no key is needed) with repository path
+   `domains/readererer-prod.blakey.family`, the site's folder. It checks out
+   `main`. Never edit files in the clone: cPanel will not deploy
    one with local changes.
 3. **API token.** In **Security** → **Manage API Tokens** create a token (no
    expiry, or remember to renew it) and put it in the `prod` environment's
    `CPANEL_TOKEN` secret. Set `CPANEL_HOST` and `CPANEL_USER` too.
-4. Check that the app lives in `~/domains/readererer-prod.blakey.family`
-   (the path `.cpanel.yml` deploys to) with its `.env`. The first deploy
+4. Check that the site's folder has its `.env`. The first deploy
    stops before touching the site if that `.env` is missing.
 
 `.cpanel.yml` tasks need `rsync` and `git` on the server. If a deploy fails at
-the first `rsync` or at `git describe`, one of them is missing (check the
+`git archive` or the first `rsync`, one of them is missing (check the
 deployment log). To see a clone's local changes without Terminal, add a
 one-off cron job running
-`cd ~/repositories/readererer && git status --porcelain > ~/git-status.txt`.
+`cd ~/domains/readererer-prod.blakey.family && git status --porcelain > ~/git-status.txt`.
 
 `.cpanel.yml` would also run in any other cPanel account that clones this
 repository and deploys it from Git™ Version Control. Dev and qa are

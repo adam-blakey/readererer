@@ -6,7 +6,8 @@ deployment:
     - export PATH=/opt/alt/alt-nodejs24/root/usr/bin:$PATH:/usr/local/cpanel/3rdparty/bin
     - test -f $APP/.env
     - mkdir -p $BUILD
-    - rsync -a --delete --exclude=/.git --exclude=/vendor --exclude=/node_modules ./ $BUILD/
+    - find $BUILD -mindepth 1 -maxdepth 1 ! -name vendor ! -name node_modules -exec rm -rf {} +
+    - git archive HEAD | tar -x -C $BUILD
     - git describe --tags --always > $BUILD/VERSION
     - cd $BUILD && composer install --no-dev --no-scripts --no-interaction --no-progress --optimize-autoloader
     - cd $BUILD && npm ci --no-audit --no-fund
