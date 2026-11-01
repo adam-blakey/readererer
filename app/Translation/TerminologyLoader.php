@@ -17,9 +17,9 @@ class TerminologyLoader implements Loader
             return $lines;
         }
 
-        $terminology = config('app.readererer_terminology', []);
+        $terminology = config('app.readererer_terminology');
 
-        return array_map(fn ($line) => is_string($line) ? apply_terminology($line, $terminology) : $line, $lines);
+        return array_map(fn ($line) => apply_terminology($line, $terminology), $lines);
     }
 
     public function addNamespace($namespace, $hint)

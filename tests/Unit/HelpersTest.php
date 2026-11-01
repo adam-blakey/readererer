@@ -221,7 +221,7 @@ test('logo_url uses the configured logo', function () {
 });
 
 test('apply_terminology swaps whole words and keeps their case', function () {
-    $terminology = ['rehearsal' => 'practice', 'rehearsals' => 'practices', 'setup group' => 'crew', 'term' => ''];
+    $terminology = ['rehearsal' => 'practice', 'rehearsals' => 'practices', 'setup group' => 'crew'];
 
     expect(apply_terminology('Next rehearsal', $terminology))->toBe('Next practice')
         ->and(apply_terminology('Rehearsals this term', $terminology))->toBe('Practices this term')

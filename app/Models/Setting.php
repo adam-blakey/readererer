@@ -19,7 +19,6 @@ class Setting extends Model
         'terminology' => ['app.readererer_terminology'],
     ];
 
-    // Singular => plural forms of the words an admin can rename.
     public const TERMS = [
         'rehearsal' => 'rehearsals',
         'concert' => 'concerts',

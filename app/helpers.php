@@ -23,8 +23,6 @@ function logo_url(): string
 
 function apply_terminology(string $line, array $terminology): string
 {
-    $terminology = array_filter($terminology, 'filled');
-
     if ($terminology === []) {
         return $line;
     }
