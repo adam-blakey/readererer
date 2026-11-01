@@ -103,3 +103,9 @@
     width: 2rem;
     height: 2rem;
 }
+
+/* A flex item won't shrink below its content without min-width: 0, so text-truncate needs it. */
+.entry-text {
+    flex-grow: 1;
+    min-width: 0;
+}
