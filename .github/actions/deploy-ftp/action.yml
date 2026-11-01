@@ -35,7 +35,6 @@ runs:
         set ftp:ssl-force true
         set ssl:verify-certificate true
         open --env-password -u '${{ inputs.ftp-user }}' '${{ inputs.ftp-host }}'
-        cd domains/${{ inputs.domain }}
         mirror -R storage storage
         put down -o storage/framework/down
         mirror -R --delete --parallel=8 bootstrap bootstrap

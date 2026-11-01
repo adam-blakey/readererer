@@ -100,7 +100,7 @@ per environment and the rest once on the repository.
 | `DEPLOY_GIT_KEY`           | `github_readererer`             | File name, in the server's `~/.ssh/`, of the key the server fetches from GitHub with. |
 | `SSH_PRIVATE_KEY` (secret) |                                 | Private key GitHub logs in to the server with.                                        |
 | `DEPLOY_FTP_HOST` (prod)   | `ftp.example.krystal.uk`        | FTP host; must offer FTPS.                                                            |
-| `DEPLOY_FTP_USER` (prod)   | `readererer`                    | FTP user whose root is the account's home folder (`domains/` sits in it).             |
+| `DEPLOY_FTP_USER` (prod)   | `readererer`                    | FTP user whose root is the site's folder (`domains/<domain>`).             |
 | `DEPLOY_FTP_PASSWORD` (secret, prod) |                       | That FTP user's password.                                                             |
 | `DEPLOY_TOKEN` (secret, prod) |                              | Long random token for `POST /_deploy`; the same value goes in prod's `.env`.          |
 
