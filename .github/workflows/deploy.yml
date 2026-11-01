@@ -18,12 +18,12 @@ jobs:
     name: Pest test suite
     runs-on: ubuntu-24.04
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v7
       - uses: shivammathur/setup-php@v2
         with:
           php-version: '8.4'
           coverage: none
-      - uses: actions/setup-node@v5
+      - uses: actions/setup-node@v7
         with:
           node-version: '24'
           cache: npm
@@ -64,7 +64,7 @@ jobs:
       name: dev
       url: https://${{ vars.APP_DOMAIN }}
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v7
       - uses: ./.github/actions/deploy-ssh
         with:
           domain: ${{ vars.APP_DOMAIN }}
@@ -84,7 +84,7 @@ jobs:
       name: qa
       url: https://${{ vars.APP_DOMAIN }}
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v7
       - uses: ./.github/actions/deploy-ssh
         with:
           domain: ${{ vars.APP_DOMAIN }}
@@ -121,7 +121,7 @@ jobs:
           github_token: ${{ github.token }}
           default_bump: minor
           dry_run: true
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v7
       - uses: ./.github/actions/deploy-ftp
         with:
           domain: ${{ vars.APP_DOMAIN }}
@@ -149,7 +149,7 @@ jobs:
       SSH: ssh -i ~/.ssh/deploy -p ${{ vars.DEPLOY_SSH_PORT }} -o StrictHostKeyChecking=no
       HOST: ${{ vars.DEPLOY_SSH_USER }}@${{ vars.DEPLOY_SSH_HOST }}
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v7
       - run: |
           test -n '${{ vars.APP_DOMAIN }}'
           mkdir -p ~/.ssh
