@@ -4,7 +4,7 @@ deployment:
     - export APP=$PWD
     - export BUILD=$HOME/readererer-build/$(basename $PWD)
     - export PATH=/opt/alt/alt-nodejs24/root/usr/bin:$PATH:/usr/local/cpanel/3rdparty/bin
-    - export NODE_OPTIONS=--disable-wasm-trap-handler
+    - export MALLOC_ARENA_MAX=2 MIMALLOC_ARENA_RESERVE=64MiB RAYON_NUM_THREADS=2 TOKIO_WORKER_THREADS=2 ROLLDOWN_WORKER_THREADS=2
     - test -f $APP/.env
     - mkdir -p $BUILD
     - find $BUILD -mindepth 1 -maxdepth 1 ! -name vendor ! -name node_modules -exec rm -rf {} +
@@ -12,7 +12,8 @@ deployment:
     - git describe --tags --always > $BUILD/VERSION
     - cd $BUILD && composer install --no-dev --no-scripts --no-interaction --no-progress --optimize-autoloader
     - cd $BUILD && npm ci --no-audit --no-fund
-    - cd $BUILD && npm run build
+    - ulimit -v
+    - cd $BUILD && node --disable-wasm-trap-handler --wasm-max-mem-pages=4096 node_modules/vite/bin/vite.js build
     - cd $APP && php artisan down
     - rsync -a --delete $BUILD/app $BUILD/bootstrap $BUILD/config $BUILD/lang $BUILD/resources $BUILD/routes $BUILD/vendor $APP/
     - rsync -a --delete '--exclude=*.sqlite*' $BUILD/database/ $APP/database/
