@@ -140,7 +140,4 @@ return [
     'readererer_repeating_headings' => env('READERERER_REPEATING_HEADINGS', false),
     'readererer_image_max_kilobytes' => env('READERERER_IMAGE_MAX_KILOBYTES', 2048),
 
-    // Bearer token for POST /_deploy, which migrates and re-caches after an FTP upload. Unset disables it.
-    'deploy_token' => env('DEPLOY_TOKEN'),
-
 ];
