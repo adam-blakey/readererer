@@ -1,0 +1,28 @@
+name: Re-run checks
+
+on:
+  issue_comment:
+    types: [created]
+
+permissions:
+  actions: write
+  issues: write
+  pull-requests: read
+
+jobs:
+  rerun:
+    if: >-
+      github.event.issue.pull_request &&
+      startsWith(github.event.comment.body, '/checks') &&
+      contains(fromJSON('["OWNER","MEMBER","COLLABORATOR"]'), github.event.comment.author_association)
+    runs-on: ubuntu-24.04
+    env:
+      GH_TOKEN: ${{ github.token }}
+      GH_REPO: ${{ github.repository }}
+    steps:
+      - run: gh api -X POST "repos/$GH_REPO/issues/comments/${{ github.event.comment.id }}/reactions" -f content=rocket
+      - run: |
+          sha=$(gh pr view ${{ github.event.issue.number }} --json headRefOid -q .headRefOid)
+          for id in $(gh run list --commit "$sha" --event pull_request --status completed --limit 100 --json databaseId -q '.[].databaseId'); do
+            gh run rerun "$id"
+          done
