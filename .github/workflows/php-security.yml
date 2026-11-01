@@ -16,7 +16,7 @@ permissions:
 jobs:
   dependency-check:
     name: Composer dependency vulnerabilities
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     steps:
     - name: Checkout repository
       uses: actions/checkout@v5
@@ -50,7 +50,7 @@ jobs:
 
   psalm:
     name: Psalm taint analysis
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     permissions:
       contents: read
       security-events: write
@@ -68,7 +68,7 @@ jobs:
         tools: psalm
 
     - name: Install Composer dependencies
-      uses: ramsey/composer-install@v3
+      uses: ramsey/composer-install@v4
       with:
         composer-options: --no-scripts
 
