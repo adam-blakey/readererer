@@ -10,14 +10,12 @@
   <img alt="Laravel 13" src="https://img.shields.io/badge/Laravel-13-FF2D20?logo=laravel&logoColor=white">
   <img alt="PHP 8.5+" src="https://img.shields.io/badge/PHP-8.5%2B-777BB4?logo=php&logoColor=white">
   <img alt="Tabler UI" src="https://img.shields.io/badge/UI-Tabler-0054A6">
-  <a href="https://github.com/adam-blakey/readererer/releases"><img alt="Latest release" src="https://img.shields.io/github/v/release/adam-blakey/readererer"></a>
   <img alt="SQLite" src="https://img.shields.io/badge/DB-SQLite-003B57?logo=sqlite&logoColor=white">
   <img alt="Tests: Pest" src="https://img.shields.io/badge/Tests-Pest-6C5CE7">
 </p>
 
 <p align="center">
   <a href="https://github.com/adam-blakey/readererer/actions/workflows/main.yml"><img alt="Build, Test &amp; Deploy" src="https://github.com/adam-blakey/readererer/actions/workflows/main.yml/badge.svg?branch=main"></a>
-  <a href="https://github.com/adam-blakey/readererer/actions/workflows/ci.yml"><img alt="CI" src="https://github.com/adam-blakey/readererer/actions/workflows/ci.yml/badge.svg?branch=main"></a>
   <a href="https://github.com/adam-blakey/readererer/actions/workflows/codeql.yml"><img alt="CodeQL" src="https://github.com/adam-blakey/readererer/actions/workflows/codeql.yml/badge.svg?branch=main"></a>
   <a href="https://github.com/adam-blakey/readererer/actions/workflows/php-security.yml"><img alt="PHP Security" src="https://github.com/adam-blakey/readererer/actions/workflows/php-security.yml/badge.svg?branch=main"></a>
   <a href="https://github.com/adam-blakey/readererer/releases/latest"><img alt="Latest release" src="https://img.shields.io/github/v/release/adam-blakey/readererer"></a>
