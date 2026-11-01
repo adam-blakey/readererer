@@ -7,6 +7,7 @@ use App\Models\Ensemble;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Support\Arr;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Str;
@@ -123,79 +124,29 @@ function register_status_totals($entries, int $expected_members): array
     return $totals;
 }
 
-/**
- * Resolve the FormRequest class that governs writes to a model, or null when
- * the model has none.
- *
- * The CRUD controllers name their requests after the model they write
- * (`SetupGroup` -> `StoreSetupGroupRequest` / `UpdateSetupGroupRequest`), so
- * the model's class name is all that is needed to find them.
- */
-function get_form_request_class_for_model(object $model, bool $update = false): ?string
+function get_validation_rules_for_model(Model $model): array
 {
-    $class = 'App\\Http\\Requests\\'.($update ? 'Update' : 'Store').class_basename($model).'Request';
+    $request_class = 'App\\Http\\Requests\\'.($model->exists ? 'Update' : 'Store').class_basename($model).'Request';
 
-    return class_exists($class) ? $class : null;
-}
-
-/**
- * The rules a write of this model will be validated against, or null when no
- * FormRequest covers it. The request is built from the current one so rules
- * that read the user or route see them; rules that still fail count as none.
- */
-function get_validation_rules_for_model(object $model, bool $update = false): ?array
-{
-    $request_class = get_form_request_class_for_model($model, $update);
-
-    if (! $request_class) {
-        return null;
+    if (! class_exists($request_class)) {
+        return [];
     }
 
-    return rescue(fn () => $request_class::createFrom(request())->rules(), null, false);
+    // Rules that need request data missing here (no user or route) count as none.
+    return rescue(fn () => $request_class::createFrom(request())->rules(), [], false);
 }
 
-/**
- * Whether a set of validation rules makes an attribute mandatory.
- *
- * Returns null when the rules say nothing about the attribute at all, so that
- * a caller can tell "the rules allow this to be empty" from "the rules have no
- * opinion" and fall back accordingly.
- *
- * Only a bare `required` counts: a conditional rule (`required_if`,
- * `required_with`, ...) depends on what else was submitted, which the browser
- * cannot enforce from a static attribute.
- */
 function rules_require_attribute(array $rules, string $attribute): ?bool
 {
     if (! array_key_exists($attribute, $rules)) {
         return null;
     }
 
-    $attribute_rules = $rules[$attribute];
+    $attribute_rules = is_string($rules[$attribute]) ? explode('|', $rules[$attribute]) : Arr::wrap($rules[$attribute]);
 
-    if (is_string($attribute_rules)) {
-        $attribute_rules = explode('|', $attribute_rules);
-    } elseif (! is_array($attribute_rules)) {
-        $attribute_rules = [$attribute_rules];
-    }
-
-    foreach ($attribute_rules as $rule) {
-        if (is_string($rule) && strtolower($rule) === 'required') {
-            return true;
-        }
-    }
-
-    return false;
+    return in_array('required', $attribute_rules, true);
 }
 
-/**
- * Build the field list the generic form renders for a model.
- *
- * Whether a field is mandatory is decided by the FormRequest that will
- * validate the submission, where the model has one, so that the asterisk and
- * the browser's own `required` enforcement agree with the server. Attributes
- * the rules say nothing about fall back to the column's nullability.
- */
 function get_create_fields(object $dummy): array
 {
     $columns = collect(Schema::getColumns($dummy->getTable()));
@@ -204,9 +155,7 @@ function get_create_fields(object $dummy): array
     // are covered too — and it is public on every model.
     $casts = $dummy->getCasts();
 
-    // An existing record is being edited, a fresh one created; the two are
-    // validated by different requests.
-    $rules = get_validation_rules_for_model($dummy, $dummy instanceof Model && $dummy->exists) ?? [];
+    $rules = get_validation_rules_for_model($dummy);
 
     $fields = [];
 
