@@ -4,6 +4,7 @@ deployment:
     - export APP=$PWD
     - export BUILD=$HOME/readererer-build/$(basename $PWD)
     - export PATH=/opt/alt/alt-nodejs24/root/usr/bin:$PATH:/usr/local/cpanel/3rdparty/bin
+    - export NODE_OPTIONS=--disable-wasm-trap-handler
     - test -f $APP/.env
     - mkdir -p $BUILD
     - find $BUILD -mindepth 1 -maxdepth 1 ! -name vendor ! -name node_modules -exec rm -rf {} +
