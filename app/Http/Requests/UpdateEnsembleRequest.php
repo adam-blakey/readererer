@@ -27,12 +27,11 @@ class UpdateEnsembleRequest extends FormRequest
                 Rule::unique('ensembles', 'slug')->ignore($this->route('ensemble')),
             ],
             'seating_plan_enabled' => ['sometimes', 'boolean'],
-            'image' => ['nullable', 'image', 'mimes:jpeg,jpg,png,webp,gif', 'max:'.config('app.readererer_image_max_kilobytes')],
+            'image' => ['nullable', 'image', 'mimes:jpeg,png,webp,gif', 'max:'.config('app.readererer_image_max_kilobytes')],
             'remove_image' => ['sometimes', 'boolean'],
         ];
     }
 
-    /** @return array<string, string> */
     public function messages(): array
     {
         return [

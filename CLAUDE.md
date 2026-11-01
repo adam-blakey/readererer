@@ -20,7 +20,7 @@ npm run dev
 # Build frontend assets
 npm run build
 
-# Uploaded images are served through a symlink (once per checkout)
+# Serve uploaded images (once per checkout)
 php artisan storage:link
 
 # Database
@@ -74,18 +74,7 @@ Uses `s-damian/larasort` (`AutoSortable` trait + `$sortables` array on models). 
 The poll records what members said they *would* do and is append-only; the register (`RegisterEntry`, `AttendanceRegisterController`, `attendance.register.*` routes) records what actually happened on the day and holds one row per member per date per ensemble, updated in place (unique index on `term_date_id + ensemble_id + user_id`). `RegisterStatus` is `Unmarked=0, Present=1, Absent=2, Late=3`; clearing a member back to `Unmarked` with no note deletes their row. `register_status_totals()` in `helpers.php` counts a register, treating members with no row as unmarked. A register only exists for dates that apply to the ensemble — rehearsals apply to everyone, a concert only to the ensemble playing it (`TermDate::appliesToEnsemble()`).
 
 ### Uploaded images
-
-`User` and `Ensemble` carry an `image` column and the `HasImage` trait
-(`app/Traits/HasImage.php`). The column holds either an external URL (the
-seeders point at a placeholder service) or a path on the `public` disk written
-by an upload, so views read `$model->image_url`, which resolves either form.
-Edit forms post as `multipart/form-data` and render `<x-forms.image-upload>`;
-the controller passes the file and the "remove" checkbox to `applyImageInput()`
-before saving. Replacing or clearing an image deletes the file it
-replaced once the row is saved, through the trait's `updated` hook; the servers
-run no scheduler, so there is nothing to sweep up orphans later. Uploads are
-served through `public/storage`, which `php artisan storage:link` creates (the
-deploy workflow runs it).
+`User` and `Ensemble` use the `HasImage` trait: `image` holds either an external URL (seeders) or a path on the `public` disk, so views read `$model->image_url`. Edit forms post as `multipart/form-data`, render `<x-forms.image-upload>` and pass the file and "remove" checkbox to `applyImageInput()`. Saving deletes the file an image replaced, because the servers run no scheduler to sweep orphans.
 
 ### Seating plans & PDFs
 `SeatingPlanController` edits per-ensemble seating (seat_row/seat_column stored on the `user_ensemble` pivot). PDF output uses `barryvdh/laravel-dompdf` (`SeatingPlanPdfController`, `seating-plan.download` route).

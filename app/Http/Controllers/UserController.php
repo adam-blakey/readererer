@@ -102,10 +102,10 @@ class UserController extends Controller
     public function update(UpdateUserRequest $request, User $user): RedirectResponse
     {
         $attributes = $request->validated();
-        $setup_group_id = $attributes['setup_group'] ?? null;
+        $setup_group_id = Arr::pull($attributes, 'setup_group');
 
         $user->applyImageInput($request->file('image'), $request->boolean('remove_image'));
-        $user->update(Arr::except($attributes, ['setup_group', 'image', 'remove_image']));
+        $user->update(Arr::except($attributes, ['image', 'remove_image']));
         $user->setup_group()->associate($setup_group_id ? SetupGroup::find($setup_group_id) : null);
 
         $user->save();

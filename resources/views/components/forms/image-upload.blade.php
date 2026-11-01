@@ -1,7 +1,6 @@
-@props(['model', 'label' => null])
+@props(['model', 'label'])
 
 @php
-	$label ??= __('Image');
 	$current = $model->image_url;
 	$max_megabytes = round(config('app.readererer_image_max_kilobytes') / 1024, 1);
 @endphp
