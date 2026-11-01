@@ -1,8 +1,8 @@
 ---
 deployment:
   tasks:
-    - export APP=$HOME/domains/readererer-prod.blakey.family
-    - export BUILD=$HOME/readererer-build
+    - export APP=$PWD
+    - export BUILD=$HOME/readererer-build/$(basename $PWD)
     - export PATH=/opt/alt/alt-nodejs24/root/usr/bin:$PATH:/usr/local/cpanel/3rdparty/bin
     - test -f $APP/.env
     - mkdir -p $BUILD
