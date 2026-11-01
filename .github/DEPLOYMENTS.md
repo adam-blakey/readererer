@@ -30,7 +30,8 @@ The app's prod site is `readererer-prod.blakey.family`; the docs site is
      `event:cache` and `queue:restart`, and brings it back up.
 
    `prod` has no SSH, so it is deployed by cPanel's **Git™ Version Control**,
-   driven from the runner through the cPanel API (`:2083/execute`):
+   driven from the runner through the cPanel API (`:2083/execute`) by
+   `.github/actions/deploy-cpanel`:
    - `VersionControl/update` pulls `main` into the cPanel clone
      (`~/repositories/readererer`), and `VersionControlDeployment/create`
      runs the tasks in `.cpanel.yml`. The job then polls
@@ -105,17 +106,17 @@ the environment (Settings → Environments → *name*) or once on the repository
 repository one. If all three sites share one cPanel account, set `APP_DOMAIN`
 per environment and the rest once on the repository.
 
-| Name                       | Example                         | Description                                                                           |
-| -------------------------- | ------------------------------- | ------------------------------------------------------------------------------------- |
-| `APP_DOMAIN` (per env)     | `readererer-prod.blakey.family` | The site's domain; also its folder under `~/domains/` on the server.                  |
-| `DEPLOY_SSH_HOST`          | `ssh.example.krystal.uk`        | SSH host.                                                                             |
-| `DEPLOY_SSH_PORT`          | `722`                           | SSH port (Krystal uses 722).                                                          |
-| `DEPLOY_SSH_USER`          | `readererer`                    | cPanel username.                                                                      |
-| `DEPLOY_GIT_KEY`           | `github_readererer`             | File name, in the server's `~/.ssh/`, of the key the server fetches from GitHub with. |
-| `SSH_PRIVATE_KEY` (secret) |                                 | Private key GitHub logs in to the server with.                                        |
-| `CPANEL_HOST` (prod)       | `server.example.krystal.uk`     | cPanel host; the API is on port 2083.                                                 |
-| `CPANEL_USER` (prod)       | `readererer`                    | Prod's cPanel username.                                                               |
-| `CPANEL_TOKEN` (secret, prod) |                              | A cPanel API token for that account.                                                  |
+| Name                          | Example                         | Description                                                                           |
+| ----------------------------- | ------------------------------- | ------------------------------------------------------------------------------------- |
+| `APP_DOMAIN` (per env)        | `readererer-prod.blakey.family` | The site's domain; also its folder under `~/domains/` on the server.                  |
+| `DEPLOY_SSH_HOST`             | `ssh.example.krystal.uk`        | SSH host.                                                                             |
+| `DEPLOY_SSH_PORT`             | `722`                           | SSH port (Krystal uses 722).                                                          |
+| `DEPLOY_SSH_USER`             | `readererer`                    | cPanel username.                                                                      |
+| `DEPLOY_GIT_KEY`              | `github_readererer`             | File name, in the server's `~/.ssh/`, of the key the server fetches from GitHub with. |
+| `SSH_PRIVATE_KEY` (secret)    |                                 | Private key GitHub logs in to the server with.                                        |
+| `CPANEL_HOST` (prod)          | `server.example.krystal.uk`     | cPanel host; the API is on port 2083.                                                 |
+| `CPANEL_USER` (prod)          | `readererer`                    | Prod's cPanel username.                                                               |
+| `CPANEL_TOKEN` (secret, prod) |                                 | A cPanel API token for that account.                                                  |
 
 The SSH values are not used by `prod`; `docs` still needs them. The old
 `DEPLOY_FTP_HOST`, `DEPLOY_FTP_USER`, `DEPLOY_FTP_PASSWORD` and `DEPLOY_TOKEN`

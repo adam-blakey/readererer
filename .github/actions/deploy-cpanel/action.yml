@@ -1,0 +1,42 @@
+name: Deploy through cPanel
+description: Pulls main into the account's cPanel Git Version Control clone, runs its .cpanel.yml deployment and waits for it to finish.
+
+inputs:
+  host:
+    required: true
+  user:
+    required: true
+  token:
+    required: true
+
+runs:
+  using: composite
+  steps:
+    - shell: bash
+      env:
+        AUTH: cpanel ${{ inputs.user }}:${{ inputs.token }}
+        API: https://${{ inputs.host }}:2083/execute
+        REPO: /home/${{ inputs.user }}/repositories/readererer
+      run: |
+        test -n '${{ inputs.host }}' -a -n '${{ inputs.user }}'
+        call() { curl -sS --fail-with-body --retry 3 -H "Authorization: $AUTH" "$API/$1"; }
+        call "VersionControl/update?repository_root=$REPO&branch=main" | tee update.json
+        jq -e '.status == 1 and (.data.deployable | tostring) == "1"' update.json > /dev/null || { echo '::error::cPanel says the repository is not deployable (invalid .cpanel.yml or uncommitted changes in the clone).'; exit 1; }
+        call "VersionControlDeployment/create?repository_root=$REPO" | tee deploy.json
+        jq -e '.status == 1 and .data.deploy_id != null' deploy.json > /dev/null || { echo '::error::cPanel did not queue a deployment.'; exit 1; }
+        id=$(jq -r '.data.deploy_id | tostring' deploy.json)
+        log=$(jq -r '.data.log_path' deploy.json)
+        for _ in $(seq 120); do
+          sleep 15
+          state=$(call VersionControlDeployment/retrieve | jq -r --arg id "$id" '
+            def set: . != null and . != "" and . != 0 and . != "0";
+            .data[]? | select((.deploy_id | tostring) == $id) | .timestamps
+            | if (.succeeded | set) then "succeeded" elif (.failed | set) then "failed" elif (.canceled | set) then "canceled" else "running" end')
+          echo "Deployment $id: ${state:-not listed yet}"
+          case "$state" in
+            succeeded) exit 0 ;;
+            failed|canceled) echo "::error::The cPanel deployment $state. Its log is $log on the server (File Manager)."; exit 1 ;;
+          esac
+        done
+        echo "::error::The cPanel deployment did not finish within 30 minutes. Its log is $log on the server (File Manager)."
+        exit 1
