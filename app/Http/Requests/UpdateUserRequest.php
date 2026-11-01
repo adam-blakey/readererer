@@ -23,6 +23,8 @@ class UpdateUserRequest extends FormRequest
             'email' => ['required', 'email', 'max:255', Rule::unique('users', 'email')->ignore($this->route('user'))],
             'role' => ['required', Rule::enum(UserRole::class)->only(UserRole::assignableBy($this->user()))],
             'setup_group' => ['nullable', 'exists:setup_groups,id'],
+            'image' => ['nullable', 'image', 'mimes:jpeg,png,webp,gif', 'max:'.config('app.readererer_image_max_kilobytes')],
+            'remove_image' => ['sometimes', 'boolean'],
         ];
     }
 }
