@@ -11,6 +11,11 @@ use App\Models\Term;
 use App\Models\User;
 use Illuminate\Validation\Rules\Enum;
 
+beforeEach(function () {
+    $admin = User::factory()->make(['role' => UserRole::Admin]);
+    request()->setUserResolver(fn () => $admin);
+});
+
 test('a plain string column becomes a required text field', function () {
     $fields = get_create_fields(new Ensemble);
 
@@ -41,7 +46,7 @@ test('a belongs-to-many relation becomes an optional multi-select class field', 
     expect($fields['van_drivers']['options'])->toHaveCount(2);
 });
 
-test('a belongs-to relation follows its foreign key column for optionality', function () {
+test('a belongs-to relation becomes a single select', function () {
     SetupGroup::create(['name' => 'Group A', 'week' => 1, 'color' => 'blue']);
 
     $fields = get_create_fields(new User);
@@ -143,36 +148,18 @@ test('the value of an enum field is the model\'s current case', function () {
 });
 
 test('a field is required when the FormRequest requires it, whatever the column allows', function () {
-    $admin = make_user(UserRole::Admin);
-    request()->setUserResolver(fn () => $admin);
-
     expect(get_create_fields(new User)['email']['required'])->toBeTrue();
 });
 
-test('a field is optional when the FormRequest allows it to be empty', function () {
-    expect(get_create_fields(new SetupGroup)['week']['required'])->toBeFalse();
-});
-
-test('an attribute the rules say nothing about falls back to the column nullability', function () {
-    $admin = make_user(UserRole::Admin);
-    request()->setUserResolver(fn () => $admin);
-
-    $fields = get_create_fields(new User);
-
-    expect($fields['username']['required'])->toBeTrue();
-    expect($fields['image']['required'])->toBeFalse();
+test('a field the FormRequest does not require is optional, whatever the column says', function () {
+    expect(get_create_fields(new User)['username']['required'])->toBeFalse();
 });
 
 test('editing an existing record reads the update request rules', function () {
     $setupGroup = SetupGroup::factory()->create(['name' => 'Group A', 'color' => Color::Teal]);
 
     expect(get_validation_rules_for_model($setupGroup))->toEqual((new UpdateSetupGroupRequest)->rules());
-    expect(get_create_fields($setupGroup)['week']['required'])->toBeFalse();
-});
-
-test('a model with no FormRequest falls back to the column nullability', function () {
-    expect(get_validation_rules_for_model(new EmailLog))->toBe([]);
-    expect(get_create_fields(new EmailLog)['status']['required'])->toBeTrue();
+    expect(get_create_fields($setupGroup)['week']['required'])->toBeTrue();
 });
 
 test('only a bare required rule makes an attribute mandatory', function () {
@@ -189,5 +176,5 @@ test('only a bare required rule makes an attribute mandatory', function () {
     expect(rules_require_attribute($rules, 'piped_required'))->toBeTrue();
     expect(rules_require_attribute($rules, 'conditional'))->toBeFalse();
     expect(rules_require_attribute($rules, 'object'))->toBeFalse();
-    expect(rules_require_attribute($rules, 'absent'))->toBeNull();
+    expect(rules_require_attribute($rules, 'absent'))->toBeFalse();
 });

@@ -19,7 +19,7 @@ class UpdateSetupGroupRequest extends FormRequest
     {
         return [
             'name' => ['required', 'string', 'max:255'],
-            'week' => ['nullable', 'integer', 'min:0', 'max:10'],
+            'week' => ['required', 'integer', 'min:0', 'max:10'],
             'color' => ['required', new Enum(Color::class)],
             'van_drivers' => ['nullable', 'array'],
             'van_drivers.*' => ['exists:users,id'],

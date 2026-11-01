@@ -8,7 +8,6 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Support\Arr;
-use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Str;
 
@@ -128,23 +127,14 @@ function get_validation_rules_for_model(Model $model): array
 {
     $request_class = 'App\\Http\\Requests\\'.($model->exists ? 'Update' : 'Store').class_basename($model).'Request';
 
-    if (! class_exists($request_class)) {
-        return [];
-    }
-
-    // Rules that need request data missing here (no user or route) count as none.
-    return rescue(fn () => $request_class::createFrom(request())->rules(), [], false);
+    return class_exists($request_class) ? $request_class::createFrom(request())->rules() : [];
 }
 
-function rules_require_attribute(array $rules, string $attribute): ?bool
+function rules_require_attribute(array $rules, string $attribute): bool
 {
-    if (! array_key_exists($attribute, $rules)) {
-        return null;
-    }
+    $rule = $rules[$attribute] ?? [];
 
-    $attribute_rules = is_string($rules[$attribute]) ? explode('|', $rules[$attribute]) : Arr::wrap($rules[$attribute]);
-
-    return in_array('required', $attribute_rules, true);
+    return in_array('required', is_string($rule) ? explode('|', $rule) : Arr::wrap($rule), true);
 }
 
 function get_create_fields(object $dummy): array
@@ -167,7 +157,6 @@ function get_create_fields(object $dummy): array
 
             $name = $fillable_entry;
             $type = 'class';
-            $nullable = $isBelongsToMany || belongs_to_is_optional($belongsToRelation, $columns);
             $select_multiple = $isBelongsToMany;
             $default_option = null;
             $icon = call_or_default($dummy, 'getIconForAttribute', $name, 'pencil');
@@ -192,7 +181,6 @@ function get_create_fields(object $dummy): array
                 $default_option = $column['default'] ?? null;
             }
 
-            $nullable = $column['nullable'];
             $select_multiple = false;
             $icon = call_or_default($dummy, 'getIconForAttribute', $name, 'pencil');
         }
@@ -200,7 +188,7 @@ function get_create_fields(object $dummy): array
         $fields[$name] = [
             'label' => clean_attribute_name($name),
             'type' => $type,
-            'required' => rules_require_attribute($rules, $name) ?? ! $nullable,
+            'required' => rules_require_attribute($rules, $name),
             'icon' => $icon,
             'value' => $dummy->$name,
             'options' => $options,
@@ -212,13 +200,6 @@ function get_create_fields(object $dummy): array
     }
 
     return $fields;
-}
-
-function belongs_to_is_optional(BelongsTo $relation, Collection $columns): bool
-{
-    $column = $columns->firstWhere('name', $relation->getForeignKeyName());
-
-    return (bool) ($column['nullable'] ?? false);
 }
 
 function call_or_default(object $object, string $method, mixed $argument, mixed $defaultValue = null): mixed

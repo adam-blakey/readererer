@@ -27,6 +27,7 @@ test('a setup group can be created with van drivers', function () {
 test('a setup group can be created without van drivers', function () {
     $this->actingAs(make_user(UserRole::Admin))->post(route('setupgroups.store'), [
         'name' => 'Group B',
+        'week' => 1,
         'color' => 'red',
     ])->assertRedirect();
 
@@ -35,10 +36,10 @@ test('a setup group can be created without van drivers', function () {
     expect($setupGroup->van_drivers)->toHaveCount(0);
 });
 
-test('creating a setup group requires a name and colour', function () {
+test('creating a setup group requires a name, week and colour', function () {
     $this->actingAs(make_user(UserRole::Admin))
         ->post(route('setupgroups.store'), [])
-        ->assertSessionHasErrors(['name', 'color']);
+        ->assertSessionHasErrors(['name', 'week', 'color']);
 
     expect(SetupGroup::count())->toBe(0);
 });
