@@ -31,8 +31,7 @@ runs:
         echo '{}' > down
         sudo apt-get install -y -qq lftp
         lftp -c "set ftp:ssl-force true; set ssl:verify-certificate true; open --env-password -u '${{ inputs.ftp-user }}' '${{ inputs.ftp-host }}'; get composer.lock -o server-composer.lock" || true
-        # Fresh checkout timestamps make mirror re-send every file, so skip vendor while the dependencies are unchanged.
-        # vendor/composer always goes up: the optimised classmap lists the app's own classes.
+        # Fresh timestamps make mirror re-send vendor; vendor/composer's classmap includes app classes.
         if cmp -s composer.lock server-composer.lock; then
           echo 'composer.lock unchanged: uploading vendor/composer only'
           vendor_dir=vendor/composer
