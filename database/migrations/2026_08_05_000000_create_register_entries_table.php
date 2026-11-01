@@ -22,8 +22,7 @@ return new class extends Migration
             $table->string('notes')->nullable();
             $table->foreignIdFor(User::class, 'marked_by_user_id')->nullable()->constrained('users');
 
-            // Unlike the append-only attendance poll, a register holds one
-            // current record per member per date, updated in place.
+            // Unlike the append-only poll, one current row per member per date, updated in place.
             $table->unique(['term_date_id', 'ensemble_id', 'user_id']);
         });
     }

@@ -22,8 +22,7 @@ test('the seating plan page requires permission to update the ensemble', functio
 });
 
 test('the seating plan groups members by seat row', function () {
-    // Seat rows are letters on the seating plan page (the view builds a
-    // range('A', ...) from the highest row).
+    // The view labels seat rows with letters, from range('A', ...) up to the highest row.
     $ensemble = Ensemble::factory()->create();
     $seated = make_user(UserRole::Member);
     $unseated = make_user(UserRole::Member);
@@ -58,7 +57,6 @@ test('unassigned members are split up by instrument family', function () {
     expect($unassigned->get('Trumpets')->pluck('id')->all())->toBe([$trumpeter->id]);
     expect($unassigned->get('No instrument')->pluck('id')->all())->toBe([$unknown->id]);
 
-    // Each member carries their instrument family's colour for the editor.
     expect($unassigned->get('Flutes')->first()->instrument_color)->toBe(Color::Blue);
     expect($unassigned->get('No instrument')->first()->instrument_color)->toBeNull();
 });

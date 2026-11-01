@@ -1,8 +1,4 @@
-{{--
-    A swatch picker for the Color palette: one radio per case, rendered as a
-    Tabler colour input. It is a plain radio group, so it needs no JavaScript
-    and keeps native keyboard navigation and browser validation.
---}}
+{{-- A plain radio group per Color case, so it keeps native keyboard navigation and validation without JavaScript. --}}
 @props([
     'name',
     'options',
@@ -13,8 +9,7 @@
 ])
 
 @php
-    // The value may be an enum instance off the model, or the raw backing value
-    // coming back from old input or a column default.
+    // An enum instance from the model, or a raw backing value from old input or a column default.
     $selected = $value instanceof \UnitEnum ? enum_case_value($value) : $value;
     $selected = ($selected === null || $selected === '') ? null : (string) $selected;
 @endphp

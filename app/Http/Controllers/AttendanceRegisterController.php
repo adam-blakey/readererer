@@ -15,10 +15,6 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Validation\Rule;
 
-/**
- * The attendance register: who actually turned up to a given rehearsal or
- * concert, as opposed to the poll, which records who said they would.
- */
 class AttendanceRegisterController extends Controller
 {
     public function index(Request $request)
@@ -84,7 +80,6 @@ class AttendanceRegisterController extends Controller
         foreach ($statuses as $user_id => $status) {
             $user_id = (int) $user_id;
 
-            // Ignore anything submitted for someone who isn't on this register.
             if (! $member_ids->contains($user_id)) {
                 continue;
             }
@@ -98,8 +93,7 @@ class AttendanceRegisterController extends Controller
                 'ensemble_id' => $ensemble->id,
             ];
 
-            // A member who is neither marked nor annotated leaves no record
-            // behind, so an accidental entry can be undone.
+            // No record for an unmarked, unannotated member, so an accidental entry can be undone.
             if ($status === RegisterStatus::Unmarked && $note === null) {
                 RegisterEntry::where($keys)->delete();
 
@@ -118,11 +112,7 @@ class AttendanceRegisterController extends Controller
             ->with('status', __('Register saved.'));
     }
 
-    /**
-     * The members a register covers: everyone in the ensemble who plays
-     * something. Members without an instrument family are still setting up
-     * their membership, exactly as on the poll.
-     */
+    /** Members without an instrument family are still setting up their membership, so are left off, as on the poll. */
     private function members(Ensemble $ensemble): Collection
     {
         return $ensemble->users
@@ -167,10 +157,6 @@ class AttendanceRegisterController extends Controller
             ->keyBy('user_id');
     }
 
-    /**
-     * What each member last said on the poll for this date, keyed by user id,
-     * so whoever takes the register can see who was expected.
-     */
     private function polled_statuses(Ensemble $ensemble, TermDate $termDate): Collection
     {
         return $this->members($ensemble)

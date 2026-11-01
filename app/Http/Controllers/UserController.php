@@ -158,7 +158,6 @@ class UserController extends Controller
             return redirect()->back()->with('status', __('User is already a member of that ensemble.'));
         }
 
-        // A seat is only meaningful for ensembles that run a seating plan.
         $ensemble = Ensemble::findOrFail($validated['ensemble_id']);
         $seat = $ensemble->seating_plan_enabled
             ? ['seat_row' => $validated['seat_row'] ?? null, 'seat_column' => $validated['seat_column'] ?? null]

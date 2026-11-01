@@ -65,7 +65,6 @@ test('an instrument family can be viewed and updated', function () {
 test('deleting an instrument family soft deletes it and admins can restore it', function () {
     $instrumentFamily = InstrumentFamily::create(['name' => 'Bassoons']);
 
-    // Deleting is admin only.
     $this->actingAs(make_user(UserRole::Moderator))
         ->delete(route('instrumentfamilys.destroy', $instrumentFamily))
         ->assertForbidden();

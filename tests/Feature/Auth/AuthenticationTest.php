@@ -13,8 +13,7 @@ test('login screen tabs the forgotten password link last, after login with Googl
 
     $response->assertStatus(200);
 
-    // The link stays reachable by keyboard, but is numbered after every other
-    // focusable element on the page rather than sitting beside the password field.
+    // Still reachable by keyboard, but numbered after every other focusable element.
     $response->assertSeeInOrder([
         'href="'.route('password.request').'"',
         'tabindex="7"',
@@ -22,8 +21,7 @@ test('login screen tabs the forgotten password link last, after login with Googl
     ], false);
     $response->assertDontSee('tabindex="9999"', false);
 
-    // Every other focusable element is numbered so the ordering above holds:
-    // a positive tabindex is always traversed before elements in natural order.
+    // A positive tabindex is traversed before natural order, so every other element needs one too.
     $response->assertSee('name="username"', false);
     $response->assertSeeInOrder(['name="username"', 'tabindex="2"'], false);
     $response->assertSeeInOrder(['name="password"', 'tabindex="3"'], false);

@@ -35,8 +35,7 @@ document.addEventListener('DOMContentLoaded', function () {
         return card;
     }
 
-    // Keep exactly one empty row after the last occupied row, so there is
-    // always somewhere to drop a member without ever accumulating spares.
+    // Exactly one empty row after the last occupied one, so there is always somewhere to drop a member.
     function normaliseRows() {
         const rows = assignedRows();
         let lastOccupied = -1;
@@ -102,8 +101,7 @@ document.addEventListener('DOMContentLoaded', function () {
         item.draggable = true;
     });
 
-    // Drag-and-drop is delegated from the document so rows created after page
-    // load behave identically to the ones rendered by the server.
+    // Delegated from the document so rows added after load behave like server-rendered ones.
     document.addEventListener('dragstart', (e) => {
         const entry = e.target.closest('.user-entry');
         if (!entry) {

@@ -43,8 +43,7 @@ test('setup groups are soft deleted and can be restored', function () {
 });
 
 test('setup groups persist their timestamps', function () {
-    // Regression test: declared $created_at/$updated_at properties used to
-    // shadow the Eloquent attributes, so timestamps were never written.
+    // Regression: declared `created_at`/`updated_at` properties shadowed the attributes, so timestamps were never written.
     $setupGroup = SetupGroup::factory()->create();
 
     expect($setupGroup->fresh()->created_at)->not->toBeNull();

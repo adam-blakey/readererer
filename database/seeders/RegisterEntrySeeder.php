@@ -12,12 +12,7 @@ use Illuminate\Database\Seeder;
 
 class RegisterEntrySeeder extends Seeder
 {
-    /**
-     * Fill in registers for dates that have already happened. Registers are one
-     * row per member per date per ensemble, so they are built by walking the
-     * dates rather than through a factory, which would keep colliding with the
-     * unique index.
-     */
+    /** Registers for past dates, built by walking the dates since a factory would collide with the unique index. */
     public function run(): void
     {
         $ensembles = Ensemble::with('users')->get();

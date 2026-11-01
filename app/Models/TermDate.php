@@ -76,10 +76,7 @@ class TermDate extends Model
         return $this->hasMany(RegisterEntry::class);
     }
 
-    /**
-     * Whether this date applies to the given ensemble: rehearsals are for
-     * everyone, concerts only for the ensemble playing them.
-     */
+    /** Rehearsals apply to every ensemble; a concert only to the ensemble playing it. */
     public function appliesToEnsemble(Ensemble $ensemble): bool
     {
         return $this->concert_ensemble_id === null
@@ -104,10 +101,7 @@ class TermDate extends Model
         return $this->start_datetime->format('l, jS F Y, H:i').' – '.$this->end_datetime->format('l, jS F Y, H:i');
     }
 
-    /**
-     * The date portion, for rendering in its own table column. Multi-day
-     * dates show the span; single-day dates just the one date.
-     */
+    /** The date for its own table column; multi-day dates show the span. */
     public function getDateLabelAttribute(): string
     {
         if ($this->start_datetime->isSameDay($this->end_datetime)) {
@@ -117,18 +111,13 @@ class TermDate extends Model
         return $this->start_datetime->format('D, j M Y').' – '.$this->end_datetime->format('D, j M Y');
     }
 
-    /**
-     * The time portion, for rendering in its own table column.
-     */
+    /** The time for its own table column. */
     public function getTimeLabelAttribute(): string
     {
         return $this->start_datetime->format('H:i').'–'.$this->end_datetime->format('H:i');
     }
 
-    /**
-     * Date and time together, on one line. Single-day dates read as
-     * "Wed, 12 Aug 2026, 19:30–21:30"; multi-day dates spell out both ends.
-     */
+    /** Date and time on one line, e.g. "Wed, 12 Aug 2026, 19:30–21:30"; multi-day dates spell out both ends. */
     public function getScheduleLabelAttribute(): string
     {
         if ($this->start_datetime->isSameDay($this->end_datetime)) {
@@ -138,14 +127,10 @@ class TermDate extends Model
         return $this->start_datetime->format('D, j M Y, H:i').' – '.$this->end_datetime->format('D, j M Y, H:i');
     }
 
-    /**
-     * How far off the date is, in words — "Today", "In 3 days", "2 months ago" —
-     * for showing alongside the absolute date.
-     */
+    /** How far off the date is, in words: "Today", "In 3 days", "2 months ago". */
     public function getRelativeLabelAttribute(): string
     {
-        // Rounded, so a day that is an hour short either side of a DST change
-        // still counts as a whole day.
+        // Rounded, so a day an hour short across a DST change still counts as a whole day.
         $days = (int) round(now()->startOfDay()->diffInDays($this->start_datetime->copy()->startOfDay(), false));
 
         return match (true) {

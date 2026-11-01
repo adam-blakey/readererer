@@ -20,7 +20,6 @@ class EnsemblePolicy
 
     public function view(User $user, Ensemble $ensemble)
     {
-        // Admins always allowed; otherwise allow users tied to this ensemble (including Ensemble role users).
         if ($user->role->value >= UserRole::Moderator->value) {
             return Response::allow();
         }

@@ -131,9 +131,7 @@ test('an invalid update leaves the setup group untouched', function () {
 });
 
 test('a setup group can be soft deleted and restored through the endpoints', function () {
-    // Regression test: SetupGroup used to declare `created_at`/`updated_at`
-    // properties that shadowed the Eloquent attributes, making the destroy
-    // endpoint error.
+    // Regression: declared `created_at`/`updated_at` properties shadowed the attributes and broke destroy.
     $setupGroup = SetupGroup::factory()->create();
     $admin = make_user(UserRole::Admin);
 

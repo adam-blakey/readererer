@@ -24,7 +24,6 @@ class EnsembleAdminPolicy
             return Response::allow();
         }
 
-        // Members may only view the admins of an ensemble they belong to.
         if ($user->role->value >= UserRole::Member->value && $user->ensembles->contains('id', $ensembleAdmin->ensemble_id)) {
             return Response::allow();
         }

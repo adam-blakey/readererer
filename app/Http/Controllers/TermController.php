@@ -156,8 +156,7 @@ class TermController extends Controller
             ];
 
             if (! empty($row['id'])) {
-                // Fetched first so the update fires TermDateObserver's change alerts;
-                // a query-builder update() skips model events.
+                // Fetched first: a query-builder update() would skip TermDateObserver's change alerts.
                 $term->term_dates()->whereKey($row['id'])->first()?->update($payload);
             } else {
                 $term->term_dates()->create($payload);

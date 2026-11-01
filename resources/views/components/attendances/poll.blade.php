@@ -26,7 +26,6 @@
 
 	$spans_multiple_years = $term->earliest_date->year != $term->latest_date->year;
 
-	// Whoever takes the register can jump straight to it for any of this term's dates.
 	$can_take_registers = Gate::allows('viewAny', App\Models\RegisterEntry::class);
 @endphp
 

@@ -7,14 +7,7 @@ use Illuminate\Support\Facades\Blade;
 use Illuminate\Support\Facades\View;
 use Illuminate\Support\ViewErrorBag;
 
-/**
- * Enum columns are rendered by the generic auto-entity form as a select built
- * from the enum's cases; these cover the markup that ends up on the page.
- * Columns cast to the Color palette get the colour picker instead — see
- * ColorPickerTest.
- *
- * Returns one row per option: ['value' => ..., 'label' => ..., 'selected' => ...].
- */
+/** Each option of the named select, as ['value' => ..., 'label' => ..., 'selected' => ...]. */
 function enum_select_options(string $html, string $name): Collection
 {
     $select = preg_split('/<select[^>]*name="'.preg_quote($name, '/').'"/', $html, 2)[1] ?? '';

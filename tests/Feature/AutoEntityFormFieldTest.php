@@ -8,9 +8,6 @@ use Illuminate\Support\Facades\View;
 use Illuminate\Support\MessageBag;
 use Illuminate\Support\ViewErrorBag;
 
-/**
- * Render the field component directly, optionally with an error against it.
- */
 function render_field(string $name, array $data, ?string $error = null): string
 {
     $errors = new ViewErrorBag;

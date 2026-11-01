@@ -205,7 +205,6 @@
 			const addBtn = document.getElementById('add-term-date');
 			const template = document.getElementById('term-date-row-template');
 
-			// Highlight a field once its value differs from the value it started with.
 			function attachChangeWatcher(input) {
 				if (!input) return;
 				const initial = input.getAttribute('data-initial') ?? '';
@@ -229,7 +228,6 @@
 				return max + 1;
 			}
 
-			// Clone the shared template, stamping the row's index into every field name.
 			function buildRow(index) {
 				const row = template.content.firstElementChild.cloneNode(true);
 				row.setAttribute('data-index', index);
@@ -253,8 +251,7 @@
 
 			function duplicateRow(sourceRow) {
 				const row = buildRow(nextIndex());
-				// Copy the source row's values across; the template carries no hidden
-				// id, so the duplicate is always saved as a brand new term date.
+				// The template has no hidden id, so the duplicate is saved as a new term date.
 				row.querySelectorAll('[name]').forEach(el => {
 					const field = (el.name.match(/\[([^\]]+)\]$/) || [])[1];
 					const source = field ? sourceRow.querySelector(`[name$="[${field}]"]`) : null;

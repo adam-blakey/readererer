@@ -58,12 +58,7 @@ class Ensemble extends Model
         return $this->belongsToMany(User::class, 'ensemble_admins', 'ensemble_id', 'admin_id')->orderBy('first_name');
     }
 
-    /**
-     * Number of members in the ensemble (excluding the generic ensemble login).
-     *
-     * Prefers an eager-loaded aggregate (`withCount('users')`) or an already
-     * loaded relation so index listings don't fire a query per row.
-     */
+    /** Member count, excluding the generic ensemble login; uses a loaded count or relation when there is one. */
     public function getNumberOfMembersAttribute(): int
     {
         if (array_key_exists('users_count', $this->attributes)) {

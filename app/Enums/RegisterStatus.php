@@ -9,9 +9,7 @@ enum RegisterStatus: int
     case Absent = 2;
     case Late = 3;
 
-    /**
-     * The key this status is counted under in register_status_totals().
-     */
+    /** The key this status is counted under in register_status_totals(). */
     public function key(): string
     {
         return match ($this) {
@@ -52,10 +50,7 @@ enum RegisterStatus: int
         };
     }
 
-    /**
-     * The statuses that can be chosen when taking a register, in the order they
-     * are offered. `Unmarked` is a starting state rather than a choice.
-     */
+    /** The statuses offered when taking a register, in order; `Unmarked` is a starting state, not a choice. */
     public static function choices(): array
     {
         return [self::Present, self::Late, self::Absent];
