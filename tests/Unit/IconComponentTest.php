@@ -35,7 +35,8 @@ test('the icon build directory is populated at the flat path the component reads
     expect(is_dir($iconsDir))->toBeTrue('public/build/icons is missing — run `npm run build`.')
         ->and(file_exists($iconsDir.'/login.svg'))
         ->toBeTrue('Expected build/icons/login.svg. If the tabler icons are nested under '
-            .'build/icons/node_modules/... the vite copy target is missing `rename: { stripBase: true }`.');});
+            .'build/icons/node_modules/... the vite copy target is missing `rename: { stripBase: true }`.');
+});
 
 test('the icon component returns an empty string for an unknown icon name', function () {
     expect(new Icon('this-icon-does-not-exist')->render())->toBe('');
