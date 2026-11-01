@@ -38,6 +38,9 @@ php artisan test
 # Lint / format (Laravel Pint)
 ./vendor/bin/pint
 ./vendor/bin/pint --test    # check only, no changes
+
+# Laravel Boost (dev-only MCP server in .mcp.json; runs when APP_ENV=local or APP_DEBUG=true)
+php artisan boost:update    # refresh .claude/skills; guidelines are off in boost.json so this file stays the only project instructions
 ```
 
 Tests run with `APP_ENV=testing` (see `phpunit.xml`); the SQLite-in-memory env lines are currently commented out, so tests hit the configured DB connection.
