@@ -95,6 +95,7 @@ Blade components live in `resources/views/components/` (Tabler-based: `card`, `t
 ## Working preferences
 
 - Write commit messages as Conventional Commits (`type(scope): description`); see `.github/pull_request_template.md`. The release version bump is derived from them.
+- Give PR titles the same Conventional Commits form: the title becomes the merge commit on `main` (`title (#N)`). When taking over or superseding another PR, retitle it too.
 
 - Check-ins on PRs (`send_later`/scheduled tasks, webhooks (`watch_url`), PR activity subscriptions or other periodic checks) are fine while development is still active, e.g. waiting on pipeline output. Once development is complete and the PR is in a stable state, remove all of them.
 - Do not add code comments unless the behaviour is genuinely obscure; prefer clear naming, and think carefully before adding any comment.
