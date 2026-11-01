@@ -22,11 +22,6 @@ trait HasPropertyIcons
         return $this->getIconFromClass($attributeName);
     }
 
-    /**
-     * Eloquent attributes (database columns, timestamps) must not be declared
-     * as real properties -- that shadows the model's attribute handling -- so
-     * their icons are declared at class level with #[Icon('name', for: 'attribute')].
-     */
     private function getIconFromClass(string $attributeName): ?string
     {
         $reflection = new ReflectionClass($this);

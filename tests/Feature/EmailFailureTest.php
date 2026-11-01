@@ -30,10 +30,7 @@ function make_failure_term_date(array $attributes = []): TermDate
     ], $attributes));
 }
 
-/**
- * Swap the default mailer for one whose transport always throws, simulating
- * an unreachable/refusing mail server.
- */
+/** Swap the default mailer for one that always throws, like an unreachable mail server. */
 function use_failing_mail_transport(): void
 {
     Mail::extend('failing', fn () => new class extends AbstractTransport
@@ -76,9 +73,8 @@ test('a transport failure is recorded on the log and every recipient', function 
 });
 
 test('a malformed recipient address fails without stopping the rest of the batch', function () {
-    // The array mailer still builds the full message, so a non-RFC-compliant
-    // address throws while everyone else sends normally.
-    $setupGroup = SetupGroup::create(['name' => 'Group A', 'color' => 'blue']);
+    // The array mailer still builds the full message, so an invalid address throws.
+    $setupGroup = SetupGroup::factory()->create();
     $badMember = make_user(UserRole::Member, ['setup_group_id' => $setupGroup->id, 'email' => 'not-a-valid-address']);
     $goodDriver = make_user(UserRole::Member, ['setup_group_id' => null]);
     $setupGroup->van_drivers()->attach($goodDriver->id);
@@ -91,12 +87,9 @@ test('a malformed recipient address fails without stopping the rest of the batch
 
     $log = EmailLog::where('term_date_id', $termDate->id)->first();
 
-    // The batch as a whole is marked failed because one recipient failed...
     expect($log->status)->toBe(EmailStatus::Failed);
     expect($log->recipients)->toHaveCount(2);
 
-    // ...but the failure was isolated: the bad address carries the error and
-    // the valid recipient after it still went through.
     $failed = $log->recipients->firstWhere('email', 'not-a-valid-address');
     expect($failed->status)->toBe(EmailStatus::Failed);
     expect($failed->error_message)->not->toBeNull();
@@ -137,7 +130,6 @@ test('the email log seeder produces sent, partially failed and failed logs', fun
     expect(EmailLog::where('status', EmailStatus::Sent)->count())->toBeGreaterThan(0);
     expect(EmailLog::where('status', EmailStatus::Failed)->count())->toBeGreaterThan(0);
 
-    // The partial failure keeps its successful recipients alongside the failed one.
     $partial = EmailLog::where('status', EmailStatus::Failed)
         ->get()
         ->first(fn ($log) => $log->recipients->contains('status', EmailStatus::Sent));

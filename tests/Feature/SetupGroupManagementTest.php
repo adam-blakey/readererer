@@ -76,7 +76,7 @@ test('creating a setup group rejects van drivers who are not users', function ()
 });
 
 test('updating a setup group replaces its attributes and van drivers', function () {
-    $setupGroup = SetupGroup::create(['name' => 'Group A', 'week' => 1, 'color' => 'blue']);
+    $setupGroup = SetupGroup::factory()->create();
     $oldDriver = make_user();
     $newDriver = make_user();
     $setupGroup->van_drivers()->attach($oldDriver->id, ['sort' => 0]);
@@ -98,7 +98,7 @@ test('updating a setup group replaces its attributes and van drivers', function 
 });
 
 test('updating a setup group without van drivers removes them all', function () {
-    $setupGroup = SetupGroup::create(['name' => 'Group A', 'week' => 1, 'color' => 'blue']);
+    $setupGroup = SetupGroup::factory()->create();
     $driver = make_user();
     $setupGroup->van_drivers()->attach($driver->id, ['sort' => 0]);
 
@@ -112,7 +112,7 @@ test('updating a setup group without van drivers removes them all', function () 
 });
 
 test('an invalid update leaves the setup group untouched', function () {
-    $setupGroup = SetupGroup::create(['name' => 'Group A', 'week' => 1, 'color' => 'blue']);
+    $setupGroup = SetupGroup::factory()->create(['name' => 'Group A']);
     $driver = make_user();
     $setupGroup->van_drivers()->attach($driver->id, ['sort' => 0]);
 
@@ -131,10 +131,8 @@ test('an invalid update leaves the setup group untouched', function () {
 });
 
 test('a setup group can be soft deleted and restored through the endpoints', function () {
-    // Regression test: SetupGroup used to declare `created_at`/`updated_at`
-    // properties that shadowed the Eloquent attributes, making the destroy
-    // endpoint error.
-    $setupGroup = SetupGroup::create(['name' => 'Group A', 'week' => 1, 'color' => 'blue']);
+    // Regression: declared `created_at`/`updated_at` properties shadowed the attributes and broke destroy.
+    $setupGroup = SetupGroup::factory()->create();
     $admin = make_user(UserRole::Admin);
 
     $this->actingAs($admin)->delete(route('setupgroups.destroy', $setupGroup))->assertRedirect();
@@ -155,7 +153,7 @@ test('guests cannot create setup groups', function () {
 });
 
 test('the setup group show and create pages render', function () {
-    $setupGroup = SetupGroup::create(['name' => 'Group A', 'week' => 1, 'color' => 'blue']);
+    $setupGroup = SetupGroup::factory()->create();
     $user = make_user(UserRole::Moderator);
 
     $this->actingAs($user)->get(route('setupgroups.show', $setupGroup))->assertOk();

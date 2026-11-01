@@ -68,7 +68,6 @@ test('another ensemble concert has no register for this ensemble', function () {
         ->get(route('attendance.register.show', ['ensemble' => $ensemble->slug, 'termDate' => $concert->id]))
         ->assertNotFound();
 
-    // Rehearsals belong to every ensemble, and an ensemble's own concert to it.
     $this->actingAs($moderator)
         ->get(route('attendance.register.show', ['ensemble' => $ensemble->slug, 'termDate' => $rehearsal->id]))
         ->assertOk();
@@ -213,8 +212,6 @@ test('the index lists each date with a link to the registers that apply to it', 
     $response = $this->actingAs(make_user(UserRole::Admin))->get(route('attendance.register.index'));
 
     $response->assertOk();
-    // A rehearsal offers a register for every ensemble; a concert only for the
-    // ensemble playing it.
     $response->assertSee(route('attendance.register.show', ['ensemble' => $ensemble, 'termDate' => $rehearsal]), false);
     $response->assertSee(route('attendance.register.show', ['ensemble' => $otherEnsemble, 'termDate' => $rehearsal]), false);
     $response->assertSee(route('attendance.register.show', ['ensemble' => $ensemble, 'termDate' => $concert]), false);

@@ -18,6 +18,8 @@
                             @method('POST')
                         @endif
                         <div class="card-body">
+                            <x-forms.error-summary :fields="array_keys($fields)" />
+
                             <div class="space-y">
                                 <div class="row">
                                     @foreach($fields as $name => $data)

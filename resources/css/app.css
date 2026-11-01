@@ -97,9 +97,14 @@
     height: calc(1.25rem + 1.125rem + (var(--tblr-border-width) * 2));
 }
 
-/* Colour picker swatches: a little larger than Tabler's default so they are
-   comfortable to hit on a form. */
+/* Larger than Tabler's default swatches, so they are easier to hit. */
 .color-picker .form-colorinput-color {
     width: 2rem;
     height: 2rem;
+}
+
+/* A flex item won't shrink below its content without min-width: 0, so text-truncate needs it. */
+.entry-text {
+    flex-grow: 1;
+    min-width: 0;
 }

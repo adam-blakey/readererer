@@ -9,13 +9,7 @@ use Illuminate\Support\Facades\Blade;
 use Illuminate\Support\Facades\View;
 use Illuminate\Support\ViewErrorBag;
 
-/**
- * A column cast to the Color palette is rendered by the generic auto-entity
- * form as a swatch picker: one radio per case, no JavaScript involved. These
- * cover the markup that ends up on the page.
- *
- * Returns one row per swatch: ['value' => ..., 'label' => ..., 'checked' => ...].
- */
+/** Each swatch of the named picker, as ['value' => ..., 'label' => ..., 'checked' => ...]. */
 function color_picker_radios(string $html, string $name): Collection
 {
     preg_match_all(
@@ -59,7 +53,7 @@ test('a create form checks the column\'s database default', function () {
 });
 
 test('an edit form checks the record\'s current colour', function () {
-    $setupGroup = SetupGroup::create(['name' => 'Group A', 'week' => 1, 'color' => Color::Teal]);
+    $setupGroup = SetupGroup::factory()->create(['color' => Color::Teal]);
 
     $html = $this->actingAs(make_user(UserRole::Admin))
         ->get(route('setupgroups.edit', $setupGroup))
@@ -121,6 +115,5 @@ test('the colour picker needs no javascript', function () {
 });
 
 test('a colour column with no palette cast is untouched', function () {
-    // Sanity check that the picker is driven by the cast, not the column name.
     expect(get_create_fields(new InstrumentFamily)['name']['type'])->toBe('text');
 });

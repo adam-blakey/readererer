@@ -4,11 +4,14 @@ use App\Enums\AttendanceStatus;
 use App\Enums\Color;
 use App\Enums\RegisterStatus;
 use App\Models\Ensemble;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Support\Arr;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Str;
+use Illuminate\Support\ViewErrorBag;
 
 function get_route_name_from_model($model, $route = 'show')
 {
@@ -27,13 +30,7 @@ function get_class_name_from_model($model)
     return $class_name;
 }
 
-/**
- * Turn a column name into a human label ("setup_group" -> "Setup group").
- *
- * The label is passed through the translator, so a locale can override any of
- * them in its message file; untranslated labels fall through as the English
- * text they already were.
- */
+/** Turn a column name into a translated label ("setup_group" -> "Setup group"). */
 function clean_attribute_name($dirty_attribute)
 {
     $clean_attribute = str_replace('_', ' ', $dirty_attribute);
@@ -42,13 +39,7 @@ function clean_attribute_name($dirty_attribute)
     return __($clean_attribute);
 }
 
-/**
- * Resolve the label to show for an attribute in a table header.
- *
- * A model may declare a public `$column_labels` map (attribute => label) to
- * override the generated name with something friendlier; anything not listed
- * there falls back to clean_attribute_name().
- */
+/** Table-header label for an attribute: the model's public `$column_labels` entry, else clean_attribute_name(). */
 function column_label($model, $attribute)
 {
     if (property_exists($model, 'column_labels') && array_key_exists($attribute, $model->column_labels)) {
@@ -95,13 +86,7 @@ function member_status_totals($members, $term_date, ?Ensemble $ensemble = null):
     }
 }
 
-/**
- * Count each register status across a set of register entries, keyed by the
- * status name ('present', 'late', 'absent', 'unmarked').
- *
- * `$expected_members` is the number of members the register covers, so that
- * members with no entry at all are counted as unmarked.
- */
+/** Count register entries by status key; members of `$expected_members` with no entry count as unmarked. */
 function register_status_totals($entries, int $expected_members): array
 {
     $totals = [];
@@ -122,13 +107,37 @@ function register_status_totals($entries, int $expected_members): array
     return $totals;
 }
 
+function get_validation_rules_for_model(Model $model): array
+{
+    $request_class = 'App\\Http\\Requests\\'.($model->exists ? 'Update' : 'Store').class_basename($model).'Request';
+
+    if (! class_exists($request_class)) {
+        return [];
+    }
+
+    // Rules that need request data missing here (no user or route) count as none.
+    return rescue(fn () => $request_class::createFrom(request())->rules(), [], false);
+}
+
+function rules_require_attribute(array $rules, string $attribute): ?bool
+{
+    if (! array_key_exists($attribute, $rules)) {
+        return null;
+    }
+
+    $attribute_rules = is_string($rules[$attribute]) ? explode('|', $rules[$attribute]) : Arr::wrap($rules[$attribute]);
+
+    return in_array('required', $attribute_rules, true);
+}
+
 function get_create_fields(object $dummy): array
 {
     $columns = collect(Schema::getColumns($dummy->getTable()));
     $fillable = $dummy->getFillable();
-    // getCasts() rather than casts(), so models declaring a `$casts` property
-    // are covered too — and it is public on every model.
+    // getCasts() rather than casts(), so models declaring a `$casts` property are covered too.
     $casts = $dummy->getCasts();
+
+    $rules = get_validation_rules_for_model($dummy);
 
     $fields = [];
 
@@ -173,7 +182,7 @@ function get_create_fields(object $dummy): array
         $fields[$name] = [
             'label' => clean_attribute_name($name),
             'type' => $type,
-            'required' => ! $nullable,
+            'required' => rules_require_attribute($rules, $name) ?? ! $nullable,
             'icon' => $icon,
             'value' => $dummy->$name,
             'options' => $options,
@@ -203,13 +212,7 @@ function call_or_default(object $object, string $method, mixed $argument, mixed 
     return $defaultValue;
 }
 
-/**
- * Resolve the enum class backing an attribute, or null when it has none.
- *
- * Enum columns are declared the way they are anywhere else in Laravel — as an
- * enum cast on the model — so the generic form picks them up without needing
- * any extra annotation.
- */
+/** The enum class an attribute is cast to, or null. */
 function get_enum_class_for_attribute(array $casts, string $attribute): ?string
 {
     $cast = $casts[$attribute] ?? null;
@@ -217,10 +220,7 @@ function get_enum_class_for_attribute(array $casts, string $attribute): ?string
     return (is_string($cast) && enum_exists($cast)) ? $cast : null;
 }
 
-/**
- * Build the options for an enum field, keyed by the value the form posts
- * (the backing value, or the case name for a pure enum).
- */
+/** Options for an enum field, keyed by the value the form posts (backing value, or case name for a pure enum). */
 function get_enum_options(string $enum_class): array
 {
     $options = [];
@@ -237,10 +237,7 @@ function enum_case_value(UnitEnum $case): string|int
     return ($case instanceof BackedEnum) ? $case->value : $case->name;
 }
 
-/**
- * The label to show for an enum case: whatever the enum's own label() returns,
- * otherwise the case name split into words ("NotAttending" -> "Not attending").
- */
+/** The enum's own label() for a case, else its name in words ("NotAttending" -> "Not attending"). */
 function enum_case_label(UnitEnum $case): string
 {
     if (method_exists($case, 'label')) {
@@ -250,10 +247,7 @@ function enum_case_label(UnitEnum $case): string
     return clean_attribute_name(Str::snake($case->name));
 }
 
-/**
- * Coerce a column's database default into the matching enum option value so
- * the generic form can pre-select it. Null when the default matches no case.
- */
+/** The enum option value matching a column's database default, or null. */
 function get_enum_default(string $enum_class, mixed $default): string|int|null
 {
     if ($default === null || $default === '') {
@@ -277,8 +271,6 @@ function map_database_type_to_html(string $name, string $db_type, array $casts):
     $enum_class = get_enum_class_for_attribute($casts, $name);
 
     if ($enum_class !== null) {
-        // The palette enum gets the colour picker rather than a plain select,
-        // whatever the column happens to be called.
         return ($enum_class === Color::class) ? 'color' : 'enum';
     }
 
@@ -322,4 +314,12 @@ function color_name_to_css_class(mixed $name): ?string
     $enum = Color::tryFrom(strtolower((string) $name));
 
     return $enum ? $enum->cssClass() : null;
+}
+
+function unhandled_error_messages(?ViewErrorBag $errors, array $rendered): array
+{
+    return collect($errors?->getBag('default')->getMessages() ?? [])
+        ->reject(fn ($messages, $key) => Str::is($rendered, $key))
+        ->flatten()
+        ->all();
 }

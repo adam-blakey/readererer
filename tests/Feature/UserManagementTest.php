@@ -5,11 +5,6 @@ use App\Models\Ensemble;
 use App\Models\SetupGroup;
 use App\Models\User;
 
-function make_setup_group_for_users(): SetupGroup
-{
-    return SetupGroup::create(['name' => 'Group A', 'week' => 1, 'color' => 'blue']);
-}
-
 test('the user index, create form and show page render', function () {
     $viewer = make_user(UserRole::Moderator);
     $shown = make_user(UserRole::Member);
@@ -20,7 +15,7 @@ test('the user index, create form and show page render', function () {
 });
 
 test('a user can be created with a generated username', function () {
-    $setupGroup = make_setup_group_for_users();
+    $setupGroup = SetupGroup::factory()->create();
 
     $response = $this->actingAs(make_user(UserRole::Admin))->post(route('users.store'), [
         'first_name' => 'Ada',
@@ -65,7 +60,7 @@ test('creating a user requires names and rejects an unknown setup group', functi
 
 test('creating a user rejects a duplicate email address', function () {
     make_user(UserRole::Member, ['email' => 'ada@example.com']);
-    $setupGroup = make_setup_group_for_users();
+    $setupGroup = SetupGroup::factory()->create();
 
     $this->actingAs(make_user(UserRole::Admin))
         ->post(route('users.store'), [
@@ -81,7 +76,7 @@ test('creating a user rejects a duplicate email address', function () {
 });
 
 test('creating a user rejects a malformed email address and requires one', function () {
-    $setupGroup = make_setup_group_for_users();
+    $setupGroup = SetupGroup::factory()->create();
     $admin = make_user(UserRole::Admin);
 
     $base = [
@@ -103,7 +98,7 @@ test('creating a user rejects a malformed email address and requires one', funct
 });
 
 test('two users with the same name get distinct usernames', function () {
-    $setupGroup = make_setup_group_for_users();
+    $setupGroup = SetupGroup::factory()->create();
     $admin = make_user(UserRole::Admin);
 
     foreach (['ada@example.com', 'ada2@example.com'] as $email) {
@@ -121,7 +116,7 @@ test('two users with the same name get distinct usernames', function () {
 });
 
 test('creating a user rejects an invalid role', function () {
-    $setupGroup = make_setup_group_for_users();
+    $setupGroup = SetupGroup::factory()->create();
 
     $this->actingAs(make_user(UserRole::Admin))
         ->post(route('users.store'), [
@@ -134,7 +129,7 @@ test('creating a user rejects an invalid role', function () {
 });
 
 test('a user can be updated including their setup group', function () {
-    $setupGroup = make_setup_group_for_users();
+    $setupGroup = SetupGroup::factory()->create();
     $user = make_user(UserRole::Member);
 
     $response = $this->actingAs(make_user(UserRole::Admin))->patch(route('users.update', $user), [
@@ -156,7 +151,7 @@ test('a user can be updated including their setup group', function () {
 });
 
 test('a user\'s setup group can be cleared', function () {
-    $setupGroup = make_setup_group_for_users();
+    $setupGroup = SetupGroup::factory()->create();
     $user = make_user(UserRole::Member, ['setup_group_id' => $setupGroup->id]);
 
     $this->actingAs(make_user(UserRole::Admin))
@@ -175,7 +170,7 @@ test('a user\'s setup group can be cleared', function () {
 
 test('updating a user rejects another user\'s email address', function () {
     make_user(UserRole::Member, ['email' => 'taken@example.com']);
-    $setupGroup = make_setup_group_for_users();
+    $setupGroup = SetupGroup::factory()->create();
     $user = make_user(UserRole::Member, ['email' => 'original@example.com']);
 
     $this->actingAs(make_user(UserRole::Admin))
@@ -192,7 +187,7 @@ test('updating a user rejects another user\'s email address', function () {
 });
 
 test('a user may keep their own email address when updated', function () {
-    $setupGroup = make_setup_group_for_users();
+    $setupGroup = SetupGroup::factory()->create();
     $user = make_user(UserRole::Member, ['email' => 'ada@example.com']);
 
     $this->actingAs(make_user(UserRole::Admin))
@@ -234,8 +229,7 @@ test('the show page for a soft-deleted user is not found', function () {
 });
 
 test('a user can be soft deleted and restored through the endpoints', function () {
-    // Regression test: User used to declare a `deleted_at` property that
-    // shadowed the Eloquent attribute, making these endpoints error.
+    // Regression: a declared `deleted_at` property shadowed the attribute and broke these endpoints.
     $user = make_user(UserRole::Member);
     $admin = make_user(UserRole::Admin);
 
@@ -256,8 +250,7 @@ test('the user edit form renders', function () {
 });
 
 test('the user edit page renders for a user with a setup group and ensembles', function () {
-    // Regression test: the edit page used to 500 for a fully populated user.
-    $setupGroup = make_setup_group_for_users();
+    $setupGroup = SetupGroup::factory()->create();
     $user = make_user(UserRole::Member, ['setup_group_id' => $setupGroup->id]);
     $ensemble = Ensemble::factory()->create();
     join_ensemble($user, $ensemble, make_instrument_family('Strings'), 'A', '1');
@@ -280,7 +273,7 @@ test('the user edit page renders when the user has no setup group or ensembles',
 });
 
 test('the user edit page offers an empty setup group option', function () {
-    $setupGroup = make_setup_group_for_users();
+    $setupGroup = SetupGroup::factory()->create();
     $user = make_user(UserRole::Member, ['setup_group_id' => $setupGroup->id]);
 
     $html = $this->actingAs(make_user(UserRole::Admin))

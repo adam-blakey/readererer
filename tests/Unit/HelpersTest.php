@@ -178,3 +178,29 @@ test('color_name_to_hex is case-insensitive', function () {
     expect(color_name_to_hex('Blue'))->toBe('#066fd1');
     expect(color_name_to_hex('RED'))->toBe('#d63939');
 });
+
+test('unhandled_error_messages keeps only the messages no field would show', function () {
+    $errors = view_errors([
+        'name' => ['The name field is required.'],
+        'password' => ['Too short.', 'Too obvious.'],
+    ]);
+
+    expect(unhandled_error_messages($errors, ['name', 'email']))->toBe(['Too short.', 'Too obvious.']);
+});
+
+test('unhandled_error_messages matches a rendered field by wildcard', function () {
+    $errors = view_errors([
+        'term_dates.0.start_datetime' => ['The start is required.'],
+        'term_dates.0.venue' => ['The venue is required.'],
+    ]);
+
+    expect(unhandled_error_messages($errors, ['term_dates.*.start_datetime']))->toBe(['The venue is required.']);
+});
+
+test('unhandled_error_messages returns everything when no fields are rendered', function () {
+    expect(unhandled_error_messages(view_errors(['name' => ['Required.']]), []))->toBe(['Required.']);
+});
+
+test('unhandled_error_messages returns nothing without an error bag', function () {
+    expect(unhandled_error_messages(null, ['name']))->toBe([]);
+});

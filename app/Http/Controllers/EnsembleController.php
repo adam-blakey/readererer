@@ -77,7 +77,9 @@ class EnsembleController extends Controller
     public function update(UpdateEnsembleRequest $request, Ensemble $ensemble): RedirectResponse
     {
         $ensemble->name = $request->validated('name');
+        $ensemble->slug = $request->validated('slug');
         $ensemble->seating_plan_enabled = $request->boolean('seating_plan_enabled');
+        $ensemble->applyImageInput($request->file('image'), $request->boolean('remove_image'));
         $ensemble->save();
 
         return to_route('ensembles.show', $ensemble);
@@ -121,7 +123,6 @@ class EnsembleController extends Controller
             'seat_column' => 'nullable|string|max:10',
         ]);
 
-        // A seat is only meaningful for ensembles that run a seating plan.
         $seat = $ensemble->seating_plan_enabled
             ? ['seat_row' => $validated['seat_row'] ?? null, 'seat_column' => $validated['seat_column'] ?? null]
             : ['seat_row' => null, 'seat_column' => null];

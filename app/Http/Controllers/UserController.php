@@ -102,9 +102,10 @@ class UserController extends Controller
     public function update(UpdateUserRequest $request, User $user): RedirectResponse
     {
         $attributes = $request->validated();
-
         $setup_group_id = Arr::pull($attributes, 'setup_group');
-        $user->update($attributes);
+
+        $user->applyImageInput($request->file('image'), $request->boolean('remove_image'));
+        $user->update(Arr::except($attributes, ['image', 'remove_image']));
         $user->setup_group()->associate($setup_group_id ? SetupGroup::find($setup_group_id) : null);
 
         $user->save();
@@ -158,7 +159,6 @@ class UserController extends Controller
             return redirect()->back()->with('status', __('User is already a member of that ensemble.'));
         }
 
-        // A seat is only meaningful for ensembles that run a seating plan.
         $ensemble = Ensemble::findOrFail($validated['ensemble_id']);
         $seat = $ensemble->seating_plan_enabled
             ? ['seat_row' => $validated['seat_row'] ?? null, 'seat_column' => $validated['seat_column'] ?? null]

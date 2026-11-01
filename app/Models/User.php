@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use App\Enums\UserRole;
+use App\Traits\HasImage;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Foundation\Auth\User as Authenticatable;
@@ -13,7 +14,7 @@ use SDamian\Larasort\AutoSortable;
 
 class User extends Authenticatable
 {
-    use AutoSortable, HasFactory, Notifiable, SoftDeletes;
+    use AutoSortable, HasFactory, HasImage, Notifiable, SoftDeletes;
 
     protected $visible = [
         'image',
@@ -100,12 +101,8 @@ class User extends Authenticatable
     }
 
     /**
-     * Build a username from a name that is unique across all users.
-     *
-     * The base is the dotted slug of the name (e.g. "john.smith"). If that is
-     * already taken a numeric suffix is appended ("john.smith.2", "john.smith.3",
-     * ...). Soft-deleted users are considered too, since the `username` column is
-     * uniquely constrained and their rows still occupy the value.
+     * A unique dotted-slug username: "john.smith", then "john.smith.2", ...
+     * Soft-deleted users count too, as their rows still hold the unique value.
      */
     public static function generateUniqueUsername(string $firstName, string $lastName): string
     {

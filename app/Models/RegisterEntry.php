@@ -7,13 +7,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
-/**
- * One member's actual attendance at one rehearsal or concert.
- *
- * The attendance poll records what members said they would do in advance and is
- * append-only; the register records what happened on the day and is held as a
- * single current row per member per date.
- */
+/** A member's actual attendance at a date; unlike the append-only poll, one current row per member per date. */
 class RegisterEntry extends Model
 {
     use HasFactory;

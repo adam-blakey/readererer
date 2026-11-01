@@ -1,9 +1,5 @@
-# PHP-specific security scanning, kept separate from the CodeQL analysis
-# matrix (codeql.yml) so each scanner runs exactly once per trigger.
-#
-# NOTE: action inputs that have defaults (lock, format, ...) are intentionally
-# not listed under `with:` — an explicitly empty value overrides the action's
-# default and breaks the underlying tool ("unknown format").
+# Kept out of the CodeQL matrix so each scanner runs once per trigger.
+# Inputs with defaults (lock, format, ...) are left out of `with:`: an empty value overrides the default and breaks the tool.
 name: "PHP Security"
 
 on:
@@ -25,13 +21,8 @@ jobs:
     - name: Checkout repository
       uses: actions/checkout@v5
 
-    # Checks composer.lock against the PHP Security Advisories Database.
-    # The step (and therefore the job) fails when a known vulnerability is
-    # found; the details are written to the job summary below.
     - name: Check composer.lock for known vulnerabilities
       id: security-check
-      # You may pin to the exact commit or the version.
-      # uses: symfonycorp/security-checker-action@258311ef7ac571f1310780ef3d79fc5abef642b5
       uses: symfonycorp/security-checker-action@v5
 
     - name: Report findings in the job summary
@@ -62,17 +53,13 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       contents: read
-      # Required to upload SARIF results to code scanning.
       security-events: write
-      # Only required for workflows in private repositories.
       actions: read
     steps:
     - name: Checkout repository
       uses: actions/checkout@v5
 
-    # The psalm/psalm-github-security-scan Docker action is unmaintained and
-    # ships PHP 8.2, which can no longer load this project's dependencies
-    # (they require PHP >= 8.4), so run the same scan directly on PHP 8.4.
+    # Not psalm/psalm-github-security-scan: it is unmaintained and ships PHP 8.2, too old for these dependencies.
     - name: Setup PHP
       uses: shivammathur/setup-php@v2
       with:
@@ -88,8 +75,6 @@ jobs:
     - name: Run Psalm security scan
       run: psalm --output-format=github --taint-analysis --report=results.sarif
 
-    # Findings appear under Security -> Code scanning, alongside the CodeQL
-    # results from codeql.yml.
     - name: Upload SARIF results to code scanning
       uses: github/codeql-action/upload-sarif@v4
       with:

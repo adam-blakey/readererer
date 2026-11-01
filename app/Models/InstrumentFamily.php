@@ -5,6 +5,7 @@ namespace App\Models;
 use App\Attributes\Icon;
 use App\Enums\Color;
 use App\Traits\HasPropertyIcons;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use SDamian\Larasort\AutoSortable;
@@ -16,6 +17,7 @@ use SDamian\Larasort\AutoSortable;
 class InstrumentFamily extends Model
 {
     use AutoSortable;
+    use HasFactory;
     use HasPropertyIcons;
     use SoftDeletes;
 

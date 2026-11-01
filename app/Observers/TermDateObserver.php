@@ -14,11 +14,7 @@ class TermDateObserver implements ShouldHandleEventsAfterCommit
 {
     public function __construct(private EmailDispatcher $dispatcher) {}
 
-    /**
-     * When the setup group or van driver of an upcoming date changes, alert
-     * everyone affected (members and drivers of the old and new groups, and
-     * the old and new explicitly-assigned drivers).
-     */
+    /** Alert everyone in the old and new setup groups, and the old and new drivers, when an upcoming date's roster changes. */
     public function updated(TermDate $termDate): void
     {
         $groupChanged = $termDate->wasChanged('setup_group_id');

@@ -5,8 +5,6 @@
         <div class="text-muted">{{ __('Nothing found.') }}</div>
     @else
         @php
-            // Only ensembles the date actually applies to get a link: rehearsals are
-            // for everyone, a concert only for the ensemble playing it.
             $linked_ensembles = collect($ensembles ?? [])
                 ->filter()
                 ->filter(fn ($ensemble) => $term_date->appliesToEnsemble($ensemble))
@@ -21,7 +19,6 @@
             <div class="mt-2 btn-list">
                 @foreach ($linked_ensembles as $ensemble)
                     @php
-                        // With more than one ensemble in play, say which is which.
                         $suffix = $name_the_ensemble ? ': ' . $ensemble->name : '';
                     @endphp
                     <x-a class="btn btn-sm" href="{{ route('attendance.poll', ['ensemble' => $ensemble, 'term' => $term_date->term]) }}">

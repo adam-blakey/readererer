@@ -2,7 +2,6 @@
 
 @php
     $ensembles = $ensembles ?? collect();
-    // Only ensembles that run a seating plan offer a plan to download.
     $seating_plan_ensembles = $ensembles->filter(fn ($ensemble) => $ensemble->seating_plan_enabled);
     $dates = ($term_dates ?? collect())->sortBy('start_datetime');
     $can_take_registers = Gate::allows('viewAny', App\Models\RegisterEntry::class);

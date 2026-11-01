@@ -15,10 +15,8 @@ use Throwable;
 class EmailDispatcher
 {
     /**
-     * Send a mailable to each recipient, recording the send in an EmailLog so
-     * it shows up in the notifications overview and the term date's email
-     * history. A fresh mailable is built per recipient so addresses are not
-     * accumulated across sends.
+     * Send a mailable to each recipient and record it in an EmailLog. The
+     * factory builds one mailable per recipient so addresses don't accumulate.
      *
      * @param  Collection<int, User>  $recipients
      * @param  callable(): Mailable  $mailableFactory

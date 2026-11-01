@@ -42,7 +42,6 @@ class AttendancePolicy
             return Response::allow();
         }
 
-        // Ensemble logins and members may only update attendance for an ensemble they belong to.
         if ($user->role->value >= UserRole::Ensemble->value && $user->ensembles->contains('id', $attendance->ensemble_id)) {
             return Response::allow();
         }

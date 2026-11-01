@@ -231,7 +231,7 @@ test('the poll and the register agree on a member\'s latest answer for their ens
 test('the poll runs the same number of queries however many members there are', function () {
     $ensemble = Ensemble::factory()->create();
     $term = Term::factory()->create();
-    $setupGroup = SetupGroup::create(['name' => 'Group A', 'week' => 1, 'color' => 'blue']);
+    $setupGroup = SetupGroup::factory()->create();
     $drivers = collect([make_user(UserRole::Member), make_user(UserRole::Member)]);
     $drivers->each(fn ($driver, $index) => $setupGroup->van_drivers()->attach($driver->id, ['sort' => $index]));
     $drivers->each(fn ($driver) => join_ensemble($driver, $ensemble));

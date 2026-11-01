@@ -4,12 +4,6 @@ use App\Enums\UserRole;
 use App\Models\Ensemble;
 use App\Models\Term;
 
-/*
- * The poll and the register are two views of the same date, so each links to
- * the other, and the upcoming dates on the dashboard and an ensemble's page
- * link into both.
- */
-
 test('the register links to the poll for its term', function () {
     $ensemble = Ensemble::factory()->create();
     $term = Term::factory()->create();
@@ -69,7 +63,6 @@ test('the dashboard links its upcoming dates to the poll', function () {
 
     $response->assertOk();
     $response->assertSee(route('attendance.poll', ['ensemble' => $ensemble, 'term' => $term]), false);
-    // A member cannot take a register, so no register link is offered.
     $response->assertDontSee(route('attendance.register.show', ['ensemble' => $ensemble, 'termDate' => $rehearsal]), false);
 
     $moderator = make_user(UserRole::Moderator);

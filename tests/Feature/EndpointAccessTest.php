@@ -48,7 +48,7 @@ test('term, user and setup group indexes require moderator or above', function (
 test('members cannot change terms, setup groups or ensemble membership', function () {
     $member = make_user(UserRole::Member);
     $term = Term::factory()->create();
-    $setupGroup = SetupGroup::create(['name' => 'Group A', 'week' => 1, 'color' => 'blue']);
+    $setupGroup = SetupGroup::factory()->create();
     $ensemble = Ensemble::factory()->create();
     $player = make_user(UserRole::Member);
     join_ensemble($player, $ensemble);
@@ -82,15 +82,12 @@ test('ensemble show is limited to moderators and members of that ensemble', func
     $ensemble = Ensemble::factory()->create();
     $showUrl = route('ensembles.show', $ensemble);
 
-    // Guests are redirected to log in.
     $this->get($showUrl)->assertRedirect('/login');
 
-    // An ensemble login attached to this ensemble is allowed.
     $ensembleLogin = make_user(UserRole::Ensemble);
     join_ensemble($ensembleLogin, $ensemble);
     $this->actingAs($ensembleLogin)->get($showUrl)->assertOk();
 
-    // A member of the ensemble may view it; a member of a different ensemble may not.
     $member = make_user(UserRole::Member);
     join_ensemble($member, $ensemble);
     $this->actingAs($member)->get($showUrl)->assertOk();
@@ -130,12 +127,10 @@ test('the attendance poll page requires permission to view the ensemble', functi
     join_ensemble($ensembleLogin, $ensemble);
     $this->actingAs($ensembleLogin)->get($url)->assertOk();
 
-    // An ensemble login for a different ensemble may not view this one's poll.
     $otherLogin = make_user(UserRole::Ensemble);
     join_ensemble($otherLogin, Ensemble::factory()->create());
     $this->actingAs($otherLogin)->get($url)->assertForbidden();
 
-    // A member of a different ensemble may not view the poll either.
     $outsider = make_user(UserRole::Member);
     join_ensemble($outsider, Ensemble::factory()->create());
     $this->actingAs($outsider)->get($url)->assertForbidden();

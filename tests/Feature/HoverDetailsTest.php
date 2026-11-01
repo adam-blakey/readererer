@@ -4,16 +4,10 @@ use App\Models\Ensemble;
 use App\Models\SetupGroup;
 use App\Models\Term;
 
-/*
- * Components that show an abbreviation — a bare setup-group week number, a
- * stack of date fragments, a pair of initials — carry hover text spelling out
- * what they mean. Tabler initialises anything marked
- * data-bs-toggle="tooltip" on page load, and Bootstrap falls back to the
- * title attribute, so both have to be on the element.
- */
+/* Tabler initialises data-bs-toggle="tooltip" on load and Bootstrap reads the title attribute, so hover text needs both. */
 
 test('the setup group badge says which group it is on hover', function () {
-    $setupGroup = SetupGroup::create([
+    $setupGroup = SetupGroup::factory()->create([
         'name' => 'Setup group 1',
         'week' => 1,
         'color' => 'purple',
@@ -30,7 +24,7 @@ test('the setup group badge says which group it is on hover', function () {
 });
 
 test('the setup group dot says which group it is, and who is driving the van', function () {
-    $setupGroup = SetupGroup::create([
+    $setupGroup = SetupGroup::factory()->create([
         'name' => 'Setup group 2',
         'week' => 2,
         'color' => 'yellow',
@@ -48,7 +42,7 @@ test('the setup group dot says which group it is, and who is driving the van', f
 });
 
 test('a setup group badge tooltip can be turned off where something else explains it', function () {
-    $setupGroup = SetupGroup::create([
+    $setupGroup = SetupGroup::factory()->create([
         'name' => 'Setup group 3',
         'week' => 3,
         'color' => 'azure',
@@ -61,7 +55,7 @@ test('a setup group badge tooltip can be turned off where something else explain
 });
 
 test('a setup group falls back to its week number when it has no name', function () {
-    $setupGroup = SetupGroup::create([
+    $setupGroup = SetupGroup::factory()->create([
         'name' => '',
         'week' => 4,
         'color' => 'teal',
@@ -71,7 +65,7 @@ test('a setup group falls back to its week number when it has no name', function
 });
 
 test('an avatar says whose it is on hover, and names their setup group when it shows one', function () {
-    $setupGroup = SetupGroup::create([
+    $setupGroup = SetupGroup::factory()->create([
         'name' => 'Setup group 1',
         'week' => 1,
         'color' => 'purple',
