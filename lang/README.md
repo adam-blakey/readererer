@@ -51,5 +51,5 @@ message files and is deliberately not listed here. Publish those with
 
 When you add user-facing text, wrap it in `__()` and add the English string to
 `lang/en.json`. Strings missing from the catalogue still render correctly — the
-translator falls back to the key — so the file is documentation for translators
-rather than something the app depends on.
+translator falls back to the key — but the wording setting on the settings page
+only renames words in strings listed in the catalogue.

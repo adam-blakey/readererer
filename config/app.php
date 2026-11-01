@@ -140,5 +140,6 @@ return [
     'readererer_repeating_headings' => env('READERERER_REPEATING_HEADINGS', false),
     'readererer_image_max_kilobytes' => env('READERERER_IMAGE_MAX_KILOBYTES', 2048),
     'readererer_logo' => env('READERERER_LOGO'),
+    'readererer_terminology' => [],
 
 ];

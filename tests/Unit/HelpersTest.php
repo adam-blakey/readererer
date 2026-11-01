@@ -219,3 +219,13 @@ test('logo_url uses the configured logo', function () {
     config(['app.readererer_logo' => 'images/logo.png']);
     expect(logo_url())->toBe(asset('images/logo.png'));
 });
+
+test('apply_terminology swaps whole words and keeps their case', function () {
+    $terminology = ['rehearsal' => 'practice', 'rehearsals' => 'practices', 'setup group' => 'crew'];
+
+    expect(apply_terminology('Next rehearsal', $terminology))->toBe('Next practice')
+        ->and(apply_terminology('Rehearsals this term', $terminology))->toBe('Practices this term')
+        ->and(apply_terminology('REHEARSAL', $terminology))->toBe('PRACTICE')
+        ->and(apply_terminology('Setup group for :rehearsal', $terminology))->toBe('Crew for :rehearsal')
+        ->and(apply_terminology('Rehearsalroom', $terminology))->toBe('Rehearsalroom');
+});

@@ -62,7 +62,8 @@ Route::middleware('auth')->group(function () {
         ->name('notifications.index')
         ->can('view.notifications');
 
-    Route::get('/settings', [SettingController::class, 'edit'])->name('settings.edit');
+    Route::get('/settings', [SettingController::class, 'edit'])->name('settings.edit')->can('edit.settings');
+    Route::put('/settings', [SettingController::class, 'update'])->name('settings.update')->can('edit.settings');
 
     Route::patch('/composers/{id}/restore', [ComposerController::class, 'restore'])->name('composers.restore');
     Route::resource('composers', ComposerController::class);
