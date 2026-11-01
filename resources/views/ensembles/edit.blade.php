@@ -25,6 +25,8 @@
 
 	<div class="page-body">
 		<div class="container-xl">
+			<x-forms.error-summary :fields="['name']" />
+
 			<div class="row g-3">
 				<div class="col-lg-6">
 					<div class="mb-3 card">

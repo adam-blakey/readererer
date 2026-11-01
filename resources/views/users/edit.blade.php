@@ -26,6 +26,8 @@
 				<div class="alert alert-success" role="alert">{{ session('status') }}</div>
 			@endif
 
+			<x-forms.error-summary :fields="['first_name', 'last_name', 'email', 'role', 'setup_group']" />
+
 			<div class="row g-3">
 				<div class="col-lg-6">
 					<div class="mb-3 card">

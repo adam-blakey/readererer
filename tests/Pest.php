@@ -7,6 +7,8 @@ use App\Models\Term;
 use App\Models\TermDate;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\MessageBag;
+use Illuminate\Support\ViewErrorBag;
 use Tests\TestCase;
 
 uses(
@@ -45,14 +47,10 @@ function join_ensemble(User $user, Ensemble $ensemble, ?InstrumentFamily $instru
     ]);
 }
 
-/**
- * A term date: a rehearsal by default, or that ensemble's concert when one is
- * given. `term_id` is not fillable, hence the forceCreate().
- */
 function make_term_date(?Term $term = null, ?Ensemble $concertEnsemble = null): TermDate
 {
-    return TermDate::forceCreate([
-        'term_id' => ($term ?? Term::factory()->create())->id,
+    return TermDate::factory()->create([
+        'term_id' => $term ?? Term::factory(),
         'start_datetime' => now()->addDay()->setTime(19, 0),
         'end_datetime' => now()->addDay()->setTime(21, 0),
         'concert_ensemble_id' => $concertEnsemble?->id,
@@ -66,4 +64,9 @@ function join_ensemble_without_instrument(User $user, Ensemble $ensemble): void
         'seat_row' => null,
         'seat_column' => null,
     ]);
+}
+
+function view_errors(array $errors): ViewErrorBag
+{
+    return (new ViewErrorBag)->put('default', new MessageBag($errors));
 }

@@ -192,7 +192,7 @@ test('the term show page renders with its dates', function () {
 
 test('the term show page lists its dates in a table', function () {
     $ensemble = Ensemble::factory()->create();
-    $setupGroup = SetupGroup::create(['name' => 'Group A', 'color' => 'blue']);
+    $setupGroup = SetupGroup::factory()->create();
     $term = Term::factory()->create();
 
     // A concert date with a setup group, and a plain rehearsal.
@@ -255,7 +255,7 @@ test('the term show page collapses all but the latest email into an accordion', 
 });
 
 test('creating a term persists the setup group and van driver on its dates', function () {
-    $setupGroup = SetupGroup::create(['name' => 'Group A', 'color' => 'blue']);
+    $setupGroup = SetupGroup::factory()->create();
     $driver = make_user(UserRole::Member);
 
     $this->actingAs(make_user(UserRole::Moderator))->post(route('terms.store'), [
@@ -278,7 +278,7 @@ test('creating a term persists the setup group and van driver on its dates', fun
 
 test('updating a term persists the setup group and van driver on its dates', function () {
     $term = Term::factory()->create();
-    $setupGroup = SetupGroup::create(['name' => 'Group B', 'color' => 'green']);
+    $setupGroup = SetupGroup::factory()->create();
     $driver = make_user(UserRole::Member);
 
     $this->actingAs(make_user(UserRole::Moderator))->patch(route('terms.update', $term), [
@@ -320,7 +320,7 @@ test('creating a term rejects an unknown setup group or van driver', function ()
 
 test('the term edit form renders the setup group, van driver and row template', function () {
     $term = Term::factory()->create();
-    SetupGroup::create(['name' => 'Group A', 'color' => 'blue']);
+    SetupGroup::factory()->create();
 
     $this->actingAs(make_user(UserRole::Moderator))
         ->get(route('terms.edit', $term))

@@ -40,7 +40,7 @@ test('a belongs-to-many relation becomes an optional multi-select class field', 
 });
 
 test('a belongs-to relation follows its foreign key column for optionality', function () {
-    SetupGroup::create(['name' => 'Group A', 'week' => 1, 'color' => 'blue']);
+    SetupGroup::factory()->create();
 
     $fields = get_create_fields(new User);
 
