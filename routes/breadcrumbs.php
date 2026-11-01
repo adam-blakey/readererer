@@ -11,6 +11,11 @@ Breadcrumbs::for('home', function (BreadcrumbTrail $trail) {
     $trail->push(__('Home'), route('home'));
 });
 
+Breadcrumbs::for('errors.404', function (BreadcrumbTrail $trail) {
+    $trail->parent('home');
+    $trail->push(__('Not found'));
+});
+
 Breadcrumbs::for('login', function (BreadcrumbTrail $trail) {
     $trail->push(__('Login'), route('login'));
 });
