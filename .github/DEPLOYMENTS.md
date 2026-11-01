@@ -50,7 +50,8 @@ and `attendance-beta.nsw.org.uk`); the docs site is
      `vendor` and `node_modules` between deploys), writes `VERSION`, runs
      `composer install --no-dev --no-scripts` (the host disables
      `proc_open`, which Composer scripts need), `npm ci` and `npm run build`.
-     Only then does it put the app in maintenance mode. It rsyncs the app's
+     Only then does it put the app in maintenance mode (skipped on a site's
+     first deploy, whose folder has no `vendor` for `artisan` to load yet). It rsyncs the app's
      folders (`app`, `bootstrap`, `config`, `database`, `lang`, `resources`,
      `routes`, `vendor`, `public/build`, `public/js`) into the site's folder
      with deletion, which also clears
