@@ -129,7 +129,7 @@ jobs:
             else
               php artisan migrate --force
             fi
-            php artisan storage:link
+            ln -sfn ../storage/app/public public/storage
             php artisan optimize
             php artisan event:cache
             php artisan queue:restart
