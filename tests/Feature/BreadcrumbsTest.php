@@ -90,3 +90,11 @@ test('an unknown URL renders the 404 page', function () {
         ->assertNotFound()
         ->assertSee('Not found');
 });
+
+test('an error on an unnamed route renders the error page', function () {
+    Route::post('/_unnamed-failure', fn () => abort(500));
+
+    $this->post('/_unnamed-failure')
+        ->assertInternalServerError()
+        ->assertSee('Server error');
+});
