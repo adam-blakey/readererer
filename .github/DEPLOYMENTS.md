@@ -1,8 +1,11 @@
 # Deployments
 
 The app environments and the static docs site are hosted on Krystal
-and deployed by `.github/workflows/deploy.yml`, the same pipeline as the
-website repo.
+and deployed by GitHub Actions. `.github/workflows/deploy.yml` is a reusable
+workflow that builds, tests and deploys to `dev`. `pull-request.yml` (**Pull
+request**) calls it for pull requests, and `main.yml` (**Main**) calls it for
+pushes to `main` and then runs the `qa`, production and docs jobs, so pull
+requests show no skipped release jobs.
 
 | Environment | Trigger                                           | Database                         |
 | ----------- | ------------------------------------------------- | -------------------------------- |
@@ -119,7 +122,7 @@ match exactly), with:
 
 To add another production site, create its environment with the variables
 below, set it up in cPanel as in "cPanel Git deployment, once per production
-site", and add its name to the `deploy_prod` matrix in `deploy.yml`.
+site", and add its name to the `deploy_prod` matrix in `main.yml`.
 
 ### Variables and secret
 
@@ -221,7 +224,7 @@ domain moves the app to a new folder. If prod currently lives at
 6. The `readererer.blakey.family` cPanel domain keeps its document root
    (`domains/readererer.blakey.family/public`), which after step 2 points at
    an empty folder until the next `main` deploy fills it. To fill it straight
-   away, re-run the latest **Build, Test & Deploy** run on `main`.
+   away, re-run the latest **Main** run.
 
 If prod was somewhere else, skip steps 2–3 and set up the new prod domain as
 in "once per site" below, and create `readererer.blakey.family` in cPanel with
@@ -258,7 +261,7 @@ signed commits, CodeQL, code quality, coverage) stays. Add:
 
 - **Require a pull request before merging.**
 - **Require status checks to pass**, with:
-  - `Pest test suite` (from Build, Test & Deploy)
+  - `build / Pest test suite` (from Pull request)
   - `commit_messages` (from Conventional Commits)
 
 ### Merging
