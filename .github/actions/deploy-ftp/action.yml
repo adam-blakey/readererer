@@ -10,9 +10,6 @@ inputs:
     required: true
   ftp-password:
     required: true
-  ftp-path:
-    description: The site's folder relative to the FTP user's root; defaults to domains/<domain>.
-    required: false
   deploy-token:
     required: true
   version:
@@ -38,8 +35,6 @@ runs:
         set ftp:ssl-force true
         set ssl:verify-certificate true
         open --env-password -u '${{ inputs.ftp-user }}' '${{ inputs.ftp-host }}'
-        cls -1
-        cd '${{ inputs.ftp-path || format('domains/{0}', inputs.domain) }}'
         mirror -R storage storage
         put down -o storage/framework/down
         mirror -R --delete --parallel=8 bootstrap bootstrap
