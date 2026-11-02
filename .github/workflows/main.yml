@@ -80,7 +80,7 @@ jobs:
           host: ${{ vars.CPANEL_HOST }}
           user: ${{ vars.CPANEL_USER }}
           token: ${{ secrets.CPANEL_TOKEN }}
-          repository-root: domains/${{ vars.APP_DOMAIN }}
+          domain: ${{ vars.APP_DOMAIN }}
 
   release:
     needs: [release_tag, deploy_prod]

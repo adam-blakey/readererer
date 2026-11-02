@@ -33,15 +33,16 @@ requests show no skipped release jobs.
    - fetches the exact commit on the server and `git reset --hard`s to it;
    - writes `VERSION` (`git describe`, plus `+pr<n>` on dev);
    - puts the app in maintenance mode, migrates, runs `optimize`,
-     `event:cache` and `queue:restart`, and brings it back up.
+     `event:cache` and `queue:restart`, and brings it back up;
+   - checks the site answers (below).
 
    The production sites (`prod`, `nsw-beta`, `blackwood-beta`) have no SSH, so they are
    deployed by cPanel's **Git™ Version Control**,
    driven from the runner through the cPanel API (`:2083/execute`) by
    `.github/actions/deploy-cpanel`:
    - `VersionControl/update` pulls `main` into the cPanel clone, which is
-     the site's folder (`~/domains/<domain>`, passed to the action as
-     `repository-root`), and `VersionControlDeployment/create`
+     the site's folder (`~/domains/<domain>`, from the action's `domain`
+     input), and `VersionControlDeployment/create`
      runs the tasks in `.cpanel.yml`. The job then polls
      `VersionControlDeployment/retrieve` until the deployment succeeds or
      fails (for up to 30 minutes).
@@ -72,6 +73,20 @@ requests show no skipped release jobs.
    stays in maintenance mode. The job prints the path of the
    deployment log (`~/.cpanel/logs/vc_<id>_git_deploy.log`), which you read in
    **File Manager**. Fix the cause and re-run the deploy.
+
+   **Post-deploy check.** After the deploy, both deploy actions run
+   `.github/actions/check-site`, which requests `https://<domain>/health` and
+   `https://<domain>/login` and fails the job unless both answer HTTP 200.
+   The dashboard needs a signed-in user (a guest gets 403), so these stand in
+   for it: `/health` boots the app, queries the database and answers 503 while
+   the site is in maintenance mode; `/login` renders the full layout, so it
+   catches broken views and a missing Vite build. Redirects are not followed,
+   so a redirect fails the check. Each request times out after 30 seconds and
+   is retried up to 5 times, 10 seconds apart, on a timeout, a refused
+   connection or a 408, 429, 500, 502, 503 or 504. A failed check marks the
+   deployment failed but does not roll it back: on `main` it stops the
+   environments after it, and for a production site it holds back the GitHub
+   release.
 3. **Production releases** run as three jobs on `main`:
    - **`release_tag`** runs in the `release` environment, whose wait timer
      batches merges. It cancels the run if a newer `main` run is in
