@@ -44,9 +44,9 @@
 							@foreach($nextConcerts as $concert)
 								<div class="d-flex align-items-center justify-content-between py-1">
 									<div>
-										<x-rehearsal-entry :ensembles="collect([$concert->concert_ensemble])" :term_date="$concert" />
+										<x-rehearsal-entry :ensembles="$ensembles" :term_date="$concert" />
 									</div>
-									<div class="ms-2 small text-muted">{{ optional($concert->concert_ensemble)->name }}</div>
+									<div class="ms-2 small text-muted">{{ $concert->concert_ensemble_names }}</div>
 								</div>
 							@endforeach
 						@endif

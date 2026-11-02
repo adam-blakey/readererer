@@ -63,9 +63,9 @@ class SeatingPlanController extends Controller
             ->groupBy(fn ($user) => $user->instrument_name ?? 'No instrument')
             ->sortKeys();
 
-        $termDatesForEnsemble = TermDate::where(function ($query) use ($ensemble) {
-            $query->whereNull('concert_ensemble_id')
-                ->orWhere('concert_ensemble_id', $ensemble->id);
+        $termDatesForEnsemble = TermDate::with('concert_ensembles')->where(function ($query) use ($ensemble) {
+            $query->whereDoesntHave('concert_ensembles')
+                ->orWhereHas('concert_ensembles', fn ($query) => $query->whereKey($ensemble->id));
         });
 
         $upcomingTermDates = (clone $termDatesForEnsemble)

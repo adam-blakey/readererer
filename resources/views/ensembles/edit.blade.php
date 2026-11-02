@@ -1,9 +1,5 @@
 @props(['ensemble'])
 
-@php
-	$terms = App\Models\Term::all()->sortBy('earliest_date');
-@endphp
-
 <x-layout>
     <div class="container">
         <div class="row align-items-center">
@@ -25,7 +21,7 @@
 
 	<div class="page-body">
 		<div class="container-xl">
-			<x-forms.error-summary :fields="['name']" />
+			<x-forms.error-summary :fields="['name', 'admins']" />
 
 			<div class="row g-3">
 				<div class="col-lg-6">
@@ -58,6 +54,9 @@
 											@error('slug')
 												<x-forms.input-error :messages="$message" />
 											@enderror
+										</div>
+										<div class="row">
+											<x-forms.field name="admins" :data="$admins_field" />
 										</div>
 										<hr />
 										<x-forms.image-upload :model="$ensemble" :label="__('Ensemble image')" />

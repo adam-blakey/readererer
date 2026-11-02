@@ -8,6 +8,7 @@ use App\Models\Ensemble;
 use App\Models\InstrumentFamily;
 use App\Models\Term;
 use App\Models\TermDate;
+use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
@@ -33,9 +34,10 @@ class AttendanceController extends Controller
         $this->authorize('view', $ensemble);
 
         $term_dates = $term->term_dates
+            ->load('concert_ensembles')
             ->filter(fn (TermDate $term_date) => $term_date->appliesToEnsemble($ensemble))
             ->values()
-            ->load(['concert_ensemble', 'setup_group.van_drivers', 'van_driver']);
+            ->load(['setup_group.van_drivers', 'van_driver']);
 
         $members = $ensemble->users()
             ->wherePivotNotNull('instrument_family_id')
@@ -54,12 +56,28 @@ class AttendanceController extends Controller
         ]);
     }
 
+    public function history(Ensemble $ensemble, Term $term, User $user)
+    {
+        $attendances = Attendance::with(['term_date', 'edit_user' => fn ($query) => $query->withTrashed()])
+            ->where('user_id', $user->id)
+            ->where('ensemble_id', $ensemble->id)
+            ->whereRelation('term_date', 'term_id', $term->id)
+            ->latest()
+            ->latest('id')
+            ->get();
+
+        return view('attendances.history', [
+            'attendances' => $attendances,
+            'page_name' => __(':name: attendance history', ['name' => $user->name]),
+        ]);
+    }
+
     public function poll_store(Ensemble $ensemble, Term $term, Request $request)
     {
         $this->authorize('view', $ensemble);
 
         $member_ids = $ensemble->users()->wherePivotNotNull('instrument_family_id')->pluck('users.id');
-        $term_date_ids = $term->term_dates->filter(fn (TermDate $term_date) => $term_date->appliesToEnsemble($ensemble))->pluck('id');
+        $term_date_ids = $term->term_dates->load('concert_ensembles')->filter(fn (TermDate $term_date) => $term_date->appliesToEnsemble($ensemble))->pluck('id');
 
         foreach ($request->except('_token') as $key => $value) {
             $status = is_numeric($value) ? AttendanceStatus::tryFrom((int) $value) : null;

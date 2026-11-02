@@ -67,18 +67,32 @@ test('relative label falls back to a coarser description for distant dates', fun
     expect($termDate->relative_label)->toBe('3 months from now');
 });
 
-test('term dates belong to a term and optionally to a concert ensemble', function () {
+test('term dates belong to a term and optionally to concert ensembles', function () {
     $term = Term::factory()->create();
     $ensemble = Ensemble::factory()->create();
     $termDate = TermDate::forceCreate([
         'term_id' => $term->id,
         'start_datetime' => '2026-01-05 19:00:00',
         'end_datetime' => '2026-01-05 21:00:00',
-        'concert_ensemble_id' => $ensemble->id,
     ]);
+    $termDate->concert_ensembles()->attach($ensemble);
 
     expect($termDate->term->is($term))->toBeTrue();
-    expect($termDate->concert_ensemble->is($ensemble))->toBeTrue();
+    expect($termDate->concert_ensembles->sole()->is($ensemble))->toBeTrue();
+    expect($termDate->is_concert)->toBeTrue();
+});
+
+test('a concert with several ensembles applies to each of them and not to others', function () {
+    [$wind, $brass, $strings] = Ensemble::factory()->count(3)->create()->all();
+    $concert = make_term_date(null, $wind, $brass);
+    $rehearsal = make_term_date();
+
+    expect($concert->appliesToEnsemble($wind))->toBeTrue();
+    expect($concert->appliesToEnsemble($brass))->toBeTrue();
+    expect($concert->appliesToEnsemble($strings))->toBeFalse();
+    expect($rehearsal->appliesToEnsemble($strings))->toBeTrue();
+    expect($rehearsal->is_concert)->toBeFalse();
+    expect($concert->concert_ensemble_names)->toBe(collect([$wind, $brass])->sortBy('name')->pluck('name')->join(', '));
 });
 
 test('an explicitly assigned van driver wins over the rotation', function () {

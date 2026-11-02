@@ -79,8 +79,8 @@ class TermDateNotificationController extends Controller
 
     private function attendanceListRecipients(TermDate $termDate): Collection
     {
-        if ($termDate->concert_ensemble_id !== null) {
-            $admins = $termDate->concert_ensemble?->admins ?? collect();
+        if ($termDate->is_concert) {
+            $admins = $termDate->concert_ensembles->load('admins')->flatMap->admins;
         } else {
             $admins = Ensemble::with('admins')->get()->flatMap->admins;
         }

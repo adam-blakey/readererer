@@ -93,7 +93,7 @@ Admins edit site-wide options on the settings page (`SettingController`, gated b
 `SeatingPlanController` edits per-ensemble seating (seat_row/seat_column stored on the `user_ensemble` pivot). PDF output uses `barryvdh/laravel-dompdf` (`SeatingPlanPdfController`, `ensembles.seating-plan.download` route).
 
 ### Key domain relationships
-- `Term` hasMany `TermDate`; a `TermDate` with `concert_ensemble_id = null` is a rehearsal, otherwise it's that ensemble's concert (see `ShowEnsemble` trait). A term's `earliest_date`/`latest_date` are accessors over its dates, not columns, so they cannot be used in queries.
+- `Term` hasMany `TermDate`; a `TermDate` with no `concert_ensembles` (belongsToMany through the `concert_ensemble` pivot) is a rehearsal for every ensemble, otherwise it's a concert for just those ensembles (`is_concert`, `appliesToEnsemble()`, `ShowEnsemble` trait). A term's `earliest_date`/`latest_date` are accessors over its dates, not columns, so they cannot be used in queries.
 - `User` belongsToMany `Ensemble` through `user_ensemble` (pivot carries `instrument_family_id`, `seat_row`, `seat_column`); belongsTo `SetupGroup`.
 - `Setlist` ↔ `Piece` via `SetlistPiece`; `Piece` belongsTo `Composer`, hasMany `Part` (each part tied to an `InstrumentFamily`).
 
@@ -120,3 +120,4 @@ Blade components live in `resources/views/components/` (Tabler-based: `card`, `t
 - Check-ins on PRs (`send_later`/scheduled tasks, webhooks (`watch_url`), PR activity subscriptions or other periodic checks) are fine while development is still active, e.g. waiting on pipeline output. Once development is complete and the PR is in a stable state, remove all of them.
 - Do not add code comments unless the behaviour is genuinely obscure; prefer clear naming, and think carefully before adding any comment.
 - Write PR descriptions in neutral, factual language: state what changed and why, without hype or self-praise.
+- When a PR touches or updates the UI, take screenshots of the affected pages (e.g. with Playwright against `php artisan serve`) and include them in the PR description.

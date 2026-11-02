@@ -52,7 +52,9 @@ jobs:
     if: ${{ github.actor != 'dependabot[bot]' && (github.ref == 'refs/heads/main' || github.event.pull_request.head.repo.full_name == github.repository) }}
     needs: build_and_test
     runs-on: ubuntu-24.04
-    concurrency: deploy-dev
+    concurrency:
+      group: deploy-dev
+      queue: max
     environment:
       name: dev
       url: https://${{ vars.APP_DOMAIN }}

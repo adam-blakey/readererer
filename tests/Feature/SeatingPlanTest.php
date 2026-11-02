@@ -76,18 +76,16 @@ test('the seating plan page offers downloads for upcoming rehearsals and own con
         'start_datetime' => now()->addWeek(),
         'end_datetime' => now()->addWeek()->addHours(2),
     ]);
-    $ownConcert = TermDate::forceCreate([
+    $ownConcert = tap(TermDate::forceCreate([
         'term_id' => $term->id,
         'start_datetime' => now()->addWeeks(2),
         'end_datetime' => now()->addWeeks(2)->addHours(2),
-        'concert_ensemble_id' => $ensemble->id,
-    ]);
-    $otherConcert = TermDate::forceCreate([
+    ]), fn (TermDate $termDate) => $termDate->concert_ensembles()->attach($ensemble));
+    $otherConcert = tap(TermDate::forceCreate([
         'term_id' => $term->id,
         'start_datetime' => now()->addWeeks(3),
         'end_datetime' => now()->addWeeks(3)->addHours(2),
-        'concert_ensemble_id' => $otherEnsemble->id,
-    ]);
+    ]), fn (TermDate $termDate) => $termDate->concert_ensembles()->attach($otherEnsemble));
 
     $response = $this->actingAs(make_user(UserRole::Admin))
         ->get(route('ensembles.seating-plan.show', $ensemble));

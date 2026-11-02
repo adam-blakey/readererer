@@ -93,8 +93,9 @@ Dev and qa need only PHP and git on the server. Prod also builds there, with
 Composer and CloudLinux's Node 24 (`/opt/alt/alt-nodejs24`, which
 `.cpanel.yml` puts on `PATH`).
 
-A new push to a pull request cancels that pull request's earlier run; runs on
-`main` are never cancelled this way.
+Dev and qa deployments queue: each waits for the one ahead of it to finish and
+then deploys, so no run is cancelled for a newer one. Only the production
+release (`release_tag`) cancels itself when a newer `main` run is in progress.
 
 Fork pull requests and Dependabot pull requests build and test but do not
 deploy (they have no access to the secrets).

@@ -2,6 +2,8 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Attributes\Scope;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
@@ -61,14 +63,22 @@ class Term extends Model
         return $this->hasMany(TermDate::class)->orderBy('start_datetime');
     }
 
+    #[Scope]
+    protected function current(Builder $query): void
+    {
+        $query->where(fn (Builder $query) => $query
+            ->whereDoesntHave('term_dates')
+            ->orWhereHas('term_dates', fn (Builder $query) => $query->where('end_datetime', '>=', now())));
+    }
+
     public function getNumberOfRehearsalsAttribute(): int
     {
-        return $this->term_dates->whereNull('concert_ensemble_id')->count();
+        return $this->term_dates->reject->is_concert->count();
     }
 
     public function getNumberOfConcertsAttribute(): int
     {
-        return $this->term_dates->whereNotNull('concert_ensemble_id')->count();
+        return $this->term_dates->filter->is_concert->count();
     }
 
     public function getNumberOfTermDatesAttribute(): int
