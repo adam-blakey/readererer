@@ -20,6 +20,8 @@ class AttendanceController extends Controller
             ->whereRelation('user', 'deleted_at', null)
             ->whereRelation('edit_user', 'deleted_at', null)
             ->whereRelation('term_date', 'deleted_at', null)
+            ->whereRelation('term_date.term', 'deleted_at', null)
+            ->whereRelation('ensemble', 'deleted_at', null)
             ->orderBy('created_at', 'DESC')
             ->paginate(10);
 

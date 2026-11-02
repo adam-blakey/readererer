@@ -42,12 +42,15 @@ class PollererImportController extends Controller
             throw ValidationException::withMessages(['export' => __('Upload the export again.')]);
         }
 
-        $request->validate(['acknowledge_timezone' => $pending['report']['timezone_warning'] ? ['accepted'] : []]);
+        $request->validate(
+            ['keep_clock_times' => $pending['report']['timezone_warning'] ? ['required', 'boolean'] : []],
+            ['keep_clock_times.required' => __('Choose how to import the times.')]
+        );
         $this->ensureSiteIsEmpty();
 
         try {
             $export = PollererImporter::parse(Storage::disk('local')->get($pending['path']));
-            $summary = (new PollererImporter($export, $request->user()))->import();
+            $summary = (new PollererImporter($export, $request->user(), $request->boolean('keep_clock_times')))->import();
         } finally {
             $this->forgetPendingImport($request);
         }

@@ -163,12 +163,52 @@ test('memberships carry instrument families and seats', function () {
 
     expect(InstrumentFamily::count())->toBe(2)
         ->and($pivot('alice.smith', 'concert-band')->instrument_family_id)->toBe($flute->id)
-        ->and($pivot('alice.smith', 'concert-band')->seat_row)->toBe('1')
+        ->and($pivot('alice.smith', 'concert-band')->seat_row)->toBe('A')
         ->and($pivot('alice.smith', 'concert-band')->seat_column)->toBe('2')
         ->and($pivot('bob.jones', 'concert-band')->instrument_family_id)->toBe($flute->id)
         ->and($pivot('carol.white', 'jazz-group')->instrument_family_id)->toBeNull()
         ->and($pivot('carol.white', 'jazz-group')->seat_row)->toBeNull()
         ->and($pivot('carol.white', 'jazz-group')->seat_column)->toBeNull();
+});
+
+test('seat rows become letters', function (string $row, ?string $letter) {
+    import_pollererer(function (&$export) use ($row) {
+        $export['tables']['members'][2]['row'] = $row;
+    });
+
+    expect(imported_user('alice.smith')->ensembles->firstWhere('slug', 'concert-band')->pivot->seat_row)->toBe($letter);
+})->with([
+    'first row' => ['1', 'A'],
+    'second row' => ['2', 'B'],
+    'last single letter' => ['26', 'Z'],
+    'past Z' => ['27', 'AA'],
+    'unseated' => ['0', null],
+]);
+
+test('null names are imported as empty strings', function () {
+    import_pollererer(function (&$export) {
+        $export['tables']['members'][2]['last_name'] = null;
+        $export['tables']['terms'][0]['name'] = null;
+        $export['tables']['ensembles'][1]['name'] = null;
+    });
+
+    expect(User::where('email', 'alice@example.com')->value('last_name'))->toBe('')
+        ->and(Term::where('slug', 'autumn-2025')->value('name'))->toBe('')
+        ->and(Ensemble::where('slug', 'jazz-group')->value('name'))->toBe('');
+});
+
+test('attendance updates leave out replies for dates in a hidden term', function () {
+    $admin = make_user(UserRole::Admin);
+    import_pollererer(function (&$export) {
+        $export['tables']['attendance'][] = ['ID' => '7', 'member_ID' => '1', 'edit_datetime' => '1707000000', 'edit_member_ID' => '1', 'term_dates_ID' => '7', 'ensemble_ID' => '1', 'IP' => '', 'status' => '1'];
+    }, $admin);
+
+    $hidden = Attendance::whereRelation('term_date', 'term_id', Term::onlyTrashed()->value('id'))->firstOrFail();
+
+    expect($hidden->name)->toBe('Concert Band: ');
+    $this->actingAs($admin)->get(route('attendance.index'))
+        ->assertOk()
+        ->assertSee('Concert Band: Autumn 2025');
 });
 
 test('attendance keeps every reply with its time, editor and address', function () {
@@ -215,6 +255,26 @@ test('images are downloaded to the public disk', function () {
     Storage::disk('public')->assertExists($logo);
     expect($image)->toStartWith('images/ensembles/')->toEndWith('.png')
         ->and($logo)->toStartWith('images/settings/');
+});
+
+test('a relative image path is found on the logo\'s site', function (string $image) {
+    import_pollererer(function (&$export) use ($image) {
+        $export['settings']['logo_url'] = 'https://polls.example.org:8443/uploads/logo.png';
+        $export['tables']['ensembles'][1]['image'] = $image;
+    });
+
+    Http::assertSent(fn ($request) => $request->url() === 'https://polls.example.org:8443/uploads/ensemble-logos/jazz.png');
+    expect(Ensemble::where('slug', 'jazz-group')->value('image'))->toStartWith('images/ensembles/');
+})->with(['/uploads/ensemble-logos/jazz.png', 'uploads/ensemble-logos/jazz.png']);
+
+test('a relative image path is left out when the logo is not a web address', function () {
+    $report = import_pollererer(function (&$export) {
+        $export['settings']['logo_url'] = '';
+        $export['tables']['ensembles'][1]['image'] = 'uploads/jazz.png';
+    });
+
+    expect(Ensemble::where('slug', 'jazz-group')->value('image'))->toBeNull()
+        ->and($report['warnings'])->toContain('The image for Jazz Group is not a web address and the logo gives no address to find it on, so it was left out.');
 });
 
 test('a failed image download keeps the address and warns', function () {
@@ -342,16 +402,42 @@ test('the daylight saving check stays quiet when the timezones match', function 
     expect($report['timezone_warning'])->toBeNull();
 });
 
-test('confirming needs the timezone acknowledged when the check warns', function () {
+test('confirming needs a choice of times when the check warns', function () {
     config(['app.timezone' => 'UTC']);
     $admin = make_user(UserRole::Admin);
     $this->actingAs($admin)->post(route('settings.import.preview'), ['export' => pollererer_upload()]);
 
-    $this->actingAs($admin)->get(route('settings.import'))->assertSee('name="acknowledge_timezone"', false);
+    $this->actingAs($admin)->get(route('settings.import'))->assertSee('name="keep_clock_times"', false);
 
-    $this->actingAs($admin)->post(route('settings.import.store'))->assertSessionHasErrors('acknowledge_timezone');
+    $this->actingAs($admin)->post(route('settings.import.store'))->assertSessionHasErrors(['keep_clock_times' => 'Choose how to import the times.']);
     expect(Ensemble::count())->toBe(0);
 
-    $this->actingAs($admin)->post(route('settings.import.store'), ['acknowledge_timezone' => '1'])->assertSessionHasNoErrors();
-    expect(Ensemble::count())->toBe(2);
+    $this->actingAs($admin)->post(route('settings.import.store'), ['keep_clock_times' => '0'])->assertSessionHasNoErrors();
+    expect(Ensemble::count())->toBe(2)
+        ->and(TermDate::whereDate('start_datetime', '2025-10-01')->firstOrFail()->start_datetime->format('H:i'))->toBe('18:00');
+});
+
+test('keeping clock times moves summer times to winter time', function () {
+    config(['app.timezone' => 'UTC']);
+    $admin = make_user(UserRole::Admin);
+    $this->actingAs($admin)->post(route('settings.import.preview'), ['export' => pollererer_upload()]);
+
+    $this->actingAs($admin)->post(route('settings.import.store'), ['keep_clock_times' => '1'])->assertSessionHasNoErrors();
+
+    $summer = TermDate::whereDate('start_datetime', '2025-10-01')->firstOrFail();
+    $winter = TermDate::whereDate('start_datetime', '2025-11-05')->firstOrFail();
+
+    expect($summer->start_datetime->format('H:i'))->toBe('19:00')
+        ->and($summer->end_datetime->format('H:i'))->toBe('21:00')
+        ->and($winter->start_datetime->format('H:i'))->toBe('19:00')
+        ->and(Attendance::orderBy('created_at')->firstOrFail()->created_at->format('Y-m-d H:i'))->toBe('2025-09-20 10:00');
+});
+
+test('keeping clock times changes nothing when the timezones match', function () {
+    $admin = make_user(UserRole::Admin);
+    $this->actingAs($admin)->post(route('settings.import.preview'), ['export' => pollererer_upload()]);
+
+    $this->actingAs($admin)->post(route('settings.import.store'), ['keep_clock_times' => '1'])->assertSessionHasNoErrors();
+
+    expect(TermDate::whereDate('start_datetime', '2025-10-01')->firstOrFail()->start_datetime->format('H:i'))->toBe('19:00');
 });

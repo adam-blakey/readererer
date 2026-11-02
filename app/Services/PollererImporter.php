@@ -81,7 +81,8 @@ class PollererImporter
 
     private string $unusablePassword;
 
-    public function __construct(private array $export, private User $admin)
+    /** With keepClockTimes, each time keeps the clock time Pollererer showed, rather than the moment it stored. */
+    public function __construct(private array $export, private User $admin, private bool $keepClockTimes = false)
     {
         $this->counts = array_fill_keys([
             'Ensembles', 'Ensemble admins', 'Users created', 'Existing users linked', 'Memberships',
@@ -282,25 +283,41 @@ class PollererImporter
 
         foreach ($this->table('ensembles') as $row) {
             $image = trim((string) $row['image']);
-            $isUrl = Str::isUrl($image, ['http', 'https']);
+            $url = $this->imageUrl($image);
 
             $ensemble = Ensemble::forceCreate([
                 'name' => (string) $row['name'],
                 'slug' => filled($row['safe_name']) ? (string) $row['safe_name'] : Str::slug((string) $row['name']),
                 'show' => ! (int) $row['hidden'],
                 'seating_plan_enabled' => isset($seated[(int) $row['ID']]),
-                'image' => $isUrl ? $image : null,
+                'image' => $url,
             ]);
 
-            if ($isUrl) {
-                $this->images[] = ['url' => $image, 'ensemble' => $ensemble->id, 'name' => $ensemble->name];
+            if ($url) {
+                $this->images[] = ['url' => $url, 'ensemble' => $ensemble->id, 'name' => $ensemble->name];
             } elseif ($image !== '') {
-                $this->warnings[] = __('The image for :ensemble is not a web address, so it was left out.', ['ensemble' => $ensemble->name]);
+                $this->warnings[] = __('The image for :ensemble is not a web address and the logo gives no address to find it on, so it was left out.', ['ensemble' => $ensemble->name]);
             }
 
             $this->ensembles[(int) $row['ID']] = $ensemble->id;
             $this->counts['Ensembles']++;
         }
+    }
+
+    /** Pollererer shows a relative image path against its own address, which the export only gives through the logo. */
+    private function imageUrl(string $image): ?string
+    {
+        if ($image === '' || Str::isUrl($image, ['http', 'https'])) {
+            return $image === '' ? null : $image;
+        }
+
+        $logo = parse_url(trim((string) ($this->export['settings']['logo_url'] ?? '')));
+
+        if (! isset($logo['scheme'], $logo['host']) || ! in_array($logo['scheme'], ['http', 'https'], true)) {
+            return null;
+        }
+
+        return $logo['scheme'].'://'.$logo['host'].(isset($logo['port']) ? ':'.$logo['port'] : '').'/'.ltrim($image, '/');
     }
 
     private function importUsers(): void
@@ -464,7 +481,7 @@ class PollererImporter
                 'user_id' => $user,
                 'ensemble_id' => $ensemble,
                 'instrument_family_id' => $this->instrumentFamily($member['instrument']),
-                'seat_row' => (int) $member['row'] ? (string) (int) $member['row'] : null,
+                'seat_row' => (int) $member['row'] > 0 ? $this->rowLetter((int) $member['row']) : null,
                 'seat_column' => (int) $member['seat'] ? (string) (int) $member['seat'] : null,
             ];
         }
@@ -486,6 +503,18 @@ class PollererImporter
         }
 
         $this->counts['Memberships'] = count($memberships);
+    }
+
+    /** Pollererer numbers rows from 1, the seating plan letters them from A. */
+    private function rowLetter(int $row): string
+    {
+        $letter = 'A';
+
+        for ($i = 1; $i < $row; $i++) {
+            $letter = str_increment($letter);
+        }
+
+        return $letter;
     }
 
     private function importEnsembleAdmins(): void
@@ -537,10 +566,15 @@ class PollererImporter
         }
     }
 
+    private function time(int $timestamp): Carbon
+    {
+        return $this->keepClockTimes
+            ? Carbon::createFromTimestamp($timestamp, $this->export['timezone'])->shiftTimezone(config('app.timezone'))
+            : Carbon::createFromTimestamp($timestamp, config('app.timezone'));
+    }
+
     private function importTermDates(): void
     {
-        $timezone = config('app.timezone');
-
         foreach ($this->table('term_dates') as $row) {
             $term = $this->terms[(int) $row['term_ID']] ?? null;
 
@@ -552,8 +586,8 @@ class PollererImporter
 
             $termDate = TermDate::forceCreate([
                 'term_id' => $term,
-                'start_datetime' => Carbon::createFromTimestamp((int) $row['datetime'], $timezone),
-                'end_datetime' => Carbon::createFromTimestamp((int) $row['datetime_end'], $timezone),
+                'start_datetime' => $this->time((int) $row['datetime']),
+                'end_datetime' => $this->time((int) $row['datetime_end']),
                 'setup_group_id' => $this->setupGroup($row['setup_group']),
                 'deleted_at' => (int) $row['deleted'] ? now() : null,
             ]);
@@ -578,7 +612,6 @@ class PollererImporter
 
     private function importAttendance(): void
     {
-        $timezone = config('app.timezone');
         $skipped = 0;
         $rows = [];
 
@@ -598,7 +631,7 @@ class PollererImporter
                 continue;
             }
 
-            $editedAt = Carbon::createFromTimestamp((int) $row['edit_datetime'], $timezone)->toDateTimeString();
+            $editedAt = $this->time((int) $row['edit_datetime'])->toDateTimeString();
 
             $rows[] = [
                 'user_id' => $user,
