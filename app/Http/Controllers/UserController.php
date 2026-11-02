@@ -120,7 +120,7 @@ class UserController extends Controller
     {
         abort_if($user->trashed() && ! request()->boolean('with_trashed'), 404);
 
-        $user->load(['ensembles']);
+        $user->load(['ensembles', 'setup_group', 'van_driver_groups']);
 
         $instrumentFamilies = InstrumentFamily::whereIn(
             'id', $user->ensembles->pluck('pivot.instrument_family_id')->unique()
