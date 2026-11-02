@@ -421,3 +421,51 @@ test('creating a user retries with a fresh username if the generated one is take
     expect($raced)->toBeTrue();
     expect(User::where('email', 'ada@example.com')->value('username'))->toBe('ada.lovelace.2');
 });
+
+test('the user show page displays the setup group, van driver groups and personal details', function () {
+    $setupGroup = SetupGroup::factory()->create(['name' => 'Group Alpha']);
+    $driverGroup = SetupGroup::factory()->create(['name' => 'Group Beta']);
+    $user = make_user(UserRole::Member, ['setup_group_id' => $setupGroup->id, 'date_of_birth' => '1990-03-04']);
+    $driverGroup->van_drivers()->attach($user);
+
+    $this->actingAs(make_user(UserRole::Moderator))
+        ->get(route('users.show', $user))
+        ->assertOk()
+        ->assertSee('Group Alpha')
+        ->assertSee('Group Beta')
+        ->assertSee('4 March 1990');
+});
+
+test('the user edit form saves contact details, date of birth and permissions', function () {
+    $setupGroup = SetupGroup::factory()->create();
+    $user = make_user(UserRole::Member);
+    $admin = make_user(UserRole::Admin);
+
+    $this->actingAs($admin)->get(route('users.edit', $user))
+        ->assertOk()
+        ->assertSee('name="phone_number"', false)
+        ->assertSee('name="date_of_birth"', false);
+
+    $this->actingAs($admin)->patch(route('users.update', $user), [
+        'first_name' => $user->first_name,
+        'last_name' => $user->last_name,
+        'email' => $user->email,
+        'role' => $user->role->value,
+        'setup_group' => $setupGroup->id,
+        'phone_number' => '07700 900123',
+        'address_city' => 'Leeds',
+        'emergency_contact_name' => 'Pat Doe',
+        'date_of_birth' => '1990-03-04',
+        'has_photo_permission' => '1',
+        'is_gift_aiding_subs' => '0',
+    ])->assertSessionHasNoErrors()->assertRedirect(route('users.show', $user));
+
+    $user->refresh();
+    expect($user->setup_group_id)->toBe($setupGroup->id);
+    expect($user->phone_number)->toBe('07700 900123');
+    expect($user->address_city)->toBe('Leeds');
+    expect($user->emergency_contact_name)->toBe('Pat Doe');
+    expect($user->date_of_birth->toDateString())->toBe('1990-03-04');
+    expect($user->has_photo_permission)->toBeTrue();
+    expect($user->is_gift_aiding_subs)->toBeFalse();
+});
