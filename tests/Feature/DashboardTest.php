@@ -103,6 +103,7 @@ test('ensemble logins are shown their ensemble page instead of the dashboard', f
 test('the dashboard shows the user\'s next van drive from the setup group rotation', function () {
     $setupGroup = SetupGroup::factory()->create();
     $driver = make_user(UserRole::Member, ['setup_group_id' => $setupGroup->id]);
+    join_ensemble($driver, Ensemble::factory()->create());
     $setupGroup->van_drivers()->attach($driver->id, ['sort' => 0]);
 
     $term = Term::factory()->create();
@@ -117,20 +118,62 @@ test('the dashboard shows the user\'s next van drive from the setup group rotati
 
     $response->assertOk();
     expect($response->viewData('nextVanDrive')->id)->toBe($termDate->id);
+    expect($response->viewData('nextSetup')->id)->toBe($termDate->id);
+    $response->assertSee("Next time you're driving the van");
+    $response->assertSee('Next time your group is setting up');
 });
 
-test('a member in no ensemble is not offered a next rehearsal', function () {
-    $term = Term::factory()->create();
-    TermDate::forceCreate([
-        'term_id' => $term->id,
+test('a van drive the user was assigned outside their setup group is shown', function () {
+    $member = make_user(UserRole::Member);
+    join_ensemble($member, Ensemble::factory()->create());
+
+    $termDate = TermDate::forceCreate([
+        'term_id' => Term::factory()->create()->id,
         'start_datetime' => now()->addWeek(),
         'end_datetime' => now()->addWeek()->addHours(2),
+        'setup_group_id' => SetupGroup::factory()->create()->id,
+        'van_driver_id' => $member->id,
     ]);
 
-    $response = $this->actingAs(make_user(UserRole::Member))->get('/dashboard');
+    $response = $this->actingAs($member)->get('/dashboard');
+
+    expect($response->viewData('nextVanDrive')->id)->toBe($termDate->id);
+    $response->assertSee("Next time you're driving the van");
+});
+
+test('members who never drive the van are not shown a van driving section', function () {
+    $setupGroup = SetupGroup::factory()->create();
+    $member = make_user(UserRole::Member, ['setup_group_id' => $setupGroup->id]);
+    join_ensemble($member, Ensemble::factory()->create());
+
+    $response = $this->actingAs($member)->get('/dashboard');
 
     $response->assertOk();
-    expect($response->viewData('nextRehearsal'))->toBeNull();
+    expect($response->viewData('drivesTheVan'))->toBeFalse();
+    $response->assertDontSee("Next time you're driving the van");
+    $response->assertSee('Next time your group is setting up');
+});
+
+test('a member in no ensemble sees an empty state instead of rehearsals, setup and van driving', function () {
+    $setupGroup = SetupGroup::factory()->create();
+    $member = make_user(UserRole::Member, ['setup_group_id' => $setupGroup->id]);
+    $setupGroup->van_drivers()->attach($member->id, ['sort' => 0]);
+
+    TermDate::forceCreate([
+        'term_id' => Term::factory()->create()->id,
+        'start_datetime' => now()->addWeek(),
+        'end_datetime' => now()->addWeek()->addHours(2),
+        'setup_group_id' => $setupGroup->id,
+    ]);
+
+    $response = $this->actingAs($member)->get('/dashboard');
+
+    $response->assertOk();
+    $response->assertSee('You are not currently a member of any ensembles.');
+    $response->assertDontSee('Upcoming rehearsals and concerts');
+    $response->assertDontSee('Your setup group');
+    $response->assertDontSee("Next time you're driving the van");
+    $response->assertViewMissing('nextRehearsal');
 });
 
 test('an ensemble login that is not linked to an ensemble is refused rather than erroring', function () {
