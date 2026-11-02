@@ -120,7 +120,7 @@ test('the poll shows a history button only to those who may see the history', fu
     $this->actingAs(make_user(UserRole::Moderator))->get($pollUrl)
         ->assertOk()
         ->assertSee($historyUrl, false)
-        ->assertSee('View edit history for '.$member->name, false);
+        ->assertSee('View edit history for '.$member->name);
 
     $this->actingAs($member)->get($pollUrl)
         ->assertOk()
