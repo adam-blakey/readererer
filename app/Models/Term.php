@@ -2,6 +2,8 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Attributes\Scope;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
@@ -59,6 +61,14 @@ class Term extends Model
     public function term_dates(): HasMany
     {
         return $this->hasMany(TermDate::class)->orderBy('start_datetime');
+    }
+
+    #[Scope]
+    protected function current(Builder $query): void
+    {
+        $query->where(fn (Builder $query) => $query
+            ->whereDoesntHave('term_dates')
+            ->orWhereHas('term_dates', fn (Builder $query) => $query->where('end_datetime', '>=', now())));
     }
 
     public function getNumberOfRehearsalsAttribute(): int

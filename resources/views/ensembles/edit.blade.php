@@ -1,9 +1,5 @@
 @props(['ensemble'])
 
-@php
-	$terms = App\Models\Term::all()->sortBy('earliest_date');
-@endphp
-
 <x-layout>
     <div class="container">
         <div class="row align-items-center">
