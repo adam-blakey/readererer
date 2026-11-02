@@ -118,7 +118,7 @@ test('a soft-deleted user can be shown and erased', function () {
     $user = make_user(UserRole::Member);
     $user->delete();
 
-    $this->actingAs($admin)->get(route('users.show', $user))->assertOk()->assertSee(__('Erase personal data'));
+    $this->actingAs($admin)->get(route('users.show', [$user, 'with_trashed' => 1]))->assertOk()->assertSee(__('Erase personal data'));
 
     erase($admin, $user)->assertRedirect(route('users.index'));
 

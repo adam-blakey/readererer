@@ -220,6 +220,15 @@ test('an invalid update leaves the user untouched', function () {
     expect($user->fresh()->email)->toBe('ada@example.com');
 });
 
+test('the show page for a soft-deleted user is not found', function () {
+    $user = make_user(UserRole::Member);
+    $user->delete();
+
+    $this->actingAs(make_user(UserRole::Admin))
+        ->get(route('users.show', $user->id))
+        ->assertNotFound();
+});
+
 test('a user can be soft deleted and restored through the endpoints', function () {
     // Regression: a declared `deleted_at` property shadowed the attribute and broke these endpoints.
     $user = make_user(UserRole::Member);

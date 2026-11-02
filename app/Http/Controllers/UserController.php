@@ -118,6 +118,8 @@ class UserController extends Controller
 
     public function show(User $user)
     {
+        abort_if($user->trashed() && ! request()->boolean('with_trashed'), 404);
+
         $user->load(['ensembles']);
 
         $instrumentFamilies = InstrumentFamily::whereIn(
