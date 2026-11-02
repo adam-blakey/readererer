@@ -50,7 +50,7 @@ runs:
           fi
           echo "$(git describe --tags --always)${{ github.event.pull_request.number && format('+pr{0}', github.event.pull_request.number) || '' }}" > VERSION
           rm -f bootstrap/cache/*.php
-          php artisan down
+          php artisan down --retry=5 --refresh=5
           trap 'php artisan up' EXIT
           if [ '${{ inputs.fresh-database }}' = 'true' ]; then
             php artisan migrate:fresh --seed --force

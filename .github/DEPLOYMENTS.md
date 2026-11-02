@@ -211,7 +211,7 @@ domain moves the app to a new folder. If prod currently lives at
 1. In cPanel create the domain `readererer-prod.blakey.family` with document
    root `domains/readererer-prod.blakey.family/public` and run AutoSSL.
 2. In **Terminal**, put prod in maintenance mode and move it:
-   `cd ~/domains/readererer.blakey.family && php artisan down`, then
+   `cd ~/domains/readererer.blakey.family && php artisan down --retry=5 --refresh=5`, then
    `mv ~/domains/readererer.blakey.family ~/domains/readererer-prod.blakey.family`.
 3. In the moved `.env` set `APP_URL=https://readererer-prod.blakey.family`, and
    if `DB_DATABASE` is an absolute SQLite path, update it to the new folder.
