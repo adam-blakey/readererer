@@ -15,7 +15,7 @@ deployment:
     - ulimit -v
     - cd $BUILD && node --disable-wasm-trap-handler --wasm-max-mem-pages=4096 node_modules/vite/bin/vite.js build
     - php -v
-    - cd $APP && { test ! -f vendor/autoload.php || php -d display_errors=stderr artisan down; }
+    - cd $APP && { test ! -f vendor/autoload.php || php -d display_errors=stderr artisan down --retry=5 --refresh=5; }
     - rsync -a --delete $BUILD/app $BUILD/bootstrap $BUILD/config $BUILD/lang $BUILD/resources $BUILD/routes $BUILD/vendor $APP/
     - rsync -a --delete '--exclude=*.sqlite*' $BUILD/database/ $APP/database/
     - rsync -a --delete $BUILD/public/build $BUILD/public/js $APP/public/
