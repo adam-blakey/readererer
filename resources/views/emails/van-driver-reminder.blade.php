@@ -7,8 +7,8 @@
 
 **{{ $termDate->name }}**
 
-@if($termDate->concert_ensemble)
-{{ __('This is a concert for') }} **{{ $termDate->concert_ensemble->name }}**.
+@if($termDate->is_concert)
+{{ __('This is a concert for') }} **{{ $termDate->concert_ensemble_names }}**.
 @else
 {{ __('This is a rehearsal.') }}
 @endif

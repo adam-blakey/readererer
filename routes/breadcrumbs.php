@@ -3,6 +3,7 @@
 use App\Models\Ensemble;
 use App\Models\Term;
 use App\Models\TermDate;
+use App\Models\User;
 use Diglactic\Breadcrumbs\Breadcrumbs;
 use Diglactic\Breadcrumbs\Generator as BreadcrumbTrail;
 use Illuminate\Database\Eloquent\Model;
@@ -97,6 +98,11 @@ Breadcrumbs::for('attendance.index', function (BreadcrumbTrail $trail) {
 Breadcrumbs::for('attendance.poll.show', function (BreadcrumbTrail $trail, Ensemble $ensemble, Term $term) {
     $trail->parent('attendance.index');
     $trail->push($ensemble->name.': '.$term->name, route('attendance.poll.show', [$ensemble, $term]));
+});
+
+Breadcrumbs::for('attendance.poll.history', function (BreadcrumbTrail $trail, Ensemble $ensemble, Term $term, User $user) {
+    $trail->parent('attendance.poll.show', $ensemble, $term);
+    $trail->push($user->name, route('attendance.poll.history', [$ensemble, $term, $user]));
 });
 
 Breadcrumbs::for('attendance.register.index', function (BreadcrumbTrail $trail) {

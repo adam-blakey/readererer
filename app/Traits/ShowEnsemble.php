@@ -11,20 +11,20 @@ trait ShowEnsemble
     public function show(Ensemble $ensemble)
     {
         $upcoming_terms = Term::current()
-            ->with('term_dates')
+            ->with('term_dates.concert_ensembles')
             ->get()
             ->sortBy('latest_date');
 
         $next_rehearsal = $upcoming_terms
             ->flatMap(fn ($term) => $term->term_dates)
-            ->filter(fn ($term_date) => $term_date->concert_ensemble_id === null)
+            ->reject(fn ($term_date) => $term_date->is_concert)
             ->where('start_datetime', '>', Carbon::now())
             ->sortBy('start_datetime')
             ->first();
 
         $next_concert = $upcoming_terms
             ->flatMap(fn ($term) => $term->term_dates)
-            ->filter(fn ($term_date) => (int) $term_date->concert_ensemble_id === (int) $ensemble->id)
+            ->filter(fn ($term_date) => $term_date->concert_ensembles->contains($ensemble))
             ->where('start_datetime', '>', Carbon::now())
             ->sortBy('start_datetime')
             ->first();

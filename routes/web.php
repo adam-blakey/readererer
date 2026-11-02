@@ -40,6 +40,10 @@ Route::post('/attendance/poll/{ensemble:slug}/{term:slug}', [AttendanceControlle
     ->withoutScopedBindings()
     ->name('attendance.poll.store')
     ->can('view', 'ensemble');
+Route::get('/attendance/poll/{ensemble:slug}/{term:slug}/history/{user}', [AttendanceController::class, 'history'])
+    ->withoutScopedBindings()
+    ->name('attendance.poll.history')
+    ->can('viewAny', Attendance::class);
 
 Route::get('/attendance/register', [AttendanceRegisterController::class, 'index'])
     ->name('attendance.register.index')
