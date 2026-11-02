@@ -8,6 +8,7 @@ use App\Models\Ensemble;
 use App\Models\InstrumentFamily;
 use App\Models\Term;
 use App\Models\TermDate;
+use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
@@ -52,6 +53,22 @@ class AttendanceController extends Controller
             'page_name' => $ensemble->name.': '.$term->name,
             'ensemble' => $ensemble,
             'sortby' => $request->query('sortby') ?? 'first_name',
+        ]);
+    }
+
+    public function history(Ensemble $ensemble, Term $term, User $user)
+    {
+        $attendances = Attendance::with(['term_date', 'edit_user' => fn ($query) => $query->withTrashed()])
+            ->where('user_id', $user->id)
+            ->where('ensemble_id', $ensemble->id)
+            ->whereRelation('term_date', 'term_id', $term->id)
+            ->latest()
+            ->latest('id')
+            ->get();
+
+        return view('attendances.history', [
+            'attendances' => $attendances,
+            'page_name' => __(':name: attendance history', ['name' => $user->name]),
         ]);
     }
 

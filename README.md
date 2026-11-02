@@ -18,6 +18,7 @@
   <a href="https://github.com/adam-blakey/readererer/actions/workflows/main.yml"><img alt="Build, Test &amp; Deploy" src="https://github.com/adam-blakey/readererer/actions/workflows/main.yml/badge.svg?branch=main"></a>
   <a href="https://github.com/adam-blakey/readererer/actions/workflows/codeql.yml"><img alt="CodeQL" src="https://github.com/adam-blakey/readererer/actions/workflows/codeql.yml/badge.svg?branch=main"></a>
   <a href="https://github.com/adam-blakey/readererer/actions/workflows/php-security.yml"><img alt="PHP Security" src="https://github.com/adam-blakey/readererer/actions/workflows/php-security.yml/badge.svg?branch=main"></a>
+  <a href="https://github.com/adam-blakey/readererer/actions/workflows/dast.yml"><img alt="DAST" src="https://github.com/adam-blakey/readererer/actions/workflows/dast.yml/badge.svg?branch=main"></a>
   <a href="https://github.com/adam-blakey/readererer/releases/latest"><img alt="Latest release" src="https://img.shields.io/github/v/release/adam-blakey/readererer"></a>
   <a href="https://www.conventionalcommits.org"><img alt="Conventional Commits" src="https://img.shields.io/badge/Conventional%20Commits-1.0.0-FE5196?logo=conventionalcommits&logoColor=white"></a>
   <a href="https://readererer.blakey.family"><img alt="Docs" src="https://img.shields.io/badge/docs-readererer.blakey.family-0054A6"></a>

@@ -17,7 +17,9 @@ jobs:
     if: github.ref == 'refs/heads/main'
     needs: build
     runs-on: ubuntu-24.04
-    concurrency: deploy-qa
+    concurrency:
+      group: deploy-qa
+      queue: max
     environment:
       name: qa
       url: https://${{ vars.APP_DOMAIN }}
@@ -66,7 +68,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        environment: [prod, nsw-beta]
+        environment: [prod, nsw-beta, blackwood-beta]
     concurrency: deploy-${{ matrix.environment }}
     environment:
       name: ${{ matrix.environment }}
