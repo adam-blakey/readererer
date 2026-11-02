@@ -1,0 +1,46 @@
+name: "DAST"
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+  schedule:
+    - cron: '28 2 * * 2'
+
+permissions:
+  contents: read
+
+jobs:
+  zap:
+    name: ZAP baseline scan
+    runs-on: ubuntu-24.04
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v7
+
+    - name: Build the app image
+      run: docker build -t readererer .
+
+    - name: Start the app
+      run: |
+        docker run -d --name readererer -p 8080:80 \
+          -e APP_ENV=production \
+          -e APP_KEY="base64:$(openssl rand -base64 32)" \
+          -e APP_URL=http://localhost:8080 \
+          readererer
+        curl --fail --silent --show-error --retry 30 --retry-all-errors --retry-delay 2 http://localhost:8080/health
+
+    - name: Run ZAP baseline scan
+      uses: zaproxy/action-baseline@v0.15.0
+      with:
+        target: http://localhost:8080
+        allow_issue_writing: false
+
+    - name: Report findings in the job summary
+      if: always() && hashFiles('report_md.md') != ''
+      run: cat report_md.md >> "$GITHUB_STEP_SUMMARY"
+
+    - name: Show app logs
+      if: failure()
+      run: docker logs readererer
