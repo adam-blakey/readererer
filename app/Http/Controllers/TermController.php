@@ -28,12 +28,16 @@ class TermController extends Controller
         } else {
             $query = $query->whereNull('deleted_at');
         }
-        $terms = $query->with(['term_dates'])->withCount('term_dates')->autosort()->paginate(10)->appends(request()->only('with_trashed'));
+        if (! request('with_past')) {
+            $query = $query->current();
+        }
+        $terms = $query->with(['term_dates'])->withCount('term_dates')->autosort()->paginate(10)->appends(request()->only('with_trashed', 'with_past'));
 
         return view('auto-entities.index', [
             'entities' => $terms,
             'page_name' => __('Terms'),
             'page_subname' => __('Terms overview'),
+            'show_past_toggle' => true,
             'create_entity' => [
                 'route' => 'terms.create',
                 'name' => __('term'),
