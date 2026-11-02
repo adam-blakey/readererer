@@ -66,7 +66,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        environment: [prod, nsw-beta]
+        environment: [prod, nsw-beta, blackwood-beta]
     concurrency: deploy-${{ matrix.environment }}
     environment:
       name: ${{ matrix.environment }}
