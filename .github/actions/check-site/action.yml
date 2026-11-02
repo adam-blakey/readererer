@@ -10,9 +10,11 @@ runs:
   steps:
     - shell: bash
       run: |
+        access=()
+        [ -n "$CF_ACCESS_CLIENT_ID" ] && access=(-H "CF-Access-Client-Id: $CF_ACCESS_CLIENT_ID" -H "CF-Access-Client-Secret: $CF_ACCESS_CLIENT_SECRET")
         for path in health login; do
           url="https://${{ inputs.domain }}/$path"
-          read -r code location < <(curl -sS -o /dev/null -w '%{http_code} %{redirect_url}\n' --retry 5 --retry-delay 10 --retry-connrefused --max-time 30 "$url" || true)
+          read -r code location < <(curl -sS -o /dev/null -w '%{http_code} %{redirect_url}\n' --retry 5 --retry-delay 10 --retry-connrefused --max-time 30 "${access[@]}" "$url" || true)
           echo "$url: HTTP $code $location"
           test "$code" = 200 || { echo "::error::$url answered HTTP $code${location:+ (redirect to $location)}, not 200."; exit 1; }
         done

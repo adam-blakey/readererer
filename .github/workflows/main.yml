@@ -26,6 +26,9 @@ jobs:
     steps:
       - uses: actions/checkout@v7
       - uses: ./.github/actions/deploy-ssh
+        env:
+          CF_ACCESS_CLIENT_ID: ${{ secrets.CF_ACCESS_CLIENT_ID }}
+          CF_ACCESS_CLIENT_SECRET: ${{ secrets.CF_ACCESS_CLIENT_SECRET }}
         with:
           domain: ${{ vars.APP_DOMAIN }}
           ssh-host: ${{ vars.DEPLOY_SSH_HOST }}
@@ -76,6 +79,9 @@ jobs:
     steps:
       - uses: actions/checkout@v7
       - uses: ./.github/actions/deploy-cpanel
+        env:
+          CF_ACCESS_CLIENT_ID: ${{ secrets.CF_ACCESS_CLIENT_ID }}
+          CF_ACCESS_CLIENT_SECRET: ${{ secrets.CF_ACCESS_CLIENT_SECRET }}
         with:
           host: ${{ vars.CPANEL_HOST }}
           user: ${{ vars.CPANEL_USER }}

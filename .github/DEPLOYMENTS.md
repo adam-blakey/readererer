@@ -81,7 +81,10 @@ requests show no skipped release jobs.
    for it: `/health` boots the app, queries the database and answers 503 while
    the site is in maintenance mode; `/login` renders the full layout, so it
    catches broken views and a missing Vite build. Redirects are not followed,
-   so a redirect fails the check. Each request times out after 30 seconds and
+   so a redirect fails the check. A site behind Cloudflare Access redirects
+   every request to its login page, so the check sends the
+   `CF_ACCESS_CLIENT_ID` and `CF_ACCESS_CLIENT_SECRET` service token headers
+   when those secrets are set. Each request times out after 30 seconds and
    is retried up to 5 times, 10 seconds apart, on a timeout, a refused
    connection or a 408, 429, 500, 502, 503 or 504. A failed check marks the
    deployment failed but does not roll it back: on `main` it stops the
@@ -161,6 +164,8 @@ per environment and the rest once on the repository.
 | `CPANEL_HOST` (production)          | `server.example.krystal.uk`     | cPanel host; the API is on port 2083.                                                 |
 | `CPANEL_USER` (production)          | `readererer`                    | The site's cPanel username.                                                           |
 | `CPANEL_TOKEN` (secret, production) |                                 | A cPanel API token for that account.                                                  |
+| `CF_ACCESS_CLIENT_ID` (secret)      |                                 | Client ID of a Cloudflare Access service token, for sites behind Access.              |
+| `CF_ACCESS_CLIENT_SECRET` (secret)  |                                 | That service token's client secret.                                                   |
 
 The SSH values are not used by the production sites; `docs` still needs them. The old
 `DEPLOY_FTP_HOST`, `DEPLOY_FTP_USER`, `DEPLOY_FTP_PASSWORD` and `DEPLOY_TOKEN`
