@@ -27,8 +27,8 @@ class PollererImportController extends Controller
         $export = PollererImporter::parse($request->file('export')->get());
 
         $this->forgetPendingImport($request);
-        $path = $request->file('export')->store('imports', 'local');
         $report = (new PollererImporter($export, $request->user()))->preview();
+        $path = $request->file('export')->store('imports', 'local');
         $request->session()->put('pollererer_import', ['path' => $path, 'report' => $report]);
 
         return redirect()->route('settings.import');
