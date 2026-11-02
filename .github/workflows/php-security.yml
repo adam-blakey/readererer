@@ -60,12 +60,13 @@ jobs:
       uses: actions/checkout@v7
 
     # Not psalm/psalm-github-security-scan: it is unmaintained and ships PHP 8.2, too old for these dependencies.
+    # Psalm 6: the 7.0.0 phar crashes loading its bundled Laravel plugin (PsalmPhar\Illuminate\Support\Facades\Facade not found).
     - name: Setup PHP
       uses: shivammathur/setup-php@v2
       with:
         php-version: '8.5'
         coverage: none
-        tools: psalm
+        tools: psalm:6
 
     - name: Install Composer dependencies
       uses: ramsey/composer-install@v4
