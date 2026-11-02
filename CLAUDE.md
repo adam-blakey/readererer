@@ -120,3 +120,4 @@ Blade components live in `resources/views/components/` (Tabler-based: `card`, `t
 - Check-ins on PRs (`send_later`/scheduled tasks, webhooks (`watch_url`), PR activity subscriptions or other periodic checks) are fine while development is still active, e.g. waiting on pipeline output. Once development is complete and the PR is in a stable state, remove all of them.
 - Do not add code comments unless the behaviour is genuinely obscure; prefer clear naming, and think carefully before adding any comment.
 - Write PR descriptions in neutral, factual language: state what changed and why, without hype or self-praise.
+- When a PR touches or updates the UI, take screenshots of the affected pages (e.g. with Playwright against `php artisan serve`) and include them in the PR description.
