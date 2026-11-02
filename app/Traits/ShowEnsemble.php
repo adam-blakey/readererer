@@ -10,7 +10,7 @@ trait ShowEnsemble
 {
     public function show(Ensemble $ensemble)
     {
-        $upcoming_terms = Term::whereHas('term_dates', fn ($query) => $query->where('start_datetime', '>', Carbon::now()))
+        $upcoming_terms = Term::current()
             ->with('term_dates.concert_ensembles')
             ->get()
             ->sortBy('latest_date');
