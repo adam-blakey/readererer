@@ -27,6 +27,7 @@
 	$spans_multiple_years = $term->earliest_date->year != $term->latest_date->year;
 
 	$can_take_registers = Gate::allows('viewAny', App\Models\RegisterEntry::class);
+	$can_view_history = Gate::allows('viewAny', App\Models\Attendance::class);
 @endphp
 
 @if ($can_take_registers and $term_dates->isNotEmpty())
@@ -84,7 +85,14 @@
 
 					<tr>
 						<td>
-							<x-user-entry :add_route="false" :secondary_info="$instrument_families->get($member->pivot->instrument_family_id)?->name ?? ''" :user="$member" show_setup_group="true" />
+							<div class="d-flex align-items-center">
+								<x-user-entry :add_route="false" :secondary_info="$instrument_families->get($member->pivot->instrument_family_id)?->name ?? ''" :user="$member" show_setup_group="true" />
+								@if ($can_view_history)
+									<a class="btn btn-sm btn-ghost-secondary btn-icon ms-auto d-print-none" href="{{ route('attendance.poll.history', ['ensemble' => $ensemble, 'term' => $term, 'user' => $member]) }}" aria-label="{{ __('View edit history for :name', ['name' => $member->name]) }}" title="{{ __('View edit history') }}" data-bs-toggle="tooltip">
+										<x-icon name="history" />
+									</a>
+								@endif
+							</div>
 						</td>
 						@foreach ($term_dates as $term_date)
                             <td class="w-1 {{ ((int)($term_date->concert_ensemble_id) === (int)($ensemble->id)) ? 'bg-primary-subtle' : '' }}">
