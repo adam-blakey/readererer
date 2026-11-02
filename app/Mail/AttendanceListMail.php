@@ -37,12 +37,11 @@ class AttendanceListMail extends Mailable
 
     private function members(): Collection
     {
-        if ($this->termDate->concert_ensemble_id !== null) {
-            return ($this->termDate->concert_ensemble?->users ?? collect())->values();
-        }
+        $ensembles = $this->termDate->is_concert
+            ? $this->termDate->concert_ensembles->load('users')
+            : Ensemble::with('users')->get();
 
-        return Ensemble::with('users')
-            ->get()
+        return $ensembles
             ->flatMap->users
             ->unique('id')
             ->values();

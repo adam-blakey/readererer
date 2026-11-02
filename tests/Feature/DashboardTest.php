@@ -17,12 +17,11 @@ test('members see the dashboard with their ensembles and upcoming dates', functi
         'start_datetime' => now()->addWeek(),
         'end_datetime' => now()->addWeek()->addHours(2),
     ]);
-    $concert = TermDate::forceCreate([
+    $concert = tap(TermDate::forceCreate([
         'term_id' => $term->id,
         'start_datetime' => now()->addMonth(),
         'end_datetime' => now()->addMonth()->addHours(3),
-        'concert_ensemble_id' => $ensemble->id,
-    ]);
+    ]), fn (TermDate $termDate) => $termDate->concert_ensembles()->attach($ensemble));
 
     $response = $this->actingAs($member)->get('/dashboard');
 
@@ -61,12 +60,11 @@ test('concerts for other ensembles are not shown as the member\'s next concerts'
     join_ensemble($member, $ensemble);
 
     $term = Term::factory()->create();
-    TermDate::forceCreate([
+    tap(TermDate::forceCreate([
         'term_id' => $term->id,
         'start_datetime' => now()->addMonth(),
         'end_datetime' => now()->addMonth()->addHours(3),
-        'concert_ensemble_id' => $otherEnsemble->id,
-    ]);
+    ]), fn (TermDate $termDate) => $termDate->concert_ensembles()->attach($otherEnsemble));
 
     $response = $this->actingAs($member)->get('/dashboard');
 

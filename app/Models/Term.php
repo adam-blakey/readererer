@@ -73,12 +73,12 @@ class Term extends Model
 
     public function getNumberOfRehearsalsAttribute(): int
     {
-        return $this->term_dates->whereNull('concert_ensemble_id')->count();
+        return $this->term_dates->reject->is_concert->count();
     }
 
     public function getNumberOfConcertsAttribute(): int
     {
-        return $this->term_dates->whereNotNull('concert_ensemble_id')->count();
+        return $this->term_dates->filter->is_concert->count();
     }
 
     public function getNumberOfTermDatesAttribute(): int

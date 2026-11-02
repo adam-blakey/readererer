@@ -43,7 +43,7 @@
 					@foreach ($term_dates as $term_date)
 						<a class="dropdown-item" href="{{ route('attendance.register.show', ['ensemble' => $ensemble, 'termDate' => $term_date]) }}">
 							{{ $term_date->date_label }}
-							@if ($term_date->concert_ensemble_id)
+							@if ($term_date->is_concert)
 								<span class="ms-1 badge bg-green-lt">{{ __('Concert') }}</span>
 							@endif
 						</a>
@@ -78,7 +78,7 @@
 						<tr>
 							<td>{{ $sort_value }}</td>
 							@foreach ($term_dates as $term_date)
-                                <td class="w-1 {{ ((int)($term_date->concert_ensemble_id) === (int)($ensemble->id)) ? 'bg-primary-subtle' : '' }}"></td>
+                                <td class="w-1 {{ $term_date->concert_ensembles->contains($ensemble) ? 'bg-primary-subtle' : '' }}"></td>
 							@endforeach
 						</tr>
 					@endif
@@ -95,7 +95,7 @@
 							</div>
 						</td>
 						@foreach ($term_dates as $term_date)
-                            <td class="w-1 {{ ((int)($term_date->concert_ensemble_id) === (int)($ensemble->id)) ? 'bg-primary-subtle' : '' }}">
+                            <td class="w-1 {{ $term_date->concert_ensembles->contains($ensemble) ? 'bg-primary-subtle' : '' }}">
 								@php
 									$attendance_value = $member->latestAttendanceFor($term_date, $ensemble)?->status ?? App\Enums\AttendanceStatus::Unknown;
 

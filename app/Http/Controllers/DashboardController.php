@@ -28,15 +28,15 @@ class DashboardController extends Controller
 
         $nextRehearsal = null;
         if ($ensembles->isNotEmpty()) {
-            $nextRehearsal = TermDate::whereNull('concert_ensemble_id')
+            $nextRehearsal = TermDate::whereDoesntHave('concert_ensembles')
                 ->where('start_datetime', '>', Carbon::now())
                 ->orderBy('start_datetime')
                 ->first();
         }
 
         $ensembleIds = $ensembles->pluck('id');
-        $nextConcerts = TermDate::whereNotNull('concert_ensemble_id')
-            ->whereIn('concert_ensemble_id', $ensembleIds)
+        $nextConcerts = TermDate::with('concert_ensembles')
+            ->whereHas('concert_ensembles', fn ($query) => $query->whereKey($ensembleIds))
             ->where('start_datetime', '>', Carbon::now())
             ->orderBy('start_datetime')
             ->limit(3)

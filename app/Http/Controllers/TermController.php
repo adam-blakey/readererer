@@ -31,7 +31,7 @@ class TermController extends Controller
         if (! request('with_past')) {
             $query = $query->current();
         }
-        $terms = $query->with(['term_dates'])->withCount('term_dates')->autosort()->paginate(10)->appends(request()->only('with_trashed', 'with_past'));
+        $terms = $query->with(['term_dates.concert_ensembles'])->withCount('term_dates')->autosort()->paginate(10)->appends(request()->only('with_trashed', 'with_past'));
 
         return view('auto-entities.index', [
             'entities' => $terms,
@@ -73,7 +73,8 @@ class TermController extends Controller
             'term_dates.*.id' => 'nullable|integer',
             'term_dates.*.start_datetime' => 'required|date',
             'term_dates.*.end_datetime' => 'required|date',
-            'term_dates.*.ensemble_id' => 'nullable|integer|exists:ensembles,id',
+            'term_dates.*.ensemble_ids' => 'array',
+            'term_dates.*.ensemble_ids.*' => 'integer|distinct|exists:ensembles,id',
             'term_dates.*.setup_group_id' => 'nullable|integer|exists:setup_groups,id',
             'term_dates.*.van_driver_id' => 'nullable|integer|exists:users,id',
         ]);
@@ -90,7 +91,7 @@ class TermController extends Controller
 
     public function show(Term $term)
     {
-        $term->load('term_dates')->with('van_driver');
+        $term->load('term_dates.concert_ensembles')->with('van_driver');
         $ensembles = Ensemble::orderBy('name')->get();
 
         return view('terms.show', [
@@ -102,7 +103,7 @@ class TermController extends Controller
 
     public function edit(Term $term)
     {
-        $term->load('term_dates');
+        $term->load('term_dates.concert_ensembles');
         $ensembles = Ensemble::whereNull('deleted_at')->orderBy('name')->get();
         $setup_groups = SetupGroup::orderBy('name')->get();
         $van_drivers = User::orderBy('first_name')->orderBy('last_name')->get();
@@ -154,17 +155,19 @@ class TermController extends Controller
             $payload = [
                 'start_datetime' => $row['start_datetime'],
                 'end_datetime' => $row['end_datetime'],
-                'concert_ensemble_id' => $row['ensemble_id'] ?? null,
                 'setup_group_id' => $row['setup_group_id'] ?? null,
                 'van_driver_id' => $row['van_driver_id'] ?? null,
             ];
 
             if (! empty($row['id'])) {
                 // Fetched first: a query-builder update() would skip TermDateObserver's change alerts.
-                $term->term_dates()->whereKey($row['id'])->first()?->update($payload);
+                $termDate = $term->term_dates()->whereKey($row['id'])->first();
+                $termDate?->update($payload);
             } else {
-                $term->term_dates()->create($payload);
+                $termDate = $term->term_dates()->create($payload);
             }
+
+            $termDate?->concert_ensembles()->sync($row['ensemble_ids'] ?? []);
         }
     }
 }

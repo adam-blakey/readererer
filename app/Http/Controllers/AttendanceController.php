@@ -34,9 +34,10 @@ class AttendanceController extends Controller
         $this->authorize('view', $ensemble);
 
         $term_dates = $term->term_dates
+            ->load('concert_ensembles')
             ->filter(fn (TermDate $term_date) => $term_date->appliesToEnsemble($ensemble))
             ->values()
-            ->load(['concert_ensemble', 'setup_group.van_drivers', 'van_driver']);
+            ->load(['setup_group.van_drivers', 'van_driver']);
 
         $members = $ensemble->users()
             ->wherePivotNotNull('instrument_family_id')
@@ -76,7 +77,7 @@ class AttendanceController extends Controller
         $this->authorize('view', $ensemble);
 
         $member_ids = $ensemble->users()->wherePivotNotNull('instrument_family_id')->pluck('users.id');
-        $term_date_ids = $term->term_dates->filter(fn (TermDate $term_date) => $term_date->appliesToEnsemble($ensemble))->pluck('id');
+        $term_date_ids = $term->term_dates->load('concert_ensembles')->filter(fn (TermDate $term_date) => $term_date->appliesToEnsemble($ensemble))->pluck('id');
 
         foreach ($request->except('_token') as $key => $value) {
             $status = is_numeric($value) ? AttendanceStatus::tryFrom((int) $value) : null;
