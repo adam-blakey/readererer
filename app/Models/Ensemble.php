@@ -42,6 +42,7 @@ class Ensemble extends Model
 
     protected $fillable = [
         'name',
+        'admins',
     ];
 
     public function casts(): array

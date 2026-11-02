@@ -9,6 +9,7 @@ use App\Models\User;
 use App\Models\UserEnsemble;
 use App\Traits\ShowEnsemble;
 use Illuminate\Http\RedirectResponse;
+use Illuminate\Support\Arr;
 use Illuminate\Support\Str;
 use Illuminate\View\View;
 
@@ -56,10 +57,12 @@ class EnsembleController extends Controller
     public function store(StoreEnsembleRequest $request): RedirectResponse
     {
         $attributes = $request->validated();
+        $admins = Arr::pull($attributes, 'admins') ?? [];
 
         $ensemble = new Ensemble($attributes);
         $ensemble->slug = Str::slug($attributes['name'], '_');
         $ensemble->save();
+        $ensemble->admins()->sync($admins);
 
         return to_route('ensembles.show', $ensemble);
     }
@@ -70,6 +73,7 @@ class EnsembleController extends Controller
     {
         return view('ensembles.edit', [
             'ensemble' => $ensemble,
+            'admins_field' => get_create_fields($ensemble)['admins'],
             'page_name' => __('Edit :name', ['name' => $ensemble->name]),
         ]);
     }
@@ -81,6 +85,7 @@ class EnsembleController extends Controller
         $ensemble->seating_plan_enabled = $request->boolean('seating_plan_enabled');
         $ensemble->applyImageInput($request->file('image'), $request->boolean('remove_image'));
         $ensemble->save();
+        $ensemble->admins()->sync($request->validated('admins') ?? []);
 
         return to_route('ensembles.show', $ensemble);
     }
