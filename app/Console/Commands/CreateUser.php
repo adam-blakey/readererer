@@ -9,6 +9,7 @@ use Illuminate\Database\UniqueConstraintViolationException;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Str;
 use Illuminate\Validation\Rule;
+use Symfony\Component\Console\Formatter\OutputFormatter;
 use Throwable;
 
 class CreateUser extends Command
@@ -55,7 +56,7 @@ class CreateUser extends Command
 
         $this->info("Created {$user->role->name} {$user->name}.");
         $this->line("Username: {$user->username}");
-        $this->line("Temporary password: {$password}");
+        $this->line('Temporary password: '.OutputFormatter::escape($password));
 
         return self::SUCCESS;
     }
