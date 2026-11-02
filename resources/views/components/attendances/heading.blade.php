@@ -4,12 +4,12 @@
 	<th>{{ __('Members') }}</th>
 	@foreach ($term_dates as $term_date)
 		@php
-			$highlight = $ensemble ? ((int)($term_date->concert_ensemble_id) === (int)($ensemble->id)) : ($term_date->concert_ensemble_id !== null);
+			$highlight = $ensemble ? $term_date->concert_ensembles->contains($ensemble) : $term_date->is_concert;
 
-			$heading_tooltip = ($term_date->concert_ensemble_id ? __('Concert') : __('Rehearsal')) . ': ' . $term_date->schedule_label;
+			$heading_tooltip = ($term_date->is_concert ? __('Concert') : __('Rehearsal')) . ': ' . $term_date->schedule_label;
 
-			if ($term_date->concert_ensemble) {
-			    $heading_tooltip .= ' (' . $term_date->concert_ensemble->name . ')';
+			if ($term_date->is_concert) {
+			    $heading_tooltip .= ' (' . $term_date->concert_ensemble_names . ')';
 			}
 
 			if ($term_date->setup_group != null) {

@@ -28,7 +28,7 @@
 		<h2 class="mb-1 card-title">{{ $term_date->name }}</h2>
 		<div class="list-inline list-inline-dots mb-0 text-secondary d-flex flex-wrap align-items-center">
 			<span class="list-inline-item">
-				@if ($term_date->concert_ensemble_id)
+				@if ($term_date->is_concert)
 					<span class="badge bg-green text-green-fg">{{ __('Concert') }}</span>
 				@else
 					<span class="badge bg-gray text-muted">{{ __('Rehearsal') }}</span>

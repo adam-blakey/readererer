@@ -280,3 +280,30 @@ test('the register shows what each member said on the poll', function () {
     $response->assertOk();
     expect($response->viewData('polled_statuses')->get($member->id))->toBe(AttendanceStatus::Attending);
 });
+
+test('a concert for two ensembles is on the poll and register of each and not of a third', function () {
+    [$wind, $brass, $strings] = Ensemble::factory()->count(3)->create()->all();
+    $term = Term::factory()->create();
+    $concert = make_term_date($term, $wind, $brass);
+    make_term_date($term);
+
+    $admin = make_user(UserRole::Admin);
+
+    foreach ([$wind, $brass] as $ensemble) {
+        $this->actingAs($admin)
+            ->get(route('attendance.poll.show', ['ensemble' => $ensemble->slug, 'term' => $term->slug]))
+            ->assertOk()
+            ->assertViewHas('term_dates', fn ($termDates) => $termDates->contains($concert));
+        $this->actingAs($admin)
+            ->get(route('attendance.register.show', ['ensemble' => $ensemble->slug, 'termDate' => $concert->id]))
+            ->assertOk();
+    }
+
+    $this->actingAs($admin)
+        ->get(route('attendance.poll.show', ['ensemble' => $strings->slug, 'term' => $term->slug]))
+        ->assertOk()
+        ->assertViewHas('term_dates', fn ($termDates) => ! $termDates->contains($concert));
+    $this->actingAs($admin)
+        ->get(route('attendance.register.show', ['ensemble' => $strings->slug, 'termDate' => $concert->id]))
+        ->assertNotFound();
+});

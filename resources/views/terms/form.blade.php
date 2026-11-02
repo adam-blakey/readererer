@@ -67,9 +67,8 @@
                                                         <input class="form-control" name="term_dates[__INDEX__][end_datetime]" type="datetime-local" data-initial="" required>
                                                     </div>
                                                     <div class="col-6 col-md-4 col-lg-2">
-                                                        <label class="form-label">{{ __('Concert') }}</label>
-                                                        <select class="form-select" name="term_dates[__INDEX__][ensemble_id]" data-initial="">
-                                                            <option value="">{{ __('Not a concert') }}</option>
+                                                        <label class="form-label">{{ __('Concert ensembles') }}</label>
+                                                        <select class="form-select" name="term_dates[__INDEX__][ensemble_ids][]" multiple title="{{ __('Select none for a rehearsal') }}" data-initial="">
                                                             @foreach(($ensembles ?? collect()) as $ens)
                                                                 <option value="{{ $ens->id }}">{{ $ens->name }}</option>
                                                             @endforeach
@@ -112,7 +111,7 @@
                                                                 'id' => $d->id,
                                                                 'start_datetime' => optional($d->start_datetime)->format('Y-m-d\TH:i'),
                                                                 'end_datetime' => optional($d->end_datetime)->format('Y-m-d\TH:i'),
-                                                                'ensemble_id' => $d->concert_ensemble_id,
+                                                                'ensemble_ids' => $d->concert_ensembles->modelKeys(),
                                                                 'setup_group_id' => $d->setup_group_id,
                                                                 'van_driver_id' => $d->van_driver_id,
                                                             ];
@@ -126,7 +125,7 @@
                                                             : null;
                                                         $initialStart = optional($orig?->start_datetime)->format('Y-m-d\TH:i') ?? '';
                                                         $initialEnd = optional($orig?->end_datetime)->format('Y-m-d\TH:i') ?? '';
-                                                        $selectedEnsemble = $date['ensemble_id'] ?? ($orig->concert_ensemble_id ?? null);
+                                                        $selectedEnsembles = collect($date['ensemble_ids'] ?? [])->map(fn ($id) => (int) $id);
                                                         $selectedSetupGroup = $date['setup_group_id'] ?? ($orig->setup_group_id ?? null);
                                                         $selectedVanDriver = $date['van_driver_id'] ?? ($orig->van_driver_id ?? null);
                                                     @endphp
@@ -149,11 +148,10 @@
                                                             <input class="form-control @error('term_dates.' . $i . '.end_datetime') is-invalid @enderror" name="term_dates[{{ $i }}][end_datetime]" type="datetime-local" value="{{ $date['end_datetime'] ?? '' }}" data-initial="{{ $initialEnd }}" required>
                                                         </div>
                                                         <div class="col-6 col-md-4 col-lg-2">
-                                                            <label class="form-label">{{ __('Concert') }}</label>
-                                                            <select class="form-select" name="term_dates[{{ $i }}][ensemble_id]" data-initial="{{ $orig?->concert_ensemble_id ?? '' }}">
-                                                                <option value="" {{ empty($selectedEnsemble) ? 'selected' : '' }}>{{ __('Not a concert') }}</option>
+                                                            <label class="form-label">{{ __('Concert ensembles') }}</label>
+                                                            <select class="form-select" name="term_dates[{{ $i }}][ensemble_ids][]" multiple title="{{ __('Select none for a rehearsal') }}" data-initial="{{ $orig?->concert_ensembles->pluck('id')->join(',') }}">
                                                                 @foreach(($ensembles ?? collect()) as $ens)
-                                                                    <option value="{{ $ens->id }}" {{ (int)$selectedEnsemble === (int)$ens->id ? 'selected' : '' }}>{{ $ens->name }}</option>
+                                                                    <option value="{{ $ens->id }}" {{ $selectedEnsembles->contains($ens->id) ? 'selected' : '' }}>{{ $ens->name }}</option>
                                                                 @endforeach
                                                             </select>
                                                         </div>
@@ -209,7 +207,7 @@
 				if (!input) return;
 				const initial = input.getAttribute('data-initial') ?? '';
 				function apply() {
-					const changed = (input.value ?? '') !== initial;
+					const changed = valueOf(input) !== initial;
 					input.classList.toggle('border-2', changed);
 					input.classList.toggle('border-solid', changed);
 					input.classList.toggle('border-info', changed);
@@ -217,6 +215,13 @@
 				input.addEventListener('input', apply);
 				input.addEventListener('change', apply);
 				apply();
+			}
+
+			function valueOf(input) {
+				if (input.multiple) {
+					return Array.from(input.selectedOptions, option => option.value).join(',');
+				}
+				return input.value ?? '';
 			}
 
 			function nextIndex() {
@@ -253,9 +258,11 @@
 				const row = buildRow(nextIndex());
 				// The template has no hidden id, so the duplicate is saved as a new term date.
 				row.querySelectorAll('[name]').forEach(el => {
-					const field = (el.name.match(/\[([^\]]+)\]$/) || [])[1];
-					const source = field ? sourceRow.querySelector(`[name$="[${field}]"]`) : null;
-					if (source && source.type !== 'hidden') {
+					const field = (el.name.match(/\[[^\]]+\](\[\])?$/) || [])[0];
+					const source = field ? sourceRow.querySelector(`[name$="${field}"]`) : null;
+					if (source && source.multiple) {
+						Array.from(el.options).forEach(option => option.selected = source.querySelector(`option[value="${option.value}"]`)?.selected ?? false);
+					} else if (source && source.type !== 'hidden') {
 						el.value = source.value;
 					}
 				});

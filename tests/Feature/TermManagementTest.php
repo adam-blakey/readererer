@@ -23,7 +23,7 @@ test('a term can be created with term dates', function () {
             [
                 'start_datetime' => '2026-03-20 19:30:00',
                 'end_datetime' => '2026-03-20 22:00:00',
-                'ensemble_id' => $ensemble->id,
+                'ensemble_ids' => [$ensemble->id],
             ],
         ],
     ]);
@@ -35,7 +35,7 @@ test('a term can be created with term dates', function () {
     expect($term->term_dates)->toHaveCount(2);
     expect($term->number_of_rehearsals)->toBe(1);
     expect($term->number_of_concerts)->toBe(1);
-    expect($term->term_dates->last()->concert_ensemble_id)->toBe($ensemble->id);
+    expect($term->term_dates->last()->concert_ensembles->modelKeys())->toBe([$ensemble->id]);
 });
 
 test('creating a term requires a name and a unique slug', function () {
@@ -90,6 +90,34 @@ test('updating a term syncs its term dates', function () {
     expect($term->term_dates)->toHaveCount(2);
 });
 
+test('updating a term syncs each date\'s concert ensembles, and none makes it a rehearsal', function () {
+    [$wind, $brass, $strings] = Ensemble::factory()->count(3)->create()->all();
+    $term = Term::factory()->create();
+    $concert = make_term_date($term, $strings);
+    $becomesRehearsal = make_term_date($term, $wind);
+
+    $this->actingAs(make_user(UserRole::Moderator))->patch(route('terms.update', $term), [
+        'name' => $term->name,
+        'slug' => $term->slug,
+        'term_dates' => [
+            [
+                'id' => $concert->id,
+                'start_datetime' => '2026-03-20 19:30:00',
+                'end_datetime' => '2026-03-20 22:00:00',
+                'ensemble_ids' => [$wind->id, $brass->id],
+            ],
+            [
+                'id' => $becomesRehearsal->id,
+                'start_datetime' => '2026-03-27 19:30:00',
+                'end_datetime' => '2026-03-27 22:00:00',
+            ],
+        ],
+    ])->assertRedirect(route('terms.show', $term));
+
+    expect($concert->concert_ensembles()->pluck('ensembles.id')->sort()->values()->all())->toBe(collect([$wind->id, $brass->id])->sort()->values()->all());
+    expect($becomesRehearsal->fresh()->is_concert)->toBeFalse();
+});
+
 test('updating a term with no term dates removes them all', function () {
     $term = Term::factory()->create();
     TermDate::forceCreate([
@@ -134,11 +162,11 @@ test('updating a term rejects term dates with missing or invalid fields', functi
                 [
                     'start_datetime' => '2026-01-06 19:00:00',
                     'end_datetime' => '2026-01-06 21:00:00',
-                    'ensemble_id' => 999999,
+                    'ensemble_ids' => [999999],
                 ],
             ],
         ])
-        ->assertSessionHasErrors('term_dates.0.ensemble_id');
+        ->assertSessionHasErrors('term_dates.0.ensemble_ids.0');
 
     $term->refresh();
     expect($term->name)->toBe('Original');
@@ -194,13 +222,12 @@ test('the term show page lists its dates in a table', function () {
     $setupGroup = SetupGroup::factory()->create();
     $term = Term::factory()->create();
 
-    TermDate::forceCreate([
+    tap(TermDate::forceCreate([
         'term_id' => $term->id,
         'start_datetime' => '2026-05-01 19:00:00',
         'end_datetime' => '2026-05-01 21:00:00',
-        'concert_ensemble_id' => $ensemble->id,
         'setup_group_id' => $setupGroup->id,
-    ]);
+    ]), fn (TermDate $termDate) => $termDate->concert_ensembles()->attach($ensemble));
     TermDate::forceCreate([
         'term_id' => $term->id,
         'start_datetime' => '2026-05-08 19:00:00',

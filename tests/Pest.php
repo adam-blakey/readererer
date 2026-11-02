@@ -47,14 +47,16 @@ function join_ensemble(User $user, Ensemble $ensemble, ?InstrumentFamily $instru
     ]);
 }
 
-function make_term_date(?Term $term = null, ?Ensemble $concertEnsemble = null): TermDate
+function make_term_date(?Term $term = null, Ensemble ...$concertEnsembles): TermDate
 {
-    return TermDate::factory()->create([
+    $termDate = TermDate::factory()->create([
         'term_id' => $term ?? Term::factory(),
         'start_datetime' => now()->addDay()->setTime(19, 0),
         'end_datetime' => now()->addDay()->setTime(21, 0),
-        'concert_ensemble_id' => $concertEnsemble?->id,
     ]);
+    $termDate->concert_ensembles()->attach(array_map(fn (Ensemble $ensemble) => $ensemble->id, $concertEnsembles));
+
+    return $termDate;
 }
 
 function join_ensemble_without_instrument(User $user, Ensemble $ensemble): void

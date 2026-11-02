@@ -13,15 +13,18 @@ use App\Models\Term;
 use App\Models\TermDate;
 use Illuminate\Support\Facades\Mail;
 
-function make_notification_term_date(array $attributes = []): TermDate
+function make_notification_term_date(array $attributes = [], Ensemble ...$concertEnsembles): TermDate
 {
     $term = Term::factory()->create();
 
-    return TermDate::forceCreate(array_merge([
+    $termDate = TermDate::forceCreate(array_merge([
         'term_id' => $term->id,
         'start_datetime' => '2026-06-01 19:00:00',
         'end_datetime' => '2026-06-01 21:00:00',
     ], $attributes));
+    $termDate->concert_ensembles()->attach(array_map(fn (Ensemble $ensemble) => $ensemble->id, $concertEnsembles));
+
+    return $termDate;
 }
 
 test('a moderator can send the attendance list for a concert date to the ensemble admins', function () {
@@ -31,7 +34,7 @@ test('a moderator can send the attendance list for a concert date to the ensembl
     $admin = make_user(UserRole::Member);
     $ensemble->admins()->attach($admin->id);
 
-    $termDate = make_notification_term_date(['concert_ensemble_id' => $ensemble->id]);
+    $termDate = make_notification_term_date([], $ensemble);
 
     $this->actingAs(make_user(UserRole::Moderator))
         ->post(route('term-dates.send-attendance-list', $termDate))
@@ -47,11 +50,33 @@ test('a moderator can send the attendance list for a concert date to the ensembl
     expect($log->recipients->first()->email)->toBe($admin->email);
 });
 
+test('the attendance list for a concert goes once to the admins of each of its ensembles', function () {
+    Mail::fake();
+
+    [$wind, $brass, $strings] = Ensemble::factory()->count(3)->create()->all();
+    $windAdmin = make_user(UserRole::Member);
+    $brassAdmin = make_user(UserRole::Member);
+    $stringsAdmin = make_user(UserRole::Member);
+    $wind->admins()->attach([$windAdmin->id, $brassAdmin->id]);
+    $brass->admins()->attach($brassAdmin->id);
+    $strings->admins()->attach($stringsAdmin->id);
+
+    $termDate = make_notification_term_date([], $wind, $brass);
+
+    $this->actingAs(make_user(UserRole::Moderator))
+        ->post(route('term-dates.send-attendance-list', $termDate))
+        ->assertRedirect();
+
+    expect(EmailLog::sole()->recipients->pluck('email')->sort()->values()->all())
+        ->toBe(collect([$windAdmin->email, $brassAdmin->email])->sort()->values()->all());
+    Mail::assertNotSent(AttendanceListMail::class, fn ($mail) => $mail->hasTo($stringsAdmin->email));
+});
+
 test('sending the attendance list with no ensemble admins is a no-op with a message', function () {
     Mail::fake();
 
     $ensemble = Ensemble::factory()->create();
-    $termDate = make_notification_term_date(['concert_ensemble_id' => $ensemble->id]);
+    $termDate = make_notification_term_date([], $ensemble);
 
     $this->actingAs(make_user(UserRole::Moderator))
         ->post(route('term-dates.send-attendance-list', $termDate))
@@ -102,7 +127,7 @@ test('ordinary members cannot send notifications', function () {
     Mail::fake();
 
     $ensemble = Ensemble::factory()->create();
-    $termDate = make_notification_term_date(['concert_ensemble_id' => $ensemble->id]);
+    $termDate = make_notification_term_date([], $ensemble);
 
     $this->actingAs(make_user(UserRole::Member))
         ->post(route('term-dates.send-attendance-list', $termDate))
@@ -140,7 +165,7 @@ test('the attendance list email renders', function () {
     $member = make_user(UserRole::Member);
     join_ensemble($member, $ensemble);
 
-    $termDate = make_notification_term_date(['concert_ensemble_id' => $ensemble->id]);
+    $termDate = make_notification_term_date([], $ensemble);
 
     $html = (new AttendanceListMail($termDate))->render();
 

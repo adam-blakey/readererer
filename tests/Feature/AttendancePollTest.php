@@ -150,12 +150,11 @@ test('a poll submission ignores members, dates and statuses that do not belong t
         'start_datetime' => now()->addWeek(),
         'end_datetime' => now()->addWeek()->addHours(2),
     ]);
-    $otherConcert = TermDate::forceCreate([
+    $otherConcert = tap(TermDate::forceCreate([
         'term_id' => $term->id,
-        'concert_ensemble_id' => $otherEnsemble->id,
         'start_datetime' => now()->addWeeks(2),
         'end_datetime' => now()->addWeeks(2)->addHours(2),
-    ]);
+    ]), fn (TermDate $termDate) => $termDate->concert_ensembles()->attach($otherEnsemble));
     $otherTermDate = TermDate::forceCreate([
         'term_id' => $otherTerm->id,
         'start_datetime' => now()->addWeek(),

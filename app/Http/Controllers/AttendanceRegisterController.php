@@ -21,7 +21,7 @@ class AttendanceRegisterController extends Controller
     {
         $this->authorize('viewAny', RegisterEntry::class);
 
-        $term_dates = TermDate::with(['term', 'concert_ensemble', 'register_entries'])
+        $term_dates = TermDate::with(['term', 'concert_ensembles', 'register_entries'])
             ->orderByDesc('start_datetime')
             ->paginate(15);
 

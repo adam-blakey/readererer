@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\Attributes\ObservedBy;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
@@ -19,7 +20,6 @@ class TermDate extends Model
     protected $fillable = [
         'start_datetime',
         'end_datetime',
-        'concert_ensemble_id',
         'setup_group_id',
         'van_driver_id',
     ];
@@ -61,9 +61,19 @@ class TermDate extends Model
         return $this->setup_group->van_drivers->get($previousCount % $vanDriversCount);
     }
 
-    public function concert_ensemble(): BelongsTo
+    public function concert_ensembles(): BelongsToMany
     {
-        return $this->belongsTo(Ensemble::class, 'concert_ensemble_id');
+        return $this->belongsToMany(Ensemble::class, 'concert_ensemble')->orderBy('name');
+    }
+
+    public function getIsConcertAttribute(): bool
+    {
+        return $this->concert_ensembles->isNotEmpty();
+    }
+
+    public function getConcertEnsembleNamesAttribute(): string
+    {
+        return $this->concert_ensembles->pluck('name')->join(', ');
     }
 
     public function email_logs(): HasMany
@@ -76,11 +86,10 @@ class TermDate extends Model
         return $this->hasMany(RegisterEntry::class);
     }
 
-    /** Rehearsals apply to every ensemble; a concert only to the ensemble playing it. */
+    /** Rehearsals apply to every ensemble; a concert only to the ensembles playing it. */
     public function appliesToEnsemble(Ensemble $ensemble): bool
     {
-        return $this->concert_ensemble_id === null
-            || (int) $this->concert_ensemble_id === (int) $ensemble->id;
+        return ! $this->is_concert || $this->concert_ensembles->contains($ensemble);
     }
 
     protected function casts(): array
@@ -88,7 +97,6 @@ class TermDate extends Model
         return [
             'start_datetime' => 'datetime',
             'end_datetime' => 'datetime',
-            'concert_ensemble_id' => 'integer',
         ];
     }
 

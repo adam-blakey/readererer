@@ -19,8 +19,8 @@
 					<td>{{ $term_date->date_label }}</td>
 					<td class="text-nowrap">{{ $term_date->time_label }}</td>
 					<td>
-						@if ($term_date->concert_ensemble_id)
-							<span class="badge bg-green text-green-fg">{{ __('Concert') }} @if ($term_date->concert_ensemble) ({{ $term_date->concert_ensemble->name }}) @endif</span>
+						@if ($term_date->is_concert)
+							<span class="badge bg-green text-green-fg">{{ __('Concert') }} ({{ $term_date->concert_ensemble_names }})</span>
 						@else
 							<span class="badge bg-gray text-muted">{{ __('Rehearsal') }}</span>
 						@endif

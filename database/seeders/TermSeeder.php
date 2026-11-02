@@ -62,7 +62,6 @@ class TermSeeder extends Seeder
                 $term->term_dates()->create([
                     'start_datetime' => $d->copy()->addHours(9.5),
                     'end_datetime' => $d->copy()->addHours(12.5),
-                    'concert_ensemble_id' => null,
                     'setlist_id' => $setlist->id,
                     'setup_group_id' => ($setupGroupsCount == 0) ? null : $setupGroups[$i % $setupGroupsCount]->id,
                 ]);
@@ -78,9 +77,8 @@ class TermSeeder extends Seeder
                 $term->term_dates()->create([
                     'start_datetime' => $concert_date,
                     'end_datetime' => $concert_date->copy()->addHours(2),
-                    'concert_ensemble_id' => $ensemble->id,
                     'setlist_id' => $setlist->id,
-                ]);
+                ])->concert_ensembles()->attach($ensemble);
             });
         });
     }

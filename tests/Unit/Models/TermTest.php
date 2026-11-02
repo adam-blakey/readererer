@@ -6,12 +6,14 @@ use App\Models\TermDate;
 
 function add_term_date(Term $term, string $start, string $end, ?int $concertEnsembleId = null): TermDate
 {
-    return TermDate::forceCreate([
+    $termDate = TermDate::forceCreate([
         'term_id' => $term->id,
         'start_datetime' => $start,
         'end_datetime' => $end,
-        'concert_ensemble_id' => $concertEnsembleId,
     ]);
+    $termDate->concert_ensembles()->attach(array_filter([$concertEnsembleId]));
+
+    return $termDate;
 }
 
 test('term dates with no concert ensemble are rehearsals, the rest are concerts', function () {
