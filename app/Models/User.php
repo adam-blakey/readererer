@@ -63,6 +63,11 @@ class User extends Authenticatable
             ->withPivot('seat_row');
     }
 
+    public function van_driver_groups()
+    {
+        return $this->belongsToMany(SetupGroup::class, 'setup_group_van_driver', 'user_id', 'setup_group_id');
+    }
+
     public function setup_group()
     {
         return $this->belongsTo(SetupGroup::class);
@@ -78,6 +83,21 @@ class User extends Authenticatable
         'image',
         'role',
         'setup_group',
+        'phone_number',
+        'address_line1',
+        'address_line2',
+        'address_city',
+        'address_post_code',
+        'emergency_contact_name',
+        'emergency_contact_number',
+        'emergency_contact_relationship',
+        'emergency_contact_address_line1',
+        'emergency_contact_address_line2',
+        'emergency_contact_address_city',
+        'emergency_contact_address_post_code',
+        'date_of_birth',
+        'has_photo_permission',
+        'is_gift_aiding_subs',
     ];
 
     /** @var array<int, string> */
@@ -98,6 +118,8 @@ class User extends Authenticatable
             'updated_at' => 'datetime',
             'is_over_18' => 'boolean',
             'must_change_password' => 'boolean',
+            'has_photo_permission' => 'boolean',
+            'is_gift_aiding_subs' => 'boolean',
         ];
     }
 
