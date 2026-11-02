@@ -7,16 +7,17 @@ Deploy (PR)**) calls it for pull requests, and `main.yml` (**Build, Test & Deplo
 pushes to `main` and then runs the `qa`, production and docs jobs, so pull
 requests show no skipped release jobs.
 
-| Environment | Trigger                                           | Database                         |
-| ----------- | ------------------------------------------------- | -------------------------------- |
-| `dev`       | Pull request opened / updated, and push to `main` | `migrate:fresh --seed` each time |
-| `qa`        | Push to `main`, after `dev`                       | `migrate`                        |
-| `prod`      | Push to `main`, after `qa`                        | `migrate`                        |
-| `nsw-beta`  | Push to `main`, after `qa`, alongside `prod`      | `migrate`                        |
-| `docs`      | Push to `main`, after `prod` and `nsw-beta`       | None (static files from `site/`) |
+| Environment      | Trigger                                           | Database                         |
+| ---------------- | ------------------------------------------------- | -------------------------------- |
+| `dev`            | Pull request opened / updated, and push to `main` | `migrate:fresh --seed` each time |
+| `qa`             | Push to `main`, after `dev`                       | `migrate`                        |
+| `prod`           | Push to `main`, after `qa`                        | `migrate`                        |
+| `nsw-beta`       | Push to `main`, after `qa`, alongside `prod`      | `migrate`                        |
+| `blackwood-beta` | Push to `main`, after `qa`, alongside `prod`      | `migrate`                        |
+| `docs`           | Push to `main`, after every production site       | None (static files from `site/`) |
 
-`prod` and `nsw-beta` are both production sites (`readererer-prod.blakey.family`
-and `attendance-beta.nsw.org.uk`); the docs site is
+`prod`, `nsw-beta` and `blackwood-beta` are production sites (`readererer-prod.blakey.family`,
+`attendance-beta.nsw.org.uk` and the domain in `blackwood-beta`'s `APP_DOMAIN`); the docs site is
 `readererer.blakey.family`.
 
 ## How it works
@@ -34,7 +35,7 @@ and `attendance-beta.nsw.org.uk`); the docs site is
    - puts the app in maintenance mode, migrates, runs `optimize`,
      `event:cache` and `queue:restart`, and brings it back up.
 
-   The production sites (`prod`, `nsw-beta`) have no SSH, so they are
+   The production sites (`prod`, `nsw-beta`, `blackwood-beta`) have no SSH, so they are
    deployed by cPanel's **Git™ Version Control**,
    driven from the runner through the cPanel API (`:2083/execute`) by
    `.github/actions/deploy-cpanel`:
@@ -78,7 +79,7 @@ and `attendance-beta.nsw.org.uk`); the docs site is
      since the last tag and pushes that tag, so that the servers'
      `git describe` names the release.
    - **`deploy_prod`** deploys every production site at once (a matrix over
-     `prod` and `nsw-beta`); one site failing does not stop the others.
+     `prod`, `nsw-beta` and `blackwood-beta`); one site failing does not stop the others.
    - **`release`** publishes a GitHub release for the tag with generated
      notes once every site has deployed. If a site fails, the tag exists
      without a release until its job is re-run.
@@ -109,7 +110,7 @@ hand. They are what the pipeline relies on, matching the website repo's setup.
 
 ### Environments (Settings → Environments)
 
-Create `dev`, `qa`, `release`, `prod`, `nsw-beta` and `docs` (names must
+Create `dev`, `qa`, `release`, `prod`, `nsw-beta`, `blackwood-beta` and `docs` (names must
 match exactly), with:
 
 - **`dev`** — no protection.
@@ -118,7 +119,7 @@ match exactly), with:
   (the batching window: runs that find a newer one in progress when the timer
   ends cancel themselves). Optionally add Required reviewers. It gates every
   production site, so the wait timer formerly on `prod` moves here.
-- **`prod`**, **`nsw-beta`** — Deployment branches: `main` only, and no wait
+- **`prod`**, **`nsw-beta`**, **`blackwood-beta`** — Deployment branches: `main` only, and no wait
   timer (they deploy as soon as `release_tag` finishes).
 - **`docs`** — Deployment branches: `main` only.
 
@@ -131,7 +132,7 @@ site", and add its name to the `deploy_prod` matrix in `main.yml`.
 Each deploy job runs in its environment, so every value below can be set on
 the environment (Settings → Environments → *name*) or once on the repository
 (Settings → Secrets and variables → Actions). An environment value overrides a
-repository one. If all three sites share one cPanel account, set `APP_DOMAIN`
+repository one. If all the sites share one cPanel account, set `APP_DOMAIN`
 per environment and the rest once on the repository.
 
 | Name                                | Example                         | Description                                                                           |
@@ -177,7 +178,8 @@ then delete `production`. Its `UNIX_USERNAME`, `SERVER_DOMAIN` and
 ### cPanel Git deployment, once per production site
 
 The production accounts have no SSH or Terminal, so each site is set up in
-cPanel (shown for `prod`; for `nsw-beta` use `attendance-beta.nsw.org.uk`):
+cPanel (shown for `prod`; for `nsw-beta` use `attendance-beta.nsw.org.uk`, for `blackwood-beta` its
+`APP_DOMAIN`):
 
 1. **PHP.** In **Select PHP Version** choose 8.5 with `pdo_sqlite`,
    `mbstring`, `openssl`, `fileinfo` and `zip` ticked. Deploy tasks run plain
