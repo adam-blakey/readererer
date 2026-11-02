@@ -1,5 +1,5 @@
 name: Deploy over SSH
-description: Rsyncs the build artifact, resets the server's checkout to this commit and migrates.
+description: Rsyncs the build artifact, resets the server's checkout to this commit, migrates and checks the site answers.
 
 inputs:
   domain:
@@ -62,3 +62,6 @@ runs:
           php artisan event:cache
           php artisan queue:restart
         EOF
+    - uses: ./.github/actions/check-site
+      with:
+        domain: ${{ inputs.domain }}
