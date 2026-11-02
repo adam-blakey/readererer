@@ -118,6 +118,25 @@ test('updating a term syncs each date\'s concert ensembles, and none makes it a 
     expect($becomesRehearsal->fresh()->is_concert)->toBeFalse();
 });
 
+test('the same ensemble can play concerts on several dates in a term', function () {
+    $wind = Ensemble::factory()->create();
+    $term = Term::factory()->create();
+    $first = make_term_date($term);
+    $second = make_term_date($term);
+
+    $this->actingAs(make_user(UserRole::Moderator))->patch(route('terms.update', $term), [
+        'name' => $term->name,
+        'slug' => $term->slug,
+        'term_dates' => [
+            ['id' => $first->id, 'start_datetime' => '2026-03-20 19:30:00', 'end_datetime' => '2026-03-20 22:00:00', 'ensemble_ids' => [$wind->id]],
+            ['id' => $second->id, 'start_datetime' => '2026-03-27 19:30:00', 'end_datetime' => '2026-03-27 22:00:00', 'ensemble_ids' => [$wind->id]],
+        ],
+    ])->assertSessionHasNoErrors();
+
+    expect($first->concert_ensembles()->pluck('ensembles.id')->all())->toBe([$wind->id])
+        ->and($second->concert_ensembles()->pluck('ensembles.id')->all())->toBe([$wind->id]);
+});
+
 test('updating a term with no term dates removes them all', function () {
     $term = Term::factory()->create();
     TermDate::forceCreate([
