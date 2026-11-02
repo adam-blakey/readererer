@@ -37,9 +37,54 @@ jobs:
         target: http://localhost:8080
         allow_issue_writing: false
 
-    - name: Report findings in the job summary
+    - name: Report logged-out findings in the job summary
       if: always() && hashFiles('report_md.md') != ''
-      run: cat report_md.md >> "$GITHUB_STEP_SUMMARY"
+      run: |
+        echo "# Logged out" >> "$GITHUB_STEP_SUMMARY"
+        cat report_md.md >> "$GITHUB_STEP_SUMMARY"
+        rm report_md.md
+
+    - name: Log in as an admin
+      run: |
+        url=http://localhost:8080
+        jar=$(mktemp)
+        token() { grep -m1 -o 'name="_token" value="[^"]*"' | cut -d'"' -f4; }
+
+        account=$(docker exec -u www-data readererer php artisan user:create ZAP Scanner zap@example.com --role=admin)
+        username=$(sed -n 's/^Username: //p' <<< "$account")
+        password=$(sed -n 's/^Temporary password: //p' <<< "$account")
+        new_password=$(openssl rand -base64 24)
+
+        token=$(curl -sf -c "$jar" -b "$jar" "$url/login" | token)
+        curl -sf -c "$jar" -b "$jar" -o /dev/null "$url/login" --data-urlencode "_token=$token" \
+          --data-urlencode "username=$username" --data-urlencode "password=$password"
+        # New accounts must change their password before anything else.
+        token=$(curl -sf -c "$jar" -b "$jar" "$url/password" | token)
+        curl -sf -c "$jar" -b "$jar" -o /dev/null "$url/password" --data-urlencode "_token=$token" -d _method=PUT \
+          --data-urlencode "password=$new_password" --data-urlencode "password_confirmation=$new_password"
+        test "$(curl -s -o /dev/null -w '%{http_code}' -b "$jar" "$url/dashboard")" = 200
+
+        cookie=$(sed 's/^#HttpOnly_//' "$jar" | awk '!/^#/ && NF == 7 { printf "%s%s=%s", sep, $6, $7; sep = "; " }')
+        echo "::add-mask::$cookie"
+        echo "ZAP_AUTH_HEADER_VALUE=$cookie" >> "$GITHUB_ENV"
+
+    # The spider only follows links, so it cannot log itself out or change data with the forms it finds.
+    - name: Run ZAP baseline scan as an admin
+      uses: zaproxy/action-baseline@v0.15.0
+      env:
+        ZAP_AUTH_HEADER: Cookie
+        ZAP_AUTH_HEADER_SITE: localhost:8080
+      with:
+        target: http://localhost:8080/dashboard
+        cmd_options: -z "-config spider.postform=false"
+        allow_issue_writing: false
+        artifact_name: zap_scan_admin
+
+    - name: Report admin findings in the job summary
+      if: always() && hashFiles('report_md.md') != ''
+      run: |
+        echo "# Logged in as an admin" >> "$GITHUB_STEP_SUMMARY"
+        cat report_md.md >> "$GITHUB_STEP_SUMMARY"
 
     - name: Show app logs
       if: failure()
