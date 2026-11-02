@@ -26,7 +26,7 @@
 				<div class="alert alert-success" role="alert">{{ session('status') }}</div>
 			@endif
 
-			<x-forms.error-summary :fields="['first_name', 'last_name', 'email', 'role', 'setup_group']" />
+			<x-forms.error-summary :fields="['first_name', 'last_name', 'email', 'role', 'setup_group', 'phone_number', 'address_*', 'emergency_contact_*', 'date_of_birth', 'has_photo_permission', 'is_gift_aiding_subs']" />
 
 			<div class="row g-3">
 				<div class="col-lg-6">
@@ -85,6 +85,43 @@
 										<div class="invalid-feedback">{{ $message }}</div>
 									@enderror
 								</div>
+
+								<hr />
+								@php
+									$textFields = [
+										'phone_number' => ['Phone number', 'tel'],
+										'date_of_birth' => ['Date of birth', 'date'],
+										'address_line1' => ['Address line 1', 'text'],
+										'address_line2' => ['Address line 2', 'text'],
+										'address_city' => ['City', 'text'],
+										'address_post_code' => ['Post code', 'text'],
+										'emergency_contact_name' => ['Emergency contact name', 'text'],
+										'emergency_contact_number' => ['Emergency contact number', 'tel'],
+										'emergency_contact_relationship' => ['Emergency contact relationship', 'text'],
+										'emergency_contact_address_line1' => ['Emergency contact address line 1', 'text'],
+										'emergency_contact_address_line2' => ['Emergency contact address line 2', 'text'],
+										'emergency_contact_address_city' => ['Emergency contact city', 'text'],
+										'emergency_contact_address_post_code' => ['Emergency contact post code', 'text'],
+									];
+								@endphp
+								@foreach ($textFields as $name => [$label, $type])
+									<div class="mb-3">
+										<label class="form-label">{{ __($label) }}</label>
+										<input class="form-control @error($name) is-invalid @enderror" name="{{ $name }}" type="{{ $type }}" value="{{ old($name, $name === 'date_of_birth' ? $user->date_of_birth?->format('Y-m-d') : $user->{$name}) }}">
+										@error($name)
+											<div class="invalid-feedback">{{ $message }}</div>
+										@enderror
+									</div>
+								@endforeach
+								@foreach (['has_photo_permission' => 'Photograph permission', 'is_gift_aiding_subs' => 'Gift aid subs'] as $name => $label)
+									<div class="mb-3">
+										<input type="hidden" name="{{ $name }}" value="0">
+										<label class="form-check">
+											<input class="form-check-input" type="checkbox" name="{{ $name }}" value="1" @checked(old($name, $user->{$name}))>
+											<span class="form-check-label">{{ __($label) }}</span>
+										</label>
+									</div>
+								@endforeach
 
 								<hr />
 								<x-forms.image-upload :model="$user" :label="__('Profile picture')" />

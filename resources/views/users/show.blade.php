@@ -83,6 +83,11 @@
 										<strong>{{ $user->emergency_contact_details }}</strong>
 									</div>
 									<div class="mb-2">
+										<x-icon name="cake" />
+										{{ __('Date of birth') }}:
+										<strong>{{ $user->date_of_birth?->format('j F Y') }}</strong>
+									</div>
+									<div class="mb-2">
 										<x-icon name="glass" />
 										{{ __('Over 18') }}:
 										<strong>{{ $user->is_over_18 ? __('Yes') : __('No') }}</strong>
@@ -100,6 +105,22 @@
 									<h2 class="mb-0 card-heading">{{ __('Additional info') }}</h2>
 								</div>
 								<div class="card-body">
+									<div class="mb-2">
+										<x-icon name="users-group" />
+										{{ __('Setup group') }}:
+										<strong>
+											@if ($user->setup_group)
+												<x-a :route="'setupgroups.show'" :setupGroup="$user->setup_group">{{ $user->setup_group->name }}</x-a>
+											@else
+												{{ __('No setup group') }}
+											@endif
+										</strong>
+									</div>
+									<div class="mb-2">
+										<x-icon name="truck" />
+										{{ __('Van driver for') }}:
+										<strong>{{ $user->van_driver_groups->pluck('name')->join(', ') ?: __('None') }}</strong>
+									</div>
 									<div class="mb-2">
 										<x-icon name="camera" />
 										{{ __('Photograph permission') }}:
