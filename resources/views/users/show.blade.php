@@ -114,6 +114,30 @@
 					</div>
 				</div>
 			</div>
+			@can('erase', $user)
+				<div class="mt-3 card border-danger">
+					<div class="card-header">
+						<h2 class="mb-0 card-heading text-danger">{{ __('Erase personal data') }}</h2>
+					</div>
+					<form method="POST" action="{{ route('users.erase', $user) }}">
+						@csrf
+						@method('DELETE')
+						<div class="card-body">
+							<x-forms.error-summary :fields="['confirm_name']" />
+							<p>{{ __('This permanently removes everything that identifies this person. Their attendance and register records are kept anonymously. This cannot be undone.') }}</p>
+							<label class="form-label" for="confirm_name">{{ __('Type :name to confirm', ['name' => $user->name]) }}</label>
+							<input autocomplete="off" class="form-control" id="confirm_name" name="confirm_name" required type="text">
+							<x-forms.input-error :messages="$errors->get('confirm_name')" />
+						</div>
+						<div class="card-footer text-end">
+							<button class="btn btn-danger" type="submit">
+								<x-icon name="trash" />
+								{{ __('Erase personal data') }}
+							</button>
+						</div>
+					</form>
+				</div>
+			@endcan
 		</div>
 	</div>
 </x-layout>
