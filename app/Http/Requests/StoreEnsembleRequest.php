@@ -7,6 +7,7 @@ use Closure;
 use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Support\Str;
+use Illuminate\Validation\Rule;
 
 class StoreEnsembleRequest extends FormRequest
 {
@@ -25,6 +26,8 @@ class StoreEnsembleRequest extends FormRequest
                     $fail(__('An ensemble with this name already exists.'));
                 }
             }],
+            'admins' => ['nullable', 'array'],
+            'admins.*' => ['integer', Rule::exists('users', 'id')->whereNull('deleted_at')],
         ];
     }
 }

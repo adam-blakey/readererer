@@ -4,6 +4,7 @@ use App\Enums\UserRole;
 use App\Models\Ensemble;
 use App\Models\Term;
 use App\Models\TermDate;
+use App\Models\User;
 use App\Models\UserEnsemble;
 
 test('an admin can create an ensemble and the slug is generated from the name', function () {
@@ -446,4 +447,66 @@ test('an ensemble cannot take another ensemble\'s slug but may keep its own', fu
     $this->actingAs($admin)
         ->put(route('ensembles.update', $ensemble), ['name' => 'Strings', 'slug' => 'strings'])
         ->assertSessionHasNoErrors();
+});
+
+test('creating an ensemble saves its admins', function () {
+    $admins = User::factory()->count(2)->create();
+
+    $this->actingAs(make_user(UserRole::Admin))
+        ->post(route('ensembles.store'), ['name' => 'Wind Band', 'admins' => $admins->pluck('id')->all()])
+        ->assertSessionHasNoErrors();
+
+    expect(Ensemble::where('name', 'Wind Band')->first()->admins->pluck('id')->sort()->values()->all())
+        ->toBe($admins->pluck('id')->sort()->values()->all());
+});
+
+test('updating an ensemble syncs its admins', function () {
+    $ensemble = Ensemble::factory()->create();
+    [$kept, $removed, $added] = User::factory()->count(3)->create()->all();
+    $ensemble->admins()->attach([$kept->id, $removed->id]);
+
+    $this->actingAs(make_user(UserRole::Admin))
+        ->put(route('ensembles.update', $ensemble), ['name' => $ensemble->name, 'slug' => $ensemble->slug, 'admins' => [$kept->id, $added->id]])
+        ->assertSessionHasNoErrors();
+
+    expect($ensemble->admins()->pluck('users.id')->sort()->values()->all())
+        ->toBe(collect([$kept->id, $added->id])->sort()->values()->all());
+});
+
+test('ensemble admins must be existing, non-deleted users', function (Closure $admin_id) {
+    $ensemble = Ensemble::factory()->create();
+    $admin = make_user(UserRole::Admin);
+
+    $this->actingAs($admin)
+        ->post(route('ensembles.store'), ['name' => 'Wind Band', 'admins' => [$admin_id()]])
+        ->assertSessionHasErrors('admins.0');
+
+    $this->actingAs($admin)
+        ->put(route('ensembles.update', $ensemble), ['name' => $ensemble->name, 'slug' => $ensemble->slug, 'admins' => [$admin_id()]])
+        ->assertSessionHasErrors('admins.0');
+
+    expect(Ensemble::where('name', 'Wind Band')->exists())->toBeFalse();
+    expect($ensemble->admins()->count())->toBe(0);
+})->with([
+    'missing' => fn () => fn () => 999999,
+    'deleted' => fn () => fn () => tap(User::factory()->create())->delete()->id,
+    'not an id' => fn () => fn () => 'abc',
+]);
+
+test('the ensemble forms offer users as admins with the current ones selected', function () {
+    $ensemble = Ensemble::factory()->create();
+    $current = User::factory()->create(['first_name' => 'Current', 'last_name' => 'Admin']);
+    $other = User::factory()->create(['first_name' => 'Other', 'last_name' => 'User']);
+    $ensemble->admins()->attach($current);
+    $admin = make_user(UserRole::Admin);
+
+    $this->actingAs($admin)->get(route('ensembles.create'))
+        ->assertOk()
+        ->assertSee('name="admins[]"', false);
+
+    $this->actingAs($admin)->get(route('ensembles.edit', $ensemble))
+        ->assertOk()
+        ->assertSee('name="admins[]"', false)
+        ->assertSee('<option value="'.$current->id.'" selected>Current Admin</option>', false)
+        ->assertDontSee('<option value="'.$other->id.'" selected>', false);
 });

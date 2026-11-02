@@ -29,6 +29,8 @@ class UpdateEnsembleRequest extends FormRequest
             'seating_plan_enabled' => ['sometimes', 'boolean'],
             'image' => ['nullable', 'image', 'mimes:jpeg,png,webp,gif', 'max:'.config('app.readererer_image_max_kilobytes')],
             'remove_image' => ['sometimes', 'boolean'],
+            'admins' => ['nullable', 'array'],
+            'admins.*' => ['integer', Rule::exists('users', 'id')->whereNull('deleted_at')],
         ];
     }
 
