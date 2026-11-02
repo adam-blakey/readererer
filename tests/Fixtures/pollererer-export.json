@@ -1,0 +1,303 @@
+{
+    "format": "pollererer-export",
+    "version": 1,
+    "exported_at": "2026-10-30T20:00:00+00:00",
+    "anonymised": false,
+    "timezone": "Europe/London",
+    "settings": {
+        "group_name": "North Band",
+        "software_name": "Pollererer",
+        "logo_url": "https://example.com/logo.png",
+        "assume_attending": true,
+        "repeat_headings": false,
+        "hide_past_dates": true,
+        "taxonomy_rehearsal": "practice",
+        "taxonomy_rehearsals": "practices"
+    },
+    "tables": {
+        "ensembles": [
+            {
+                "ID": "1",
+                "safe_name": "concert-band",
+                "name": "Concert Band",
+                "admin_email": "Alice@Example.com, newadmin@example.com",
+                "image": "https://example.com/band.png",
+                "hidden": "0"
+            },
+            {
+                "ID": "2",
+                "safe_name": "jazz-group",
+                "name": "Jazz Group",
+                "admin_email": "",
+                "image": "",
+                "hidden": "1"
+            }
+        ],
+        "members": [
+            {
+                "ID": "-1",
+                "first_name": "Concert Band",
+                "last_name": "Login",
+                "instrument": "",
+                "row": "0",
+                "seat": "0",
+                "user_level": "-1",
+                "image": "",
+                "setup_group": "",
+                "deleted": "0"
+            },
+            {
+                "ID": "0",
+                "first_name": "Guest",
+                "last_name": "",
+                "instrument": "",
+                "row": "0",
+                "seat": "0",
+                "user_level": "0",
+                "image": "",
+                "setup_group": "",
+                "deleted": "0"
+            },
+            {
+                "ID": "1",
+                "first_name": "Alice",
+                "last_name": "Smith",
+                "instrument": "Flute ",
+                "row": "1",
+                "seat": "2",
+                "user_level": "3",
+                "image": "",
+                "setup_group": "1",
+                "deleted": "0"
+            },
+            {
+                "ID": "2",
+                "first_name": "Bob",
+                "last_name": "Jones",
+                "instrument": "flute",
+                "row": "2",
+                "seat": "1",
+                "user_level": "2",
+                "image": "",
+                "setup_group": "2.1,2.3",
+                "deleted": "0"
+            },
+            {
+                "ID": "3",
+                "first_name": "Carol",
+                "last_name": "White",
+                "instrument": "",
+                "row": "0",
+                "seat": "0",
+                "user_level": "0",
+                "image": "",
+                "setup_group": "",
+                "deleted": "0"
+            },
+            {
+                "ID": "4",
+                "first_name": "Dan",
+                "last_name": "Brown",
+                "instrument": "Trumpet",
+                "row": "0",
+                "seat": "0",
+                "user_level": "1",
+                "image": "",
+                "setup_group": "0",
+                "deleted": "1"
+            }
+        ],
+        "members-ensembles": [
+            {
+                "ID": "1",
+                "member_ID": "1",
+                "ensemble_ID": "1"
+            },
+            {
+                "ID": "2",
+                "member_ID": "2",
+                "ensemble_ID": "1"
+            },
+            {
+                "ID": "3",
+                "member_ID": "3",
+                "ensemble_ID": "1"
+            },
+            {
+                "ID": "4",
+                "member_ID": "3",
+                "ensemble_ID": "2"
+            },
+            {
+                "ID": "5",
+                "member_ID": "4",
+                "ensemble_ID": "2"
+            },
+            {
+                "ID": "6",
+                "member_ID": "99",
+                "ensemble_ID": "1"
+            }
+        ],
+        "logins": [
+            {
+                "ID": "-1",
+                "email": "concertband",
+                "password": "$2y$12$eXkY5eruimu.MqtrYyZQRuJb8zGHVqFA.wT88h5wMp2UAupcPBWkS"
+            },
+            {
+                "ID": "1",
+                "email": "alice@example.com",
+                "password": "$2y$12$HN2nnsxaLf/rvrtpiqP/LuKjWqyCDbqjrifPBbwKBBSULt37jrmyG"
+            },
+            {
+                "ID": "2",
+                "email": "bob@example.com",
+                "password": "$2y$12$iIcHUp5xemKLlFG68AZwX..PURjZtDtKOQz.fNTjZXj3uphDKqf7K"
+            }
+        ],
+        "terms": [
+            {
+                "ID": "1",
+                "safe_name": "autumn-2025",
+                "name": "Autumn 2025",
+                "image": "https://example.com/term.png",
+                "hidden": "0"
+            },
+            {
+                "ID": "2",
+                "safe_name": "spring-2024",
+                "name": "Spring 2024",
+                "image": "",
+                "hidden": "1"
+            }
+        ],
+        "term_dates": [
+            {
+                "ID": "1",
+                "datetime": "1759341600",
+                "datetime_end": "1759348800",
+                "is_featured": "0",
+                "term_ID": "1",
+                "setup_group": "1",
+                "deleted": "0"
+            },
+            {
+                "ID": "2",
+                "datetime": "1762369200",
+                "datetime_end": "1762376400",
+                "is_featured": "0",
+                "term_ID": "1",
+                "setup_group": "2.1",
+                "deleted": "0"
+            },
+            {
+                "ID": "3",
+                "datetime": "1762974000",
+                "datetime_end": "1762981200",
+                "is_featured": "0",
+                "term_ID": "1",
+                "setup_group": "",
+                "deleted": "1"
+            },
+            {
+                "ID": "4",
+                "datetime": "1765033200",
+                "datetime_end": "1765040400",
+                "is_featured": "1",
+                "term_ID": "1",
+                "setup_group": "",
+                "deleted": "0"
+            },
+            {
+                "ID": "5",
+                "datetime": "1765638000",
+                "datetime_end": "1765645200",
+                "is_featured": "-2",
+                "term_ID": "1",
+                "setup_group": "",
+                "deleted": "0"
+            },
+            {
+                "ID": "6",
+                "datetime": "1766257200",
+                "datetime_end": "1766264400",
+                "is_featured": "0",
+                "term_ID": "9",
+                "setup_group": "",
+                "deleted": "0"
+            },
+            {
+                "ID": "7",
+                "datetime": "1707332400",
+                "datetime_end": "1707339600",
+                "is_featured": "0",
+                "term_ID": "2",
+                "setup_group": "",
+                "deleted": "0"
+            }
+        ],
+        "attendance": [
+            {
+                "ID": "1",
+                "member_ID": "1",
+                "edit_datetime": "1758358800",
+                "edit_member_ID": "1",
+                "term_dates_ID": "1",
+                "ensemble_ID": "1",
+                "IP": "192.0.2.1",
+                "status": "1"
+            },
+            {
+                "ID": "2",
+                "member_ID": "1",
+                "edit_datetime": "1758790800",
+                "edit_member_ID": "1",
+                "term_dates_ID": "1",
+                "ensemble_ID": "1",
+                "IP": "192.0.2.1",
+                "status": "0"
+            },
+            {
+                "ID": "3",
+                "member_ID": "2",
+                "edit_datetime": "1758877200",
+                "edit_member_ID": "0",
+                "term_dates_ID": "2",
+                "ensemble_ID": "1",
+                "IP": "",
+                "status": "1"
+            },
+            {
+                "ID": "4",
+                "member_ID": "3",
+                "edit_datetime": "1758963600",
+                "edit_member_ID": "0",
+                "term_dates_ID": "2",
+                "ensemble_ID": "2",
+                "IP": "192.0.2.3",
+                "status": "0"
+            },
+            {
+                "ID": "5",
+                "member_ID": "99",
+                "edit_datetime": "1758967200",
+                "edit_member_ID": "1",
+                "term_dates_ID": "1",
+                "ensemble_ID": "1",
+                "IP": "",
+                "status": "1"
+            },
+            {
+                "ID": "6",
+                "member_ID": "2",
+                "edit_datetime": "1758970800",
+                "edit_member_ID": "2",
+                "term_dates_ID": "999",
+                "ensemble_ID": "1",
+                "IP": "",
+                "status": "1"
+            }
+        ]
+    }
+}

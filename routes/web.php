@@ -9,6 +9,7 @@ use App\Http\Controllers\HealthCheckController;
 use App\Http\Controllers\InstrumentFamilyController;
 use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\PieceController;
+use App\Http\Controllers\PollererImportController;
 use App\Http\Controllers\SeatingPlanController;
 use App\Http\Controllers\SetlistController;
 use App\Http\Controllers\SettingController;
@@ -68,6 +69,9 @@ Route::middleware('auth')->group(function () {
 
     Route::get('/settings', [SettingController::class, 'edit'])->name('settings.edit')->can('edit.settings');
     Route::put('/settings', [SettingController::class, 'update'])->name('settings.update')->can('edit.settings');
+    Route::get('/settings/import', [PollererImportController::class, 'create'])->name('settings.import')->can('edit.settings');
+    Route::post('/settings/import/preview', [PollererImportController::class, 'preview'])->name('settings.import.preview')->can('edit.settings');
+    Route::post('/settings/import', [PollererImportController::class, 'store'])->name('settings.import.store')->can('edit.settings');
 
     Route::patch('/composers/{id}/restore', [ComposerController::class, 'restore'])->name('composers.restore');
     Route::resource('composers', ComposerController::class);

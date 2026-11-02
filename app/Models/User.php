@@ -121,7 +121,7 @@ class User extends Authenticatable
 
     public function getInitialsAttribute(): string
     {
-        return $this->first_name[0].$this->last_name[0];
+        return mb_substr($this->first_name, 0, 1).mb_substr($this->last_name, 0, 1);
     }
 
     public function getRoleDescriptionAttribute(): string
@@ -203,12 +203,12 @@ class User extends Authenticatable
 
     public function getFirstNameInitialAttribute(): string
     {
-        return $this->first_name[0];
+        return mb_substr($this->first_name, 0, 1);
     }
 
     public function getLastNameInitialAttribute(): string
     {
-        return $this->last_name[0];
+        return mb_substr($this->last_name, 0, 1);
     }
 
     public function membership($ensemble): string
