@@ -12,7 +12,7 @@ runs:
       run: |
         for path in health login; do
           url="https://${{ inputs.domain }}/$path"
-          code=$(curl -sS -o /dev/null -w '%{http_code}' --retry 5 --retry-delay 10 --retry-connrefused --max-time 30 "$url" || true)
-          echo "$url: HTTP $code"
-          test "$code" = 200 || { echo "::error::$url answered HTTP $code, not 200."; exit 1; }
+          read -r code location < <(curl -sS -o /dev/null -w '%{http_code} %{redirect_url}\n' --retry 5 --retry-delay 10 --retry-connrefused --max-time 30 "$url" || true)
+          echo "$url: HTTP $code $location"
+          test "$code" = 200 || { echo "::error::$url answered HTTP $code${location:+ (redirect to $location)}, not 200."; exit 1; }
         done
