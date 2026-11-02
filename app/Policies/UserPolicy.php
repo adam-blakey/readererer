@@ -70,4 +70,13 @@ class UserPolicy
 
         return Response::deny();
     }
+
+    public function erase(User $user, User $user_)
+    {
+        if ($user->role->value >= UserRole::Admin->value && $user->isNot($user_)) {
+            return Response::allow();
+        }
+
+        return Response::deny();
+    }
 }

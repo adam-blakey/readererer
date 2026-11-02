@@ -104,7 +104,8 @@ Route::middleware('auth')->group(function () {
     Route::post('/term-dates/{termDate}/send-van-driver-reminder', [TermDateNotificationController::class, 'sendVanDriverReminder'])->name('term-dates.send-van-driver-reminder');
 
     Route::patch('/users/{id}/restore', [UserController::class, 'restore'])->name('users.restore');
-    Route::resource('users', UserController::class);
+    Route::resource('users', UserController::class)->withTrashed(['show']);
+    Route::delete('/users/{user}/erase', [UserController::class, 'erase'])->name('users.erase')->withTrashed();
     Route::post('/users/{user}/ensembles', [UserController::class, 'attachEnsemble'])->name('users.ensembles.store');
     Route::delete('/users/{user}/ensembles/{ensemble}', [UserController::class, 'detachEnsemble'])->name('users.ensembles.destroy');
 });

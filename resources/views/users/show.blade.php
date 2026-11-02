@@ -16,6 +16,12 @@
                         <x-icon name="pencil" />
                         {{ __('Edit') }}
                     </x-a>
+                    @can('erase', $user)
+                        <a href="#" class="btn btn-outline-danger" data-bs-toggle="modal" data-bs-target="#modal-erase-user">
+                            <x-icon name="trash" />
+                            {{ __('Delete') }}
+                        </a>
+                    @endcan
                 </div>
             </div>
         </div>
@@ -112,4 +118,7 @@
 			</div>
 		</div>
 	</div>
+    @can('erase', $user)
+        <x-modals.erase-user :user="$user" />
+    @endcan
 </x-layout>

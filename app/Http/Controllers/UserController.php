@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Enums\UserRole;
+use App\Http\Requests\EraseUserRequest;
 use App\Http\Requests\StoreUserRequest;
 use App\Http\Requests\UpdateUserRequest;
 use App\Models\Ensemble;
@@ -14,6 +15,7 @@ use Illuminate\Database\UniqueConstraintViolationException;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Arr;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 use Illuminate\View\View;
 use Throwable;
@@ -116,6 +118,8 @@ class UserController extends Controller
 
     public function show(User $user)
     {
+        abort_if($user->trashed() && ! request()->boolean('with_trashed'), 404);
+
         $user->load(['ensembles']);
 
         $instrumentFamilies = InstrumentFamily::whereIn(
@@ -143,6 +147,61 @@ class UserController extends Controller
         $user->restore();
 
         return redirect()->back()->with('status', __('User restored.'));
+    }
+
+    public function erase(EraseUserRequest $request, User $user): RedirectResponse
+    {
+        DB::transaction(function () use ($user) {
+            $email = $user->email;
+
+            $user->forceFill([
+                'first_name' => __('Former member'),
+                'last_name' => '#'.$user->id,
+                'email' => null,
+                'username' => 'erased-'.$user->id,
+                'password' => Str::random(64),
+                'remember_token' => null,
+                'email_verified_at' => null,
+                'must_change_password' => false,
+                'image' => null,
+                'setup_group_id' => null,
+                'phone_number' => null,
+                'address_line1' => null,
+                'address_line2' => null,
+                'address_city' => null,
+                'address_post_code' => null,
+                'emergency_contact_name' => null,
+                'emergency_contact_number' => null,
+                'emergency_contact_relationship' => null,
+                'emergency_contact_address_line1' => null,
+                'emergency_contact_address_line2' => null,
+                'emergency_contact_address_city' => null,
+                'emergency_contact_address_post_code' => null,
+                'date_of_birth' => null,
+                'has_photo_permission' => false,
+                'is_gift_aiding_subs' => false,
+            ])->save();
+
+            $user->ensembles()->detach();
+            DB::table('ensemble_admins')->where('admin_id', $user->id)->delete();
+            DB::table('setup_group_van_driver')->where('user_id', $user->id)->delete();
+            DB::table('term_dates')->where('van_driver_id', $user->id)->update(['van_driver_id' => null]);
+
+            DB::table('sessions')->where('user_id', $user->id)->delete();
+            if ($email !== null) {
+                DB::table('password_reset_tokens')->where('email', $email)->delete();
+            }
+
+            DB::table('attendances')->where('user_id', $user->id)->orWhere('edit_user_id', $user->id)->update(['edit_ip' => '']);
+            DB::table('register_entries')->where('user_id', $user->id)->update(['notes' => null]);
+            DB::table('email_recipients')->where('user_id', $user->id)->update(['name' => null, 'email' => null, 'error_message' => null]);
+
+            if (! $user->trashed()) {
+                $user->delete();
+            }
+        });
+
+        return to_route('users.index')->with('status', __('Personal data erased.'));
     }
 
     public function attachEnsemble(Request $request, User $user): RedirectResponse
