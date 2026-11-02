@@ -101,7 +101,8 @@
 					</div>
 				</div>
 			</div>
-			<div class="card-footer text-end">
+			<div class="card-footer d-flex justify-content-between">
+				<a class="btn" href="{{ route('settings.import') }}">{{ __('Import from Pollererer') }}</a>
 				<button class="btn btn-primary" type="submit">{{ __('Save settings') }}</button>
 			</div>
 		</form>

@@ -48,6 +48,11 @@ Breadcrumbs::for('settings.edit', function (BreadcrumbTrail $trail) {
     $trail->push(__('Settings'), route('settings.edit'));
 });
 
+Breadcrumbs::for('settings.import', function (BreadcrumbTrail $trail) {
+    $trail->parent('settings.edit');
+    $trail->push(__('Import from Pollererer'), route('settings.import'));
+});
+
 $auto_entity = function (string $route_prefix, string $index_label, string $create_label): void {
     Breadcrumbs::for($route_prefix.'.index', function (BreadcrumbTrail $trail) use ($route_prefix, $index_label) {
         $trail->parent('home');
