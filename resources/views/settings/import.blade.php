@@ -18,9 +18,11 @@
 					<h2 class="card-title">{{ __('Preview') }}</h2>
 				</div>
 				<div class="card-body">
-					<x-forms.error-summary :fields="['export', 'acknowledge_timezone']" />
+					<x-forms.error-summary :fields="['export', 'keep_clock_times']" />
 					<p class="text-secondary">
-						{{ __('Exported :date.', ['date' => $preview['exported_at']]) }}
+						@if ($preview['exported_at'])
+							{{ __('Exported :date.', ['date' => $preview['exported_at']]) }}
+						@endif
 						@if ($preview['anonymised'])
 							{{ __('This export is anonymised.') }}
 						@endif
@@ -45,13 +47,20 @@
 						<p>{{ implode(', ', $preview['ignored_settings']) }}</p>
 					@endif
 					@if ($preview['timezone_warning'])
-						<label class="form-check">
-							<input class="form-check-input @error('acknowledge_timezone') is-invalid @enderror" name="acknowledge_timezone" type="checkbox" value="1">
-							<span class="form-check-label">{{ __('I have checked the timezone and want to import these times anyway') }}</span>
-						</label>
-						@error('acknowledge_timezone')
-							<x-forms.input-error :messages="$message" />
-						@enderror
+						<fieldset>
+							<legend class="form-label required">{{ __('Times') }}</legend>
+							<label class="form-check">
+								<input class="form-check-input @error('keep_clock_times') is-invalid @enderror" name="keep_clock_times" type="radio" value="1">
+								<span class="form-check-label">{{ __('Keep the clock times Pollererer shows, converting summer times to winter time') }}</span>
+							</label>
+							<label class="form-check">
+								<input class="form-check-input @error('keep_clock_times') is-invalid @enderror" name="keep_clock_times" type="radio" value="0">
+								<span class="form-check-label">{{ __('Import the times unchanged') }}</span>
+							</label>
+							@error('keep_clock_times')
+								<x-forms.input-error :messages="$message" />
+							@enderror
+						</fieldset>
 					@endif
 				</div>
 				<div class="card-footer text-end">

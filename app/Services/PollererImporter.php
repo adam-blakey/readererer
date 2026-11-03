@@ -81,7 +81,7 @@ class PollererImporter
 
     private string $unusablePassword;
 
-    public function __construct(private array $export, private User $admin)
+    public function __construct(private array $export, private User $admin, private bool $keepClockTimes = false)
     {
         $this->counts = array_fill_keys([
             'Ensembles', 'Ensemble admins', 'Users created', 'Existing users linked', 'Memberships',
@@ -174,13 +174,30 @@ class PollererImporter
             }
         }
 
-        $slugs = array_map(fn ($row) => is_array($row) ? ($row['safe_name'] ?? null) : null, $tables['ensembles']);
+        if ($errors) {
+            return $errors;
+        }
+
+        $slugs = array_map(fn ($row) => self::slug($row, 'ensemble'), $tables['ensembles']);
 
         if (count($slugs) !== count(array_unique($slugs))) {
             $errors[] = __('Two ensembles have the same safe name.');
         }
 
+        $slugs = array_map(fn ($row) => self::slug($row, 'term'), $tables['terms']);
+
+        if (count($slugs) !== count(array_unique($slugs))) {
+            $errors[] = __('Two terms have the same safe name.');
+        }
+
         return $errors;
+    }
+
+    private static function slug(array $row, string $fallback): string
+    {
+        $slug = filled($row['safe_name']) ? (string) $row['safe_name'] : Str::slug((string) $row['name']);
+
+        return $slug === '' ? $fallback.'-'.(int) $row['ID'] : $slug;
     }
 
     private static function isInteger(mixed $value): bool
@@ -282,25 +299,40 @@ class PollererImporter
 
         foreach ($this->table('ensembles') as $row) {
             $image = trim((string) $row['image']);
-            $isUrl = Str::isUrl($image, ['http', 'https']);
+            $url = $this->imageUrl($image);
 
             $ensemble = Ensemble::forceCreate([
                 'name' => (string) $row['name'],
-                'slug' => filled($row['safe_name']) ? (string) $row['safe_name'] : Str::slug((string) $row['name']),
+                'slug' => self::slug($row, 'ensemble'),
                 'show' => ! (int) $row['hidden'],
                 'seating_plan_enabled' => isset($seated[(int) $row['ID']]),
-                'image' => $isUrl ? $image : null,
+                'image' => $url,
             ]);
 
-            if ($isUrl) {
-                $this->images[] = ['url' => $image, 'ensemble' => $ensemble->id, 'name' => $ensemble->name];
+            if ($url) {
+                $this->images[] = ['url' => $url, 'ensemble' => $ensemble->id, 'name' => $ensemble->name];
             } elseif ($image !== '') {
-                $this->warnings[] = __('The image for :ensemble is not a web address, so it was left out.', ['ensemble' => $ensemble->name]);
+                $this->warnings[] = __('The image for :ensemble is not a web address and the logo gives no address to find it on, so it was left out.', ['ensemble' => $ensemble->name]);
             }
 
             $this->ensembles[(int) $row['ID']] = $ensemble->id;
             $this->counts['Ensembles']++;
         }
+    }
+
+    private function imageUrl(string $image): ?string
+    {
+        if ($image === '' || Str::isUrl($image, ['http', 'https'])) {
+            return $image === '' ? null : $image;
+        }
+
+        $logo = parse_url(trim((string) ($this->export['settings']['logo_url'] ?? '')));
+
+        if (! isset($logo['scheme'], $logo['host']) || ! in_array($logo['scheme'], ['http', 'https'], true)) {
+            return null;
+        }
+
+        return $logo['scheme'].'://'.$logo['host'].(isset($logo['port']) ? ':'.$logo['port'] : '').'/'.ltrim($image, '/');
     }
 
     private function importUsers(): void
@@ -317,7 +349,7 @@ class PollererImporter
             $login = $logins[$id] ?? null;
             $loginName = trim((string) ($login['email'] ?? ''));
             $email = str_contains($loginName, '@') ? $loginName : null;
-            $name = trim($row['first_name'].' '.$row['last_name']);
+            $name = trim($row['first_name'].' '.$row['last_name']) ?: __('Member :id', ['id' => $id]);
 
             if ($email && $existing = $this->findUserByEmail($email)) {
                 if (! in_array($existing->id, $this->users, true)) {
@@ -464,7 +496,7 @@ class PollererImporter
                 'user_id' => $user,
                 'ensemble_id' => $ensemble,
                 'instrument_family_id' => $this->instrumentFamily($member['instrument']),
-                'seat_row' => (int) $member['row'] ? (string) (int) $member['row'] : null,
+                'seat_row' => (int) $member['row'] > 0 ? $this->rowLetter((int) $member['row']) : null,
                 'seat_column' => (int) $member['seat'] ? (string) (int) $member['seat'] : null,
             ];
         }
@@ -486,6 +518,17 @@ class PollererImporter
         }
 
         $this->counts['Memberships'] = count($memberships);
+    }
+
+    private function rowLetter(int $row): string
+    {
+        $letter = 'A';
+
+        for ($i = 1; $i < $row; $i++) {
+            $letter = str_increment($letter);
+        }
+
+        return $letter;
     }
 
     private function importEnsembleAdmins(): void
@@ -530,17 +573,22 @@ class PollererImporter
         foreach ($this->table('terms') as $row) {
             $this->terms[(int) $row['ID']] = Term::forceCreate([
                 'name' => (string) $row['name'],
-                'slug' => filled($row['safe_name']) ? (string) $row['safe_name'] : Str::slug((string) $row['name']),
+                'slug' => self::slug($row, 'term'),
                 'deleted_at' => (int) $row['hidden'] ? now() : null,
             ])->id;
             $this->counts['Terms']++;
         }
     }
 
+    private function time(int $timestamp): Carbon
+    {
+        return $this->keepClockTimes
+            ? Carbon::createFromTimestamp($timestamp, $this->export['timezone'])->shiftTimezone(config('app.timezone'))
+            : Carbon::createFromTimestamp($timestamp, config('app.timezone'));
+    }
+
     private function importTermDates(): void
     {
-        $timezone = config('app.timezone');
-
         foreach ($this->table('term_dates') as $row) {
             $term = $this->terms[(int) $row['term_ID']] ?? null;
 
@@ -552,8 +600,8 @@ class PollererImporter
 
             $termDate = TermDate::forceCreate([
                 'term_id' => $term,
-                'start_datetime' => Carbon::createFromTimestamp((int) $row['datetime'], $timezone),
-                'end_datetime' => Carbon::createFromTimestamp((int) $row['datetime_end'], $timezone),
+                'start_datetime' => $this->time((int) $row['datetime']),
+                'end_datetime' => $this->time((int) $row['datetime_end']),
                 'setup_group_id' => $this->setupGroup($row['setup_group']),
                 'deleted_at' => (int) $row['deleted'] ? now() : null,
             ]);
@@ -578,7 +626,6 @@ class PollererImporter
 
     private function importAttendance(): void
     {
-        $timezone = config('app.timezone');
         $skipped = 0;
         $rows = [];
 
@@ -598,7 +645,7 @@ class PollererImporter
                 continue;
             }
 
-            $editedAt = Carbon::createFromTimestamp((int) $row['edit_datetime'], $timezone)->toDateTimeString();
+            $editedAt = $this->time((int) $row['edit_datetime'])->toDateTimeString();
 
             $rows[] = [
                 'user_id' => $user,
@@ -663,7 +710,7 @@ class PollererImporter
         }
 
         foreach (self::BOOLEAN_SETTINGS as $from => $to) {
-            if (array_key_exists($from, $settings)) {
+            if (isset($settings[$from])) {
                 Setting::put($to, filter_var($settings[$from], FILTER_VALIDATE_BOOLEAN));
                 $this->counts['Settings']++;
             }

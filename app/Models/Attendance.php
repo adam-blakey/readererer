@@ -49,7 +49,7 @@ class Attendance extends Model
 
     public function getNameAttribute(): string
     {
-        return $this->ensemble->name.': '.$this->term_date->term->name;
+        return $this->ensemble?->name.': '.$this->term_date?->term?->name;
     }
 
     public function getStatusTextAttribute(): string
