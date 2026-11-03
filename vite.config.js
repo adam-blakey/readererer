@@ -11,7 +11,13 @@ export default defineConfig({
                 'resources/js/seating-plan.js',
                 'resources/images/favicon.png',
                 'resources/images/readererer-long-logo.svg',
-                'resources/images/readererer-square-logo.svg'
+                'resources/images/readererer-square-logo.svg',
+                'resources/images/tabler/icons-gray-social-facebook-square.png',
+                'resources/images/tabler/icons-gray-social-github.png',
+                'resources/images/tabler/icons-gray-social-instagram.png',
+                'resources/images/tabler/icons-gray-social-pinterest.png',
+                'resources/images/tabler/icons-gray-social-twitter.png',
+                'resources/images/tabler/icons-gray-social-youtube.png'
             ],
             refresh: true,
         }),
