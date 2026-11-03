@@ -110,6 +110,8 @@ Route::middleware('auth')->group(function () {
     Route::patch('/users/{id}/restore', [UserController::class, 'restore'])->name('users.restore');
     Route::resource('users', UserController::class)->withTrashed(['show']);
     Route::delete('/users/{user}/erase', [UserController::class, 'erase'])->name('users.erase')->withTrashed();
+    Route::post('/users/{user}/password-reset-link', [UserController::class, 'sendPasswordResetLink'])->name('users.password-reset-link');
+    Route::put('/users/{user}/password', [UserController::class, 'setPassword'])->name('users.password');
     Route::post('/users/{user}/ensembles', [UserController::class, 'attachEnsemble'])->name('users.ensembles.store');
     Route::delete('/users/{user}/ensembles/{ensemble}', [UserController::class, 'detachEnsemble'])->name('users.ensembles.destroy');
 });

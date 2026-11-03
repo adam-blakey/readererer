@@ -16,6 +16,12 @@
                         <x-icon name="pencil" />
                         {{ __('Edit') }}
                     </x-a>
+                    @can('resetPassword', $user)
+                        <a href="#" class="btn" data-bs-toggle="modal" data-bs-target="#modal-reset-password">
+                            <x-icon name="key" />
+                            {{ __('Reset password') }}
+                        </a>
+                    @endcan
                     @can('erase', $user)
                         <a href="#" class="btn btn-outline-danger" data-bs-toggle="modal" data-bs-target="#modal-erase-user">
                             <x-icon name="trash" />
@@ -25,6 +31,9 @@
                 </div>
             </div>
         </div>
+        @if (session('status'))
+            <div class="mt-3 alert alert-success" role="alert">{{ session('status') }}</div>
+        @endif
     </div>
 
 	<div class="page-body">
@@ -139,6 +148,9 @@
 			</div>
 		</div>
 	</div>
+    @can('resetPassword', $user)
+        <x-modals.reset-password :user="$user" />
+    @endcan
     @can('erase', $user)
         <x-modals.erase-user :user="$user" />
     @endcan

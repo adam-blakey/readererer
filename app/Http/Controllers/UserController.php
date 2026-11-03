@@ -16,7 +16,10 @@ use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Password;
 use Illuminate\Support\Str;
+use Illuminate\Validation\Rules\Password as PasswordRule;
 use Illuminate\View\View;
 use Throwable;
 
@@ -202,6 +205,35 @@ class UserController extends Controller
         });
 
         return to_route('users.index')->with('status', __('Personal data erased.'));
+    }
+
+    public function sendPasswordResetLink(User $user): RedirectResponse
+    {
+        $this->authorize('resetPassword', $user);
+        abort_if(blank($user->email), 422);
+
+        $status = Password::sendResetLink(['email' => $user->email]);
+
+        return $status === Password::RESET_LINK_SENT
+            ? back()->with('status', __('A password reset email has been sent to :email.', ['email' => $user->email]))
+            : back()->withErrors(['reset_link' => __($status)]);
+    }
+
+    public function setPassword(Request $request, User $user): RedirectResponse
+    {
+        $this->authorize('resetPassword', $user);
+
+        $validated = $request->validate([
+            'password' => ['required', 'confirmed', PasswordRule::defaults()],
+        ]);
+
+        $user->forceFill([
+            'password' => Hash::make($validated['password']),
+            'remember_token' => Str::random(60),
+            'must_change_password' => $request->boolean('must_change_password'),
+        ])->save();
+
+        return back()->with('status', __('The password for :name has been set.', ['name' => $user->name]));
     }
 
     public function attachEnsemble(Request $request, User $user): RedirectResponse
