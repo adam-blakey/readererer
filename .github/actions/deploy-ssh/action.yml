@@ -48,6 +48,7 @@ runs:
             echo "No .env in ~/domains/${{ inputs.domain }}: copy .env.example to .env, fill it in, then re-run this deploy." >&2
             exit 1
           fi
+          php -r 'require $argv[1]; $key = Dotenv\Dotenv::createArrayBacked(".")->load()["APP_KEY"] ?? ""; if (str_starts_with($key, "base64:")) $key = base64_decode(substr($key, 7)); if (! Illuminate\Encryption\Encrypter::supported($key, "aes-256-cbc")) { fwrite(STDERR, "APP_KEY in .env is missing or invalid. In this folder run php artisan config:clear and php artisan key:generate --force (or restore the old key), then deploy again.\n"); exit(1); }' vendor/autoload.php
           echo "$(git describe --tags --always)${{ github.event.pull_request.number && format('+pr{0}', github.event.pull_request.number) || '' }}" > VERSION
           rm -f bootstrap/cache/*.php
           php artisan down --retry=5 --refresh=5

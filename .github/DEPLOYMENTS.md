@@ -31,6 +31,9 @@ requests show no skipped release jobs.
    `qa`, then `prod`, so a failure skips the environments after it). For each domain it:
    - rsyncs `vendor` and `public/build` to `~/domains/<domain>/`;
    - fetches the exact commit on the server and `git reset --hard`s to it;
+   - stops, before touching the site, if `.env` is missing or its `APP_KEY`
+     is not a valid key (empty, or not `base64:` plus 32 bytes), which would
+     make every page fail with "Unsupported cipher or incorrect key length";
    - writes `VERSION` (`git describe`, plus `+pr<n>` on dev);
    - puts the app in maintenance mode, migrates, runs `optimize`,
      `event:cache` and `queue:restart`, and brings it back up;
@@ -51,7 +54,8 @@ requests show no skipped release jobs.
      `~/readererer-build/<domain>` (which keeps
      `vendor` and `node_modules` between deploys), writes `VERSION`, runs
      `composer install --no-dev --no-scripts` (the host disables
-     `proc_open`, which Composer scripts need), `npm ci` and `npm run build`.
+     `proc_open`, which Composer scripts need), checks the site's `.env` has a
+     valid `APP_KEY` (as above), then `npm ci` and `npm run build`.
      Only then does it put the app in maintenance mode (skipped on a site's
      first deploy, whose folder has no `vendor` for `artisan` to load yet). It rsyncs the app's
      folders (`app`, `bootstrap`, `config`, `database`, `lang`, `resources`,
