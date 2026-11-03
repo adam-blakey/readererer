@@ -322,6 +322,16 @@ test('a relative image path is found on the logo\'s site', function (string $ima
     expect(Ensemble::where('slug', 'jazz-group')->value('image'))->toStartWith('images/ensembles/');
 })->with(['/uploads/ensemble-logos/jazz.png', 'uploads/ensemble-logos/jazz.png']);
 
+test('an image address with spaces is not treated as a relative path', function () {
+    $report = import_pollererer(function (&$export) {
+        $export['settings']['logo_url'] = 'https://polls.example.org/uploads/logo.png';
+        $export['tables']['ensembles'][1]['image'] = 'https://polls.example.org/uploads/ensemble-logos/jazz/Jazz icon RGB-16.jpg';
+    });
+
+    expect($report['images'])->toContain('https://polls.example.org/uploads/ensemble-logos/jazz/Jazz icon RGB-16.jpg');
+    Http::assertSent(fn ($request) => $request->url() === 'https://polls.example.org/uploads/ensemble-logos/jazz/Jazz%20icon%20RGB-16.jpg');
+});
+
 test('a relative image path is left out when the logo is not a web address', function () {
     $report = import_pollererer(function (&$export) {
         $export['settings']['logo_url'] = '';
