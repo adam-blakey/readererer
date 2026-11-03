@@ -23,44 +23,53 @@ class DashboardController extends Controller
             return $this->show($ensemble);
         }
 
+        $page_name = __(':app dashboard', ['app' => config('app.name')]);
         $ensembles = $user->ensembles()->get();
-        $setupGroup = $user->setup_group;
 
-        $nextRehearsal = null;
-        if ($ensembles->isNotEmpty()) {
-            $nextRehearsal = TermDate::whereDoesntHave('concert_ensembles')
-                ->where('start_datetime', '>', Carbon::now())
-                ->orderBy('start_datetime')
-                ->first();
+        if ($ensembles->isEmpty()) {
+            return view('dashboard.index', compact('page_name', 'ensembles'));
         }
 
-        $ensembleIds = $ensembles->pluck('id');
+        $setupGroup = $user->setup_group;
+
+        $nextRehearsal = TermDate::whereDoesntHave('concert_ensembles')
+            ->where('start_datetime', '>', Carbon::now())
+            ->orderBy('start_datetime')
+            ->first();
+
         $nextConcerts = TermDate::with('concert_ensembles')
-            ->whereHas('concert_ensembles', fn ($query) => $query->whereKey($ensembleIds))
+            ->whereHas('concert_ensembles', fn ($query) => $query->whereKey($ensembles->pluck('id')))
             ->where('start_datetime', '>', Carbon::now())
             ->orderBy('start_datetime')
             ->limit(3)
             ->get();
 
-        $nextVanDrive = null;
-        if ($setupGroup) {
-            $upcomingWithGroup = TermDate::where('setup_group_id', $setupGroup->id)
+        $nextSetup = $setupGroup
+            ? TermDate::where('setup_group_id', $setupGroup->id)
                 ->where('start_datetime', '>', Carbon::now())
                 ->orderBy('start_datetime')
-                ->get();
+                ->first()
+            : null;
 
-            $nextVanDrive = $upcomingWithGroup->first(function ($td) use ($user) {
-                return optional($td->inferred_van_driver)->id === $user->id;
-            });
-        }
+        $nextVanDrive = TermDate::where('start_datetime', '>', Carbon::now())
+            ->where(fn ($query) => $query
+                ->where('van_driver_id', $user->id)
+                ->when($setupGroup, fn ($query) => $query->orWhere('setup_group_id', $setupGroup->id)))
+            ->orderBy('start_datetime')
+            ->get()
+            ->first(fn (TermDate $termDate) => $termDate->inferred_van_driver?->id === $user->id);
 
-        return view('dashboard.index', [
-            'page_name' => __(':app dashboard', ['app' => config('app.name')]),
-            'ensembles' => $ensembles,
-            'setupGroup' => $setupGroup,
-            'nextRehearsal' => $nextRehearsal,
-            'nextConcerts' => $nextConcerts,
-            'nextVanDrive' => $nextVanDrive,
-        ]);
+        $drivesTheVan = $nextVanDrive !== null || (bool) $setupGroup?->van_drivers->contains($user);
+
+        return view('dashboard.index', compact(
+            'page_name',
+            'ensembles',
+            'setupGroup',
+            'nextRehearsal',
+            'nextConcerts',
+            'nextSetup',
+            'nextVanDrive',
+            'drivesTheVan',
+        ));
     }
 }
