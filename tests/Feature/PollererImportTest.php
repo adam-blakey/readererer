@@ -197,6 +197,61 @@ test('null names are imported as empty strings', function () {
         ->and(Ensemble::where('slug', 'jazz-group')->value('name'))->toBe('');
 });
 
+test('warnings name a member with no name by their ID', function () {
+    $report = import_pollererer(function (&$export) {
+        $export['tables']['members'][2]['first_name'] = null;
+        $export['tables']['members'][2]['last_name'] = null;
+        $export['tables']['logins'][1]['password'] = null;
+    });
+
+    expect($report['warnings'])->toContain('The password for Member 1 is not a bcrypt hash, so they will need to reset it.');
+});
+
+test('a missing safe name falls back to the name, then to the ID', function () {
+    import_pollererer(function (&$export) {
+        $export['tables']['ensembles'][0]['safe_name'] = null;
+        $export['tables']['ensembles'][1]['safe_name'] = null;
+        $export['tables']['ensembles'][1]['name'] = null;
+        $export['tables']['terms'][0]['safe_name'] = null;
+        $export['tables']['terms'][0]['name'] = null;
+    });
+
+    expect(Ensemble::pluck('slug')->sort()->values()->all())->toBe(['concert-band', 'ensemble-2'])
+        ->and(Term::withTrashed()->pluck('slug')->sort()->values()->all())->toBe(['spring-2024', 'term-1']);
+});
+
+test('a safe name that falls back onto another\'s is rejected', function (string $table, string $error) {
+    $this->actingAs(make_user(UserRole::Admin))
+        ->post(route('settings.import.preview'), ['export' => pollererer_upload(function (&$export) use ($table) {
+            $export['tables'][$table][1]['safe_name'] = null;
+            $export['tables'][$table][1]['name'] = $export['tables'][$table][0]['safe_name'];
+        })])
+        ->assertSessionHasErrors(['export' => $error]);
+
+    expect(Ensemble::count())->toBe(0);
+})->with([
+    'ensembles' => ['ensembles', 'Two ensembles have the same safe name.'],
+    'terms' => ['terms', 'Two terms have the same safe name.'],
+]);
+
+test('null settings keep the site defaults', function () {
+    import_pollererer(function (&$export) {
+        $export['settings']['assume_attending'] = null;
+        $export['settings']['repeat_headings'] = null;
+    });
+
+    expect(Setting::whereIn('key', ['assume_attending', 'repeating_headings'])->exists())->toBeFalse();
+});
+
+test('the preview leaves out the export date when it has none', function () {
+    $admin = make_user(UserRole::Admin);
+    $this->actingAs($admin)->post(route('settings.import.preview'), ['export' => pollererer_upload(function (&$export) {
+        $export['exported_at'] = null;
+    })]);
+
+    $this->actingAs($admin)->get(route('settings.import'))->assertOk()->assertDontSee('Exported');
+});
+
 test('attendance updates leave out replies for dates in a hidden term', function () {
     $admin = make_user(UserRole::Admin);
     import_pollererer(function (&$export) {

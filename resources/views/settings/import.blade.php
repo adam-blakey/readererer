@@ -20,7 +20,9 @@
 				<div class="card-body">
 					<x-forms.error-summary :fields="['export', 'keep_clock_times']" />
 					<p class="text-secondary">
-						{{ __('Exported :date.', ['date' => $preview['exported_at']]) }}
+						@if ($preview['exported_at'])
+							{{ __('Exported :date.', ['date' => $preview['exported_at']]) }}
+						@endif
 						@if ($preview['anonymised'])
 							{{ __('This export is anonymised.') }}
 						@endif

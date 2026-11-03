@@ -81,7 +81,6 @@ class PollererImporter
 
     private string $unusablePassword;
 
-    /** With keepClockTimes, each time keeps the clock time Pollererer showed, rather than the moment it stored. */
     public function __construct(private array $export, private User $admin, private bool $keepClockTimes = false)
     {
         $this->counts = array_fill_keys([
@@ -175,13 +174,30 @@ class PollererImporter
             }
         }
 
-        $slugs = array_map(fn ($row) => is_array($row) ? ($row['safe_name'] ?? null) : null, $tables['ensembles']);
+        if ($errors) {
+            return $errors;
+        }
+
+        $slugs = array_map(fn ($row) => self::slug($row, 'ensemble'), $tables['ensembles']);
 
         if (count($slugs) !== count(array_unique($slugs))) {
             $errors[] = __('Two ensembles have the same safe name.');
         }
 
+        $slugs = array_map(fn ($row) => self::slug($row, 'term'), $tables['terms']);
+
+        if (count($slugs) !== count(array_unique($slugs))) {
+            $errors[] = __('Two terms have the same safe name.');
+        }
+
         return $errors;
+    }
+
+    private static function slug(array $row, string $fallback): string
+    {
+        $slug = filled($row['safe_name']) ? (string) $row['safe_name'] : Str::slug((string) $row['name']);
+
+        return $slug === '' ? $fallback.'-'.(int) $row['ID'] : $slug;
     }
 
     private static function isInteger(mixed $value): bool
@@ -287,7 +303,7 @@ class PollererImporter
 
             $ensemble = Ensemble::forceCreate([
                 'name' => (string) $row['name'],
-                'slug' => filled($row['safe_name']) ? (string) $row['safe_name'] : Str::slug((string) $row['name']),
+                'slug' => self::slug($row, 'ensemble'),
                 'show' => ! (int) $row['hidden'],
                 'seating_plan_enabled' => isset($seated[(int) $row['ID']]),
                 'image' => $url,
@@ -304,7 +320,6 @@ class PollererImporter
         }
     }
 
-    /** Pollererer shows a relative image path against its own address, which the export only gives through the logo. */
     private function imageUrl(string $image): ?string
     {
         if ($image === '' || Str::isUrl($image, ['http', 'https'])) {
@@ -334,7 +349,7 @@ class PollererImporter
             $login = $logins[$id] ?? null;
             $loginName = trim((string) ($login['email'] ?? ''));
             $email = str_contains($loginName, '@') ? $loginName : null;
-            $name = trim($row['first_name'].' '.$row['last_name']);
+            $name = trim($row['first_name'].' '.$row['last_name']) ?: __('Member :id', ['id' => $id]);
 
             if ($email && $existing = $this->findUserByEmail($email)) {
                 if (! in_array($existing->id, $this->users, true)) {
@@ -505,7 +520,6 @@ class PollererImporter
         $this->counts['Memberships'] = count($memberships);
     }
 
-    /** Pollererer numbers rows from 1, the seating plan letters them from A. */
     private function rowLetter(int $row): string
     {
         $letter = 'A';
@@ -559,7 +573,7 @@ class PollererImporter
         foreach ($this->table('terms') as $row) {
             $this->terms[(int) $row['ID']] = Term::forceCreate([
                 'name' => (string) $row['name'],
-                'slug' => filled($row['safe_name']) ? (string) $row['safe_name'] : Str::slug((string) $row['name']),
+                'slug' => self::slug($row, 'term'),
                 'deleted_at' => (int) $row['hidden'] ? now() : null,
             ])->id;
             $this->counts['Terms']++;
@@ -696,7 +710,7 @@ class PollererImporter
         }
 
         foreach (self::BOOLEAN_SETTINGS as $from => $to) {
-            if (array_key_exists($from, $settings)) {
+            if (isset($settings[$from])) {
                 Setting::put($to, filter_var($settings[$from], FILTER_VALIDATE_BOOLEAN));
                 $this->counts['Settings']++;
             }
