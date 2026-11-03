@@ -11,6 +11,7 @@ deployment:
     - git archive HEAD | tar -x -C $BUILD
     - git describe --tags --always > $BUILD/VERSION
     - cd $BUILD && composer install --no-dev --no-scripts --no-interaction --no-progress --optimize-autoloader
+    - cd $APP && php -r 'require $argv[1]; $key = Dotenv\Dotenv::createArrayBacked(".")->load()["APP_KEY"] ?? ""; if (str_starts_with($key, "base64:")) $key = base64_decode(substr($key, 7)); if (! Illuminate\Encryption\Encrypter::supported($key, "aes-256-cbc")) { fwrite(STDERR, "APP_KEY in .env is missing or invalid. In this folder run php artisan config:clear and php artisan key:generate --force (or restore the old key), then deploy again.\n"); exit(1); }' $BUILD/vendor/autoload.php
     - cd $BUILD && npm ci --no-audit --no-fund
     - ulimit -v
     - cd $BUILD && node --disable-wasm-trap-handler --wasm-max-mem-pages=4096 node_modules/vite/bin/vite.js build
