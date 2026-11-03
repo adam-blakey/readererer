@@ -22,7 +22,7 @@ deployment:
     - cp $BUILD/artisan $BUILD/composer.json $BUILD/composer.lock $BUILD/VERSION $APP/
     - cp $BUILD/public/index.php $BUILD/public/.htaccess $BUILD/public/favicon.ico $BUILD/public/robots.txt $APP/public/
     - cd $APP && php artisan package:discover
-    - cd $APP && php artisan storage:link --force
+    - cd $APP && ln -sfn ../storage/app/public public/storage
     - cd $APP && php artisan migrate --force
     - cd $APP && php artisan optimize
     - cd $APP && php artisan event:cache

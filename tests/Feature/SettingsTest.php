@@ -107,6 +107,6 @@ test('only admins see the settings link', function () {
 });
 
 test('deploys link public/storage to the public disk', function () {
-    expect(file_get_contents(base_path('.cpanel.yml')))->toContain('artisan storage:link')
-        ->and(file_get_contents(base_path('.github/actions/deploy-ssh/action.yml')))->toContain('artisan storage:link');
+    expect(file_get_contents(base_path('.cpanel.yml')))->toContain('ln -sfn ../storage/app/public public/storage')
+        ->and(file_get_contents(base_path('.github/actions/deploy-ssh/action.yml')))->toContain('ln -sfn ../storage/app/public public/storage');
 });
