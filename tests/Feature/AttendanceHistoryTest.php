@@ -126,3 +126,17 @@ test('the poll shows a history button only to those who may see the history', fu
         ->assertOk()
         ->assertDontSee($historyUrl, false);
 });
+
+test('the attendance updates table shows the term date as Y-m-d', function () {
+    $ensemble = Ensemble::factory()->create();
+    $term = Term::factory()->create();
+    $termDate = history_term_date($term, '2030-03-04 19:30');
+    $member = make_user(UserRole::Member);
+    join_ensemble($member, $ensemble);
+    record_history_change($member, $termDate, $ensemble, AttendanceStatus::Attending, $member, '2030-01-01 10:00');
+
+    $this->actingAs(make_user(UserRole::Admin))
+        ->get(route('attendance.index'))
+        ->assertOk()
+        ->assertSee('2030-03-04');
+});
