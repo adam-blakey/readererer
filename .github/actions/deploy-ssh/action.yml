@@ -57,6 +57,7 @@ runs:
           else
             php artisan migrate --force
           fi
+          ln -sfn ../storage/app/public public/storage
           php artisan optimize
           php artisan event:cache
           php artisan queue:restart

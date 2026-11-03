@@ -105,3 +105,8 @@ test('only admins see the settings link', function () {
     $this->actingAs(make_user(UserRole::Admin))->get(route('dashboard'))
         ->assertSee('href="'.route('settings.edit').'"', false);
 });
+
+test('deploys link public/storage to the public disk', function () {
+    expect(file_get_contents(base_path('.cpanel.yml')))->toContain('ln -sfn ../storage/app/public public/storage')
+        ->and(file_get_contents(base_path('.github/actions/deploy-ssh/action.yml')))->toContain('ln -sfn ../storage/app/public public/storage');
+});
