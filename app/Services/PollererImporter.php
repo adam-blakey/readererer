@@ -322,7 +322,7 @@ class PollererImporter
 
     private function imageUrl(string $image): ?string
     {
-        if ($image === '' || Str::isUrl($image, ['http', 'https'])) {
+        if ($image === '' || in_array(strtolower((string) parse_url($image, PHP_URL_SCHEME)), ['http', 'https'], true)) {
             return $image === '' ? null : $image;
         }
 
