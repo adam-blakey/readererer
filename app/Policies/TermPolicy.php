@@ -29,7 +29,7 @@ class TermPolicy
 
     public function create(User $user)
     {
-        if ($user->role->value >= UserRole::Moderator->value) {
+        if ($user->role->value >= UserRole::Admin->value) {
             return Response::allow();
         }
 
@@ -38,7 +38,7 @@ class TermPolicy
 
     public function update(User $user, Term $term)
     {
-        if ($user->role->value >= UserRole::Moderator->value) {
+        if ($user->role->value >= UserRole::Admin->value) {
             return Response::allow();
         }
 

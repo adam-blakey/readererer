@@ -41,7 +41,7 @@ test('the ensemble edit form opts into the change check', function () {
 test('the term edit form opts into the change check', function () {
     $term = Term::factory()->create();
 
-    $this->actingAs(make_user(UserRole::Moderator))
+    $this->actingAs(make_user(UserRole::Admin))
         ->get(route('terms.edit', $term))
         ->assertOk()
         ->assertSee('data-dirty-check', false);

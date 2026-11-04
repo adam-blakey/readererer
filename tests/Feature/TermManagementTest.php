@@ -12,7 +12,7 @@ use App\Models\TermDate;
 test('a term can be created with term dates', function () {
     $ensemble = Ensemble::factory()->create();
 
-    $response = $this->actingAs(make_user(UserRole::Moderator))->post(route('terms.store'), [
+    $response = $this->actingAs(make_user(UserRole::Admin))->post(route('terms.store'), [
         'name' => 'Spring 2026',
         'slug' => 'spring-2026',
         'term_dates' => [
@@ -41,11 +41,11 @@ test('a term can be created with term dates', function () {
 test('creating a term requires a name and a unique slug', function () {
     Term::factory()->create(['slug' => 'spring-2026']);
 
-    $this->actingAs(make_user(UserRole::Moderator))
+    $this->actingAs(make_user(UserRole::Admin))
         ->post(route('terms.store'), ['name' => 'Spring 2026', 'slug' => 'spring-2026'])
         ->assertSessionHasErrors('slug');
 
-    $this->actingAs(make_user(UserRole::Moderator))
+    $this->actingAs(make_user(UserRole::Admin))
         ->post(route('terms.store'), [])
         ->assertSessionHasErrors(['name', 'slug']);
 
@@ -65,7 +65,7 @@ test('updating a term syncs its term dates', function () {
         'end_datetime' => '2026-01-12 21:00:00',
     ]);
 
-    $response = $this->actingAs(make_user(UserRole::Moderator))->patch(route('terms.update', $term), [
+    $response = $this->actingAs(make_user(UserRole::Admin))->patch(route('terms.update', $term), [
         'name' => 'Renamed Term',
         'slug' => $term->slug,
         'term_dates' => [
@@ -96,7 +96,7 @@ test('updating a term syncs each date\'s concert ensembles, and none makes it a 
     $concert = make_term_date($term, $strings);
     $becomesRehearsal = make_term_date($term, $wind);
 
-    $this->actingAs(make_user(UserRole::Moderator))->patch(route('terms.update', $term), [
+    $this->actingAs(make_user(UserRole::Admin))->patch(route('terms.update', $term), [
         'name' => $term->name,
         'slug' => $term->slug,
         'term_dates' => [
@@ -124,7 +124,7 @@ test('the same ensemble can play concerts on several dates in a term', function 
     $first = make_term_date($term);
     $second = make_term_date($term);
 
-    $this->actingAs(make_user(UserRole::Moderator))->patch(route('terms.update', $term), [
+    $this->actingAs(make_user(UserRole::Admin))->patch(route('terms.update', $term), [
         'name' => $term->name,
         'slug' => $term->slug,
         'term_dates' => [
@@ -145,7 +145,7 @@ test('updating a term with no term dates removes them all', function () {
         'end_datetime' => '2026-01-05 21:00:00',
     ]);
 
-    $this->actingAs(make_user(UserRole::Moderator))->patch(route('terms.update', $term), [
+    $this->actingAs(make_user(UserRole::Admin))->patch(route('terms.update', $term), [
         'name' => $term->name,
         'slug' => $term->slug,
     ]);
@@ -162,7 +162,7 @@ test('updating a term rejects term dates with missing or invalid fields', functi
     ]);
 
     // Missing end_datetime.
-    $this->actingAs(make_user(UserRole::Moderator))
+    $this->actingAs(make_user(UserRole::Admin))
         ->patch(route('terms.update', $term), [
             'name' => 'Renamed',
             'slug' => $term->slug,
@@ -173,7 +173,7 @@ test('updating a term rejects term dates with missing or invalid fields', functi
         ->assertSessionHasErrors('term_dates.0.end_datetime');
 
     // Concert ensemble that does not exist.
-    $this->actingAs(make_user(UserRole::Moderator))
+    $this->actingAs(make_user(UserRole::Admin))
         ->patch(route('terms.update', $term), [
             'name' => 'Renamed',
             'slug' => $term->slug,
@@ -192,13 +192,13 @@ test('updating a term rejects term dates with missing or invalid fields', functi
     expect($term->term_dates->pluck('id')->all())->toBe([$existing->id]);
 });
 
-test('updating a term requires the moderator role', function () {
+test('updating a term requires the admin role', function (UserRole $role) {
     $term = Term::factory()->create();
 
-    $this->actingAs(make_user(UserRole::Member))
+    $this->actingAs(make_user($role))
         ->patch(route('terms.update', $term), ['name' => 'New Name', 'slug' => $term->slug])
         ->assertForbidden();
-});
+})->with([UserRole::Member, UserRole::Moderator]);
 
 test('a term can be soft deleted and restored', function () {
     $term = Term::factory()->create();
@@ -214,7 +214,7 @@ test('a term can be soft deleted and restored', function () {
 test('the terms index shows the friendly column labels', function () {
     Term::factory()->create();
 
-    $response = $this->actingAs(make_user(UserRole::Moderator))->get(route('terms.index'));
+    $response = $this->actingAs(make_user(UserRole::Admin))->get(route('terms.index'));
 
     $response->assertOk();
     $response->assertSee('Rehearsals');
@@ -231,7 +231,7 @@ test('the term show page renders with its dates', function () {
         'end_datetime' => '2026-01-05 21:00:00',
     ]);
 
-    $this->actingAs(make_user(UserRole::Moderator))
+    $this->actingAs(make_user(UserRole::Admin))
         ->get(route('terms.show', $term))
         ->assertOk();
 });
@@ -253,7 +253,7 @@ test('the term show page lists its dates in a table', function () {
         'end_datetime' => '2026-05-08 21:00:00',
     ]);
 
-    $this->actingAs(make_user(UserRole::Moderator))
+    $this->actingAs(make_user(UserRole::Admin))
         ->get(route('terms.show', $term))
         ->assertOk()
         ->assertSee('card-table', false)
@@ -289,7 +289,7 @@ test('the term show page collapses all but the latest email into an accordion', 
         'status' => EmailStatus::Sent,
     ]);
 
-    $this->actingAs(make_user(UserRole::Moderator))
+    $this->actingAs(make_user(UserRole::Admin))
         ->get(route('terms.show', $termDate->term))
         ->assertOk()
         ->assertSee('Newer attendance list')
@@ -302,7 +302,7 @@ test('creating a term persists the setup group and van driver on its dates', fun
     $setupGroup = SetupGroup::factory()->create();
     $driver = make_user(UserRole::Member);
 
-    $this->actingAs(make_user(UserRole::Moderator))->post(route('terms.store'), [
+    $this->actingAs(make_user(UserRole::Admin))->post(route('terms.store'), [
         'name' => 'Autumn 2026',
         'slug' => 'autumn-2026',
         'term_dates' => [
@@ -325,7 +325,7 @@ test('updating a term persists the setup group and van driver on its dates', fun
     $setupGroup = SetupGroup::factory()->create();
     $driver = make_user(UserRole::Member);
 
-    $this->actingAs(make_user(UserRole::Moderator))->patch(route('terms.update', $term), [
+    $this->actingAs(make_user(UserRole::Admin))->patch(route('terms.update', $term), [
         'name' => $term->name,
         'slug' => $term->slug,
         'term_dates' => [
@@ -344,7 +344,7 @@ test('updating a term persists the setup group and van driver on its dates', fun
 });
 
 test('creating a term rejects an unknown setup group or van driver', function () {
-    $this->actingAs(make_user(UserRole::Moderator))
+    $this->actingAs(make_user(UserRole::Admin))
         ->post(route('terms.store'), [
             'name' => 'Bad Term',
             'slug' => 'bad-term',
@@ -366,7 +366,7 @@ test('the term edit form renders the setup group, van driver and row template', 
     $term = Term::factory()->create();
     SetupGroup::factory()->create();
 
-    $this->actingAs(make_user(UserRole::Moderator))
+    $this->actingAs(make_user(UserRole::Admin))
         ->get(route('terms.edit', $term))
         ->assertOk()
         ->assertSee('Setup group')

@@ -29,7 +29,7 @@ class TermDatePolicy
 
     public function create(User $user)
     {
-        if ($user->role->value >= UserRole::Moderator->value) {
+        if ($user->role->value >= UserRole::Admin->value) {
             return Response::allow();
         }
 
@@ -38,7 +38,7 @@ class TermDatePolicy
 
     public function update(User $user, TermDate $termDate)
     {
-        if ($user->role->value >= UserRole::Moderator->value) {
+        if ($user->role->value >= UserRole::Admin->value) {
             return Response::allow();
         }
 
@@ -47,7 +47,7 @@ class TermDatePolicy
 
     public function sendNotifications(User $user, TermDate $termDate)
     {
-        if ($user->role->value >= UserRole::Moderator->value) {
+        if ($user->role->value >= UserRole::Admin->value) {
             return Response::allow();
         }
 

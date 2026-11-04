@@ -12,9 +12,9 @@ test('the instrument family index requires the moderator role', function () {
 });
 
 test('an instrument family can be created with a colour', function () {
-    $this->actingAs(make_user(UserRole::Moderator))->get(route('instrumentfamilys.create'))->assertOk();
+    $this->actingAs(make_user(UserRole::Admin))->get(route('instrumentfamilys.create'))->assertOk();
 
-    $response = $this->actingAs(make_user(UserRole::Moderator))->post(route('instrumentfamilys.store'), [
+    $response = $this->actingAs(make_user(UserRole::Admin))->post(route('instrumentfamilys.store'), [
         'name' => 'Bassoons',
         'color' => 'teal',
     ]);
@@ -26,7 +26,7 @@ test('an instrument family can be created with a colour', function () {
 });
 
 test('creating an instrument family requires a name and colour', function () {
-    $this->actingAs(make_user(UserRole::Moderator))
+    $this->actingAs(make_user(UserRole::Admin))
         ->post(route('instrumentfamilys.store'), [])
         ->assertSessionHasErrors(['name', 'color']);
 
@@ -44,17 +44,17 @@ test('members cannot create instrument families', function () {
 test('an instrument family can be viewed and updated', function () {
     $instrumentFamily = InstrumentFamily::create(['name' => 'Bassoons', 'color' => 'teal']);
 
-    $this->actingAs(make_user(UserRole::Moderator))
+    $this->actingAs(make_user(UserRole::Admin))
         ->get(route('instrumentfamilys.show', $instrumentFamily))
         ->assertOk()
         ->assertSee('Bassoons')
         ->assertSee('teal');
 
-    $this->actingAs(make_user(UserRole::Moderator))
+    $this->actingAs(make_user(UserRole::Admin))
         ->get(route('instrumentfamilys.edit', $instrumentFamily))
         ->assertOk();
 
-    $this->actingAs(make_user(UserRole::Moderator))
+    $this->actingAs(make_user(UserRole::Admin))
         ->patch(route('instrumentfamilys.update', $instrumentFamily), ['name' => 'Contrabassoons', 'color' => 'pink'])
         ->assertRedirect(route('instrumentfamilys.show', $instrumentFamily));
 
@@ -88,11 +88,11 @@ test('the instrument family index can include archived records', function () {
     $trashed = InstrumentFamily::create(['name' => 'Ophicleides']);
     $trashed->delete();
 
-    $withoutTrashed = $this->actingAs(make_user(UserRole::Moderator))
+    $withoutTrashed = $this->actingAs(make_user(UserRole::Admin))
         ->get(route('instrumentfamilys.index'));
     $withoutTrashed->assertOk()->assertSee('Bassoons')->assertDontSee('Ophicleides');
 
-    $withTrashed = $this->actingAs(make_user(UserRole::Moderator))
+    $withTrashed = $this->actingAs(make_user(UserRole::Admin))
         ->get(route('instrumentfamilys.index', ['with_trashed' => 1]));
     $withTrashed->assertOk()->assertSee('Bassoons')->assertSee('Ophicleides');
 });

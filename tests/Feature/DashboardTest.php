@@ -179,3 +179,20 @@ test('a member in no ensemble sees an empty state instead of rehearsals, setup a
 test('an ensemble login that is not linked to an ensemble is refused rather than erroring', function () {
     $this->actingAs(make_user(UserRole::Ensemble))->get('/dashboard')->assertForbidden();
 });
+
+test('moderators and admins see recent attendance updates and notifications on the dashboard', function (UserRole $role) {
+    $response = $this->actingAs(make_user($role))->get('/dashboard')->assertOk();
+
+    $response->assertSee('Attendance updates')
+        ->assertSee('href="'.route('attendance.index').'"', false)
+        ->assertSee('href="'.route('notifications.index').'"', false);
+})->with([UserRole::Moderator, UserRole::Admin]);
+
+test('members do not see attendance updates or notifications on the dashboard', function () {
+    $response = $this->actingAs(make_user(UserRole::Member))->get('/dashboard')->assertOk();
+
+    $response->assertDontSee('Attendance updates')
+        ->assertDontSee('href="'.route('notifications.index').'"', false);
+    expect($response->viewData('attendanceUpdates'))->toBeNull()
+        ->and($response->viewData('notifications'))->toBeNull();
+});

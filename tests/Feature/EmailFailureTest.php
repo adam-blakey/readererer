@@ -58,7 +58,7 @@ test('a transport failure is recorded on the log and every recipient', function 
     $driver = make_user(UserRole::Member);
     $termDate = make_failure_term_date(['van_driver_id' => $driver->id]);
 
-    $this->actingAs(make_user(UserRole::Moderator))
+    $this->actingAs(make_user(UserRole::Admin))
         ->post(route('term-dates.send-van-driver-reminder', $termDate))
         ->assertRedirect()
         ->assertSessionHas('status');
@@ -81,7 +81,7 @@ test('a malformed recipient address fails without stopping the rest of the batch
 
     $termDate = make_failure_term_date(['setup_group_id' => $setupGroup->id]);
 
-    $this->actingAs(make_user(UserRole::Moderator, ['setup_group_id' => null]))
+    $this->actingAs(make_user(UserRole::Admin, ['setup_group_id' => null]))
         ->post(route('term-dates.send-setup-reminder', $termDate))
         ->assertRedirect();
 
@@ -105,12 +105,12 @@ test('failed sends are visible on the notifications overview', function () {
     $driver = make_user(UserRole::Member);
     $termDate = make_failure_term_date(['van_driver_id' => $driver->id]);
 
-    $moderator = make_user(UserRole::Moderator);
+    $admin = make_user(UserRole::Admin);
 
-    $this->actingAs($moderator)
+    $this->actingAs($admin)
         ->post(route('term-dates.send-van-driver-reminder', $termDate));
 
-    $this->actingAs($moderator)
+    $this->actingAs($admin)
         ->get(route('notifications.index'))
         ->assertOk()
         ->assertSee('Failed')
