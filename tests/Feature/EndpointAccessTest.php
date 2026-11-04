@@ -1,10 +1,14 @@
 <?php
 
 use App\Enums\UserRole;
+use App\Models\Attendance;
 use App\Models\Ensemble;
+use App\Models\InstrumentFamily;
+use App\Models\RegisterEntry;
 use App\Models\SetupGroup;
 use App\Models\Term;
 use App\Models\TermDate;
+use App\Models\User;
 
 test('the home page is public', function () {
     $this->get('/')->assertOk();
@@ -35,15 +39,53 @@ test('composer, piece and setlist indexes are forbidden for every role', functio
 })->with(['/composers', '/pieces', '/setlists'])
     ->with([UserRole::Member, UserRole::Moderator, UserRole::Admin]);
 
-test('the ensembles index is admin only', function () {
-    $this->actingAs(make_user(UserRole::Moderator))->get('/ensembles')->assertForbidden();
-    $this->actingAs(make_user(UserRole::Admin))->get('/ensembles')->assertOk();
-});
-
-test('term, user and setup group indexes require moderator or above', function (string $uri) {
+test('ensemble, instrument family, term, user and setup group indexes require moderator or above', function (string $uri) {
     $this->actingAs(make_user(UserRole::Member))->get($uri)->assertForbidden();
     $this->actingAs(make_user(UserRole::Moderator))->get($uri)->assertOk();
-})->with(['/terms', '/users', '/setup-groups']);
+})->with(['/ensembles', '/instrument-families', '/terms', '/users', '/setup-groups']);
+
+test('moderators can view but not create or edit the records listed on the settings page', function (string $prefix, string $class) {
+    $moderator = make_user(UserRole::Moderator);
+    $record = $class::factory()->create();
+
+    $this->actingAs($moderator)->get(route("{$prefix}.show", $record))->assertOk();
+    $this->actingAs($moderator)->get(route("{$prefix}.create"))->assertForbidden();
+    $this->actingAs($moderator)->get(route("{$prefix}.edit", $record))->assertForbidden();
+    $this->actingAs($moderator)->post(route("{$prefix}.store"), ['name' => 'New'])->assertForbidden();
+    $this->actingAs($moderator)->put(route("{$prefix}.update", $record), ['name' => 'Changed'])->assertForbidden();
+    $this->actingAs($moderator)->delete(route("{$prefix}.destroy", $record))->assertForbidden();
+
+    expect($record->fresh()->name)->not->toBe('Changed')
+        ->and($record->fresh()->trashed())->toBeFalse();
+})->with([
+    ['ensembles', Ensemble::class],
+    ['instrumentfamilys', InstrumentFamily::class],
+    ['terms', Term::class],
+    ['setupgroups', SetupGroup::class],
+]);
+
+test('moderators can create, update and delete users but not restore or erase them', function () {
+    $moderator = make_user(UserRole::Moderator);
+    $user = make_user(UserRole::Member);
+
+    expect($moderator->can('create', User::class))->toBeTrue()
+        ->and($moderator->can('update', $user))->toBeTrue()
+        ->and($moderator->can('delete', $user))->toBeTrue()
+        ->and($moderator->can('restore', $user))->toBeFalse()
+        ->and($moderator->can('erase', $user))->toBeFalse()
+        ->and($moderator->can('resetPassword', $user))->toBeFalse();
+});
+
+test('moderators can create and update attendance and registers but not delete them or send notifications', function () {
+    $moderator = make_user(UserRole::Moderator);
+    $termDate = make_term_date(Term::factory()->create());
+
+    expect($moderator->can('create', Attendance::class))->toBeTrue()
+        ->and($moderator->can('create', RegisterEntry::class))->toBeTrue()
+        ->and($moderator->can('delete', new RegisterEntry))->toBeFalse()
+        ->and($moderator->can('sendNotifications', $termDate))->toBeFalse()
+        ->and(make_user(UserRole::Admin)->can('sendNotifications', $termDate))->toBeTrue();
+});
 
 test('members cannot change terms, setup groups or ensemble membership', function () {
     $member = make_user(UserRole::Member);
@@ -159,9 +201,11 @@ test('submitting the attendance poll requires permission to view the ensemble', 
     $this->actingAs(make_user(UserRole::Admin))->post($url)->assertRedirect();
 });
 
-test('the settings page is for admins only', function () {
+test('moderators can view the settings page but only admins can change it', function () {
     $this->get('/settings')->assertRedirect('/login');
-    $this->actingAs(make_user(UserRole::Moderator))->get('/settings')->assertForbidden();
+    $this->actingAs(make_user(UserRole::Member))->get('/settings')->assertForbidden();
+    $this->actingAs(make_user(UserRole::Moderator))->get('/settings')->assertOk();
     $this->actingAs(make_user(UserRole::Moderator))->put('/settings')->assertForbidden();
+    $this->actingAs(make_user(UserRole::Moderator))->get('/settings/import')->assertForbidden();
     $this->actingAs(make_user(UserRole::Admin))->get('/settings')->assertOk();
 });

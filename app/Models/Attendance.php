@@ -3,6 +3,8 @@
 namespace App\Models;
 
 use App\Enums\AttendanceStatus;
+use Illuminate\Database\Eloquent\Attributes\Scope;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -38,6 +40,18 @@ class Attendance extends Model
     public function ensemble(): BelongsTo
     {
         return $this->belongsTo(Ensemble::class);
+    }
+
+    #[Scope]
+    protected function latestUpdates(Builder $query): void
+    {
+        $query->with(['user', 'edit_user', 'term_date'])
+            ->whereRelation('user', 'deleted_at', null)
+            ->whereRelation('edit_user', 'deleted_at', null)
+            ->whereRelation('term_date', 'deleted_at', null)
+            ->whereRelation('term_date.term', 'deleted_at', null)
+            ->whereRelation('ensemble', 'deleted_at', null)
+            ->orderBy('created_at', 'DESC');
     }
 
     public function casts(): array

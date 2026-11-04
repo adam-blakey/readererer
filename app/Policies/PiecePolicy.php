@@ -21,7 +21,7 @@ class PiecePolicy
 
     public function create(User $user)
     {
-        if ($user->role->value >= UserRole::Admin->value) {
+        if ($user->role->value >= UserRole::Moderator->value) {
             return Response::allow();
         }
 

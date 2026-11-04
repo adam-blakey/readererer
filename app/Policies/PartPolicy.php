@@ -29,7 +29,7 @@ class PartPolicy
 
     public function create(User $user)
     {
-        if ($user->role->value >= UserRole::Admin->value) {
+        if ($user->role->value >= UserRole::Moderator->value) {
             return Response::allow();
         }
 
@@ -38,7 +38,7 @@ class PartPolicy
 
     public function update(User $user, Part $parts)
     {
-        if ($user->role->value >= UserRole::Admin->value) {
+        if ($user->role->value >= UserRole::Moderator->value) {
             return Response::allow();
         }
 

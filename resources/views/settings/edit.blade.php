@@ -9,15 +9,30 @@
 		'allow_change_to_unknown' => [__('Allow changing a reply back to unknown'), __('Lets members clear their poll reply once they have given one.')],
 		'repeating_headings' => [__('Repeat headings in polls'), __('Groups the poll by section, repeating the date headings above each group.')],
 	];
+	$sections = [
+		['ensembles.index', 'music', __('Ensembles')],
+		['instrumentfamilys.index', 'guitar-pick', __('Instrument families')],
+		['terms.index', 'calendar-month', __('Terms')],
+		['setupgroups.index', 'users', __('Setup groups')],
+	];
+	$can_edit = Gate::allows('edit.settings');
 @endphp
 
 <x-layout>
 	<div class="container-xl">
+		<div class="card mb-3">
+			<div class="card-body btn-list">
+				@foreach ($sections as [$route, $icon, $title])
+					<a class="btn" href="{{ route($route) }}"><x-icon :name="$icon" /> {{ $title }}</a>
+				@endforeach
+			</div>
+		</div>
+
 		<form action="{{ route('settings.update') }}" class="card" enctype="multipart/form-data" method="POST">
 			@csrf
 			@method('PUT')
 
-			<div class="card-body">
+			<fieldset class="card-body" @disabled(! $can_edit)>
 				<x-forms.error-summary :fields="['name', 'logo', 'remove_logo', 'image_max_kilobytes', 'assume_attending', 'allow_change_to_unknown', 'repeating_headings', 'terminology', 'terminology.*']" />
 				@if (session('status'))
 					<div class="alert alert-success" role="alert">{{ session('status') }}</div>
@@ -100,11 +115,13 @@
 						</div>
 					</div>
 				</div>
-			</div>
-			<div class="card-footer d-flex justify-content-between">
-				<a class="btn" href="{{ route('settings.import') }}">{{ __('Import from Pollererer') }}</a>
-				<button class="btn btn-primary" type="submit">{{ __('Save settings') }}</button>
-			</div>
+			</fieldset>
+			@if ($can_edit)
+				<div class="card-footer d-flex justify-content-between">
+					<a class="btn" href="{{ route('settings.import') }}">{{ __('Import from Pollererer') }}</a>
+					<button class="btn btn-primary" type="submit">{{ __('Save settings') }}</button>
+				</div>
+			@endif
 		</form>
 	</div>
 </x-layout>

@@ -29,7 +29,7 @@ class InstrumentFamilyPolicy
 
     public function create(User $user)
     {
-        if ($user->role->value >= UserRole::Moderator->value) {
+        if ($user->role->value >= UserRole::Admin->value) {
             return Response::allow();
         }
 
@@ -38,7 +38,7 @@ class InstrumentFamilyPolicy
 
     public function update(User $user, InstrumentFamily $instrumentFamily)
     {
-        if ($user->role->value >= UserRole::Moderator->value) {
+        if ($user->role->value >= UserRole::Admin->value) {
             return Response::allow();
         }
 

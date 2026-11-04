@@ -47,7 +47,7 @@ test('each swatch carries its palette colour', function () {
 
 test('a create form checks the column\'s database default', function () {
     // instrument_families.color defaults to 'blue'.
-    $html = $this->actingAs(make_user(UserRole::Moderator))->get(route('instrumentfamilys.create'))->assertOk()->getContent();
+    $html = $this->actingAs(make_user(UserRole::Admin))->get(route('instrumentfamilys.create'))->assertOk()->getContent();
 
     expect(color_picker_radios($html, 'color')->where('checked')->pluck('value')->all())->toBe([Color::Blue->value]);
 });

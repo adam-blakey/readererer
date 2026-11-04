@@ -1,4 +1,4 @@
-@props(['page_name', 'ensembles' => collect(), 'setupGroup' => null, 'nextRehearsal' => null, 'nextConcerts' => collect(), 'nextSetup' => null, 'nextVanDrive' => null, 'drivesTheVan' => false])
+@props(['page_name', 'ensembles' => collect(), 'setupGroup' => null, 'nextRehearsal' => null, 'nextConcerts' => collect(), 'nextSetup' => null, 'nextVanDrive' => null, 'drivesTheVan' => false, 'attendanceUpdates' => null, 'notifications' => null])
 
 <x-layout>
 	<div class="container-xl">
@@ -95,6 +95,34 @@
 							</x-card-body>
 						</x-card>
 					@endif
+				</div>
+			@endif
+
+			@if($attendanceUpdates)
+				<div class="col-12">
+					<x-card>
+						<div class="card-header">
+							<h2 class="mb-0 card-heading">{{ __('Attendance updates') }}</h2>
+							<div class="card-actions">
+								<a href="{{ route('attendance.index') }}">{{ __('View all') }}</a>
+							</div>
+						</div>
+						<x-attendances.table :attendances="$attendanceUpdates" />
+					</x-card>
+				</div>
+			@endif
+
+			@if($notifications)
+				<div class="col-12">
+					<x-card>
+						<div class="card-header">
+							<h2 class="mb-0 card-heading">{{ __('Notifications') }}</h2>
+							<div class="card-actions">
+								<a href="{{ route('notifications.index') }}">{{ __('View all') }}</a>
+							</div>
+						</div>
+						<x-notifications.table :logs="$notifications" />
+					</x-card>
 				</div>
 			@endif
 		</x-card-row>

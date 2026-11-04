@@ -99,11 +99,32 @@ test('settings reject unknown words and invalid values', function () {
     expect(Setting::count())->toBe(0);
 });
 
-test('only admins see the settings link', function () {
-    $this->actingAs(make_user(UserRole::Moderator))->get(route('dashboard'))
+test('moderators and admins see the settings link', function () {
+    $this->actingAs(make_user(UserRole::Member))->get(route('dashboard'))
         ->assertDontSee('href="'.route('settings.edit').'"', false);
+    $this->actingAs(make_user(UserRole::Moderator))->get(route('dashboard'))
+        ->assertSee('href="'.route('settings.edit').'"', false);
     $this->actingAs(make_user(UserRole::Admin))->get(route('dashboard'))
         ->assertSee('href="'.route('settings.edit').'"', false);
+});
+
+test('the settings page links to ensembles, instrument families, terms and setup groups', function () {
+    $response = $this->actingAs(make_user(UserRole::Moderator))->get(route('settings.edit'))->assertOk();
+
+    foreach (['ensembles.index', 'instrumentfamilys.index', 'terms.index', 'setupgroups.index'] as $route) {
+        $response->assertSee('href="'.route($route).'"', false);
+    }
+});
+
+test('moderators see the settings read-only', function () {
+    $this->actingAs(make_user(UserRole::Moderator))->get(route('settings.edit'))
+        ->assertSee('<fieldset class="card-body" disabled', false)
+        ->assertDontSee('Save settings')
+        ->assertDontSee('Import from Pollererer');
+
+    $this->actingAs(make_user(UserRole::Admin))->get(route('settings.edit'))
+        ->assertDontSee('<fieldset class="card-body" disabled', false)
+        ->assertSee('Save settings');
 });
 
 test('deploys link public/storage to the public disk', function () {

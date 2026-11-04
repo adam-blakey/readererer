@@ -27,7 +27,7 @@ function make_notification_term_date(array $attributes = [], Ensemble ...$concer
     return $termDate;
 }
 
-test('a moderator can send the attendance list for a concert date to the ensemble admins', function () {
+test('an admin can send the attendance list for a concert date to the ensemble admins', function () {
     Mail::fake();
 
     $ensemble = Ensemble::factory()->create();
@@ -36,7 +36,7 @@ test('a moderator can send the attendance list for a concert date to the ensembl
 
     $termDate = make_notification_term_date([], $ensemble);
 
-    $this->actingAs(make_user(UserRole::Moderator))
+    $this->actingAs(make_user(UserRole::Admin))
         ->post(route('term-dates.send-attendance-list', $termDate))
         ->assertRedirect();
 
@@ -63,7 +63,7 @@ test('the attendance list for a concert goes once to the admins of each of its e
 
     $termDate = make_notification_term_date([], $wind, $brass);
 
-    $this->actingAs(make_user(UserRole::Moderator))
+    $this->actingAs(make_user(UserRole::Admin))
         ->post(route('term-dates.send-attendance-list', $termDate))
         ->assertRedirect();
 
@@ -78,7 +78,7 @@ test('sending the attendance list with no ensemble admins is a no-op with a mess
     $ensemble = Ensemble::factory()->create();
     $termDate = make_notification_term_date([], $ensemble);
 
-    $this->actingAs(make_user(UserRole::Moderator))
+    $this->actingAs(make_user(UserRole::Admin))
         ->post(route('term-dates.send-attendance-list', $termDate))
         ->assertRedirect()
         ->assertSessionHas('status');
@@ -87,7 +87,7 @@ test('sending the attendance list with no ensemble admins is a no-op with a mess
     expect(EmailLog::count())->toBe(0);
 });
 
-test('a moderator can send a setup reminder to the setup group van drivers', function () {
+test('an admin can send a setup reminder to the setup group van drivers', function () {
     Mail::fake();
 
     $setupGroup = SetupGroup::factory()->create();
@@ -97,7 +97,7 @@ test('a moderator can send a setup reminder to the setup group van drivers', fun
 
     $termDate = make_notification_term_date(['setup_group_id' => $setupGroup->id]);
 
-    $this->actingAs(make_user(UserRole::Moderator, ['setup_group_id' => null]))
+    $this->actingAs(make_user(UserRole::Admin, ['setup_group_id' => null]))
         ->post(route('term-dates.send-setup-reminder', $termDate))
         ->assertRedirect();
 
@@ -114,7 +114,7 @@ test('a setup reminder for a date with no setup group is a no-op', function () {
 
     $termDate = make_notification_term_date();
 
-    $this->actingAs(make_user(UserRole::Moderator))
+    $this->actingAs(make_user(UserRole::Admin))
         ->post(route('term-dates.send-setup-reminder', $termDate))
         ->assertRedirect()
         ->assertSessionHas('status');
@@ -153,7 +153,7 @@ test('the term show page lists sent emails in the history', function () {
     ]);
     $log->recipients()->create(['name' => 'Jane', 'email' => 'jane@example.com', 'status' => EmailStatus::Sent]);
 
-    $this->actingAs(make_user(UserRole::Moderator))
+    $this->actingAs(make_user(UserRole::Admin))
         ->get(route('terms.show', $termDate->term))
         ->assertOk()
         ->assertSee('Attendance list — a rehearsal')
@@ -183,13 +183,13 @@ test('the setup reminder email renders', function () {
     expect($html)->toContain('Group A');
 });
 
-test('a moderator can send a van driver reminder to the assigned driver', function () {
+test('an admin can send a van driver reminder to the assigned driver', function () {
     Mail::fake();
 
     $driver = make_user(UserRole::Member);
     $termDate = make_notification_term_date(['van_driver_id' => $driver->id]);
 
-    $this->actingAs(make_user(UserRole::Moderator))
+    $this->actingAs(make_user(UserRole::Admin))
         ->post(route('term-dates.send-van-driver-reminder', $termDate))
         ->assertRedirect();
 
@@ -212,7 +212,7 @@ test('a van driver reminder goes to the driver inferred from the setup group rot
 
     $termDate = make_notification_term_date(['setup_group_id' => $setupGroup->id]);
 
-    $this->actingAs(make_user(UserRole::Moderator))
+    $this->actingAs(make_user(UserRole::Admin))
         ->post(route('term-dates.send-van-driver-reminder', $termDate))
         ->assertRedirect();
 
@@ -224,7 +224,7 @@ test('a van driver reminder for a date with no driver is a no-op', function () {
 
     $termDate = make_notification_term_date();
 
-    $this->actingAs(make_user(UserRole::Moderator))
+    $this->actingAs(make_user(UserRole::Admin))
         ->post(route('term-dates.send-van-driver-reminder', $termDate))
         ->assertRedirect()
         ->assertSessionHas('status');
@@ -243,7 +243,7 @@ test('a setup reminder also goes to the members of the setup group', function ()
 
     $termDate = make_notification_term_date(['setup_group_id' => $setupGroup->id]);
 
-    $this->actingAs(make_user(UserRole::Moderator, ['setup_group_id' => null]))
+    $this->actingAs(make_user(UserRole::Admin, ['setup_group_id' => null]))
         ->post(route('term-dates.send-setup-reminder', $termDate))
         ->assertRedirect();
 
@@ -333,7 +333,7 @@ test('editing a term through the form sends roster change alerts', function () {
     ]);
     $term = $termDate->term;
 
-    $this->actingAs(make_user(UserRole::Moderator))
+    $this->actingAs(make_user(UserRole::Admin))
         ->patch(route('terms.update', $term), [
             'name' => $term->name,
             'slug' => $term->slug,
@@ -418,7 +418,7 @@ test('a term edit that fails part way saves nothing and sends no alerts', functi
 
     $this->withoutExceptionHandling();
 
-    expect(fn () => $this->actingAs(make_user(UserRole::Moderator))->patch(route('terms.update', $term), [
+    expect(fn () => $this->actingAs(make_user(UserRole::Admin))->patch(route('terms.update', $term), [
         'name' => 'Renamed',
         'slug' => $term->slug,
         'term_dates' => [

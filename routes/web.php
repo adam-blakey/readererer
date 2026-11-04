@@ -67,7 +67,7 @@ Route::middleware('auth')->group(function () {
         ->name('notifications.index')
         ->can('view.notifications');
 
-    Route::get('/settings', [SettingController::class, 'edit'])->name('settings.edit')->can('edit.settings');
+    Route::get('/settings', [SettingController::class, 'edit'])->name('settings.edit')->can('view.settings');
     Route::put('/settings', [SettingController::class, 'update'])->name('settings.update')->can('edit.settings');
     Route::get('/settings/import', [PollererImportController::class, 'create'])->name('settings.import')->can('edit.settings');
     Route::post('/settings/import/preview', [PollererImportController::class, 'preview'])->name('settings.import.preview')->can('edit.settings');

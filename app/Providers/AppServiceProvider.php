@@ -56,6 +56,10 @@ class AppServiceProvider extends ServiceProvider
             return true;
         });
 
+        Gate::define('view.settings', function (User $user) {
+            return $user->role->value >= UserRole::Moderator->value;
+        });
+
         Gate::define('edit.settings', function (User $user) {
             return $user->role === UserRole::Admin;
         });

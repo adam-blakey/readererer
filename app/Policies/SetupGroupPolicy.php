@@ -29,7 +29,7 @@ class SetupGroupPolicy
 
     public function create(User $user)
     {
-        if ($user->role->value >= UserRole::Moderator->value) {
+        if ($user->role->value >= UserRole::Admin->value) {
             return Response::allow();
         }
 
@@ -38,7 +38,7 @@ class SetupGroupPolicy
 
     public function update(User $user, SetupGroup $setupGroup)
     {
-        if ($user->role->value >= UserRole::Moderator->value) {
+        if ($user->role->value >= UserRole::Admin->value) {
             return Response::allow();
         }
 

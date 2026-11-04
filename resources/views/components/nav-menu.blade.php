@@ -1,76 +1,22 @@
 @php
 	$nav_items = [
 	    [
-	        'title' => __('Dashboard'),
-	        'icon' => 'dashboard',
-	        'route' => 'dashboard',
-	        'auth' => Gate::inspect('view.dashboard')->allowed(),
-	    ],
-	    [
-	        'title' => __('Attendance updates'),
-	        'icon' => 'square-check',
-	        'route' => 'attendance.index',
-	        'auth' => Auth::user()?->can('viewAny', App\Models\Attendance::class),
-	    ],
-	    [
 	        'title' => __('Attendance register'),
 	        'icon' => 'list-check',
 	        'route' => 'attendance.register.index',
 	        'auth' => Auth::user()?->can('viewAny', App\Models\RegisterEntry::class),
 	    ],
 	    [
-	        'title' => __('Composers'),
-	        'icon' => 'old',
-	        'route' => 'composers.index',
-	        'auth' => Auth::user()?->can('viewAny', App\Models\Composer::class),
-	    ],
-	    [
-	        'title' => __('Ensembles'),
-	        'icon' => 'music',
-	        'route' => 'ensembles.index',
-	        'auth' => Auth::user()?->can('viewAny', App\Models\Ensemble::class),
-	    ],
-	    [
-	        'title' => __('Instrument families'),
-	        'icon' => 'guitar-pick',
-	        'route' => 'instrumentfamilys.index',
-	        'auth' => Auth::user()?->can('viewAny', App\Models\InstrumentFamily::class),
-	    ],
-	    [
-	        'title' => __('Notifications'),
-	        'icon' => 'bell',
-	        'route' => 'notifications.index',
-	        'auth' => Auth::user()?->can('view.notifications'),
-	    ],
-	    [
-	        'title' => __('Pieces'),
-	        'icon' => 'file-description',
-	        'route' => 'pieces.index',
-	        'auth' => Auth::user()?->can('viewAny', App\Models\Piece::class),
-	    ],
-	    [
-	        'title' => __('Setlists'),
-	        'icon' => 'list-numbers',
-	        'route' => 'setlists.index',
-	        'auth' => Auth::user()?->can('viewAny', App\Models\Setlist::class),
-	    ],
-	    [
-	        'title' => __('Terms'),
-	        'icon' => 'calendar-month',
-	        'route' => 'terms.index',
-	        'auth' => Auth::user()?->can('viewAny', App\Models\Term::class),
-	    ],
-	    [
-	        'title' => __('Setup groups'),
-	        'icon' => 'users',
-	        'route' => 'setupgroups.index',
-	        'auth' => Auth::user()?->can('viewAny', App\Models\SetupGroup::class),
-	    ],
-	    [
 	        'title' => __('Users'),
 	        'icon' => 'user',
 	        'route' => 'users.index',
 	        'auth' => Auth::user()?->can('viewAny', App\Models\User::class),
+	    ],
+	    [
+	        'title' => __('Settings'),
+	        'icon' => 'settings',
+	        'route' => 'settings.edit',
+	        'auth' => Auth::user()?->can('view.settings'),
 	    ],
 	];
 
@@ -92,7 +38,7 @@
 			</button>
 		@endif
 			<h1 class="navbar-brand navbar-brand-autodark d-none-navbar-horizontal pe-0 pe-md-3">
-				<x-a :route="'home'">
+				<x-a :route="Auth::check() ? 'dashboard' : 'home'">
 					<img class="navbar-brand-image" src="{{ logo_url() }}">
 				</x-a>
 			</h1>
@@ -109,9 +55,6 @@
 						<x-name-and-role :user="Auth::user()" />
 					</a>
 					<div class="dropdown-menu dropdown-menu-end dropdown-menu-arrow">
-                        @can('edit.settings')
-                            <x-a class="dropdown-item" :route="'settings.edit'">{{ __('Settings') }}</x-a>
-                        @endcan
                         <x-a class="dropdown-item" :route="'password.edit'">{{ __('Change password') }}</x-a>
 						<form action="{{ route('logout') }}" method="POST">
 							@csrf

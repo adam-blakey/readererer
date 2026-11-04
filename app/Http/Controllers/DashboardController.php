@@ -3,6 +3,8 @@
 namespace App\Http\Controllers;
 
 use App\Enums\UserRole;
+use App\Models\Attendance;
+use App\Models\EmailLog;
 use App\Models\TermDate;
 use App\Traits\ShowEnsemble;
 use Illuminate\Support\Carbon;
@@ -25,9 +27,15 @@ class DashboardController extends Controller
 
         $page_name = __(':app dashboard', ['app' => config('app.name')]);
         $ensembles = $user->ensembles()->get();
+        $attendanceUpdates = $user->can('viewAny', Attendance::class)
+            ? Attendance::latestUpdates()->limit(5)->get()
+            : null;
+        $notifications = $user->can('view.notifications')
+            ? EmailLog::with(['recipients', 'termDate'])->latest()->limit(5)->get()
+            : null;
 
         if ($ensembles->isEmpty()) {
-            return view('dashboard.index', compact('page_name', 'ensembles'));
+            return view('dashboard.index', compact('page_name', 'ensembles', 'attendanceUpdates', 'notifications'));
         }
 
         $setupGroup = $user->setup_group;
@@ -70,6 +78,8 @@ class DashboardController extends Controller
             'nextSetup',
             'nextVanDrive',
             'drivesTheVan',
+            'attendanceUpdates',
+            'notifications',
         ));
     }
 }
