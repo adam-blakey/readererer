@@ -21,6 +21,18 @@ function logo_url(): string
     return filled($logo) ? asset($logo) : Vite::asset('resources/images/readererer-long-logo.svg');
 }
 
+/** The site's only ensemble while single-ensemble mode is on, else null. */
+function single_ensemble(): ?Ensemble
+{
+    if (! config('app.readererer_single_ensemble')) {
+        return null;
+    }
+
+    $ensembles = Ensemble::limit(2)->get();
+
+    return $ensembles->count() === 1 ? $ensembles->first() : null;
+}
+
 function apply_terminology(string $line, array $terminology): string
 {
     if ($terminology === []) {

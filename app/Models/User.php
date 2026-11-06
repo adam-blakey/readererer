@@ -40,6 +40,11 @@ class User extends Authenticatable
         'updated_at',
     ];
 
+    public function getVisible(): array
+    {
+        return config('app.readererer_setup_groups') ? $this->visible : array_values(array_diff($this->visible, ['setup_group']));
+    }
+
     public function attendances()
     {
         return $this->hasMany(Attendance::class);

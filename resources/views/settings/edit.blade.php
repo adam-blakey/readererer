@@ -4,17 +4,24 @@
 	use App\Models\Setting;
 
 	$terminology = config('app.readererer_terminology');
-	$switches = [
-		'assume_attending' => [__('Assume members are attending'), __('Members who have not replied to a poll count as attending.')],
-		'allow_change_to_unknown' => [__('Allow changing a reply back to unknown'), __('Lets members clear their poll reply once they have given one.')],
-		'repeating_headings' => [__('Repeat headings in polls'), __('Groups the poll by section, repeating the date headings above each group.')],
+	$switch_groups = [
+		__('Attendance polls') => [
+			'assume_attending' => [__('Assume members are attending'), __('Members who have not replied to a poll count as attending.')],
+			'allow_change_to_unknown' => [__('Allow changing a reply back to unknown'), __('Lets members clear their poll reply once they have given one.')],
+			'repeating_headings' => [__('Repeat headings in polls'), __('Groups the poll by section, repeating the date headings above each group.')],
+		],
+		__('Features') => [
+			'setup_groups' => [__('Use setup groups'), __('Shows setup groups, their badges and setup reminders. Turning this off hides them but keeps their data.')],
+			'van_drivers' => [__('Use van drivers'), __('Shows van drivers and van driver reminders. Turning this off hides them but keeps their data.')],
+			'single_ensemble' => [__('Single ensemble'), __('For a site with one ensemble: new users join it when they are created. Needs a site with at most one ensemble, and stops more being added.')],
+		],
 	];
-	$sections = [
+	$sections = array_filter([
 		['ensembles.index', 'music', __('Ensembles')],
 		['instrumentfamilys.index', 'guitar-pick', __('Instrument families')],
 		['terms.index', 'calendar-month', __('Terms')],
-		['setupgroups.index', 'users', __('Setup groups')],
-	];
+		config('app.readererer_setup_groups') ? ['setupgroups.index', 'users', __('Setup groups')] : null,
+	]);
 	$can_edit = Gate::allows('edit.settings');
 @endphp
 
@@ -33,7 +40,7 @@
 			@method('PUT')
 
 			<fieldset class="card-body" @disabled(! $can_edit)>
-				<x-forms.error-summary :fields="['name', 'logo', 'remove_logo', 'image_max_kilobytes', 'assume_attending', 'allow_change_to_unknown', 'repeating_headings', 'terminology', 'terminology.*']" />
+				<x-forms.error-summary :fields="['name', 'logo', 'remove_logo', 'image_max_kilobytes', 'assume_attending', 'allow_change_to_unknown', 'repeating_headings', 'setup_groups', 'van_drivers', 'single_ensemble', 'terminology', 'terminology.*']" />
 				@if (session('status'))
 					<div class="alert alert-success" role="alert">{{ session('status') }}</div>
 				@endif
@@ -72,16 +79,21 @@
 							@enderror
 						</div>
 
-						<h2 class="mt-4 mb-3">{{ __('Attendance polls') }}</h2>
-						@foreach ($switches as $key => [$label, $hint])
-							<div class="mb-3">
-								<input name="{{ $key }}" type="hidden" value="0">
-								<label class="form-check form-switch">
-									<input class="form-check-input" name="{{ $key }}" type="checkbox" value="1" @checked(old($key, config('app.readererer_'.$key)))>
-									<span class="form-check-label">{{ $label }}</span>
-								</label>
-								<div class="form-hint">{{ $hint }}</div>
-							</div>
+						@foreach ($switch_groups as $heading => $switches)
+							<h2 class="mt-4 mb-3">{{ $heading }}</h2>
+							@foreach ($switches as $key => [$label, $hint])
+								<div class="mb-3">
+									<input name="{{ $key }}" type="hidden" value="0">
+									<label class="form-check form-switch">
+										<input @class(['form-check-input', 'is-invalid' => $errors->has($key)]) name="{{ $key }}" type="checkbox" value="1" @checked(old($key, config('app.readererer_'.$key)))>
+										<span class="form-check-label">{{ $label }}</span>
+									</label>
+									<div class="form-hint">{{ $hint }}</div>
+									@error($key)
+										<x-forms.input-error :messages="$message" />
+									@enderror
+								</div>
+							@endforeach
 						@endforeach
 					</div>
 					<div class="col-xl-6">

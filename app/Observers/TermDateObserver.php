@@ -45,7 +45,7 @@ class TermDateObserver implements ShouldHandleEventsAfterCommit
                 .' (was '.($oldDriver?->name ?? 'unassigned').').';
         }
 
-        $recipients = $this->affectedUsers([$oldGroup, $newGroup], [$oldDriver, $newDriver]);
+        $recipients = $this->affectedUsers(config('app.readererer_setup_groups') ? [$oldGroup, $newGroup] : [], [$oldDriver, $newDriver]);
 
         if ($recipients->isEmpty()) {
             return;

@@ -45,7 +45,7 @@ class TermDate extends Model
             return $this->van_driver;
         }
 
-        if ($this->setup_group == null) {
+        if ($this->setup_group == null || ! config('app.readererer_setup_groups')) {
             return null;
         }
 

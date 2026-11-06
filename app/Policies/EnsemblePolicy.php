@@ -32,6 +32,10 @@ class EnsemblePolicy
 
     public function create(User $user)
     {
+        if (config('app.readererer_single_ensemble') && Ensemble::exists()) {
+            return Response::deny(__('This site is set up for a single ensemble.'));
+        }
+
         if ($user->role->value >= UserRole::Admin->value) {
             return Response::allow();
         }

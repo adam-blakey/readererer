@@ -152,12 +152,16 @@ class TermController extends Controller
         $term->term_dates()->whereNotIn('id', $rows->pluck('id')->filter())->delete();
 
         foreach ($rows as $row) {
-            $payload = [
+            $payload = array_filter([
                 'start_datetime' => $row['start_datetime'],
                 'end_datetime' => $row['end_datetime'],
                 'setup_group_id' => $row['setup_group_id'] ?? null,
                 'van_driver_id' => $row['van_driver_id'] ?? null,
-            ];
+            ], fn (string $key) => match ($key) {
+                'setup_group_id' => config('app.readererer_setup_groups'),
+                'van_driver_id' => config('app.readererer_van_drivers'),
+                default => true,
+            }, ARRAY_FILTER_USE_KEY);
 
             if (! empty($row['id'])) {
                 // Fetched first: a query-builder update() would skip TermDateObserver's change alerts.

@@ -73,6 +73,7 @@
 										<div class="invalid-feedback">{{ $message }}</div>
 									@enderror
 								</div>
+								@if (config('app.readererer_setup_groups'))
 								<div class="mb-3">
 									<label class="form-label">{{ __('Setup group') }}</label>
 									<select name="setup_group" class="form-select @error('setup_group') is-invalid @enderror">
@@ -85,6 +86,7 @@
 										<div class="invalid-feedback">{{ $message }}</div>
 									@enderror
 								</div>
+								@endif
 
 								<hr />
 								@php

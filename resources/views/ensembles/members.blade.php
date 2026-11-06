@@ -37,7 +37,9 @@
 									<th>{{ __('Member') }}</th>
 									<th>{{ __('Instrument family') }}</th>
 									<th>{{ __('Seat') }}</th>
-									<th>{{ __('Setup group') }}</th>
+									@if (config('app.readererer_setup_groups'))
+										<th>{{ __('Setup group') }}</th>
+									@endif
 									@can('update', $ensemble)
 										<th class="w-1"></th>
 									@endcan
@@ -57,13 +59,15 @@
 										</td>
 										<td>{{ $member->pivot->instrumentFamily?->name ?? '-' }}</td>
 										<td>{{ $member->pivot->seat ?: '-' }}</td>
-										<td>
-											@if ($member->setup_group != null)
-												<x-setup-group-badge :setup_group="$member->setup_group" />
-											@else
-												-
-											@endif
-										</td>
+										@if (config('app.readererer_setup_groups'))
+											<td>
+												@if ($member->setup_group != null)
+													<x-setup-group-badge :setup_group="$member->setup_group" />
+												@else
+													-
+												@endif
+											</td>
+										@endif
 										@can('update', $ensemble)
 											<td>
 												<form method="POST" action="{{ route('ensembles.members.destroy', [$ensemble, $member]) }}" onsubmit="return confirm('{{ __('Remove :member from :ensemble?', ['member' => $member->name, 'ensemble' => $ensemble->name]) }}');">

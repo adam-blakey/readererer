@@ -38,7 +38,7 @@ class DashboardController extends Controller
             return view('dashboard.index', compact('page_name', 'ensembles', 'attendanceUpdates', 'notifications'));
         }
 
-        $setupGroup = $user->setup_group;
+        $setupGroup = config('app.readererer_setup_groups') ? $user->setup_group : null;
 
         $nextRehearsal = TermDate::whereDoesntHave('concert_ensembles')
             ->where('start_datetime', '>', Carbon::now())
@@ -67,7 +67,8 @@ class DashboardController extends Controller
             ->get()
             ->first(fn (TermDate $termDate) => $termDate->inferred_van_driver?->id === $user->id);
 
-        $drivesTheVan = $nextVanDrive !== null || (bool) $setupGroup?->van_drivers->contains($user);
+        $drivesTheVan = config('app.readererer_van_drivers')
+            && ($nextVanDrive !== null || (bool) $setupGroup?->van_drivers->contains($user));
 
         return view('dashboard.index', compact(
             'page_name',

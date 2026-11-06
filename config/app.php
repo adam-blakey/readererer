@@ -141,5 +141,8 @@ return [
     'readererer_image_max_kilobytes' => env('READERERER_IMAGE_MAX_KILOBYTES', 2048),
     'readererer_logo' => env('READERERER_LOGO'),
     'readererer_terminology' => [],
+    'readererer_setup_groups' => env('READERERER_SETUP_GROUPS', true),
+    'readererer_van_drivers' => env('READERERER_VAN_DRIVERS', true),
+    'readererer_single_ensemble' => env('READERERER_SINGLE_ENSEMBLE', false),
 
 ];

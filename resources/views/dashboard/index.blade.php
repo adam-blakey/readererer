@@ -16,7 +16,8 @@
 					</x-card>
 				</div>
 			@else
-				<div class="col-md-8">
+				@php($show_duties = config('app.readererer_setup_groups') || $drivesTheVan)
+				<div @class(['col-md-8' => $show_duties, 'col-12' => ! $show_duties])>
 					<x-card>
 						<div class="card-header">
 							<h2 class="mb-0 card-heading">{{ __('Your ensembles') }}</h2>
@@ -62,7 +63,9 @@
 						</x-card-body>
 					</x-card>
 				</div>
+				@if($show_duties)
 				<div class="col-md-4">
+					@if(config('app.readererer_setup_groups'))
 					<x-card>
 						<div class="card-header">
 							<h2 class="mb-0 card-heading">{{ __('Your setup group') }}</h2>
@@ -84,9 +87,10 @@
 							</x-card-body>
 						@endif
 					</x-card>
+					@endif
 
 					@if($drivesTheVan)
-						<x-card class="mt-3">
+						<x-card :class="config('app.readererer_setup_groups') ? 'mt-3' : ''">
 							<div class="card-header">
 								<h2 class="mb-0 card-heading">{{ __("Next time you're driving the van") }}</h2>
 							</div>
@@ -96,6 +100,7 @@
 						</x-card>
 					@endif
 				</div>
+				@endif
 			@endif
 
 			@if($attendanceUpdates)
