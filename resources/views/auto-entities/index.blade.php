@@ -1,4 +1,4 @@
-@props(['entities', 'create_entity' => null, 'show_past_toggle' => false])
+@props(['entities', 'create_entity' => null, 'show_past_toggle' => false, 'ensemble_filter' => null])
 
 <x-layout>
 	<div class="container-xl">
@@ -17,6 +17,14 @@
                                     <input class="form-check-input" type="checkbox" id="withPast" name="with_past" value="1" {{ request('with_past') ? 'checked' : '' }} onchange="this.form.submit()">
                                     <span class="form-check-label">{{ __('Show past terms') }}</span>
                                 </label>
+                            @endif
+                            @if ($ensemble_filter)
+                                <select class="form-select m-4" name="ensemble" aria-label="{{ __('Ensemble') }}" onchange="this.form.page.value = ''; this.form.submit()">
+                                    <option value="">{{ __('All ensembles') }}</option>
+                                    @foreach ($ensemble_filter as $ensemble)
+                                        <option value="{{ $ensemble->id }}" @selected(request('ensemble') == $ensemble->id)>{{ $ensemble->name }}</option>
+                                    @endforeach
+                                </select>
                             @endif
                         </form>
                         <div class="card-actions ms-auto me-4">

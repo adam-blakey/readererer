@@ -469,3 +469,22 @@ test('the user edit form saves contact details, date of birth and permissions', 
     expect($user->has_photo_permission)->toBeTrue();
     expect($user->is_gift_aiding_subs)->toBeFalse();
 });
+
+test('the users index lists ensembles and filters by ensemble', function () {
+    $strings = Ensemble::factory()->create(['name' => 'String Orchestra']);
+    $winds = Ensemble::factory()->create(['name' => 'Wind Band']);
+    User::factory()->create(['first_name' => 'Violet', 'last_name' => 'Player'])->ensembles()->attach($strings);
+    User::factory()->create(['first_name' => 'Oboe', 'last_name' => 'Player'])->ensembles()->attach($winds);
+    $admin = make_user(UserRole::Admin);
+
+    $this->actingAs($admin)->get(route('users.index'))
+        ->assertOk()
+        ->assertSee(__('All ensembles'))
+        ->assertSee('Violet')
+        ->assertSee('Oboe');
+
+    $this->actingAs($admin)->get(route('users.index', ['ensemble' => $strings->id]))
+        ->assertOk()
+        ->assertSee('Violet')
+        ->assertDontSee('Oboe');
+});
