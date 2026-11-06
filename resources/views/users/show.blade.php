@@ -1,5 +1,7 @@
 @props(['user', 'instrument_families'])
 
+@php($hidden = config('app.readererer_hidden_user_fields'))
+
 <x-layout>
     <div class="container">
         <div class="row align-items-center">
@@ -76,31 +78,41 @@
 										{{ __('Email') }}:
 										<strong>{{ $user->email }}</strong>
 									</div>
-									<div class="mb-2">
-										<x-icon name="phone" />
-										{{ __('Phone number') }}:
-										<strong>{{ $user->phone_number }}</strong>
-									</div>
-									<div class="mb-2">
-										<x-icon name="pin" />
-										{{ __('Address') }}:
-										<strong>{{ $user->full_address }}</strong>
-									</div>
-									<div class="mb-2">
-										<x-icon name="building-hospital" />
-										{{ __('Emergency contact details') }}:
-										<strong>{{ $user->emergency_contact_details }}</strong>
-									</div>
-									<div class="mb-2">
-										<x-icon name="cake" />
-										{{ __('Date of birth') }}:
-										<strong>{{ $user->date_of_birth?->format('j F Y') }}</strong>
-									</div>
-									<div class="mb-2">
-										<x-icon name="glass" />
-										{{ __('Over 18') }}:
-										<strong>{{ $user->is_over_18 ? __('Yes') : __('No') }}</strong>
-									</div>
+									@unless (in_array('phone_number', $hidden))
+										<div class="mb-2">
+											<x-icon name="phone" />
+											{{ __('Phone number') }}:
+											<strong>{{ $user->phone_number }}</strong>
+										</div>
+									@endunless
+									@unless (in_array('address', $hidden))
+										<div class="mb-2">
+											<x-icon name="pin" />
+											{{ __('Address') }}:
+											<strong>{{ $user->full_address }}</strong>
+										</div>
+									@endunless
+									@unless (in_array('emergency_contact', $hidden))
+										<div class="mb-2">
+											<x-icon name="building-hospital" />
+											{{ __('Emergency contact details') }}:
+											<strong>{{ $user->emergency_contact_details }}</strong>
+										</div>
+									@endunless
+									@unless (in_array('date_of_birth', $hidden))
+										<div class="mb-2">
+											<x-icon name="cake" />
+											{{ __('Date of birth') }}:
+											<strong>{{ $user->date_of_birth?->format('j F Y') }}</strong>
+										</div>
+									@endunless
+									@unless (in_array('date_of_birth', $hidden))
+										<div class="mb-2">
+											<x-icon name="glass" />
+											{{ __('Over 18') }}:
+											<strong>{{ $user->is_over_18 ? __('Yes') : __('No') }}</strong>
+										</div>
+									@endunless
 								</div>
 							</div>
 						</div>
@@ -130,16 +142,20 @@
 										{{ __('Van driver for') }}:
 										<strong>{{ $user->van_driver_groups->pluck('name')->join(', ') ?: __('None') }}</strong>
 									</div>
-									<div class="mb-2">
-										<x-icon name="camera" />
-										{{ __('Photograph permission') }}:
-										<strong>{{ $user->has_photo_permission ? __('Yes') : __('No') }}</strong>
-									</div>
-									<div class="mb-2">
-										<x-icon name="gift" />
-										{{ __('Gift aid subs') }}:
-										<strong>{{ $user->is_gift_aiding_subs ? __('Yes') : __('No') }}</strong>
-									</div>
+									@unless (in_array('has_photo_permission', $hidden))
+										<div class="mb-2">
+											<x-icon name="camera" />
+											{{ __('Photograph permission') }}:
+											<strong>{{ $user->has_photo_permission ? __('Yes') : __('No') }}</strong>
+										</div>
+									@endunless
+									@unless (in_array('is_gift_aiding_subs', $hidden))
+										<div class="mb-2">
+											<x-icon name="gift" />
+											{{ __('Gift aid subs') }}:
+											<strong>{{ $user->is_gift_aiding_subs ? __('Yes') : __('No') }}</strong>
+										</div>
+									@endunless
 								</div>
 							</div>
 						</div>

@@ -131,3 +131,44 @@ test('deploys link public/storage to the public disk', function () {
     expect(file_get_contents(base_path('.cpanel.yml')))->toContain('ln -sfn ../storage/app/public public/storage')
         ->and(file_get_contents(base_path('.github/actions/deploy-ssh/action.yml')))->toContain('ln -sfn ../storage/app/public public/storage');
 });
+
+test('hidden member details are left out of the member pages and keep their saved values', function () {
+    $admin = make_user(UserRole::Admin);
+    $member = make_user(UserRole::Member, ['phone_number' => '01234 567890', 'date_of_birth' => '1990-01-01']);
+
+    $this->actingAs($admin)
+        ->put(route('settings.update'), settings_payload(['hidden_user_fields' => ['phone_number', 'date_of_birth']]))
+        ->assertSessionHasNoErrors();
+    reload_settings();
+
+    expect($member->getVisible())->not->toContain('is_over_18');
+
+    $this->actingAs($admin)->get(route('users.show', $member))
+        ->assertOk()
+        ->assertDontSee('01234 567890')
+        ->assertDontSee(__('Over 18'))
+        ->assertSee(__('Address'));
+
+    foreach ([route('users.create'), route('users.edit', $member)] as $url) {
+        $this->actingAs($admin)->get($url)
+            ->assertOk()
+            ->assertDontSee('name="phone_number"', false)
+            ->assertDontSee('name="date_of_birth"', false)
+            ->assertSee('name="address_line1"', false);
+    }
+
+    $this->actingAs($admin)->patch(route('users.update', $member), [
+        'first_name' => $member->first_name,
+        'last_name' => $member->last_name,
+        'email' => $member->email,
+        'role' => $member->role->value,
+    ])->assertSessionHasNoErrors();
+
+    expect($member->fresh()->phone_number)->toBe('01234 567890');
+});
+
+test('only known member details can be hidden', function () {
+    $this->actingAs(make_user(UserRole::Admin))
+        ->put(route('settings.update'), settings_payload(['hidden_user_fields' => ['password']]))
+        ->assertSessionHasErrors('hidden_user_fields.0');
+});

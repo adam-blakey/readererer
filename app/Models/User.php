@@ -8,6 +8,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
+use Illuminate\Support\Arr;
 use Illuminate\Support\Carbon as SupportCarbon;
 use Illuminate\Support\Str;
 use SDamian\Larasort\AutoSortable;
@@ -15,6 +16,24 @@ use SDamian\Larasort\AutoSortable;
 class User extends Authenticatable
 {
     use AutoSortable, HasFactory, HasImage, Notifiable, SoftDeletes;
+
+    /** The fields an admin can hide on the settings page, each with the attributes it covers. */
+    public const OPTIONAL_FIELDS = [
+        'phone_number' => ['phone_number'],
+        'address' => ['address_line1', 'address_line2', 'address_city', 'address_post_code'],
+        'emergency_contact' => [
+            'emergency_contact_name',
+            'emergency_contact_number',
+            'emergency_contact_relationship',
+            'emergency_contact_address_line1',
+            'emergency_contact_address_line2',
+            'emergency_contact_address_city',
+            'emergency_contact_address_post_code',
+        ],
+        'date_of_birth' => ['date_of_birth', 'is_over_18'],
+        'has_photo_permission' => ['has_photo_permission'],
+        'is_gift_aiding_subs' => ['is_gift_aiding_subs'],
+    ];
 
     protected $visible = [
         'image',
@@ -39,6 +58,17 @@ class User extends Authenticatable
         'created_at',
         'updated_at',
     ];
+
+    /** @return array<int, string> */
+    public static function hiddenFields(): array
+    {
+        return Arr::flatten(Arr::only(self::OPTIONAL_FIELDS, config('app.readererer_hidden_user_fields')));
+    }
+
+    public function getVisible(): array
+    {
+        return array_values(array_diff($this->visible, self::hiddenFields()));
+    }
 
     public function attendances()
     {
