@@ -39,6 +39,8 @@ jobs:
           kill %1 2>/dev/null || true
       - name: Browser tests
         timeout-minutes: 12
+        env:
+          DEBUG_REQUESTS: 1
         run: |
           for attempt in 1 2; do
             timeout 5m php -d max_execution_time=60 ./vendor/bin/pest --testsuite=Browser --teamcity --log-junit ./junit-browser.xml && exit 0

@@ -35,6 +35,11 @@ class AppServiceProvider extends ServiceProvider
     {
         Setting::applyToConfig();
 
+        if (getenv('DEBUG_REQUESTS')) {
+            $this->app['events']->listen(\Illuminate\Routing\Events\RouteMatched::class, fn ($e) => fwrite(STDERR, 'REQ start '.$e->request->method().' '.$e->request->getRequestUri()."\n"));
+            $this->app['events']->listen(\Illuminate\Foundation\Http\Events\RequestHandled::class, fn ($e) => fwrite(STDERR, 'REQ done '.$e->response->getStatusCode().' '.$e->request->getRequestUri()."\n"));
+        }
+
         Paginator::defaultView('pagination::default');
 
         Gate::define('view.dashboard', function (User $user) {
