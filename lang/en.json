@@ -525,6 +525,8 @@
     "Emergency contact city": "Emergency contact city",
     "Emergency contact post code": "Emergency contact post code",
     "Van driver for": "Van driver for",
+    "Ticked details are shown on member pages and forms. Unticking one hides it but keeps the details already saved.": "Ticked details are shown on member pages and forms. Unticking one hides it but keeps the details already saved.",
+    "Member details": "Member details",
     "Features": "Features",
     "Use setup groups": "Use setup groups",
     "Shows setup groups, their badges and setup reminders. Turning this off hides them but keeps their data.": "Shows setup groups, their badges and setup reminders. Turning this off hides them but keeps their data.",

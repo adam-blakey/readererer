@@ -62,7 +62,7 @@ class UserController extends Controller
 
     public function create(): View
     {
-        $fields = get_create_fields(new User);
+        $fields = Arr::except(get_create_fields(new User), User::hiddenFields());
         $fields['first_name']['width'] = 6;
         $fields['last_name']['width'] = 6;
         unset($fields['password']);
