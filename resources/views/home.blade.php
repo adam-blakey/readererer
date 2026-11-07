@@ -17,7 +17,7 @@
 							<span class="avatar avatar-sm me-2" style="background-image: url({{ $ensemble->image_url }})"></span>
 							<h2 class="mb-0 card-title">
 								@if($linked)
-									<a href="{{ route('ensembles.show', $ensemble) }}">{{ $ensemble->name }}</a>
+									<a class="text-primary" href="{{ route('ensembles.show', $ensemble) }}">{{ $ensemble->name }}</a>
 								@else
 									{{ $ensemble->name }}
 								@endif
