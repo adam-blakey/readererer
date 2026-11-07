@@ -66,6 +66,8 @@ When adding a field to an entity, update the migration **and** the model's `$fil
 ### Authorization
 Role-based via the `UserRole` int enum (`Guest=0, Ensemble=1, Member=2, Moderator=3, Admin=4`) on `users.role`. Policies in `app/Policies/` compare `$user->role->value >= UserRole::X->value`. Controllers call `$this->authorizeResource(Model::class)` in their constructor, and routes attach `->can(...)` / `->middleware('auth')` (see `routes/web.php`). The `Ensemble` role is a shared generic login that can only update attendance polls; `view` on an ensemble also allows non-admins who belong to that ensemble (`$user->ensembles->contains(...)`).
 
+Members can also log in with an emailed link (`LoginLinkController`, `login-link.*` routes): the link's token is a password reset token from the password broker, so it is single-use, expires and is throttled like a reset link, and opening it shows a button that logs in so email link scanners cannot use it up. Shared `Ensemble` logins can neither request nor use one.
+
 A user with `must_change_password` set (new users, from the web form or `user:create`) is held on the change password page (`password.edit`) by the `EnsurePasswordIsChanged` middleware, appended to the whole `web` group because many routes rely only on `->can()`. Changing or resetting the password clears it.
 
 ### Soft deletes everywhere
