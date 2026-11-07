@@ -34,7 +34,7 @@
                                                 <x-a class="dropdown-item download-option" data-when="{{ $when }}" data-search="{{ strtolower($term_date->name) }}" href="{{ route('ensembles.seating-plan.download', ['ensemble' => $ensemble, 'termDate' => $term_date]) }}" target="_blank">
                                                     {{ $term_date->name }}
                                                     @if($term_date->is_concert)
-                                                        <span class="badge bg-green text-green-fg ms-2">{{ __('Concert') }}</span>
+                                                        <span class="badge bg-primary text-primary-fg ms-2">{{ __('Concert') }}</span>
                                                     @endif
                                                 </x-a>
                                             @endforeach
