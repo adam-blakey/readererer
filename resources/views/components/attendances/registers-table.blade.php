@@ -17,6 +17,7 @@
 				<th>{{ __('Time') }}</th>
 				<th>{{ __('Type') }}</th>
 				<th>{{ __('Term') }}</th>
+				<th>{{ __('Polls') }}</th>
 				<th>{{ __('Registers') }}</th>
 				<th>{{ __('Emails') }}</th>
 				<th>{{ __('Actions') }}</th>
@@ -26,7 +27,6 @@
 			@forelse ($term_dates as $term_date)
 				@php
 					$applicable_ensembles = $ensembles->filter(fn ($ensemble) => $term_date->appliesToEnsemble($ensemble));
-					$poll_ensemble = $applicable_ensembles->first();
 				@endphp
 				<tr>
 					<td>{{ $term_date->date_label }}</td>
@@ -38,11 +38,19 @@
 							<span class="badge bg-gray text-muted">{{ __('Rehearsal') }}</span>
 						@endif
 					</td>
+					<td>{{ $term_date->term?->name }}</td>
 					<td>
-						@if ($term_date->term && $poll_ensemble)
-							<x-a href="{{ route('attendance.poll.show', ['ensemble' => $poll_ensemble, 'term' => $term_date->term]) }}" data-bs-toggle="tooltip" title="{{ __('View poll') }}">{{ $term_date->term->name }}</x-a>
+						@if ($term_date->term && $applicable_ensembles->isNotEmpty())
+							<div class="btn-list">
+								@foreach ($applicable_ensembles as $ensemble)
+									<x-a class="btn btn-sm" href="{{ route('attendance.poll.show', ['ensemble' => $ensemble, 'term' => $term_date->term]) }}" data-bs-toggle="tooltip" title="{{ __('View poll') }}">
+										<x-icon name="square-check" />
+										{{ $ensemble->name }}
+									</x-a>
+								@endforeach
+							</div>
 						@else
-							{{ $term_date->term?->name }}
+							<span class="text-muted">—</span>
 						@endif
 					</td>
 					<td>
@@ -139,7 +147,7 @@
 				</tr>
 			@empty
 				<tr>
-					<td colspan="7">{{ __('No rehearsals or concerts have been scheduled yet.') }}</td>
+					<td colspan="8">{{ __('No rehearsals or concerts have been scheduled yet.') }}</td>
 				</tr>
 			@endforelse
 		</tbody>
