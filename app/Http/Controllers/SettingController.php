@@ -13,6 +13,7 @@ class SettingController extends Controller
         return view('settings.edit', [
             'page_name' => __('Settings'),
             'has_uploaded_logo' => Setting::where('key', 'logo')->exists(),
+            'has_google_client_secret' => filled(config('services.google.client_secret')),
         ]);
     }
 
@@ -26,7 +27,15 @@ class SettingController extends Controller
         // Not Setting::put(), which deletes an empty list and so would fall back to showing every field.
         Setting::updateOrCreate(['key' => 'shown_user_fields'], ['value' => $request->validated('shown_user_fields', [])]);
 
-        foreach (['assume_attending', 'allow_change_to_unknown', 'repeating_headings', 'setup_groups', 'van_drivers', 'single_ensemble', 'log_emails'] as $key) {
+        Setting::put('google_client_id', $request->validated('google_client_id'));
+        Setting::put('google_register_domain', strtolower((string) $request->validated('google_register_domain')));
+        Setting::put('google_register_role', $request->filled('google_register_role') ? (int) $request->validated('google_register_role') : null);
+
+        if ($request->filled('google_client_secret')) {
+            Setting::put('google_client_secret', $request->validated('google_client_secret'));
+        }
+
+        foreach (['assume_attending', 'allow_change_to_unknown', 'repeating_headings', 'setup_groups', 'van_drivers', 'single_ensemble', 'log_emails', 'google_login'] as $key) {
             Setting::put($key, $request->boolean($key));
         }
 

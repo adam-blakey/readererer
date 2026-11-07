@@ -150,5 +150,8 @@ return [
     'readererer_log_emails' => env('READERERER_LOG_EMAILS', false),
     'readererer_reminder_hours' => env('READERERER_REMINDER_HOURS'),
     'readererer_after_reminders' => env('READERERER_AFTER_REMINDERS', 'nothing'),
+    'readererer_google_login' => env('READERERER_GOOGLE_LOGIN', false),
+    'readererer_google_register_domain' => env('READERERER_GOOGLE_REGISTER_DOMAIN'),
+    'readererer_google_register_role' => env('READERERER_GOOGLE_REGISTER_ROLE'),
 
 ];

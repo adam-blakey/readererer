@@ -66,6 +66,8 @@ When adding a field to an entity, update the migration **and** the model's `$fil
 ### Authorization
 Role-based via the `UserRole` int enum (`Guest=0, Ensemble=1, Member=2, Moderator=3, Admin=4`) on `users.role`. Policies in `app/Policies/` compare `$user->role->value >= UserRole::X->value`. Controllers call `$this->authorizeResource(Model::class)` in their constructor, and routes attach `->can(...)` / `->middleware('auth')` (see `routes/web.php`). The `Ensemble` role is a shared generic login that can only update attendance polls; `view` on an ensemble also allows non-admins who belong to that ensemble (`$user->ensembles->contains(...)`).
 
+Users can also log in with Google (`GoogleLoginController`, `google.redirect`/`google.callback` routes, through `laravel/socialite`) once the settings page turns on `app.readererer_google_login` and fills in `services.google.client_id` and `services.google.client_secret` (`google_login_enabled()` in `helpers.php`). The secret is in `Setting::ENCRYPTED`, so `Setting::put()` encrypts it with `APP_KEY` and `applyToConfig()` decrypts it. A verified Google email signs in the user with that email address (matched case-insensitively). An address with no account gets one only when its domain is `app.readererer_google_register_domain`, with the role in `app.readererer_google_register_role`.
+
 A user with `must_change_password` set (new users, from the web form or `user:create`) is held on the change password page (`password.edit`) by the `EnsurePasswordIsChanged` middleware, appended to the whole `web` group because many routes rely only on `->can()`. Changing or resetting the password clears it.
 
 ### Soft deletes everywhere

@@ -10,6 +10,8 @@ use Illuminate\Support\Facades\Route;
 test('every named GET page has a breadcrumb trail', function () {
     $without_breadcrumbs = [
         'login',
+        'google.redirect',
+        'google.callback',
         'password.request',
         'password.reset',
         'password.confirm',

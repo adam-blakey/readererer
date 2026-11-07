@@ -198,3 +198,45 @@ test('the email logging switch is saved to the config', function () {
 
     expect(config('app.readererer_log_emails'))->toBeTrue();
 });
+
+test('the Google login settings are saved, with the client secret encrypted', function () {
+    $admin = make_user(UserRole::Admin);
+    $google = [
+        'google_login' => '1',
+        'google_client_id' => 'client-id',
+        'google_client_secret' => 'client-secret',
+        'google_register_domain' => 'Example.org',
+        'google_register_role' => (string) UserRole::Moderator->value,
+    ];
+
+    $this->actingAs($admin)->put(route('settings.update'), settings_payload($google))->assertSessionHasNoErrors();
+
+    $stored = Setting::where('key', 'google_client_secret')->value('value');
+    reload_settings();
+
+    expect($stored)->not->toContain('client-secret')
+        ->and(config('app.readererer_google_login'))->toBeTrue()
+        ->and(config('services.google.client_id'))->toBe('client-id')
+        ->and(config('services.google.client_secret'))->toBe('client-secret')
+        ->and(config('app.readererer_google_register_domain'))->toBe('example.org')
+        ->and(config('app.readererer_google_register_role'))->toBe(UserRole::Moderator->value);
+
+    $this->actingAs($admin)->get(route('settings.edit'))->assertDontSee('client-secret');
+
+    $this->actingAs($admin)
+        ->put(route('settings.update'), settings_payload(['google_client_secret' => ''] + $google))
+        ->assertSessionHasNoErrors();
+    reload_settings();
+
+    expect(config('services.google.client_secret'))->toBe('client-secret');
+});
+
+test('Google login needs a client ID and secret, and registration needs both a domain and a role', function () {
+    $this->actingAs(make_user(UserRole::Admin))
+        ->put(route('settings.update'), settings_payload(['google_login' => '1', 'google_register_domain' => 'example.org']))
+        ->assertSessionHasErrors(['google_client_id', 'google_client_secret', 'google_register_role']);
+
+    $this->actingAs(make_user(UserRole::Admin))
+        ->put(route('settings.update'), settings_payload(['google_register_domain' => '@example.org', 'google_register_role' => (string) UserRole::Ensemble->value]))
+        ->assertSessionHasErrors(['google_register_domain', 'google_register_role']);
+});
