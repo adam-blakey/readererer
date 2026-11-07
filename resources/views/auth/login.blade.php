@@ -71,6 +71,14 @@
 									</a>
 								</div>
 							</div>
+							<div class="mt-2 row">
+								<div class="col">
+									<x-a class="btn w-100" :route="'login-link.request'" tabindex="6">
+										<x-icon name="mail" />
+										{{ __('Email me a login link') }}
+									</x-a>
+								</div>
+							</div>
 						</div>
 					</div>
 					<div class="mt-3 text-center text-secondary">
