@@ -344,3 +344,28 @@ test('the own-dates toggle is hidden from shared ensemble logins and non-members
     'shared ensemble login' => [UserRole::Ensemble, true],
     'admin outside the ensemble' => [UserRole::Admin, false],
 ]);
+
+test('the own-dates view marks the dates the member sets up and drives the van', function () {
+    config(['app.readererer_setup_groups' => true, 'app.readererer_van_drivers' => true]);
+    $ensemble = Ensemble::factory()->create();
+    $term = Term::factory()->create();
+    $setupGroup = SetupGroup::factory()->create();
+    $member = make_user(UserRole::Member, ['setup_group_id' => $setupGroup->id, 'settings' => ['poll_own_view' => true]]);
+    join_ensemble($member, $ensemble);
+    $setupGroup->van_drivers()->attach($member->id, ['sort' => 0]);
+    TermDate::forceCreate([
+        'term_id' => $term->id,
+        'setup_group_id' => $setupGroup->id,
+        'start_datetime' => now()->addWeek(),
+        'end_datetime' => now()->addWeek()->addHours(2),
+    ]);
+    $url = route('attendance.poll.show', ['ensemble' => $ensemble->slug, 'term' => $term->slug]);
+
+    $pills = fn () => substr_count($this->actingAs($member)->get($url)->getContent(), 'badge rounded-pill');
+
+    expect($pills())->toBe(2);
+
+    config(['app.readererer_setup_groups' => false, 'app.readererer_van_drivers' => false]);
+
+    expect($pills())->toBe(0);
+});
