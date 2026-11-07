@@ -43,6 +43,6 @@ runs:
         done
         echo "::error::The cPanel deployment did not finish within 30 minutes. Its log is $log on the server (File Manager)."
         exit 1
-    - uses: ./.github/actions/check-site
+    - uses: $/.github/actions/check-site
       with:
         domain: ${{ inputs.domain }}
