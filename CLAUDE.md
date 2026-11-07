@@ -126,6 +126,7 @@ Before building UI, look for an existing example and reuse it: first a Blade com
 - Tabler icons are referenced by name through the `<x-icon>` component / `Icon` attribute, not raw SVG.
 - Every form starts with `<x-forms.error-summary :fields="..." />`, passing the field names it renders (wildcards allowed, e.g. `term_dates.*.start_datetime`). It lists the validation errors that have no field of their own to appear beside.
 - User-facing text is translatable: wrap it in `__()` (or `trans_choice()` for counts) using the English string as the key, and pass interpolated values as named `:placeholders` rather than concatenating. Enum labels are translated in the enum's own `label()` method; auto-entity column labels are translated centrally by `clean_attribute_name()`. Add new strings to `lang/en.json` — see `lang/README.md`.
+- Use British English spelling in all text you write or change: UI strings, `lang/en.json`, docs, comments, commit messages and PR descriptions (e.g. "colour", "organise", "licence", "behaviour"). Leave code identifiers, framework and library names, and CSS properties as they are (`color`, `Color` enum).
 
 ## Working preferences
 
