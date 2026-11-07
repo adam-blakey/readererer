@@ -35,6 +35,9 @@ jobs:
             timeout 5m ./vendor/bin/pest --testsuite=Browser --teamcity --log-junit ./junit-browser.xml && exit 0
           done
           exit 1
+      - name: Laravel log
+        if: failure()
+        run: tail -n 100 storage/logs/laravel.log || true
       - run: composer install --no-interaction --no-progress --prefer-dist --no-dev --optimize-autoloader
       # Production build smoke test. Must run after the tests: a cached config ignores APP_ENV=testing and CSRF would be enforced.
       - run: php artisan optimize --env=production
