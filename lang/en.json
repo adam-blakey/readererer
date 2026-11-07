@@ -565,7 +565,7 @@
     "Your Google account has no verified email address.": "Your Google account has no verified email address.",
     "More than one account uses :email, so log in with your username instead.": "More than one account uses :email, so log in with your username instead.",
     "No account uses :email.": "No account uses :email.",
-    "Lets members log in with the Google account that has their email address. Create an OAuth client in the Google Cloud console and add :url as an authorised redirect URI.": "Lets members log in with the Google account that has their email address. Create an OAuth client in the Google Cloud console and add :url as an authorised redirect URI.",
+    "Lets members log in with the Google account that has their email address. :create of type Web application in the Google Cloud console and add :url as an authorised redirect URI. To change a client you already have, open it from the :clients.": "Lets members log in with the Google account that has their email address. :create of type Web application in the Google Cloud console and add :url as an authorised redirect URI. To change a client you already have, open it from the :clients.",
     "Allow login with Google": "Allow login with Google",
     "Client ID": "Client ID",
     "Client secret": "Client secret",
@@ -574,5 +574,7 @@
     "Register new users from this domain": "Register new users from this domain",
     "Someone logging in with a Google account on this domain who has no account yet gets one with the role below. Leave empty to only let existing users log in.": "Someone logging in with a Google account on this domain who has no account yet gets one with the role below. Leave empty to only let existing users log in.",
     "Role for new users": "Role for new users",
-    "Enter a domain name such as example.org, without the @.": "Enter a domain name such as example.org, without the @."
+    "Enter a domain name such as example.org, without the @.": "Enter a domain name such as example.org, without the @.",
+    "Create an OAuth client": "Create an OAuth client",
+    "Clients page": "Clients page"
 }

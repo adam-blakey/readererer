@@ -176,7 +176,11 @@
 						</div>
 
 						<h2 class="mt-4 mb-1">{{ __('Login with Google') }}</h2>
-						<p class="text-secondary">{{ __('Lets members log in with the Google account that has their email address. Create an OAuth client in the Google Cloud console and add :url as an authorised redirect URI.', ['url' => route('google.callback')]) }}</p>
+						<p class="text-secondary">{!! __('Lets members log in with the Google account that has their email address. :create of type Web application in the Google Cloud console and add :url as an authorised redirect URI. To change a client you already have, open it from the :clients.', [
+							'create' => '<a href="https://console.cloud.google.com/auth/clients/create" rel="noopener" target="_blank">'.e(__('Create an OAuth client')).'</a>',
+							'url' => '<code>'.e(route('google.callback')).'</code>',
+							'clients' => '<a href="https://console.cloud.google.com/auth/clients" rel="noopener" target="_blank">'.e(__('Clients page')).'</a>',
+						]) !!}</p>
 						<div class="mb-3">
 							<input name="google_login" type="hidden" value="0">
 							<label class="form-check form-switch">

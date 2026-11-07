@@ -240,3 +240,10 @@ test('Google login needs a client ID and secret, and registration needs both a d
         ->put(route('settings.update'), settings_payload(['google_register_domain' => '@example.org', 'google_register_role' => (string) UserRole::Ensemble->value]))
         ->assertSessionHasErrors(['google_register_domain', 'google_register_role']);
 });
+
+test('the Google login section links to the Google Cloud console pages for OAuth clients', function () {
+    $this->actingAs(make_user(UserRole::Admin))->get(route('settings.edit'))
+        ->assertSee('href="https://console.cloud.google.com/auth/clients/create"', false)
+        ->assertSee('href="https://console.cloud.google.com/auth/clients"', false)
+        ->assertSee('<code>'.route('google.callback').'</code>', false);
+});
