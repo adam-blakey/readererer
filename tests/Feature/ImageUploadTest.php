@@ -6,6 +6,7 @@ use App\Models\SetupGroup;
 use App\Models\User;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\Vite;
 
 beforeEach(function () {
     Storage::fake('public');
@@ -169,10 +170,11 @@ test('an oversized image is rejected', function () {
     expect($ensemble->fresh()->image)->toBeNull();
 });
 
-test('a model without an image has no image URL', function () {
-    $ensemble = Ensemble::factory()->create(['image' => null]);
+test('a model without an image shows the placeholder image', function () {
+    Vite::shouldReceive('asset')->with('resources/images/placeholder.svg')->andReturn('/build/placeholder.svg');
 
-    expect($ensemble->image_url)->toBeNull();
+    expect(Ensemble::factory()->create(['image' => null])->image_url)->toBe('/build/placeholder.svg')
+        ->and(User::factory()->create(['image' => null])->image_url)->toBe('/build/placeholder.svg');
 });
 
 test('the edit forms render the image upload field', function () {
