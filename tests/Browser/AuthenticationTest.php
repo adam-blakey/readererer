@@ -87,6 +87,7 @@ test('a guest who opens a poll from the home page lands on it after logging in',
     visit('/')
         ->click('Spring term')
         ->assertPathIs('/login')
+        ->assertVisible('#username')
         ->type('username', 'admin')
         ->type('password', 'password')
         ->click('button[type="submit"]')
