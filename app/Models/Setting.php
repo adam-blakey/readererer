@@ -17,6 +17,7 @@ class Setting extends Model
         'repeating_headings' => ['app.readererer_repeating_headings'],
         'image_max_kilobytes' => ['app.readererer_image_max_kilobytes'],
         'terminology' => ['app.readererer_terminology'],
+        'shown_user_fields' => ['app.readererer_shown_user_fields'],
         'setup_groups' => ['app.readererer_setup_groups'],
         'van_drivers' => ['app.readererer_van_drivers'],
         'single_ensemble' => ['app.readererer_single_ensemble'],

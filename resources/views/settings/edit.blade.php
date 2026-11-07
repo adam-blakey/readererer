@@ -16,6 +16,15 @@
 			'single_ensemble' => [__('Single ensemble'), __('For a site with one ensemble: new users join it when they are created. Needs a site with at most one ensemble, and stops more being added.')],
 		],
 	];
+	$user_fields = [
+		'phone_number' => __('Phone number'),
+		'address' => __('Address'),
+		'emergency_contact' => __('Emergency contact details'),
+		'date_of_birth' => __('Date of birth'),
+		'has_photo_permission' => __('Photograph permission'),
+		'is_gift_aiding_subs' => __('Gift aid subs'),
+	];
+	$shown_user_fields = old('shown_user_fields', config('app.readererer_shown_user_fields'));
 	$sections = array_filter([
 		['ensembles.index', 'music', __('Ensembles')],
 		['instrumentfamilys.index', 'guitar-pick', __('Instrument families')],
@@ -45,7 +54,7 @@
 			@method('PUT')
 
 			<fieldset class="card-body" @disabled(! $can_edit)>
-				<x-forms.error-summary :fields="['name', 'logo', 'remove_logo', 'image_max_kilobytes', 'assume_attending', 'allow_change_to_unknown', 'repeating_headings', 'setup_groups', 'van_drivers', 'single_ensemble', 'reminder_hours', 'after_reminders', 'terminology', 'terminology.*']" />
+				<x-forms.error-summary :fields="['name', 'logo', 'remove_logo', 'image_max_kilobytes', 'assume_attending', 'allow_change_to_unknown', 'repeating_headings', 'setup_groups', 'van_drivers', 'single_ensemble', 'reminder_hours', 'after_reminders', 'terminology', 'terminology.*', 'shown_user_fields', 'shown_user_fields.*']" />
 				@if (session('status'))
 					<div class="alert alert-success" role="alert">{{ session('status') }}</div>
 				@endif
@@ -122,6 +131,15 @@
 								<x-forms.input-error :messages="$message" />
 							@enderror
 						</div>
+
+						<h2 class="mt-4 mb-1">{{ __('Member details') }}</h2>
+						<p class="text-secondary">{{ __('Ticked details are shown on member pages and forms. Unticking one hides it but keeps the details already saved.') }}</p>
+						@foreach ($user_fields as $key => $label)
+							<label class="form-check">
+								<input class="form-check-input" name="shown_user_fields[]" type="checkbox" value="{{ $key }}" @checked(in_array($key, $shown_user_fields))>
+								<span class="form-check-label">{{ $label }}</span>
+							</label>
+						@endforeach
 					</div>
 					<div class="col-xl-6">
 						<h2 class="mb-1">{{ __('Wording') }}</h2>
