@@ -14,7 +14,6 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware) {
-        $middleware->trustProxies(at: '*');
         $middleware->web(append: [EnsurePasswordIsChanged::class]);
         $middleware->redirectGuestsTo(fn (Request $request) => login_url($request));
     })
