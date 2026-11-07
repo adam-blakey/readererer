@@ -72,7 +72,9 @@ class User extends Authenticatable
 
     public function getVisible(): array
     {
-        return array_merge($this->visible, self::shownFields());
+        $visible = array_merge($this->visible, self::shownFields());
+
+        return config('app.readererer_setup_groups') ? $visible : array_values(array_diff($visible, ['setup_group']));
     }
 
     public function attendances()

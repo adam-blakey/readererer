@@ -42,6 +42,10 @@ class SetupGroupController extends Controller
         $dummy = new SetupGroup;
         $fields = get_create_fields($dummy);
 
+        if (! config('app.readererer_van_drivers')) {
+            unset($fields['van_drivers']);
+        }
+
         return view('auto-entities.form', [
             'page_name' => __('Setup groups'),
             'page_subname' => __('Create new setup group'),
@@ -58,10 +62,7 @@ class SetupGroupController extends Controller
         $van_drivers = Arr::pull($attributes, 'van_drivers') ?? [];
         $setup_group = SetupGroup::create($attributes);
 
-        $setup_group->van_drivers()->detach();
-        foreach ($van_drivers as $van_driver) {
-            $setup_group->van_drivers()->attach($van_driver);
-        }
+        $setup_group->van_drivers()->sync($van_drivers);
 
         return to_route('setupgroups.show', $setup_group);
     }
@@ -69,7 +70,12 @@ class SetupGroupController extends Controller
     public function edit(SetupGroup $setupGroup): View
     {
         $fields = get_create_fields($setupGroup);
-        $fields['van_drivers']['options'] = $fields['van_drivers']['options']->sortBy('first_name');
+
+        if (config('app.readererer_van_drivers')) {
+            $fields['van_drivers']['options'] = $fields['van_drivers']['options']->sortBy('first_name');
+        } else {
+            unset($fields['van_drivers']);
+        }
 
         return view('auto-entities.form', [
             'page_name' => __('Setup groups'),
@@ -87,9 +93,11 @@ class SetupGroupController extends Controller
         $van_drivers = Arr::pull($attributes, 'van_drivers') ?? [];
         $setupGroup->update($attributes);
 
-        $setupGroup->van_drivers()->detach();
-        foreach ($van_drivers as $van_driver) {
-            $setupGroup->van_drivers()->attach($van_driver);
+        if (config('app.readererer_van_drivers')) {
+            $setupGroup->van_drivers()->detach();
+            foreach ($van_drivers as $van_driver) {
+                $setupGroup->van_drivers()->attach($van_driver);
+            }
         }
 
         return to_route('setupgroups.show', $setupGroup);

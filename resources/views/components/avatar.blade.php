@@ -9,7 +9,7 @@
 	    }
 	}
 
-	$show_group_badge = $show_setup_group && $user->setup_group != null;
+	$show_group_badge = $show_setup_group && config('app.readererer_setup_groups') && $user->setup_group != null;
 
 	$tooltip_text = $user->name;
 

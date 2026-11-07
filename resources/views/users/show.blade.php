@@ -126,6 +126,7 @@
 									<h2 class="mb-0 card-heading">{{ __('Additional info') }}</h2>
 								</div>
 								<div class="card-body">
+									@if (config('app.readererer_setup_groups'))
 									<div class="mb-2">
 										<x-icon name="users-group" />
 										{{ __('Setup group') }}:
@@ -137,11 +138,14 @@
 											@endif
 										</strong>
 									</div>
+									@if (config('app.readererer_van_drivers'))
 									<div class="mb-2">
 										<x-icon name="truck" />
 										{{ __('Van driver for') }}:
 										<strong>{{ $user->van_driver_groups->pluck('name')->join(', ') ?: __('None') }}</strong>
 									</div>
+									@endif
+									@endif
 									@if (in_array('has_photo_permission', $shown))
 										<div class="mb-2">
 											<x-icon name="camera" />

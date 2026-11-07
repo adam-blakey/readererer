@@ -12,7 +12,7 @@
 			    $heading_tooltip .= ' (' . $term_date->concert_ensemble_names . ')';
 			}
 
-			if ($term_date->setup_group != null) {
+			if (config('app.readererer_setup_groups') && $term_date->setup_group != null) {
 			    $heading_tooltip .= ' — ' . __(':name sets up', ['name' => $term_date->setup_group->label]);
 			}
 		@endphp
@@ -25,7 +25,7 @@
 			{{ $term_date->start_datetime->format('D') }}<br />
 			{{ $term_date->start_datetime->format('G:i') }}<br />
 			{{ $term_date->end_datetime->format('G:i') }}<br />
-            @if ($term_date->setup_group != null)
+            @if (config('app.readererer_setup_groups') && $term_date->setup_group != null)
                 <div class="mt-2">
                     <x-setup-group-badge :setup_group="$term_date->setup_group" :tooltip="false" />
                 </div>

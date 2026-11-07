@@ -74,24 +74,28 @@
                                                             @endforeach
                                                         </select>
                                                     </div>
-                                                    <div class="col-6 col-md-4 col-lg-2">
-                                                        <label class="form-label">{{ __('Setup group') }}</label>
-                                                        <select class="form-select" name="term_dates[__INDEX__][setup_group_id]" data-initial="">
-                                                            <option value="">{{ __('No setup group') }}</option>
-                                                            @foreach(($setup_groups ?? collect()) as $setup_group)
-                                                                <option value="{{ $setup_group->id }}">{{ $setup_group->name }}</option>
-                                                            @endforeach
-                                                        </select>
-                                                    </div>
-                                                    <div class="col-6 col-md-4 col-lg-2">
-                                                        <label class="form-label">{{ __('Van driver override') }}</label>
-                                                        <select class="form-select" name="term_dates[__INDEX__][van_driver_id]" data-initial="">
-                                                            <option value="">{{ __('Infer van driver') }}</option>
-                                                            @foreach(($van_drivers ?? collect()) as $van_driver)
-                                                                <option value="{{ $van_driver->id }}">{{ $van_driver->name }}</option>
-                                                            @endforeach
-                                                        </select>
-                                                    </div>
+                                                    @if (config('app.readererer_setup_groups'))
+                                                        <div class="col-6 col-md-4 col-lg-2">
+                                                            <label class="form-label">{{ __('Setup group') }}</label>
+                                                            <select class="form-select" name="term_dates[__INDEX__][setup_group_id]" data-initial="">
+                                                                <option value="">{{ __('No setup group') }}</option>
+                                                                @foreach(($setup_groups ?? collect()) as $setup_group)
+                                                                    <option value="{{ $setup_group->id }}">{{ $setup_group->name }}</option>
+                                                                @endforeach
+                                                            </select>
+                                                        </div>
+                                                    @endif
+                                                    @if (config('app.readererer_van_drivers'))
+                                                        <div class="col-6 col-md-4 col-lg-2">
+                                                            <label class="form-label">{{ config('app.readererer_setup_groups') ? __('Van driver override') : __('Van driver') }}</label>
+                                                            <select class="form-select" name="term_dates[__INDEX__][van_driver_id]" data-initial="">
+                                                                <option value="">{{ config('app.readererer_setup_groups') ? __('Infer van driver') : __('No van driver') }}</option>
+                                                                @foreach(($van_drivers ?? collect()) as $van_driver)
+                                                                    <option value="{{ $van_driver->id }}">{{ $van_driver->name }}</option>
+                                                                @endforeach
+                                                            </select>
+                                                        </div>
+                                                    @endif
                                                     <div class="col-12 col-lg-2">
                                                         <div class="btn-list">
                                                             <button class="btn btn-outline-secondary duplicate-term-date" type="button">{{ __('Duplicate') }}</button>
@@ -155,24 +159,28 @@
                                                                 @endforeach
                                                             </select>
                                                         </div>
-                                                        <div class="col-6 col-md-4 col-lg-2">
-                                                            <label class="form-label">{{ __('Setup group') }}</label>
-                                                            <select class="form-select" name="term_dates[{{ $i }}][setup_group_id]" data-initial="{{ $orig?->setup_group_id ?? '' }}">
-                                                                <option value="" {{ empty($selectedSetupGroup) ? 'selected' : '' }}>{{ __('No setup group') }}</option>
-                                                                @foreach(($setup_groups ?? collect()) as $setup_group)
-                                                                    <option value="{{ $setup_group->id }}" {{ (int)$selectedSetupGroup === (int)$setup_group->id ? 'selected' : '' }}>{{ $setup_group->name }}</option>
-                                                                @endforeach
-                                                            </select>
-                                                        </div>
-                                                        <div class="col-6 col-md-4 col-lg-2">
-                                                            <label class="form-label">{{ __('Van driver override') }}</label>
-                                                            <select class="form-select" name="term_dates[{{ $i }}][van_driver_id]" data-initial="{{ $orig?->van_driver_id ?? '' }}">
-                                                                <option value="" {{ empty($selectedVanDriver) ? 'selected' : '' }}>{{ __('Infer van driver') }}</option>
-                                                                @foreach(($van_drivers ?? collect()) as $van_driver)
-                                                                    <option value="{{ $van_driver->id }}" {{ (int)$selectedVanDriver === (int)$van_driver->id ? 'selected' : '' }}>{{ $van_driver->name }}</option>
-                                                                @endforeach
-                                                            </select>
-                                                        </div>
+                                                        @if (config('app.readererer_setup_groups'))
+                                                            <div class="col-6 col-md-4 col-lg-2">
+                                                                <label class="form-label">{{ __('Setup group') }}</label>
+                                                                <select class="form-select" name="term_dates[{{ $i }}][setup_group_id]" data-initial="{{ $orig?->setup_group_id ?? '' }}">
+                                                                    <option value="" {{ empty($selectedSetupGroup) ? 'selected' : '' }}>{{ __('No setup group') }}</option>
+                                                                    @foreach(($setup_groups ?? collect()) as $setup_group)
+                                                                        <option value="{{ $setup_group->id }}" {{ (int)$selectedSetupGroup === (int)$setup_group->id ? 'selected' : '' }}>{{ $setup_group->name }}</option>
+                                                                    @endforeach
+                                                                </select>
+                                                            </div>
+                                                        @endif
+                                                        @if (config('app.readererer_van_drivers'))
+                                                            <div class="col-6 col-md-4 col-lg-2">
+                                                                <label class="form-label">{{ config('app.readererer_setup_groups') ? __('Van driver override') : __('Van driver') }}</label>
+                                                                <select class="form-select" name="term_dates[{{ $i }}][van_driver_id]" data-initial="{{ $orig?->van_driver_id ?? '' }}">
+                                                                    <option value="" {{ empty($selectedVanDriver) ? 'selected' : '' }}>{{ config('app.readererer_setup_groups') ? __('Infer van driver') : __('No van driver') }}</option>
+                                                                    @foreach(($van_drivers ?? collect()) as $van_driver)
+                                                                        <option value="{{ $van_driver->id }}" {{ (int)$selectedVanDriver === (int)$van_driver->id ? 'selected' : '' }}>{{ $van_driver->name }}</option>
+                                                                    @endforeach
+                                                                </select>
+                                                            </div>
+                                                        @endif
                                                         <div class="col-12 col-lg-2">
                                                             <div class="btn-list">
                                                                 <button class="btn btn-outline-secondary duplicate-term-date" type="button">{{ __('Duplicate') }}</button>

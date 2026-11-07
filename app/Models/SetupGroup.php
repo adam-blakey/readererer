@@ -57,6 +57,11 @@ class SetupGroup extends Model
         'van_drivers',
     ];
 
+    public function getVisible(): array
+    {
+        return config('app.readererer_van_drivers') ? $this->visible : array_values(array_diff($this->visible, ['van_drivers']));
+    }
+
     public function getLabelAttribute(): string
     {
         return trim((string) $this->name) !== ''

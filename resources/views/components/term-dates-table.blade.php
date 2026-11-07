@@ -5,6 +5,8 @@
     $seating_plan_ensembles = $ensembles->filter(fn ($ensemble) => $ensemble->seating_plan_enabled);
     $dates = ($term_dates ?? collect())->sortBy('start_datetime');
     $can_take_registers = Gate::allows('viewAny', App\Models\RegisterEntry::class);
+    $show_setup_groups = config('app.readererer_setup_groups');
+    $show_van_drivers = config('app.readererer_van_drivers');
 @endphp
 
 <div class="table-responsive">
@@ -16,8 +18,12 @@
                 <col style="width: 14%">
                 <col style="width: 8%">
                 <col style="width: 15%">
-                <col style="width: 8%">
-                <col style="width: 13%">
+                @if ($show_setup_groups)
+                    <col style="width: 8%">
+                @endif
+                @if ($show_van_drivers)
+                    <col style="width: 13%">
+                @endif
                 <col style="width: 20%">
                 <col style="width: 22%">
             </colgroup>
@@ -26,8 +32,12 @@
                     <th>{{ __('Date') }}</th>
                     <th>{{ __('Time') }}</th>
                     <th>{{ __('Type') }}</th>
-                    <th>{{ __('Setup group') }}</th>
-                    <th>{{ __('Van driver') }}</th>
+                    @if ($show_setup_groups)
+                        <th>{{ __('Setup group') }}</th>
+                    @endif
+                    @if ($show_van_drivers)
+                        <th>{{ __('Van driver') }}</th>
+                    @endif
                     <th>{{ __('Emails') }}</th>
                     <th>{{ __('Actions') }}</th>
                 </tr>
@@ -50,20 +60,24 @@
                                 <span class="badge bg-gray text-muted">{{ __('Rehearsal') }}</span>
                             @endif
                         </td>
-                        <td>
-                            @if ($td->setup_group != null)
-                                <x-setup-group-badge :setup_group="$td->setup_group" />
-                            @else
-                                <span class="text-muted" data-bs-toggle="tooltip" title="{{ __('No setup group is on duty for this date') }}">—</span>
-                            @endif
-                        </td>
-                        <td>
-                            @if ($td->inferred_van_driver == null)
-                                <span class="badge bg-red text-red-fg">{{ __('No van driver!') }}</span>
-                            @else
-                                {{ $td->inferred_van_driver->name }}
-                            @endif
-                        </td>
+                        @if ($show_setup_groups)
+                            <td>
+                                @if ($td->setup_group != null)
+                                    <x-setup-group-badge :setup_group="$td->setup_group" />
+                                @else
+                                    <span class="text-muted" data-bs-toggle="tooltip" title="{{ __('No setup group is on duty for this date') }}">—</span>
+                                @endif
+                            </td>
+                        @endif
+                        @if ($show_van_drivers)
+                            <td>
+                                @if ($td->inferred_van_driver == null)
+                                    <span class="badge bg-red text-red-fg">{{ __('No van driver!') }}</span>
+                                @else
+                                    {{ $td->inferred_van_driver->name }}
+                                @endif
+                            </td>
+                        @endif
                         <td>
                             @php $logs = $td->email_logs; @endphp
                             @if ($logs->isEmpty())
@@ -105,7 +119,7 @@
                                             {{ __('Send attendance list now') }}
                                         </button>
                                     </form>
-                                    @if ($td->setup_group)
+                                    @if ($show_setup_groups && $td->setup_group)
                                         <form method="POST" action="{{ route('term-dates.send-setup-reminder', $td) }}">
                                             @csrf
                                             <button type="submit" class="btn btn-sm bg-info-lt text-info-lt-fg">
@@ -114,7 +128,7 @@
                                             </button>
                                         </form>
                                     @endif
-                                    @if($td->inferred_van_driver)
+                                    @if ($show_van_drivers && $td->inferred_van_driver)
                                         <form method="POST" action="{{ route('term-dates.send-van-driver-reminder', $td) }}" class="d-inline">
                                             @csrf
                                             <button type="submit" class="btn btn-sm bg-info text-info-fg">
