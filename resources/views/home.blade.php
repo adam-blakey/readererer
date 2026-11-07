@@ -16,10 +16,10 @@
 							{{ __('Readererer is an app designed to help amateur music groups manage their pieces of music and rehearsal attendance efficiently.') }}</p>
 						<h2>{{ __('Rough feature list') }}</h2>
 						<ul>
-							<li><strong>{{ __('Manage pieces of music:') }}</strong> {{ __('Easily add, edit, and organize your music pieces.') }}</li>
+							<li><strong>{{ __('Manage pieces of music:') }}</strong> {{ __('Easily add, edit, and organise your music pieces.') }}</li>
 							<li><strong>{{ __('Track rehearsal attendance:') }}</strong> {{ __('Keep track of who is attending rehearsals and who is not; receive reminders and attendance summaries via email.') }}</li>
-							<li><strong>{{ __('Organize ensembles:') }}</strong> {{ __('Manage different ensembles and their members along with their contact details.') }}</li>
-							<li><strong>{{ __('Term management:') }}</strong> {{ __('Organize your rehearsals and performances by term.') }}</li>
+							<li><strong>{{ __('Organise ensembles:') }}</strong> {{ __('Manage different ensembles and their members along with their contact details.') }}</li>
+							<li><strong>{{ __('Term management:') }}</strong> {{ __('Organise your rehearsals and performances by term.') }}</li>
 						</ul>
 						@guest
 							<a class="btn btn-primary" href="{{ route('login') }}"><x-icon name="login" /> {{ __('Log in') }}</a>

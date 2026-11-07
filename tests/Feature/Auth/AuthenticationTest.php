@@ -9,6 +9,8 @@ test('login screen can be rendered', function () {
 });
 
 test('login screen tabs the forgotten password link last, after login with Google', function () {
+    config(['app.readererer_google_login' => true, 'services.google.client_id' => 'id', 'services.google.client_secret' => 'secret']);
+
     $response = $this->get('/login');
 
     $response->assertStatus(200);
