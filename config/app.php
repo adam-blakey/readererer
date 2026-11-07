@@ -142,9 +142,8 @@ return [
     'readererer_repeating_headings' => env('READERERER_REPEATING_HEADINGS', false),
     'readererer_image_max_kilobytes' => env('READERERER_IMAGE_MAX_KILOBYTES', 2048),
     'readererer_logo' => env('READERERER_LOGO'),
-
+    'readererer_primary_color' => env('READERERER_PRIMARY_COLOR', 'green'),
     'readererer_favicon' => env('READERERER_FAVICON'),
-    'readererer_primary_color' => env('READERERER_PRIMARY_COLOR', 'blue'),
     'readererer_terminology' => [],
     'readererer_shown_user_fields' => array_keys(User::OPTIONAL_FIELDS),
     'readererer_setup_groups' => env('READERERER_SETUP_GROUPS', true),
