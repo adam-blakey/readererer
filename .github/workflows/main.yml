@@ -13,9 +13,27 @@ jobs:
     uses: ./.github/workflows/deploy.yml
     secrets: inherit
 
+  codeql:
+    uses: ./.github/workflows/codeql.yml
+    permissions:
+      security-events: write
+      packages: read
+      actions: read
+      contents: read
+
+  dast:
+    uses: ./.github/workflows/dast.yml
+
+  php_security:
+    uses: ./.github/workflows/php-security.yml
+    permissions:
+      contents: read
+      security-events: write
+      actions: read
+
   deploy_qa:
     if: github.ref == 'refs/heads/main'
-    needs: build
+    needs: [build, codeql, dast, php_security]
     runs-on: ubuntu-24.04
     concurrency:
       group: deploy-qa
