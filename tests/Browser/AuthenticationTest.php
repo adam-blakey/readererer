@@ -80,7 +80,7 @@ test('a logged-in user can log out from the user menu', function () {
 });
 
 test('a guest who opens a poll from the home page lands on it after logging in', function () {
-    $ensemble = Ensemble::factory()->create();
+    $ensemble = Ensemble::factory()->create(['image' => null]);
     $term = Term::factory()->create(['name' => 'Spring term']);
     make_term_date($term);
 
