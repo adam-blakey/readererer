@@ -48,6 +48,10 @@ class GoogleLoginController extends Controller
             return $this->fail(__('More than one account uses :email, so log in with your username instead.', ['email' => $email]));
         }
 
+        if ($users->first()?->role === UserRole::Ensemble) {
+            return $this->fail(__('Shared ensemble logins cannot log in with Google.'));
+        }
+
         $user = $users->first() ?? $this->register($google, $email);
 
         if (! $user) {

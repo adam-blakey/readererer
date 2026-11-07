@@ -80,3 +80,16 @@ test('the reset password button only shows to admins', function () {
     $this->actingAs(make_user(UserRole::Admin))->get(route('users.show', $user))->assertSee('modal-reset-password');
     $this->actingAs(make_user(UserRole::Moderator))->get(route('users.show', $user))->assertDontSee('modal-reset-password');
 });
+
+test('an admin cannot email a shared ensemble login a reset link', function () {
+    Notification::fake();
+    $shared = make_user(UserRole::Ensemble);
+    $admin = make_user(UserRole::Admin);
+
+    $this->actingAs($admin)->get(route('users.show', $shared))
+        ->assertSee('Shared ensemble logins cannot reset their password by email.')
+        ->assertDontSee(route('users.password-reset-link', $shared));
+
+    $this->actingAs($admin)->post(route('users.password-reset-link', $shared))->assertSessionHasErrors('reset_link');
+    Notification::assertNothingSent();
+});

@@ -1,9 +1,12 @@
 <?php
 
 use App\Enums\EmailLinkType;
+use App\Enums\UserRole;
 use App\Models\User;
 use App\Notifications\EmailLink;
+use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Notification;
+use Illuminate\Support\Facades\Password;
 
 test('reset password link screen can be rendered', function () {
     $response = $this->get('/forgot-password');
@@ -80,4 +83,22 @@ test('resetting a password clears a pending forced change', function () {
     });
 
     expect($user->refresh()->must_change_password)->toBeFalse();
+});
+
+test('shared ensemble logins cannot get or use a password reset link', function () {
+    Notification::fake();
+    $shared = User::factory()->create(['role' => UserRole::Ensemble]);
+
+    $this->post('/forgot-password', ['email' => $shared->email])->assertSessionHasErrors('email');
+    Notification::assertNothingSent();
+
+    // Even with a valid token, for instance from a link sent before the account became shared.
+    $this->post('/reset-password', [
+        'token' => Password::createToken($shared),
+        'email' => $shared->email,
+        'password' => 'new-password',
+        'password_confirmation' => 'new-password',
+    ])->assertSessionHasErrors('email');
+
+    expect(Hash::check('new-password', $shared->fresh()->password))->toBeFalse();
 });

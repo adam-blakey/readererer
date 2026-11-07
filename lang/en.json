@@ -576,5 +576,7 @@
     "Role for new users": "Role for new users",
     "Enter a domain name such as example.org, without the @.": "Enter a domain name such as example.org, without the @.",
     "Create an OAuth client": "Create an OAuth client",
-    "Clients page": "Clients page"
+    "Clients page": "Clients page",
+    "Shared ensemble logins cannot log in with Google.": "Shared ensemble logins cannot log in with Google.",
+    "Shared ensemble logins cannot reset their password by email.": "Shared ensemble logins cannot reset their password by email."
 }
