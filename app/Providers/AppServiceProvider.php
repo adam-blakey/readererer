@@ -13,9 +13,7 @@ use Barryvdh\Debugbar\Facades\Debugbar;
 use Illuminate\Contracts\Translation\Loader;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Foundation\AliasLoader;
-use Illuminate\Foundation\Http\Events\RequestHandled;
 use Illuminate\Pagination\Paginator;
-use Illuminate\Routing\Events\RouteMatched;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\ServiceProvider;
 
@@ -36,11 +34,6 @@ class AppServiceProvider extends ServiceProvider
     public function boot(): void
     {
         Setting::applyToConfig();
-
-        if (getenv('DEBUG_REQUESTS')) {
-            $this->app['events']->listen(RouteMatched::class, fn ($e) => fwrite(STDERR, 'REQ start '.$e->request->method().' '.$e->request->getRequestUri()."\n"));
-            $this->app['events']->listen(RequestHandled::class, fn ($e) => fwrite(STDERR, 'REQ done '.$e->response->getStatusCode().' '.$e->request->getRequestUri()."\n"));
-        }
 
         Paginator::defaultView('pagination::default');
 

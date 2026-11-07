@@ -80,32 +80,16 @@ test('a logged-in user can log out from the user menu', function () {
 });
 
 test('a guest who opens a poll from the home page lands on it after logging in', function () {
-    $ensemble = Ensemble::factory()->create(['image' => null]);
+    $ensemble = Ensemble::factory()->create();
     $term = Term::factory()->create(['name' => 'Spring term']);
     make_term_date($term);
 
-    $step = fn (string $name) => fwrite(STDERR, "STEP {$name}\n");
-    $step('visit');
-    $page = visit('/');
-    $step('visited');
-    $page->click('Spring term');
-    $step('clicked term');
-    $page->assertPathIs('/login');
-    $step('on login');
-    $page->waitForEvent('load');
-    $step('loaded');
-    $step('state '.json_encode($page->script('(() => { const done = new Set(performance.getEntriesByType("resource").map(e => e.name)); const all = [...document.querySelectorAll("script[src],link[rel=stylesheet],link[rel=modulepreload]")].map(e => e.src || e.href); return document.readyState + " inputs=" + document.querySelectorAll("input").length + " pending=" + all.filter(u => !done.has(u)).join(",") + " total=" + all.length + " done=" + done.size; })()')));
-    $locator = $page->page()->locator('[id="username"]');
-    $step('got locator');
-    $step('count '.$locator->count());
-    $locator->fill('admin');
-    $step('filled via locator');
-    $page->type('username', 'admin');
-    $step('typed username');
-    $page->type('password', 'password');
-    $step('typed password');
-    $page->click('button[type="submit"]');
-    $step('submitted');
-    $page->assertPathIs(route('attendance.poll.show', ['ensemble' => $ensemble, 'term' => $term], absolute: false));
-    $step('done');
+    visit('/')
+        ->click('Spring term')
+        ->assertPathIs('/login')
+        ->assertVisible('#username')
+        ->type('username', 'admin')
+        ->type('password', 'password')
+        ->click('button[type="submit"]')
+        ->assertPathIs(route('attendance.poll.show', ['ensemble' => $ensemble, 'term' => $term], absolute: false));
 });

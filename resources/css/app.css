@@ -4,6 +4,8 @@
 @import "@tabler/core/dist/css/tabler-vendors.min.css";
 @import "@tabler/core/dist/css/tabler-themes.min.css";
 
+@import url("https://rsms.me/inter/inter.css");
+
 :root {
     --tblr-font-sans-serif: Roboto, Helvetica Neue, sans-serif;
     --tblr-navbar-brand-padding-y: 0.1rem;
