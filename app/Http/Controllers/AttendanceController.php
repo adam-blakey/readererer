@@ -34,7 +34,7 @@ class AttendanceController extends Controller
             ->load('concert_ensembles')
             ->filter(fn (TermDate $term_date) => $term_date->appliesToEnsemble($ensemble))
             ->values()
-            ->load(['setup_group.van_drivers', 'van_driver']);
+            ->load(['setup_group.van_drivers', 'van_driver', 'location']);
 
         $members = $ensemble->users()
             ->wherePivotNotNull('instrument_family_id')

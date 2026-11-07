@@ -79,7 +79,7 @@
                 <textarea name="{{ $name }}" id="{{ $id }}" @class($control_classes) rows="3" placeholder="{{ $data['label'] }}" @required($required)>{{ $value }}</textarea>
                 @break
             @case('number')
-                <input type="number" name="{{ $name }}" id="{{ $id }}" value="{{ $value }}" @class($control_classes) placeholder="{{ $data['label'] }}" @required($required) />
+                <input type="number" name="{{ $name }}" step="any" id="{{ $id }}" value="{{ $value }}" @class($control_classes) placeholder="{{ $data['label'] }}" @required($required) />
                 @break
             @case('email')
                 <input type="email" name="{{ $name }}" id="{{ $id }}" value="{{ $value }}" @class($control_classes) placeholder="{{ $data['label'] }}" @required($required) />

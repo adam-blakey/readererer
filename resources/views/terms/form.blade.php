@@ -1,4 +1,4 @@
-@props(['term', 'ensembles', 'setup_groups', 'van_drivers', 'form_route', 'form_method'])
+@props(['term', 'ensembles', 'setup_groups', 'van_drivers', 'locations', 'form_route', 'form_method'])
 
 <x-layout>
     <div class="container">
@@ -25,7 +25,7 @@
 							<h2 class="mb-0 card-heading">{{ __('Edit term details') }}</h2>
 						</div>
 						<div class="card-body">
-							<x-forms.error-summary :fields="['name', 'slug', 'term_dates.*.start_datetime', 'term_dates.*.end_datetime']" />
+							<x-forms.error-summary :fields="['name', 'slug', 'term_dates.*.start_datetime', 'term_dates.*.end_datetime', 'term_dates.*.time_tbc', 'term_dates.*.location_id']" />
 
 							<form action="{{ $form_route }}" id="term-edit-form" method="POST" data-dirty-check>
 								@csrf
@@ -65,6 +65,21 @@
                                                     <div class="col-6 col-md-4 col-lg-2">
                                                         <label class="form-label">{{ __('End') }}</label>
                                                         <input class="form-control" name="term_dates[__INDEX__][end_datetime]" type="datetime-local" data-initial="" required>
+                                                    </div>
+                                                    <div class="col-auto">
+                                                        <label class="form-check mb-2">
+                                                            <input class="form-check-input" name="term_dates[__INDEX__][time_tbc]" type="checkbox" value="1" data-initial="">
+                                                            <span class="form-check-label">{{ __('Time TBC') }}</span>
+                                                        </label>
+                                                    </div>
+                                                    <div class="col-6 col-md-4 col-lg-2">
+                                                        <label class="form-label">{{ __('Location') }}</label>
+                                                        <select class="form-select" name="term_dates[__INDEX__][location_id]" data-initial="">
+                                                            <option value="">{{ __('TBC') }}</option>
+                                                            @foreach(($locations ?? collect()) as $location)
+                                                                <option value="{{ $location->id }}">{{ $location->name }}</option>
+                                                            @endforeach
+                                                        </select>
                                                     </div>
                                                     <div class="col-6 col-md-4 col-lg-2">
                                                         <label class="form-label">{{ __('Concert ensembles') }}</label>
@@ -118,6 +133,8 @@
                                                                 'ensemble_ids' => $d->concert_ensembles->modelKeys(),
                                                                 'setup_group_id' => $d->setup_group_id,
                                                                 'van_driver_id' => $d->van_driver_id,
+                                                                'time_tbc' => $d->time_tbc,
+                                                                'location_id' => $d->location_id,
                                                             ];
                                                         });
                                                     }
@@ -132,6 +149,7 @@
                                                         $selectedEnsembles = collect($date['ensemble_ids'] ?? [])->map(fn ($id) => (int) $id);
                                                         $selectedSetupGroup = $date['setup_group_id'] ?? ($orig->setup_group_id ?? null);
                                                         $selectedVanDriver = $date['van_driver_id'] ?? ($orig->van_driver_id ?? null);
+                                                        $selectedLocation = $date['location_id'] ?? null;
                                                     @endphp
                                                     <div class="row g-2 align-items-end term-date-row mb-2" data-index="{{ $i }}">
                                                         @if (!empty($date['id']))
@@ -150,6 +168,21 @@
                                                                 <x-forms.input-error :messages="$message" />
                                                             @enderror
                                                             <input class="form-control @error('term_dates.' . $i . '.end_datetime') is-invalid @enderror" name="term_dates[{{ $i }}][end_datetime]" type="datetime-local" value="{{ $date['end_datetime'] ?? '' }}" data-initial="{{ $initialEnd }}" required>
+                                                        </div>
+                                                        <div class="col-auto">
+                                                            <label class="form-check mb-2">
+                                                                <input class="form-check-input" name="term_dates[{{ $i }}][time_tbc]" type="checkbox" value="1" data-initial="{{ $orig?->time_tbc ? '1' : '' }}" @checked(!empty($date['time_tbc']))>
+                                                                <span class="form-check-label">{{ __('Time TBC') }}</span>
+                                                            </label>
+                                                        </div>
+                                                        <div class="col-6 col-md-4 col-lg-2">
+                                                            <label class="form-label">{{ __('Location') }}</label>
+                                                            <select class="form-select" name="term_dates[{{ $i }}][location_id]" data-initial="{{ $orig?->location_id ?? '' }}">
+                                                                <option value="" @selected(empty($selectedLocation))>{{ __('TBC') }}</option>
+                                                                @foreach(($locations ?? collect()) as $location)
+                                                                    <option value="{{ $location->id }}" @selected((int) $selectedLocation === $location->id)>{{ $location->name }}</option>
+                                                                @endforeach
+                                                            </select>
                                                         </div>
                                                         <div class="col-6 col-md-4 col-lg-2">
                                                             <label class="form-label">{{ __('Concert ensembles') }}</label>
@@ -226,6 +259,9 @@
 			}
 
 			function valueOf(input) {
+				if (input.type === 'checkbox') {
+					return input.checked ? '1' : '';
+				}
 				if (input.multiple) {
 					return Array.from(input.selectedOptions, option => option.value).join(',');
 				}
@@ -270,6 +306,8 @@
 					const source = field ? sourceRow.querySelector(`[name$="${field}"]`) : null;
 					if (source && source.multiple) {
 						Array.from(el.options).forEach(option => option.selected = source.querySelector(`option[value="${option.value}"]`)?.selected ?? false);
+					} else if (source && source.type === 'checkbox') {
+						el.checked = source.checked;
 					} else if (source && source.type !== 'hidden') {
 						el.value = source.value;
 					}

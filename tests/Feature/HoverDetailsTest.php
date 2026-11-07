@@ -102,6 +102,6 @@ test('a poll date heading spells the date out on hover', function () {
         ['term_dates' => collect([$rehearsal, $concert]), 'ensemble' => $ensemble],
     );
 
-    $rendered->assertSee('title="Rehearsal: '.e($rehearsal->schedule_label).'"', false);
-    $rendered->assertSee('title="Concert: '.e($concert->schedule_label).' ('.e($ensemble->name).')"', false);
+    $rendered->assertSee('title="Rehearsal: '.e($rehearsal->schedule_label).' — Location: TBC"', false);
+    $rendered->assertSee('title="Concert: '.e($concert->schedule_label).' ('.e($ensemble->name).') — Location: TBC"', false);
 });

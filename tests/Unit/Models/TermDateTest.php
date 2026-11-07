@@ -1,6 +1,7 @@
 <?php
 
 use App\Models\Ensemble;
+use App\Models\Location;
 use App\Models\SetupGroup;
 use App\Models\Term;
 use App\Models\TermDate;
@@ -44,6 +45,29 @@ test('schedule label spells out both ends of a multi-day date', function () {
     $termDate = term_date_at('2026-01-05 19:00:00', '2026-01-06 21:30:00');
 
     expect($termDate->schedule_label)->toBe('Mon, 5 Jan 2026, 19:00 – Tue, 6 Jan 2026, 21:30');
+});
+
+test('labels show TBC in place of the time when it is not confirmed', function () {
+    $termDate = term_date_at('2026-01-05 19:00:00', '2026-01-05 21:30:00', ['time_tbc' => true]);
+
+    expect($termDate->name)->toBe('Monday, 5th January 2026, time TBC')
+        ->and($termDate->time_label)->toBe('TBC')
+        ->and($termDate->schedule_label)->toBe('Mon, 5 Jan 2026, TBC');
+
+    $multiDay = term_date_at('2026-01-05 19:00:00', '2026-01-06 21:30:00', ['time_tbc' => true]);
+
+    expect($multiDay->name)->toBe('Monday, 5th January 2026 – Tuesday, 6th January 2026, time TBC')
+        ->and($multiDay->schedule_label)->toBe('Mon, 5 Jan 2026 – Tue, 6 Jan 2026, TBC');
+});
+
+test('location label is the location name, or TBC without one', function () {
+    $termDate = term_date_at('2026-01-05 19:00:00', '2026-01-05 21:30:00');
+
+    expect($termDate->location_label)->toBe('TBC');
+
+    $termDate->update(['location_id' => Location::factory()->create(['name' => 'Town Hall'])->id]);
+
+    expect($termDate->fresh()->location_label)->toBe('Town Hall');
 });
 
 test('relative label names today, tomorrow and yesterday', function () {

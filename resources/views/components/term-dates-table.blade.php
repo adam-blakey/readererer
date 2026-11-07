@@ -17,20 +17,22 @@
             <colgroup>
                 <col style="width: 14%">
                 <col style="width: 8%">
-                <col style="width: 15%">
+                <col style="width: 10%">
+                <col style="width: 12%">
                 @if ($show_setup_groups)
                     <col style="width: 8%">
                 @endif
                 @if ($show_van_drivers)
                     <col style="width: 13%">
                 @endif
+                <col style="width: 18%">
                 <col style="width: 20%">
-                <col style="width: 22%">
             </colgroup>
             <thead>
                 <tr>
                     <th>{{ __('Date') }}</th>
                     <th>{{ __('Time') }}</th>
+                    <th>{{ __('Location') }}</th>
                     <th>{{ __('Type') }}</th>
                     @if ($show_setup_groups)
                         <th>{{ __('Setup group') }}</th>
@@ -53,6 +55,7 @@
                             @endif
                         </td>
                         <td class="text-nowrap">{{ $td->time_label }}</td>
+                        <td><x-location-link :location="$td->location" /></td>
                         <td>
                             @if ($td->is_concert)
                                 <span class="badge bg-primary text-primary-fg">{{ __('Concert') }} ({{ $td->concert_ensemble_names }})</span>

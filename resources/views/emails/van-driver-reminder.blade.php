@@ -7,6 +7,11 @@
 
 **{{ $termDate->name }}**
 
+{{ __('Location: :location', ['location' => $termDate->location_label]) }}
+@if($termDate->location?->map_url)
+([{{ __('Open in OpenStreetMap') }}]({{ $termDate->location->map_url }}))
+@endif
+
 @if($termDate->is_concert)
 {{ __('This is a concert for') }} **{{ $termDate->concert_ensemble_names }}**.
 @else

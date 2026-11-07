@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\UpdateTermRequest;
 use App\Models\Ensemble;
+use App\Models\Location;
 use App\Models\SetupGroup;
 use App\Models\Term;
 use App\Models\User;
@@ -58,6 +59,7 @@ class TermController extends Controller
             'ensembles' => $ensembles,
             'setup_groups' => $setup_groups,
             'van_drivers' => $van_drivers,
+            'locations' => $this->locationOptions($term),
             'form_route' => route('terms.store'),
             'form_method' => 'POST',
         ]);
@@ -77,6 +79,8 @@ class TermController extends Controller
             'term_dates.*.ensemble_ids.*' => 'integer|exists:ensembles,id',
             'term_dates.*.setup_group_id' => 'nullable|integer|exists:setup_groups,id',
             'term_dates.*.van_driver_id' => 'nullable|integer|exists:users,id',
+            'term_dates.*.time_tbc' => 'sometimes|boolean',
+            'term_dates.*.location_id' => 'nullable|integer|exists:locations,id',
         ]);
 
         $term = DB::transaction(function () use ($validated) {
@@ -91,7 +95,7 @@ class TermController extends Controller
 
     public function show(Term $term)
     {
-        $term->load('term_dates.concert_ensembles')->with('van_driver');
+        $term->load('term_dates.concert_ensembles', 'term_dates.location')->with('van_driver');
         $ensembles = Ensemble::orderBy('name')->get();
 
         return view('terms.show', [
@@ -114,6 +118,7 @@ class TermController extends Controller
             'ensembles' => $ensembles,
             'setup_groups' => $setup_groups,
             'van_drivers' => $van_drivers,
+            'locations' => $this->locationOptions($term),
             'form_route' => route('terms.update', $term),
             'form_method' => 'PATCH',
         ]);
@@ -145,6 +150,15 @@ class TermController extends Controller
         return redirect()->back()->with('status', __('Restored.'));
     }
 
+    /** Every live location, plus any archived one a date still uses so saving the form keeps it. */
+    private function locationOptions(Term $term)
+    {
+        return Location::withTrashed()
+            ->where(fn ($query) => $query->whereNull('deleted_at')->orWhereIn('id', $term->term_dates->pluck('location_id')->filter()))
+            ->orderBy('name')
+            ->get();
+    }
+
     private function syncTermDates(Term $term, array $rows): void
     {
         $rows = collect($rows);
@@ -157,6 +171,8 @@ class TermController extends Controller
                 'end_datetime' => $row['end_datetime'],
                 'setup_group_id' => $row['setup_group_id'] ?? null,
                 'van_driver_id' => $row['van_driver_id'] ?? null,
+                'time_tbc' => ! empty($row['time_tbc']),
+                'location_id' => $row['location_id'] ?? null,
             ], fn (string $key) => match ($key) {
                 'setup_group_id' => config('app.readererer_setup_groups'),
                 'van_driver_id' => config('app.readererer_van_drivers'),

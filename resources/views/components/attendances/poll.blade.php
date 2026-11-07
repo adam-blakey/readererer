@@ -97,7 +97,7 @@
 					@endphp
 					<tr>
 						<td class="{{ $term_date->concert_ensembles->contains($ensemble) ? 'bg-primary-subtle' : '' }}">
-							{{ $term_date->schedule_label }}
+							{{ $term_date->schedule_label }} — {{ $term_date->location_label }}
 							@if ($term_date->is_concert)
 								<span class="ms-1 badge bg-primary-lt">{{ __('Concert') }}</span>
 							@endif

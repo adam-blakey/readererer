@@ -573,5 +573,22 @@
     "Create an OAuth client": "Create an OAuth client",
     "Clients page": "Clients page",
     "Shared ensemble logins cannot log in with Google.": "Shared ensemble logins cannot log in with Google.",
-    "Shared ensemble logins cannot reset their password by email.": "Shared ensemble logins cannot reset their password by email."
+    "Shared ensemble logins cannot reset their password by email.": "Shared ensemble logins cannot reset their password by email.",
+    "Time TBC": "Time TBC",
+    "time TBC": "time TBC",
+    "TBC": "TBC",
+    "Location": "Location",
+    "Locations": "Locations",
+    "Locations overview": "Locations overview",
+    "location": "location",
+    "New location": "New location",
+    "Create new location": "Create new location",
+    "Location :name": "Location :name",
+    "Update location": "Update location",
+    "Location: :location": "Location: :location",
+    "Latitude": "Latitude",
+    "Longitude": "Longitude",
+    "Map": "Map",
+    "Open": "Open",
+    "Open in OpenStreetMap": "Open in OpenStreetMap"
 }
