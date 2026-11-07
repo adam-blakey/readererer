@@ -12,8 +12,6 @@ export default defineConfig({
                 'resources/images/favicon.png',
                 'resources/images/readererer-long-logo.svg',
                 'resources/images/readererer-square-logo.svg',
-                'resources/images/tabler/computer-fix-dark.png',
-                'resources/images/tabler/computer-fix-light.png',
                 'resources/images/tabler/icons-gray-social-facebook-square.png',
                 'resources/images/tabler/icons-gray-social-github.png',
                 'resources/images/tabler/icons-gray-social-instagram.png',

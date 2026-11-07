@@ -1,6 +1,7 @@
 @props(['page_name', 'has_uploaded_logo', 'has_google_client_secret'])
 
 @php
+	use App\Enums\Color;
 	use App\Enums\UserRole;
 	use App\Models\Setting;
 
@@ -58,7 +59,7 @@
 			@method('PUT')
 
 			<fieldset class="card-body" @disabled(! $can_edit)>
-				<x-forms.error-summary :fields="['name', 'logo', 'remove_logo', 'image_max_kilobytes', 'assume_attending', 'allow_change_to_unknown', 'repeating_headings', 'setup_groups', 'van_drivers', 'single_ensemble', 'reminder_hours', 'after_reminders', 'log_emails', 'terminology', 'terminology.*', 'shown_user_fields', 'shown_user_fields.*', 'google_login', 'google_client_id', 'google_client_secret', 'google_register_domain', 'google_register_role']" />
+				<x-forms.error-summary :fields="['name', 'logo', 'remove_logo', 'primary_color', 'image_max_kilobytes', 'assume_attending', 'allow_change_to_unknown', 'repeating_headings', 'setup_groups', 'van_drivers', 'single_ensemble', 'reminder_hours', 'after_reminders', 'log_emails', 'terminology', 'terminology.*', 'shown_user_fields', 'shown_user_fields.*', 'google_login', 'google_client_id', 'google_client_secret', 'google_register_domain', 'google_register_role']" />
 				@if (session('status'))
 					<div class="alert alert-success" role="alert">{{ session('status') }}</div>
 				@endif
@@ -88,6 +89,23 @@
 									<span class="form-check-label">{{ __('Remove the uploaded logo') }}</span>
 								</label>
 							@endif
+						</div>
+						<div class="mb-3">
+							<div class="form-label" id="primary_color_label">{{ __('Featured colour') }}</div>
+							<div aria-labelledby="primary_color_label" class="row g-2" role="radiogroup">
+								@foreach (Color::cases() as $color)
+									<div class="col-auto">
+										<label class="form-colorinput" title="{{ $color->label() }}">
+											<input aria-label="{{ $color->label() }}" class="form-colorinput-input" name="primary_color" type="radio" value="{{ $color->value }}" @checked(old('primary_color', config('app.readererer_primary_color')) === $color->value)>
+											<span class="form-colorinput-color bg-{{ $color->cssClass() }}"></span>
+										</label>
+									</div>
+								@endforeach
+							</div>
+							<div class="form-hint">{{ __('Used for buttons, links and illustrations.') }}</div>
+							@error('primary_color')
+								<x-forms.input-error :messages="$message" />
+							@enderror
 						</div>
 						<div class="mb-3">
 							<label class="form-label required" for="image_max_kilobytes">{{ __('Largest image upload (KB)') }}</label>
