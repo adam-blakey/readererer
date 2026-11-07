@@ -47,7 +47,7 @@
 								@elseif (array_key_exists($attribute, $casts))
 									@switch($casts[$attribute])
 										@case('boolean')
-											<input aria-label="{{ $entity->$attribute ? __('Yes') : __('No') }}" class="form-check-input m-0 pe-none" tabindex="-1" type="checkbox" @checked($entity->$attribute)>
+											<span aria-label="{{ $entity->$attribute ? __('Yes') : __('No') }}" class="{{ $entity->$attribute ? 'text-success' : 'text-danger' }}" data-bs-toggle="tooltip" role="img" title="{{ $entity->$attribute ? __('Yes') : __('No') }}"><x-icon name="{{ $entity->$attribute ? 'check' : 'x' }}" /></span>
 										@break
 
 										@case('datetime')
