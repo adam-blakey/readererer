@@ -60,6 +60,24 @@ class UserController extends Controller
         unset($fields['image']);
         $fields['role']['options'] = array_filter($fields['role']['options'], fn ($role) => $role <= auth()->user()->role->value, ARRAY_FILTER_USE_KEY);
 
+        if (! config('app.readererer_setup_groups')) {
+            unset($fields['setup_group']);
+        }
+
+        if (single_ensemble()) {
+            $fields['instrument_family'] = [
+                'label' => __('Instrument family'),
+                'type' => 'class',
+                'required' => true,
+                'icon' => 'guitar-pick',
+                'value' => null,
+                'options' => InstrumentFamily::orderBy('name')->get(),
+                'default_option' => null,
+                'select_multiple' => false,
+                'width' => 12,
+            ];
+        }
+
         return view('auto-entities.form', [
             'page_name' => __('Users'),
             'page_subname' => __('Create new user'),
@@ -74,6 +92,7 @@ class UserController extends Controller
         $attributes = $request->validated();
         $attributes['password'] = Str::password(16);
         $setup_group_id = Arr::pull($attributes, 'setup_group');
+        $instrument_family_id = Arr::pull($attributes, 'instrument_family');
 
         // Someone else may take the generated username between the check and the insert.
         $user = retry(3, fn () => User::create($attributes + [
@@ -82,6 +101,10 @@ class UserController extends Controller
         $user->setup_group()->associate($setup_group_id ? SetupGroup::find($setup_group_id) : null);
         $user->must_change_password = true;
         $user->save();
+
+        if ($ensemble = single_ensemble()) {
+            $user->ensembles()->attach($ensemble, ['instrument_family_id' => $instrument_family_id]);
+        }
 
         return to_route('users.show', $user);
     }
@@ -112,7 +135,9 @@ class UserController extends Controller
 
         $user->applyImageInput($request->file('image'), $request->boolean('remove_image'));
         $user->update(Arr::except($attributes, ['image', 'remove_image']));
-        $user->setup_group()->associate($setup_group_id ? SetupGroup::find($setup_group_id) : null);
+        if (config('app.readererer_setup_groups')) {
+            $user->setup_group()->associate($setup_group_id ? SetupGroup::find($setup_group_id) : null);
+        }
 
         $user->save();
 

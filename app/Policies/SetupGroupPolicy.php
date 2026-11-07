@@ -9,6 +9,11 @@ use Illuminate\Auth\Access\Response;
 
 class SetupGroupPolicy
 {
+    public function before(User $user): ?bool
+    {
+        return config('app.readererer_setup_groups') ? null : false;
+    }
+
     public function viewAny(User $user)
     {
         if ($user->role->value >= UserRole::Moderator->value) {

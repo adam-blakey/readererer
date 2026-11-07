@@ -9,7 +9,8 @@
 	}
 @endphp
 
-@if ($show_as_dot && $show_with_van)
+@if (! config('app.readererer_setup_groups'))
+@elseif ($show_as_dot && $show_with_van)
     <span class="badge badge-dot bg-{{ $setup_group->color }} badge-notification text-{{ $setup_group->color }}-fg p-0" @if ($tooltip) aria-label="{{ $tooltip_text }}" data-bs-toggle="tooltip" title="{{ $tooltip_text }}" @endif><x-icon name="truck" /></span>
 @elseif ($show_as_dot)
     <span class="badge badge-dot bg-{{ $setup_group->color }} badge-notification" @if ($tooltip) aria-label="{{ $tooltip_text }}" data-bs-toggle="tooltip" title="{{ $tooltip_text }}" @endif></span>

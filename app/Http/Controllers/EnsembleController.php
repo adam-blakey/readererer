@@ -34,10 +34,10 @@ class EnsembleController extends Controller
             'entities' => $ensembles,
             'page_name' => __('Ensembles'),
             'page_subname' => __('Ensemble overview'),
-            'create_entity' => [
+            'create_entity' => request()->user()->can('create', Ensemble::class) ? [
                 'route' => 'ensembles.create',
                 'name' => __('ensemble'),
-            ],
+            ] : null,
         ]);
     }
 

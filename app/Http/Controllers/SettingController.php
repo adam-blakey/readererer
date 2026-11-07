@@ -22,7 +22,7 @@ class SettingController extends Controller
         Setting::put('image_max_kilobytes', (int) $request->validated('image_max_kilobytes'));
         Setting::put('terminology', array_filter($request->validated('terminology', []), 'filled'));
 
-        foreach (['assume_attending', 'allow_change_to_unknown', 'repeating_headings'] as $key) {
+        foreach (['assume_attending', 'allow_change_to_unknown', 'repeating_headings', 'setup_groups', 'van_drivers', 'single_ensemble'] as $key) {
             Setting::put($key, $request->boolean($key));
         }
 

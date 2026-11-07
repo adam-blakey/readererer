@@ -35,6 +35,7 @@ class TermDateNotificationController extends Controller
     public function sendSetupReminder(TermDate $termDate): RedirectResponse
     {
         $this->authorize('sendNotifications', $termDate);
+        abort_unless(config('app.readererer_setup_groups'), 404);
 
         $setupGroup = $termDate->setup_group;
 
@@ -61,6 +62,7 @@ class TermDateNotificationController extends Controller
     public function sendVanDriverReminder(TermDate $termDate): RedirectResponse
     {
         $this->authorize('sendNotifications', $termDate);
+        abort_unless(config('app.readererer_van_drivers'), 404);
 
         $driver = $termDate->inferred_van_driver;
 

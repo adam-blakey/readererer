@@ -44,7 +44,9 @@ class AttendanceController extends Controller
             'term' => $term,
             'term_dates' => $term_dates,
             'instrument_families' => InstrumentFamily::whereIn('id', $members->pluck('pivot.instrument_family_id'))->get()->keyBy('id'),
-            'van_driver_ids' => $term_dates->mapWithKeys(fn (TermDate $term_date) => [$term_date->id => $term_date->inferred_van_driver?->id]),
+            'van_driver_ids' => config('app.readererer_van_drivers')
+                ? $term_dates->mapWithKeys(fn (TermDate $term_date) => [$term_date->id => $term_date->inferred_van_driver?->id])
+                : collect(),
             'page_name' => $ensemble->name.': '.$term->name,
             'ensemble' => $ensemble,
             'sortby' => $request->query('sortby') ?? 'first_name',

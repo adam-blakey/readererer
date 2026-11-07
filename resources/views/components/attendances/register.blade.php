@@ -36,7 +36,7 @@
 			</span>
 			<span class="list-inline-item">{{ $ensemble->name }}</span>
 			<span class="list-inline-item">{{ $term_date->term->name }}</span>
-			@if ($term_date->setup_group != null)
+			@if (config('app.readererer_setup_groups') && $term_date->setup_group != null)
 				<span class="list-inline-item"><x-setup-group-badge :setup_group="$term_date->setup_group" :size="false" /></span>
 			@endif
 		</div>
