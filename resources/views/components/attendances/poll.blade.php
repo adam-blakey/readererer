@@ -28,6 +28,7 @@
 
 	$can_take_registers = Gate::allows('viewAny', App\Models\RegisterEntry::class);
 	$can_view_history = Gate::allows('viewAny', App\Models\Attendance::class);
+	$locked_ids = $term_dates->filter->isLockedFor(auth()->user())->pluck('id');
 @endphp
 
 @if ($can_take_registers and $term_dates->isNotEmpty())
@@ -51,6 +52,12 @@
 				</div>
 			</div>
 		</div>
+	</div>
+@endif
+
+@if ($locked_ids->isNotEmpty())
+	<div class="card-body">
+		<div class="alert alert-info mb-0" role="alert">{{ trans_choice('Replies close :count hour before each date starts. Ask an admin to change a closed reply.|Replies close :count hours before each date starts. Ask an admin to change a closed reply.', config('app.readererer_reminder_hours')) }}</div>
 	</div>
 @endif
 
@@ -110,7 +117,7 @@
 
                                     $is_van_driver = $van_driver_ids->get($term_date->id) === $member->id;
 								@endphp
-								<x-forms.input-three-state-checkbox :$allow_change_to_unknown :$assume_attending :member_id="$member->id" :status="$attendance_value" :term_date_id="$term_date->id" :$setup_group :$is_van_driver />
+								<x-forms.input-three-state-checkbox :$allow_change_to_unknown :$assume_attending :member_id="$member->id" :status="$attendance_value" :term_date_id="$term_date->id" :$setup_group :$is_van_driver :locked="$locked_ids->contains($term_date->id)" />
 							</td>
 						@endforeach
 					</tr>

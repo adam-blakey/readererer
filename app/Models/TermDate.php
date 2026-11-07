@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Enums\UserRole;
 use App\Observers\TermDateObserver;
 use Illuminate\Database\Eloquent\Attributes\ObservedBy;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -10,6 +11,8 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Support\Carbon;
+use Illuminate\Support\Collection;
 
 #[ObservedBy(TermDateObserver::class)]
 class TermDate extends Model
@@ -90,6 +93,52 @@ class TermDate extends Model
     public function appliesToEnsemble(Ensemble $ensemble): bool
     {
         return ! $this->is_concert || $this->concert_ensembles->contains($ensemble);
+    }
+
+    /** When the automatic reminders go out, or null when they are turned off. */
+    public function remindersDueAt(): ?Carbon
+    {
+        $hours = (int) config('app.readererer_reminder_hours');
+
+        return $hours > 0 ? $this->start_datetime->copy()->subHours($hours) : null;
+    }
+
+    public function isPastReminderTime(): bool
+    {
+        return $this->remindersDueAt()?->isPast() ?? false;
+    }
+
+    /** Polls lock for everyone below moderator once reminders are due, when the site is set to lock them. */
+    public function isLockedFor(User $user): bool
+    {
+        return config('app.readererer_after_reminders') === 'lock'
+            && $this->isPastReminderTime()
+            && $user->role->value < UserRole::Moderator->value;
+    }
+
+    /** The concert ensembles' admins, or every ensemble's admins for a rehearsal. */
+    public function attendanceListRecipients(): Collection
+    {
+        $ensembles = $this->is_concert ? $this->concert_ensembles : Ensemble::all();
+
+        return $ensembles->load('admins')->flatMap->admins
+            ->filter(fn (User $admin) => filled($admin->email))
+            ->unique('id')
+            ->values();
+    }
+
+    /** The members and van drivers of the date's setup group. */
+    public function setupReminderRecipients(): Collection
+    {
+        if ($this->setup_group === null) {
+            return collect();
+        }
+
+        return $this->setup_group->members
+            ->merge($this->setup_group->van_drivers)
+            ->filter(fn (User $member) => filled($member->email))
+            ->unique('id')
+            ->values();
     }
 
     protected function casts(): array

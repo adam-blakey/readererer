@@ -18,6 +18,8 @@ function settings_payload(array $overrides = []): array
         'assume_attending' => '1',
         'allow_change_to_unknown' => '0',
         'repeating_headings' => '1',
+        'reminder_hours' => '48',
+        'after_reminders' => 'lock',
         'terminology' => ['rehearsal' => 'practice', 'rehearsals' => 'practices', 'concert' => ''],
     ], $overrides);
 }
@@ -42,6 +44,8 @@ test('an admin can save the settings and they override the config', function () 
         ->and(config('app.readererer_assume_attending'))->toBeTrue()
         ->and(config('app.readererer_allow_change_to_unknown'))->toBeFalse()
         ->and(config('app.readererer_repeating_headings'))->toBeTrue()
+        ->and(config('app.readererer_reminder_hours'))->toBe(48)
+        ->and(config('app.readererer_after_reminders'))->toBe('lock')
         ->and(config('app.readererer_terminology'))->toBe(['rehearsal' => 'practice', 'rehearsals' => 'practices']);
 });
 

@@ -3,12 +3,14 @@
 namespace App\Http\Controllers;
 
 use App\Enums\AttendanceStatus;
+use App\Mail\AttendanceChangedMail;
 use App\Models\Attendance;
 use App\Models\Ensemble;
 use App\Models\InstrumentFamily;
 use App\Models\Term;
 use App\Models\TermDate;
 use App\Models\User;
+use App\Services\EmailDispatcher;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
@@ -69,26 +71,43 @@ class AttendanceController extends Controller
         ]);
     }
 
-    public function poll_store(Ensemble $ensemble, Term $term, Request $request)
+    public function poll_store(Ensemble $ensemble, Term $term, Request $request, EmailDispatcher $dispatcher)
     {
         $this->authorize('view', $ensemble);
 
-        $member_ids = $ensemble->users()->wherePivotNotNull('instrument_family_id')->pluck('users.id');
-        $term_date_ids = $term->term_dates->load('concert_ensembles')->filter(fn (TermDate $term_date) => $term_date->appliesToEnsemble($ensemble))->pluck('id');
+        $members = $ensemble->users()->wherePivotNotNull('instrument_family_id')->get()->keyBy('id');
+        $term_dates = $term->term_dates->load('concert_ensembles')->filter(fn (TermDate $term_date) => $term_date->appliesToEnsemble($ensemble))->keyBy('id');
+        $changes = [];
 
         foreach ($request->except('_token') as $key => $value) {
             $status = is_numeric($value) ? AttendanceStatus::tryFrom((int) $value) : null;
 
             if ($status === null
                 || ! preg_match('/^status-t(\d+)m(\d+)$/', $key, $ids)
-                || ! $term_date_ids->contains((int) $ids[1])
-                || ! $member_ids->contains((int) $ids[2])) {
+                || ! $term_dates->has((int) $ids[1])
+                || ! $members->has((int) $ids[2])
+                || $term_dates[(int) $ids[1]]->isLockedFor($request->user())) {
                 continue;
             }
 
+            $term_date = $term_dates[(int) $ids[1]];
+            $member = $members[(int) $ids[2]];
+
+            if ($this->sendsFollowUps($term_date)) {
+                $previous = $this->effectiveStatus(Attendance::where([
+                    'user_id' => $member->id,
+                    'term_date_id' => $term_date->id,
+                    'ensemble_id' => $ensemble->id,
+                ])->latest()->latest('id')->value('status'));
+
+                if ($previous !== $this->effectiveStatus($status)) {
+                    $changes[$term_date->id][] = ['name' => $member->name, 'from' => $previous->label(), 'to' => $status->label()];
+                }
+            }
+
             Attendance::create([
-                'user_id' => (int) $ids[2],
-                'term_date_id' => (int) $ids[1],
+                'user_id' => $member->id,
+                'term_date_id' => $term_date->id,
                 'ensemble_id' => $ensemble->id,
                 'status' => $status,
                 'edit_user_id' => Auth::id(),
@@ -96,6 +115,29 @@ class AttendanceController extends Controller
             ]);
         }
 
+        foreach ($changes as $term_date_id => $term_date_changes) {
+            $term_date = $term_dates[$term_date_id];
+            $recipients = $term_date->attendanceListRecipients();
+
+            if ($recipients->isNotEmpty()) {
+                $dispatcher->send($term_date, $recipients, fn () => new AttendanceChangedMail($term_date, $ensemble, $term_date_changes));
+            }
+        }
+
         return redirect()->route('attendance.poll.show', ['ensemble' => $ensemble, 'term' => $term]);
+    }
+
+    private function sendsFollowUps(TermDate $term_date): bool
+    {
+        return config('app.readererer_after_reminders') === 'follow_up'
+            && $term_date->isPastReminderTime()
+            && $term_date->start_datetime->isFuture();
+    }
+
+    private function effectiveStatus(?AttendanceStatus $status): AttendanceStatus
+    {
+        $status ??= AttendanceStatus::Unknown;
+
+        return $status === AttendanceStatus::Unknown && config('app.readererer_assume_attending') ? AttendanceStatus::Attending : $status;
     }
 }
