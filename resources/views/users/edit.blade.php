@@ -62,6 +62,7 @@
 										<div class="invalid-feedback">{{ $message }}</div>
 									@enderror
 								</div>
+								@can('manage', $user)
 								<div class="mb-3">
 									<label class="form-label required">{{ __('Role') }}</label>
 									<select name="role" class="form-select @error('role') is-invalid @enderror" required>
@@ -87,6 +88,7 @@
 									@enderror
 								</div>
 								@endif
+								@endcan
 
 								<hr />
 								@php
@@ -140,11 +142,13 @@
 					<div class="mb-3 card">
 						<div class="card-header">
 							<h2 class="mb-0 card-heading">{{ __('Ensembles (:count)', ['count' => $user->ensembles->count()]) }}</h2>
+							@can('manage', $user)
 							<div class="card-actions">
 								<a href="#" class="btn btn-primary btn-3" data-bs-toggle="modal" data-bs-target="#modal-add-ensemble-user">
 									{{ __('Add to ensemble') }}
 								</a>
 							</div>
+							@endcan
 						</div>
 						<div class="card-body">
 							@forelse ($user->ensembles as $ensemble)
@@ -159,6 +163,7 @@
 										<div><x-a :route="'ensembles.show'" :ensemble="$ensemble">{{ $ensemble->name }}</x-a></div>
 										<div class="mt-1 small text-muted">{{ $instrument }}{{ $seat }}</div>
 									</div>
+									@can('manage', $user)
 									<div class="ms-auto align-self-center">
 										<form method="POST" action="{{ route('users.ensembles.destroy', ['user' => $user, 'ensemble' => $ensemble]) }}" onsubmit="return confirm('{{ __('Remove this user from :name?', ['name' => $ensemble->name]) }}');">
 											@csrf
@@ -166,6 +171,7 @@
 											<button type="submit" class="btn btn-outline-danger btn-sm">{{ __('Remove') }}</button>
 										</form>
 									</div>
+									@endcan
 								</div>
 							@empty
 								<p class="text-muted mb-0">{{ __('This user is not a member of any ensembles.') }}</p>
@@ -178,4 +184,6 @@
 	</div>
 </x-layout>
 
+@can('manage', $user)
 <x-modals.add-ensemble-user :user="$user" :ensembles="$ensembles" :instrument-families="$allInstrumentFamilies" />
+@endcan

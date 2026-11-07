@@ -186,7 +186,8 @@ test('unticking every member detail hides them all', function () {
 
     expect(User::shownFields())->toBe([]);
 
-    $this->actingAs($admin)->get(route('users.show', make_user()))
+    $member = make_user();
+    $this->actingAs($member)->get(route('users.show', $member))
         ->assertOk()
         ->assertSee(__('No additional info available'));
 });
