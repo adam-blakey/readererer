@@ -458,3 +458,25 @@ test('a roster change alert names the previous setup group', function () {
 
     Mail::assertSent(RosterChangedMail::class, fn ($mail) => in_array('The setup group is now New group (was Old group).', $mail->changes, true));
 });
+
+test('with email logging on, emails are written to the email log file instead of sent', function () {
+    Mail::fake();
+    config(['app.readererer_log_emails' => true]);
+    $path = storage_path('logs/emails.log');
+    @unlink($path);
+
+    $driver = make_user(UserRole::Member);
+    $termDate = make_notification_term_date(['van_driver_id' => $driver->id]);
+
+    $this->actingAs(make_user(UserRole::Admin))
+        ->post(route('term-dates.send-van-driver-reminder', $termDate))
+        ->assertRedirect();
+
+    Mail::assertNothingSent();
+    expect(file_get_contents($path))
+        ->toContain('To: '.$driver->name.' <'.$driver->email.'>')
+        ->toContain(VanDriverReminderMail::class);
+    expect(EmailLog::where('term_date_id', $termDate->id)->first()->status)->toBe(EmailStatus::Sent);
+
+    @unlink($path);
+});

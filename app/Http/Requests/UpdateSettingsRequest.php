@@ -29,6 +29,7 @@ class UpdateSettingsRequest extends FormRequest
             'setup_groups' => ['sometimes', 'boolean'],
             'van_drivers' => ['sometimes', 'boolean'],
             'single_ensemble' => ['sometimes', 'boolean', Rule::when(Ensemble::count() > 1, 'declined')],
+            'log_emails' => ['sometimes', 'boolean'],
             'reminder_hours' => ['nullable', 'integer', 'min:1', 'max:720'],
             'after_reminders' => ['required', Rule::in(Setting::AFTER_REMINDERS)],
             'image_max_kilobytes' => ['required', 'integer', 'min:1', 'max:10240'],

@@ -2,9 +2,12 @@
 
 namespace App\Providers;
 
+use App\Contracts\EmailSender;
 use App\Enums\UserRole;
 use App\Models\Setting;
 use App\Models\User;
+use App\Services\EmailSenders\LogEmailSender;
+use App\Services\EmailSenders\SmtpEmailSender;
 use App\Translation\TerminologyLoader;
 use Barryvdh\Debugbar\Facades\Debugbar;
 use Illuminate\Auth\Notifications\ResetPassword;
@@ -24,6 +27,8 @@ class AppServiceProvider extends ServiceProvider
         $loader->alias('Debugbar', Debugbar::class);
 
         $this->app->register(FakerServiceProvider::class);
+
+        $this->app->bind(EmailSender::class, fn () => config('app.readererer_log_emails') ? new LogEmailSender : new SmtpEmailSender);
 
         $this->app->extend('translation.loader', fn (Loader $loader) => new TerminologyLoader($loader));
     }

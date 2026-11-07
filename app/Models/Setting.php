@@ -21,6 +21,7 @@ class Setting extends Model
         'setup_groups' => ['app.readererer_setup_groups'],
         'van_drivers' => ['app.readererer_van_drivers'],
         'single_ensemble' => ['app.readererer_single_ensemble'],
+        'log_emails' => ['app.readererer_log_emails'],
         'reminder_hours' => ['app.readererer_reminder_hours'],
         'after_reminders' => ['app.readererer_after_reminders'],
     ];
