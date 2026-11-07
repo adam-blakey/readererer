@@ -2,6 +2,7 @@
 
 namespace App\Traits;
 
+use App\Http\Middleware\AddSecurityHeaders;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Vite;
@@ -32,7 +33,7 @@ trait HasImage
             return Vite::asset('resources/images/placeholders/'.$this->getTable().'.svg');
         }
 
-        return static::isStoredImage($this->image) ? Storage::disk('public')->url($this->image) : $this->image;
+        return static::isStoredImage($this->image) ? Storage::disk('public')->url($this->image) : AddSecurityHeaders::allowImage($this->image);
     }
 
     public function applyImageInput(?UploadedFile $file, bool $remove = false): void

@@ -9,9 +9,24 @@ use Symfony\Component\HttpFoundation\Response;
 
 class AddSecurityHeaders
 {
+    private static array $imageOrigins = [];
+
+    // Images can be stored as external URLs, so the policy allows the origins of those the page renders.
+    public static function allowImage(string $url): string
+    {
+        $parts = parse_url($url);
+
+        if (in_array($parts['scheme'] ?? null, ['http', 'https'], true) && preg_match('/^[a-z0-9.-]+$/i', $parts['host'] ?? '')) {
+            self::$imageOrigins[] = $parts['scheme'].'://'.$parts['host'].(isset($parts['port']) ? ':'.$parts['port'] : '');
+        }
+
+        return $url;
+    }
+
     public function handle(Request $request, Closure $next): Response
     {
         $nonce = Vite::useCspNonce();
+        self::$imageOrigins = [];
 
         $response = $next($request);
 
@@ -37,7 +52,7 @@ class AddSecurityHeaders
                 "script-src 'self' 'nonce-{$nonce}'",
                 "style-src 'self' 'unsafe-inline' https://rsms.me",
                 "font-src 'self' data: https://rsms.me",
-                "img-src 'self' data: https:",
+                implode(' ', ["img-src 'self' data:", ...array_diff(array_unique(self::$imageOrigins), [$request->getSchemeAndHttpHost()])]),
                 "object-src 'none'",
                 "base-uri 'self'",
                 "form-action 'self'",

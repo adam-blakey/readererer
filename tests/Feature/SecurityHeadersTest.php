@@ -36,3 +36,20 @@ it('gives inline scripts the policy nonce and renders no inline event handlers',
         ->toContain('<script nonce="'.$nonce[1].'">')
         ->not->toMatch('/<[^>]+\son[a-z]+="/');
 });
+
+it('allows only the image origins the page renders', function () {
+    $user = make_user(attributes: ['image' => 'https://cdn.example.org:8443/me.png']);
+
+    $policy = $this->actingAs($user)->get(route('users.show', $user))->assertOk()->headers->get('Content-Security-Policy');
+
+    expect($policy)->toContain("img-src 'self' data: https://cdn.example.org:8443;")
+        ->and($this->get(route('login'))->headers->get('Content-Security-Policy'))->toContain("img-src 'self' data:;");
+});
+
+it('leaves out image hosts that could break the policy', function () {
+    $user = make_user(attributes: ['image' => 'https://evil.example;script-src *.example/me.png']);
+
+    expect($this->actingAs($user)->get(route('users.show', $user))->headers->get('Content-Security-Policy'))
+        ->toContain("img-src 'self' data:;")
+        ->not->toContain('evil');
+});
