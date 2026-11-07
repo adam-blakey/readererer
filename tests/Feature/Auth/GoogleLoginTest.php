@@ -107,3 +107,14 @@ test('a new email address on another domain gets no account', function (string $
     $this->assertGuest();
     expect(User::where('email', $email)->exists())->toBeFalse();
 })->with(['ada@other.org', 'ada@notexample.org', 'ada@example.org.evil.com']);
+
+test('a shared ensemble login cannot log in with Google', function () {
+    enable_google_login(['app.readererer_google_register_domain' => 'example.org', 'app.readererer_google_register_role' => UserRole::Member->value]);
+    make_user(UserRole::Ensemble, ['email' => 'band@example.org']);
+    google_returns('band@example.org');
+
+    $this->get(route('google.callback'))->assertRedirect(route('login'))->assertSessionHasErrors('username');
+
+    $this->assertGuest();
+    expect(User::where('email', 'band@example.org')->count())->toBe(1);
+});
