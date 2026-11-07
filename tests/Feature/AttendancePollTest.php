@@ -294,3 +294,53 @@ test('repeating poll headings start again for each instrument family', function 
 
     expect(substr_count($html, '<thead>'))->toBe(2);
 });
+
+test('a member can switch the poll to show only their own dates, and it stays switched', function () {
+    $ensemble = Ensemble::factory()->create();
+    $term = Term::factory()->create();
+    $termDate = make_term_date($term);
+
+    $member = make_user(UserRole::Member);
+    join_ensemble($member, $ensemble);
+    $other = make_user(UserRole::Member);
+    join_ensemble($other, $ensemble);
+
+    $url = route('attendance.poll.show', ['ensemble' => $ensemble->slug, 'term' => $term->slug]);
+
+    $this->actingAs($member)->get($url)
+        ->assertSee(__('Only show me'))
+        ->assertSee("status-t{$termDate->id}m{$other->id}", false);
+
+    $this->actingAs($member)->from($url)
+        ->put(route('attendance.poll.view'), ['own' => '1'])
+        ->assertRedirect($url);
+
+    expect($member->fresh()->setting('poll_own_view'))->toBeTrue();
+
+    $this->actingAs($member->fresh())->get($url)
+        ->assertSee("status-t{$termDate->id}m{$member->id}", false)
+        ->assertDontSee("status-t{$termDate->id}m{$other->id}", false);
+
+    $this->actingAs($member)->from($url)->put(route('attendance.poll.view'), ['own' => '0']);
+
+    expect($member->fresh()->setting('poll_own_view'))->toBeFalse();
+});
+
+test('the own-dates toggle is hidden from shared ensemble logins and non-members', function (UserRole $role, bool $joins) {
+    $ensemble = Ensemble::factory()->create();
+    $term = Term::factory()->create();
+    make_term_date($term);
+
+    $user = make_user($role);
+    if ($joins) {
+        join_ensemble($user, $ensemble);
+    }
+
+    $this->actingAs($user)
+        ->get(route('attendance.poll.show', ['ensemble' => $ensemble->slug, 'term' => $term->slug]))
+        ->assertOk()
+        ->assertDontSee(__('Only show me'));
+})->with([
+    'shared ensemble login' => [UserRole::Ensemble, true],
+    'admin outside the ensemble' => [UserRole::Admin, false],
+]);

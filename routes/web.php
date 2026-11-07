@@ -42,6 +42,9 @@ Route::post('/attendance/poll/{ensemble:slug}/{term:slug}', [AttendanceControlle
     ->withoutScopedBindings()
     ->name('attendance.poll.store')
     ->can('view', 'ensemble');
+Route::put('/attendance/poll/view', [AttendanceController::class, 'poll_view'])
+    ->name('attendance.poll.view')
+    ->middleware('auth');
 Route::get('/attendance/poll/{ensemble:slug}/{term:slug}/history/{user}', [AttendanceController::class, 'history'])
     ->withoutScopedBindings()
     ->name('attendance.poll.history')
