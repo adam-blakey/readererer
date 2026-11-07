@@ -1,8 +1,9 @@
 <?php
 
+use App\Enums\EmailLinkType;
 use App\Enums\UserRole;
 use App\Models\User;
-use App\Notifications\LoginLink;
+use App\Notifications\EmailLink;
 use Illuminate\Support\Facades\Notification;
 use Illuminate\Support\Facades\Password;
 
@@ -11,10 +12,10 @@ function requestLoginLink(User $user): string
     test()->post(route('login-link.email'), ['email' => $user->email]);
 
     $token = null;
-    Notification::assertSentTo($user, LoginLink::class, function (LoginLink $notification) use (&$token) {
+    Notification::assertSentTo($user, EmailLink::class, function (EmailLink $notification) use (&$token) {
         $token = $notification->token;
 
-        return true;
+        return $notification->type === EmailLinkType::LoginLink;
     });
 
     return $token;

@@ -2,10 +2,9 @@
 
 namespace App\Http\Controllers\Auth;
 
-use App\Enums\UserRole;
+use App\Enums\EmailLinkType;
 use App\Http\Controllers\Controller;
 use App\Models\User;
-use App\Notifications\LoginLink;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -27,11 +26,7 @@ class LoginLinkController extends Controller
             'email' => ['required', 'email'],
         ]);
 
-        // Reuses the password reset tokens, so a link is single-use, expires and is throttled like a reset link.
-        $status = Password::sendResetLink(
-            $this->credentials($request->email),
-            fn (User $user, string $token) => $user->notify(new LoginLink($token))
-        );
+        $status = EmailLinkType::LoginLink->send($request->email);
 
         if ($status === Password::RESET_THROTTLED) {
             return back()->withInput($request->only('email'))->withErrors(['email' => __($status)]);
@@ -70,19 +65,7 @@ class LoginLinkController extends Controller
 
     private function user(mixed $email, string $token): ?User
     {
-        if (! is_string($email)) {
-            return null;
-        }
-
-        $user = Password::getUser($this->credentials($email));
-
-        return $user && Password::tokenExists($user, $token) ? $user : null;
-    }
-
-    /** @return array<int|string, mixed> */
-    private function credentials(string $email): array
-    {
-        return ['email' => $email, fn ($query) => $query->where('role', '!=', UserRole::Ensemble)];
+        return is_string($email) ? EmailLinkType::LoginLink->user($email, $token) : null;
     }
 
     private function invalid(): RedirectResponse
