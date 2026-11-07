@@ -28,6 +28,15 @@ jobs:
       - run: npx playwright install --with-deps chromium
       - run: npm run build
       - run: php artisan test --parallel --testsuite=Unit,Feature --log-junit ./junit.xml
+      - name: Diagnose browser hang
+        continue-on-error: true
+        run: |
+          ./vendor/bin/pest --testsuite=Browser --filter 'opens a poll from the home page' > /tmp/one.log 2>&1 &
+          sleep 40
+          ss -tanp | head -40
+          ps auxf | grep -E 'php|node|chrom' | grep -v grep | cut -c1-200 | head -40
+          tail -5 /tmp/one.log
+          kill %1 2>/dev/null || true
       - name: Browser tests
         timeout-minutes: 12
         run: |
