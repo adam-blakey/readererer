@@ -120,7 +120,7 @@ Breadcrumbs::for('attendance.poll.history', function (BreadcrumbTrail $trail, En
 
 Breadcrumbs::for('attendance.register.index', function (BreadcrumbTrail $trail) {
     $trail->parent('home');
-    $trail->push(__('Attendance registers'), route('attendance.register.index'));
+    $trail->push(__('Upcoming rehearsals'), route('attendance.register.index'));
 });
 
 Breadcrumbs::for('attendance.register.show', function (BreadcrumbTrail $trail, Ensemble $ensemble, TermDate $term_date) {

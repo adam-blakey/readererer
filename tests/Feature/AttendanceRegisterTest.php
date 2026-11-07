@@ -219,6 +219,19 @@ test('the index lists each date with a link to the registers that apply to it', 
     $response->assertSee('1 present');
 });
 
+test('the index links each term to its poll', function () {
+    $ensemble = Ensemble::factory()->create();
+    $term = Term::factory()->create();
+    make_term_date($term, $ensemble);
+
+    $this->actingAs(make_user(UserRole::Admin))
+        ->get(route('attendance.register.index'))
+        ->assertOk()
+        ->assertSee('Upcoming rehearsals')
+        ->assertSee(route('attendance.poll.show', ['ensemble' => $ensemble, 'term' => $term]), false)
+        ->assertSee('View poll');
+});
+
 test('a register that has been taken shows its members and their notes', function () {
     $ensemble = Ensemble::factory()->create();
     $termDate = make_term_date(Term::factory()->create());
