@@ -37,7 +37,7 @@ class LoginLinkController extends Controller
             return back()->withInput($request->only('email'))->withErrors(['email' => __($status)]);
         }
 
-        return back()->with('status', __('If :email belongs to a member\'s account, a login link has been sent to it. Shared ensemble logins cannot log in by email.', ['email' => $request->email]));
+        return back()->with('status', __('If :email belongs to a member\'s account, a login link has been sent to it.', ['email' => $request->email]));
     }
 
     public function show(Request $request, string $token): View|RedirectResponse

@@ -16,7 +16,7 @@
 				@if (session('status'))
 					<div class="alert alert-success" role="alert">{{ session('status') }}</div>
 				@endif
-				<p class="mb-4 text-secondary">{{ __('Enter your email address and we will email you a link that logs you in without a password.') }}</p>
+				<p class="mb-4 text-secondary">{{ __('Enter your email address and we will email you a link that logs you in without a password. Shared ensemble logins cannot log in by email.') }}</p>
 				<div class="mb-3">
 					<label class="form-label" for="email">{{ __('Email address') }}</label>
 					<input autocomplete="email" autofocus class="form-control" id="email" name="email" placeholder="{{ __('Enter email') }}" required type="email" value="{{ old('email') }}">

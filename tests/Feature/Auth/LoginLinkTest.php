@@ -25,7 +25,9 @@ test('the login page links to the login link form', function () {
         ->assertOk()
         ->assertSee('href="'.route('login-link.request').'"', false);
 
-    $this->get(route('login-link.request'))->assertOk();
+    $this->get(route('login-link.request'))
+        ->assertOk()
+        ->assertSee('Shared ensemble logins cannot log in by email.');
 });
 
 test('a member can log in with an emailed link, once', function () {
