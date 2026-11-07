@@ -4,6 +4,7 @@ use App\Enums\UserRole;
 use App\Models\Setting;
 use App\Models\User;
 use Illuminate\Http\UploadedFile;
+use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Storage;
 
 beforeEach(function () {
@@ -212,7 +213,10 @@ test('the featured colour themes every page and the maintenance illustration', f
     $this->actingAs($admin)->get(route('settings.edit'))
         ->assertSee('data-bs-theme-primary="red"', false)
         ->assertSee('name="primary_color" type="radio" value="red" checked', false);
-    expect(view('errors::503')->render())
-        ->toContain('data-bs-theme-primary="red"')
-        ->toContain('var(--tblr-primary');
+
+    Route::get('/test-unavailable', fn () => abort(503));
+    $this->get('/test-unavailable')
+        ->assertStatus(503)
+        ->assertSee('data-bs-theme-primary="red"', false)
+        ->assertSee('var(--tblr-primary', false);
 });
