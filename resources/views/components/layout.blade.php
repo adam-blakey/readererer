@@ -9,7 +9,7 @@
 	<meta content="ie=edge" http-equiv="X-UA-Compatible" />
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>{{ Breadcrumbs::exists() ? Breadcrumbs::current()?->title ?? config('app.name') : config('app.name') }}</title>
-	<link href="{{ Vite::asset('resources/images/favicon.png') }}" rel="shortcut icon">
+	<link href="{{ favicon_url() }}" rel="shortcut icon">
 	@vite(['resources/js/app.js', 'resources/css/app.css'])
 	@stack('scripts')
 </head>

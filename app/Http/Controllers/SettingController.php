@@ -13,6 +13,7 @@ class SettingController extends Controller
         return view('settings.edit', [
             'page_name' => __('Settings'),
             'has_uploaded_logo' => Setting::where('key', 'logo')->exists(),
+            'has_uploaded_favicon' => Setting::where('key', 'favicon')->exists(),
             'has_google_client_secret' => filled(config('services.google.client_secret')),
         ]);
     }
@@ -40,13 +41,15 @@ class SettingController extends Controller
             Setting::put($key, $request->boolean($key));
         }
 
-        $logo = Setting::where('key', 'logo')->value('value');
+        foreach (['logo', 'favicon'] as $image) {
+            $old = Setting::where('key', $image)->value('value');
 
-        if ($request->hasFile('logo') || $request->boolean('remove_logo')) {
-            Setting::put('logo', $request->file('logo')?->store('images/settings', 'public'));
+            if ($request->hasFile($image) || $request->boolean('remove_'.$image)) {
+                Setting::put($image, $request->file($image)?->store('images/settings', 'public'));
 
-            if ($logo) {
-                Storage::disk('public')->delete($logo);
+                if ($old) {
+                    Storage::disk('public')->delete($old);
+                }
             }
         }
 
