@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Enums\EmailLinkType;
 use App\Enums\UserRole;
 use App\Http\Requests\EraseUserRequest;
 use App\Http\Requests\StoreUserRequest;
@@ -246,7 +247,7 @@ class UserController extends Controller
         $this->authorize('resetPassword', $user);
         abort_if(blank($user->email), 422);
 
-        $status = Password::sendResetLink(['email' => $user->email]);
+        $status = EmailLinkType::ResetPassword->send($user->email);
 
         return $status === Password::RESET_LINK_SENT
             ? back()->with('status', __('A password reset email has been sent to :email.', ['email' => $user->email]))
