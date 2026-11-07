@@ -18,17 +18,8 @@
 	}
 @endphp
 
-@if ($user->image_url)
-	<span class="{{ $classes }}" style="background-image: url({{ $user->image_url }})" @if ($tooltip) data-bs-toggle="tooltip" title="{{ $tooltip_text }}" @endif>
-        @if ($show_group_badge)
-            <x-setup-group-badge :setup_group="$user->setup_group" size="sm" :tooltip="!$tooltip" />
-        @endif
-    </span>
-@else
-	<span class="{{ $classes }}" @if ($tooltip) data-bs-toggle="tooltip" title="{{ $tooltip_text }}" @endif>
-        {{ $user->initials }}
-        @if ($show_group_badge)
-            <x-setup-group-badge :setup_group="$user->setup_group" size="sm" :tooltip="!$tooltip" />
-        @endif
-    </span>
-@endif
+<span class="{{ $classes }}" style="background-image: url({{ $user->image_url }})" @if ($tooltip) data-bs-toggle="tooltip" title="{{ $tooltip_text }}" @endif>
+    @if ($show_group_badge)
+        <x-setup-group-badge :setup_group="$user->setup_group" size="sm" :tooltip="!$tooltip" />
+    @endif
+</span>

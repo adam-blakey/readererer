@@ -61,7 +61,7 @@
 							<a class="dropdown-item" href="{{ route('attendance.register.show', ['ensemble' => $ensemble, 'termDate' => $term_date]) }}">
 								{{ $term_date->date_label }}
 								@if ($term_date->is_concert)
-									<span class="ms-1 badge bg-green-lt">{{ __('Concert') }}</span>
+									<span class="ms-1 badge bg-primary-lt">{{ __('Concert') }}</span>
 								@endif
 							</a>
 						@endforeach
@@ -98,7 +98,7 @@
 						<td class="{{ $term_date->concert_ensembles->contains($ensemble) ? 'bg-primary-subtle' : '' }}">
 							{{ $term_date->schedule_label }}
 							@if ($term_date->is_concert)
-								<span class="ms-1 badge bg-green-lt">{{ __('Concert') }}</span>
+								<span class="ms-1 badge bg-primary-lt">{{ __('Concert') }}</span>
 							@endif
 						</td>
 						<td class="w-1 text-center {{ $term_date->concert_ensembles->contains($ensemble) ? 'bg-primary-subtle' : '' }}">
@@ -167,7 +167,7 @@
 
                                     $is_van_driver = $van_driver_ids->get($term_date->id) === $member->id;
 								@endphp
-								<x-forms.input-three-state-checkbox :$allow_change_to_unknown :$assume_attending :member_id="$member->id" :status="$attendance_value" :term_date_id="$term_date->id" :$setup_group :$is_van_driver :locked="$locked_ids->contains($term_date->id)" />
+								<x-forms.input-three-state-checkbox :$allow_change_to_unknown :$assume_attending :member_id="$member->id" :status="$attendance_value" :term_date_id="$term_date->id" :$setup_group :is_van_driver="$van_driver_ids->get($term_date->id) === $self->id" :locked="$locked_ids->contains($term_date->id)" />
 							</td>
 						@endforeach
 					</tr>

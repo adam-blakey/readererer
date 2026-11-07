@@ -1,5 +1,8 @@
 <p align="center">
-  <img src="docs/images/readererer-logo.svg" alt="Readererer" width="440">
+  <picture>
+    <source media="(prefers-color-scheme: dark)" srcset="docs/images/readererer-logo-dark.svg">
+    <img src="docs/images/readererer-logo.svg" alt="Readererer" width="440">
+  </picture>
 </p>
 
 <p align="center">
