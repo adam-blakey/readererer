@@ -1,7 +1,8 @@
 <?php
 
+use App\Enums\EmailLinkType;
 use App\Enums\UserRole;
-use Illuminate\Auth\Notifications\ResetPassword;
+use App\Notifications\EmailLink;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Notification;
 
@@ -15,7 +16,7 @@ test('an admin can email a user a password reset link', function () {
         ->assertRedirect(route('users.show', $user))
         ->assertSessionHas('status');
 
-    Notification::assertSentTo($user, ResetPassword::class);
+    Notification::assertSentTo($user, EmailLink::class, fn (EmailLink $notification) => $notification->type === EmailLinkType::ResetPassword);
 });
 
 test('a reset link cannot be sent to a user without an email address', function () {

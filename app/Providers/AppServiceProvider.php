@@ -10,11 +10,9 @@ use App\Services\EmailSenders\LogEmailSender;
 use App\Services\EmailSenders\SmtpEmailSender;
 use App\Translation\TerminologyLoader;
 use Barryvdh\Debugbar\Facades\Debugbar;
-use Illuminate\Auth\Notifications\ResetPassword;
 use Illuminate\Contracts\Translation\Loader;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Foundation\AliasLoader;
-use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Pagination\Paginator;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\ServiceProvider;
@@ -38,24 +36,6 @@ class AppServiceProvider extends ServiceProvider
         Setting::applyToConfig();
 
         Paginator::defaultView('pagination::default');
-
-        ResetPassword::toMailUsing(function (User $user, string $token) {
-            $url = url(route('password.reset', [
-                'token' => $token,
-                'email' => $user->getEmailForPasswordReset(),
-            ], false));
-
-            return (new MailMessage)
-                ->subject(config('app.name').': '.__('Reset Password Request'))
-                ->greeting(__('Hello!'))
-                ->line(__('You recently requested to reset a password for your :app account. Use the button below to reset it. This message will expire in :count minutes.', [
-                    'app' => config('app.name'),
-                    'count' => config('auth.passwords.'.config('auth.defaults.passwords').'.expire'),
-                ]))
-                ->action(__('Reset password'), $url)
-                ->line(__('If you did not request a password reset, then please ignore this message.'))
-                ->salutation(__('Regards,')."\r\n\r\n".__(':app Team', ['app' => config('app.name')]));
-        });
 
         Gate::define('view.dashboard', function (User $user) {
             return true;
