@@ -158,7 +158,20 @@ class User extends Authenticatable
             'must_change_password' => 'boolean',
             'has_photo_permission' => 'boolean',
             'is_gift_aiding_subs' => 'boolean',
+            'settings' => 'array',
         ];
+    }
+
+    public function setting(string $key, mixed $default = null): mixed
+    {
+        return data_get($this->settings, $key, $default);
+    }
+
+    public function putSetting(string $key, mixed $value): void
+    {
+        $settings = $this->settings ?? [];
+        data_set($settings, $key, $value);
+        $this->forceFill(['settings' => $settings])->save();
     }
 
     /**

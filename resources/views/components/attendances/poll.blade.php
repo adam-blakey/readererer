@@ -29,28 +29,45 @@
 	$can_take_registers = Gate::allows('viewAny', App\Models\RegisterEntry::class);
 	$can_view_history = Gate::allows('viewAny', App\Models\Attendance::class);
 	$locked_ids = $term_dates->filter->isLockedFor(auth()->user())->pluck('id');
+
+	$self = auth()->user()?->role !== App\Enums\UserRole::Ensemble ? $members->firstWhere('id', auth()->id()) : null;
+	$own_view = $self && auth()->user()->setting('poll_own_view', false);
+	$show_registers = $can_take_registers && $term_dates->isNotEmpty();
 @endphp
 
-@if ($can_take_registers and $term_dates->isNotEmpty())
+@if ($show_registers or $self)
 	<div class="card-header d-print-none">
 		<h2 class="mb-0 card-title">{{ $ensemble->name }}: {{ $term->name }}</h2>
 		<div class="ms-auto btn-list">
-			<div class="dropdown">
-				<button aria-expanded="false" class="btn btn-sm dropdown-toggle" data-bs-toggle="dropdown" type="button">
-					<x-icon name="list-check" />
-					{{ __('Register') }}
-				</button>
-				<div class="dropdown-menu dropdown-menu-end">
-					@foreach ($term_dates as $term_date)
-						<a class="dropdown-item" href="{{ route('attendance.register.show', ['ensemble' => $ensemble, 'termDate' => $term_date]) }}">
-							{{ $term_date->date_label }}
-							@if ($term_date->is_concert)
-								<span class="ms-1 badge bg-primary-lt">{{ __('Concert') }}</span>
-							@endif
-						</a>
-					@endforeach
+			@if ($self)
+				<form action="{{ route('attendance.poll.view') }}" method="POST">
+					@csrf
+					@method('PUT')
+					<input name="own" type="hidden" value="0">
+					<label class="form-check form-switch mb-0">
+						<input class="form-check-input" name="own" onchange="this.form.submit()" type="checkbox" value="1" @checked($own_view)>
+						<span class="form-check-label">{{ __('Only show me') }}</span>
+					</label>
+				</form>
+			@endif
+			@if ($show_registers)
+				<div class="dropdown">
+					<button aria-expanded="false" class="btn btn-sm dropdown-toggle" data-bs-toggle="dropdown" type="button">
+						<x-icon name="list-check" />
+						{{ __('Register') }}
+					</button>
+					<div class="dropdown-menu dropdown-menu-end">
+						@foreach ($term_dates as $term_date)
+							<a class="dropdown-item" href="{{ route('attendance.register.show', ['ensemble' => $ensemble, 'termDate' => $term_date]) }}">
+								{{ $term_date->date_label }}
+								@if ($term_date->is_concert)
+									<span class="ms-1 badge bg-primary-lt">{{ __('Concert') }}</span>
+								@endif
+							</a>
+						@endforeach
+					</div>
 				</div>
-			</div>
+			@endif
 		</div>
 	</div>
 @endif
@@ -64,6 +81,46 @@
 <div class="table-responsive">
 	<form action="{{ route('attendance.poll.store', ['ensemble' => $ensemble, 'term' => $term]) }}" method="POST" data-dirty-check>
 		@csrf
+		@if ($own_view)
+		<table class="table table-vcenter card-table text-nowrap">
+			<thead>
+				<tr>
+					<th>{{ __('Date') }}</th>
+					<th class="w-1 text-center">{{ $self->name }}</th>
+				</tr>
+			</thead>
+			<tbody>
+				@foreach ($term_dates as $term_date)
+					@php
+						$setup_group = ($term_date->setup_group && $self->setup_group && $term_date->setup_group->id == $self->setup_group->id) ? $self->setup_group : null;
+						$is_van_driver = $van_driver_ids->get($term_date->id) === $self->id;
+					@endphp
+					<tr>
+						<td class="{{ $term_date->concert_ensembles->contains($ensemble) ? 'bg-primary-subtle' : '' }}">
+							{{ $term_date->schedule_label }}
+							@if ($term_date->is_concert)
+								<span class="ms-1 badge bg-primary-lt">{{ __('Concert') }}</span>
+							@endif
+							@if ($setup_group and config('app.readererer_setup_groups'))
+								<span class="ms-1 badge rounded-pill bg-{{ $setup_group->color->cssClass() }} text-{{ $setup_group->color->cssClass() }}-fg">{{ __('Setup group :week', ['week' => $setup_group->week]) }}</span>
+							@endif
+							@if ($is_van_driver)
+								<span class="ms-1 badge rounded-pill bg-secondary text-secondary-fg"><x-icon name="truck" /> {{ __('Van driver') }}</span>
+							@endif
+						</td>
+						<td class="w-1 text-center {{ $term_date->concert_ensembles->contains($ensemble) ? 'bg-primary-subtle' : '' }}">
+							<x-forms.input-three-state-checkbox :$allow_change_to_unknown :$assume_attending :member_id="$self->id" :status="$self->latestAttendanceFor($term_date, $ensemble)?->status ?? App\Enums\AttendanceStatus::Unknown" :term_date_id="$term_date->id" :$setup_group :$is_van_driver :locked="$locked_ids->contains($term_date->id)" />
+						</td>
+					</tr>
+				@endforeach
+				<tr>
+					<td class="align-right" colspan="2">
+						<button class="btn btn-primary" type="submit">{{ __('Save') }}</button>
+					</td>
+				</tr>
+			</tbody>
+		</table>
+		@else
 		<table class="table table-vcenter card-table text-nowrap datatable">
 			<tbody>
 				@php
@@ -133,5 +190,6 @@
 				</tr>
 			</tbody>
 		</table>
+		@endif
 	</form>
 </div>

@@ -55,6 +55,13 @@ class AttendanceController extends Controller
         ]);
     }
 
+    public function poll_view(Request $request)
+    {
+        $request->user()->putSetting('poll_own_view', $request->boolean('own'));
+
+        return redirect()->back();
+    }
+
     public function history(Ensemble $ensemble, Term $term, User $user)
     {
         $attendances = Attendance::with(['term_date', 'edit_user' => fn ($query) => $query->withTrashed()])
