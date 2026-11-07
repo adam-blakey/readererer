@@ -27,5 +27,6 @@
     # Emails load the logo and icons from other origins.
     <FilesMatch "\.(css|js|png|jpe?g|gif|webp|svg|ico|txt|woff2?)$">
         Header set Cross-Origin-Resource-Policy "cross-origin"
+        Header set Permissions-Policy "camera=(), microphone=(), geolocation=(), payment=(), usb=()"
     </FilesMatch>
 </IfModule>
