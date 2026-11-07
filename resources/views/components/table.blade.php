@@ -47,7 +47,7 @@
 								@elseif (array_key_exists($attribute, $casts))
 									@switch($casts[$attribute])
 										@case('boolean')
-											<span data-bs-toggle="tooltip" title="{{ $entity->$attribute ? __('Yes') : __('No') }}">{{ $entity->$attribute ? __('Y') : __('N') }}</span>
+											<input aria-label="{{ $entity->$attribute ? __('Yes') : __('No') }}" class="form-check-input m-0 pe-none" tabindex="-1" type="checkbox" @checked($entity->$attribute)>
 										@break
 
 										@case('datetime')
