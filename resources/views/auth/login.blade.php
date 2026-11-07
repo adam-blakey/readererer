@@ -37,10 +37,10 @@
 									<div class="input-group input-group-flat">
 										<input autocomplete="current-password" class="form-control" id="password" name="password" placeholder="{{ __('Your password') }}" required tabindex="3" type="password">
 										<span class="input-group-text">
-											<a aria-label="{{ __('Show password') }}" class="cursor-pointer link-secondary" data-bs-original-title="{{ __('Show password') }}" data-bs-toggle="tooltip" id="toggle-password-show" onclick="togglePasswordVisibility('password', 'toggle-password-show', 'toggle-password-hide')">
+											<a aria-label="{{ __('Show password') }}" class="cursor-pointer link-secondary" data-bs-original-title="{{ __('Show password') }}" data-bs-toggle="tooltip" id="toggle-password-show">
 												<x-icon name="eye" />
 											</a>
-											<a aria-label="{{ __('Hide password') }}" class="hidden cursor-pointer link-secondary" data-bs-original-title="{{ __('Hide password') }}" data-bs-toggle="tooltip" id="toggle-password-hide" onclick="togglePasswordVisibility('password', 'toggle-password-show', 'toggle-password-hide')">
+											<a aria-label="{{ __('Hide password') }}" class="hidden cursor-pointer link-secondary" data-bs-original-title="{{ __('Hide password') }}" data-bs-toggle="tooltip" id="toggle-password-hide">
 												<x-icon name="eye-closed" />
 											</a>
 										</span>

@@ -6,7 +6,7 @@
 	$display_status = ($assume_attending and $status == App\Enums\AttendanceStatus::Unknown) ? App\Enums\AttendanceStatus::Attending : $status;
 @endphp
 
-<button class="form-check-input three-state-checkbox" data-allow-change-to-unknown="{{ $allow_change_to_unknown }}" data-assume-attending="{{ $assume_attending }}" data-original-value="{{ $display_status }}" onclick="switchThreeStateCheckbox(this, '{{ $input_id }}')" type="button" @disabled($locked)>
+<button class="form-check-input three-state-checkbox" data-allow-change-to-unknown="{{ $allow_change_to_unknown }}" data-assume-attending="{{ $assume_attending }}" data-original-value="{{ $display_status }}" data-input-id="{{ $input_id }}" type="button" @disabled($locked)>
     @if ($setup_group != null)
         <x-setup-group-badge :$setup_group show_as_dot="false" show_with_van="{{ $is_van_driver }}" />
     @endif

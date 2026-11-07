@@ -65,15 +65,15 @@
 		</div>
 		<div class="col-auto d-print-none">
 			<div class="btn-list">
-				<button class="btn btn-sm" type="button" onclick="fillRegisterFromPoll()">
+				<button class="btn btn-sm" type="button" data-register-fill>
 					<x-icon name="clipboard-check" />
 					{{ __('Fill from poll') }}
 				</button>
-				<button class="btn btn-sm" type="button" onclick="setWholeRegister({{ RegisterStatus::Present->value }})">
+				<button class="btn btn-sm" type="button" data-register-set="{{ RegisterStatus::Present->value }}">
 					<x-icon name="users-group" />
 					{{ __('All present') }}
 				</button>
-				<button class="btn btn-sm" type="button" onclick="setWholeRegister({{ RegisterStatus::Unmarked->value }})">
+				<button class="btn btn-sm" type="button" data-register-set="{{ RegisterStatus::Unmarked->value }}">
 					<x-icon name="eraser" />
 					{{ __('Clear') }}
 				</button>

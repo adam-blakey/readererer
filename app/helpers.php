@@ -3,6 +3,7 @@
 use App\Enums\AttendanceStatus;
 use App\Enums\Color;
 use App\Enums\RegisterStatus;
+use App\Http\Middleware\AddSecurityHeaders;
 use App\Models\Ensemble;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -19,14 +20,14 @@ function logo_url(): string
 {
     $logo = config('app.readererer_logo');
 
-    return filled($logo) ? asset($logo) : Vite::asset('resources/images/readererer-long-logo.svg');
+    return filled($logo) ? AddSecurityHeaders::allowImage(asset($logo)) : Vite::asset('resources/images/readererer-long-logo.svg');
 }
 
 function favicon_url(): string
 {
     $favicon = config('app.readererer_favicon');
 
-    return filled($favicon) ? asset($favicon) : Vite::asset('resources/images/favicon.png');
+    return filled($favicon) ? AddSecurityHeaders::allowImage(asset($favicon)) : Vite::asset('resources/images/favicon.png');
 }
 
 function google_login_enabled(): bool

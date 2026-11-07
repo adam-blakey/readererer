@@ -61,7 +61,7 @@
                         <x-a class="dropdown-item" :route="'password.edit'">{{ __('Change password') }}</x-a>
 						<form action="{{ route('logout') }}" method="POST">
 							@csrf
-							<a class="dropdown-item" href="{{ route('logout') }}" onclick="event.preventDefault(); this.closest('form').submit();">{{ __('Logout') }}</a>
+							<button class="dropdown-item" type="submit">{{ __('Logout') }}</button>
 						</form>
 					</div>
 				@endauth

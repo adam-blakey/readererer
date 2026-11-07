@@ -19,3 +19,14 @@
     RewriteCond %{REQUEST_FILENAME} !-f
     RewriteRule ^ index.php [L]
 </IfModule>
+
+# Laravel sets these on its own responses; files served straight from public/ need them here.
+<IfModule mod_headers.c>
+    Header always set X-Content-Type-Options "nosniff"
+
+    # Emails load the logo and icons from other origins.
+    <FilesMatch "\.(css|js|png|jpe?g|gif|webp|svg|ico|txt|woff2?)$">
+        Header set Cross-Origin-Resource-Policy "cross-origin"
+        Header set Permissions-Policy "camera=(), microphone=(), geolocation=(), payment=(), usb=()"
+    </FilesMatch>
+</IfModule>
