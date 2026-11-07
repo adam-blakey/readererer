@@ -28,13 +28,7 @@ jobs:
       - run: npx playwright install --with-deps chromium
       - run: npm run build
       - run: php artisan test --parallel --testsuite=Unit,Feature --log-junit ./junit.xml
-      - name: Browser tests
-        timeout-minutes: 12
-        run: |
-          for attempt in 1 2; do
-            timeout 5m php artisan test --testsuite=Browser --log-junit ./junit-browser.xml && exit 0
-          done
-          exit 1
+      - run: php artisan test --testsuite=Browser --log-junit ./junit-browser.xml
       - run: composer install --no-interaction --no-progress --prefer-dist --no-dev --optimize-autoloader
       # Production build smoke test. Must run after the tests: a cached config ignores APP_ENV=testing and CSRF would be enforced.
       - run: php artisan optimize --env=production
