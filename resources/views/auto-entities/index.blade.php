@@ -7,7 +7,6 @@
 				<x-card>
                     <div class="d-flex align-items-center">
                         <form method="GET" action="{{ url()->current() }}" class="d-flex align-items-center gap-2">
-                            <input type="hidden" name="page" value="{{ request('page') }}" />
                             <label class="form-check m-4 pb-0">
                                 <input class="form-check-input" type="checkbox" id="withTrashed" name="with_trashed" value="1" {{ request('with_trashed') ? 'checked' : '' }} onchange="this.form.submit()">
                                 <span class="form-check-label">{{ __('Show archived') }}</span>
@@ -19,12 +18,9 @@
                                 </label>
                             @endif
                             @if ($ensemble_filter)
-                                <select class="form-select m-4" name="ensemble" aria-label="{{ __('Ensemble') }}" onchange="this.form.page.value = ''; this.form.submit()">
-                                    <option value="">{{ __('All ensembles') }}</option>
-                                    @foreach ($ensemble_filter as $ensemble)
-                                        <option value="{{ $ensemble->id }}" @selected(request('ensemble') == $ensemble->id)>{{ $ensemble->name }}</option>
-                                    @endforeach
-                                </select>
+                                <div class="m-4">
+                                    <x-forms.multi-select name="ensembles" :options="$ensemble_filter" :selected="Arr::wrap(request('ensembles'))" :label="__('Ensembles')" :placeholder="__('All ensembles')" submit_on_close />
+                                </div>
                             @endif
                         </form>
                         <div class="card-actions ms-auto me-4">
