@@ -84,11 +84,18 @@ test('a guest who opens a poll from the home page lands on it after logging in',
     $term = Term::factory()->create(['name' => 'Spring term']);
     make_term_date($term);
 
-    visit('/')
-        ->click('Spring term')
-        ->assertPathIs('/login')
-        ->type('username', 'admin')
-        ->type('password', 'password')
-        ->click('button[type="submit"]')
-        ->assertPathIs(route('attendance.poll.show', ['ensemble' => $ensemble, 'term' => $term], absolute: false));
+    $step = fn (string $name) => fwrite(STDERR, "STEP {$name}\n");
+    $step('visit');
+    $page = visit('/');
+    $step('visited');
+    $page->click('Spring term');
+    $step('clicked term');
+    $page->assertPathIs('/login');
+    $step('on login');
+    $page->type('username', 'admin')->type('password', 'password');
+    $step('typed');
+    $page->click('button[type="submit"]');
+    $step('submitted');
+    $page->assertPathIs(route('attendance.poll.show', ['ensemble' => $ensemble, 'term' => $term], absolute: false));
+    $step('done');
 });
