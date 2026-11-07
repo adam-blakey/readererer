@@ -92,8 +92,11 @@ test('a guest who opens a poll from the home page lands on it after logging in',
     $step('clicked term');
     $page->assertPathIs('/login');
     $step('on login');
-    $page->type('username', 'admin')->type('password', 'password');
-    $step('typed');
+    $step('state '.json_encode($page->script('document.readyState + " " + location.href + " inputs=" + document.querySelectorAll("input").length')));
+    $page->type('username', 'admin');
+    $step('typed username');
+    $page->type('password', 'password');
+    $step('typed password');
     $page->click('button[type="submit"]');
     $step('submitted');
     $page->assertPathIs(route('attendance.poll.show', ['ensemble' => $ensemble, 'term' => $term], absolute: false));
