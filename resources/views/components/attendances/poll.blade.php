@@ -33,6 +33,14 @@
 	$self = auth()->user()?->role !== App\Enums\UserRole::Ensemble ? $members->firstWhere('id', auth()->id()) : null;
 	$own_view = $self && auth()->user()->setting('poll_own_view', false);
 	$show_registers = $can_take_registers && $term_dates->isNotEmpty();
+
+	// Dates away from the term's default venue are marked with footnote symbols, doubled once they run out (*, †, … then **, ††, …).
+	$footnote_symbols = ['*', '†', '‡', '§', '¶', '‖'];
+	$other_locations = $term_dates->map->inferred_location->filter()->unique('id')
+		->reject(fn ($location) => $location->is($term->location))->values();
+	$location_symbols = $other_locations->mapWithKeys(fn ($location, $index) => [
+		$location->id => str_repeat($footnote_symbols[$index % count($footnote_symbols)], intdiv($index, count($footnote_symbols)) + 1),
+	]);
 @endphp
 
 @if ($show_registers or $self)
@@ -72,6 +80,17 @@
 	</div>
 @endif
 
+@if ($term->location or $other_locations->isNotEmpty())
+	<div class="card-body py-2 border-bottom">
+		<div class="list-inline list-inline-dots mb-0">
+			<span class="list-inline-item"><x-icon name="map-pin" /> {{ __('Venue') }}: <x-location-link :location="$term->location" /></span>
+			@foreach ($other_locations as $location)
+				<span class="list-inline-item"><strong>{{ $location_symbols[$location->id] }}</strong> <x-location-link :location="$location" /></span>
+			@endforeach
+		</div>
+	</div>
+@endif
+
 @if ($locked_ids->isNotEmpty())
 	<div class="card-body">
 		<div class="alert alert-info mb-0" role="alert">{{ trans_choice('Replies close :count hour before each date starts. Ask an admin to change a closed reply.|Replies close :count hours before each date starts. Ask an admin to change a closed reply.', config('app.readererer_reminder_hours')) }}</div>
@@ -97,7 +116,10 @@
 					@endphp
 					<tr>
 						<td class="{{ $term_date->concert_ensembles->contains($ensemble) ? 'bg-primary-subtle' : '' }}">
-							{{ $term_date->schedule_label }} — {{ $term_date->location_label }}
+							{{ $term_date->schedule_label }}
+							@if ($symbol = $location_symbols[$term_date->inferred_location?->id] ?? null)
+								<strong title="{{ $term_date->location_label }}">{{ $symbol }}</strong>
+							@endif
 							@if ($term_date->is_concert)
 								<span class="ms-1 badge bg-primary-lt">{{ __('Concert') }}</span>
 							@endif
@@ -135,7 +157,7 @@
 
 					@if ($repeating_headings and $sort_value != $prev_sort_value or $loop->first)
 						<thead>
-                            <x-attendances.heading :$term_dates :show_year="$spans_multiple_years" :ensemble="$ensemble" />
+                            <x-attendances.heading :$term_dates :show_year="$spans_multiple_years" :ensemble="$ensemble" :$location_symbols />
 						</thead>
 					@endif
 					@if ($repeating_headings and $sort_value != $prev_sort_value)

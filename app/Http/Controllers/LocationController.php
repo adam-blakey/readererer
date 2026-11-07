@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\StoreLocationRequest;
 use App\Models\Location;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\View\View;
 
@@ -46,11 +47,15 @@ class LocationController extends Controller
         ]);
     }
 
-    public function store(StoreLocationRequest $request): RedirectResponse
+    public function store(StoreLocationRequest $request): RedirectResponse|JsonResponse
     {
         $location = new Location($request->validated());
         $location->geocode();
         $location->save();
+
+        if ($request->wantsJson()) {
+            return response()->json($location->only('id', 'name'), 201);
+        }
 
         return to_route('locations.show', $location);
     }

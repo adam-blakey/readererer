@@ -1,4 +1,4 @@
-@props(['term_dates', 'show_year' => false, 'ensemble' => null])
+@props(['term_dates', 'show_year' => false, 'ensemble' => null, 'location_symbols' => collect()])
 
 <tr>
 	<th>{{ __('Members') }}</th>
@@ -30,6 +30,9 @@
 			@else
 				{{ $term_date->start_datetime->format('G:i') }}<br />
 				{{ $term_date->end_datetime->format('G:i') }}<br />
+			@endif
+			@if ($symbol = $location_symbols[$term_date->inferred_location?->id] ?? null)
+				<strong>{{ $symbol }}</strong><br />
 			@endif
             @if (config('app.readererer_setup_groups') && $term_date->setup_group != null)
                 <div class="mt-2">

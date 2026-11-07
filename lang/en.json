@@ -594,7 +594,15 @@
     "Open in OpenStreetMap": "Open in OpenStreetMap",
     "Default location": "Default location",
     "Dates without a location of their own take this one.": "Dates without a location of their own take this one.",
-    "Term default": "Term default",
     "Map of :name": "Map of :name",
-    "No coordinates yet. Add an address to look them up, or enter them yourself.": "No coordinates yet. Add an address to look them up, or enter them yourself."
+    "No coordinates yet. Add an address to look them up, or enter them yourself.": "No coordinates yet. Add an address to look them up, or enter them yourself.",
+    "Default: :location": "Default: :location",
+    "Add new location…": "Add new location…",
+    "Add new location": "Add new location",
+    "Add location": "Add location",
+    "New date": "New date",
+    "Venue": "Venue",
+    "OpenStreetMap contributors": "OpenStreetMap contributors",
+    "The map pin is looked up from the address on OpenStreetMap.": "The map pin is looked up from the address on OpenStreetMap.",
+    "The location could not be saved. Try again.": "The location could not be saved. Try again."
 }

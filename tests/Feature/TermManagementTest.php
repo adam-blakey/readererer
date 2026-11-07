@@ -416,3 +416,15 @@ test('a term cannot be renamed to another term\'s slug but may keep its own', fu
         ->patch(route('terms.update', $term), ['name' => 'Spring', 'slug' => 'spring-2027'])
         ->assertSessionHasNoErrors();
 });
+
+test('the term form labels each date\'s empty location with the term\'s default and offers to add one', function () {
+    $term = Term::factory()->create(['location_id' => Location::factory()->create(['name' => 'Church Hall'])->id]);
+    make_term_date($term);
+
+    $this->actingAs(make_user(UserRole::Admin))
+        ->get(route('terms.edit', $term))
+        ->assertOk()
+        ->assertSee('Default: Church Hall')
+        ->assertSee('<option value="new">Add new location…</option>', false)
+        ->assertSee('id="modal-add-location"', false);
+});

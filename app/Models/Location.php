@@ -66,20 +66,19 @@ class Location extends Model
         return $this->hasMany(TermDate::class);
     }
 
-    /** OpenStreetMap's embeddable map with a marker, when the coordinates are known. */
-    public function getMapEmbedUrlAttribute(): ?string
+    /** Where the location falls in OpenStreetMap's grid of map tiles at a zoom level, in tiles, or null without coordinates. */
+    public function tilePosition(int $zoom): ?array
     {
         if ($this->latitude === null || $this->longitude === null) {
             return null;
         }
 
-        $bbox = [$this->longitude - 0.008, $this->latitude - 0.004, $this->longitude + 0.008, $this->latitude + 0.004];
+        $tiles = 2 ** $zoom;
 
-        return 'https://www.openstreetmap.org/export/embed.html?'.http_build_query([
-            'bbox' => implode(',', $bbox),
-            'layer' => 'mapnik',
-            'marker' => $this->latitude.','.$this->longitude,
-        ]);
+        return [
+            ($this->longitude + 180) / 360 * $tiles,
+            (1 - asinh(tan(deg2rad($this->latitude))) / M_PI) / 2 * $tiles,
+        ];
     }
 
     /** OpenStreetMap's page for the location: a pin at its coordinates, or else a search for its address. */

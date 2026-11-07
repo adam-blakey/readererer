@@ -58,12 +58,32 @@ test('changing the address looks the coordinates up again', function () {
     expect($location->fresh()->only('latitude', 'longitude'))->toBe(['latitude' => 1.0, 'longitude' => 2.0]);
 });
 
-test('the location pages embed an OpenStreetMap map once the coordinates are known', function () {
+test('the location pages show an OpenStreetMap map once the coordinates are known', function () {
     $pinned = Location::factory()->create(['latitude' => 51.5, 'longitude' => -0.1]);
     $unpinned = Location::factory()->create(['latitude' => null, 'longitude' => null]);
     $admin = make_user(UserRole::Admin);
 
-    $this->actingAs($admin)->get(route('locations.show', $pinned))->assertOk()->assertSee('<iframe class="w-100 d-block border-0" height="400" loading="lazy" src="https://www.openstreetmap.org/export/embed.html?bbox=', false)->assertSee('marker=51.5%2C-0.1', false);
-    $this->actingAs($admin)->get(route('locations.edit', $pinned))->assertOk()->assertSee('<iframe', false);
-    $this->actingAs($admin)->get(route('locations.show', $unpinned))->assertOk()->assertDontSee('<iframe', false)->assertSee('No coordinates yet.');
+    foreach (['locations.show', 'locations.edit'] as $route) {
+        $response = $this->actingAs($admin)->get(route($route, $pinned))->assertOk()
+            ->assertSee('src="https://tile.openstreetmap.org/16/32749/21794.png"', false)
+            ->assertSee('OpenStreetMap contributors');
+
+        expect($response->headers->get('Content-Security-Policy'))->toContain('https://tile.openstreetmap.org');
+    }
+
+    $this->actingAs($admin)->get(route('locations.show', $unpinned))->assertOk()->assertDontSee('tile.openstreetmap.org')->assertSee('No coordinates yet.');
+});
+
+test('a location can be added from the term form and comes back as JSON', function () {
+    Http::fake(['nominatim.openstreetmap.org/*' => Http::response([])]);
+
+    $this->actingAs(make_user(UserRole::Admin))
+        ->postJson(route('locations.store'), ['name' => 'Village Hall'])
+        ->assertCreated()
+        ->assertExactJson(['id' => Location::firstWhere('name', 'Village Hall')->id, 'name' => 'Village Hall']);
+
+    $this->actingAs(make_user(UserRole::Admin))
+        ->postJson(route('locations.store'), ['name' => ''])
+        ->assertUnprocessable()
+        ->assertJsonValidationErrors('name');
 });
