@@ -280,7 +280,12 @@ document root `domains/readererer.blakey.family/public` before step 6.
    `php -r "echo 'base64:'.base64_encode(random_bytes(32)).PHP_EOL;"` and paste
    the output. Keep prod's existing key. Then re-run the deploy.
 
-No cron jobs are needed: the app has no scheduled tasks or queued jobs.
+5. **Cron.** Automatic reminder emails (the reminder time on the settings
+   page) need Laravel's scheduler. In **Cron Jobs** add one that runs every
+   minute:
+   `cd ~/domains/<domain> && php artisan schedule:run > /dev/null 2>&1`.
+   Without it reminders can still be sent by hand from the term page. There
+   are no queued jobs.
 
 ### Rules (Settings → Rules → Rulesets → `main`)
 

@@ -22,7 +22,11 @@ class Setting extends Model
         'van_drivers' => ['app.readererer_van_drivers'],
         'single_ensemble' => ['app.readererer_single_ensemble'],
         'log_emails' => ['app.readererer_log_emails'],
+        'reminder_hours' => ['app.readererer_reminder_hours'],
+        'after_reminders' => ['app.readererer_after_reminders'],
     ];
+
+    public const AFTER_REMINDERS = ['nothing', 'follow_up', 'lock'];
 
     public const TERMS = [
         'rehearsal' => 'rehearsals',

@@ -12,6 +12,7 @@ test('the feature switches are saved with the settings', function () {
         ->put(route('settings.update'), [
             'name' => 'Riverside Band',
             'image_max_kilobytes' => 2048,
+            'after_reminders' => 'nothing',
             'setup_groups' => '0',
             'van_drivers' => '0',
             'single_ensemble' => '1',
@@ -32,6 +33,7 @@ test('single-ensemble mode cannot be turned on while there are several ensembles
         ->put(route('settings.update'), [
             'name' => 'Riverside Band',
             'image_max_kilobytes' => 2048,
+            'after_reminders' => 'nothing',
             'single_ensemble' => '1',
         ])
         ->assertSessionHasErrors('single_ensemble');

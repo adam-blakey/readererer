@@ -538,5 +538,18 @@
     "For a site with one ensemble: new users join it when they are created. Needs a site with at most one ensemble, and stops more being added.": "For a site with one ensemble: new users join it when they are created. Needs a site with at most one ensemble, and stops more being added.",
     "This site is set up for a single ensemble.": "This site is set up for a single ensemble.",
     "Single-ensemble mode needs a site with at most one ensemble.": "Single-ensemble mode needs a site with at most one ensemble.",
-    "No van driver": "No van driver"
+    "No van driver": "No van driver",
+    "Attendance changed — :name": "Attendance changed — :name",
+    "Attendance changed": "Attendance changed",
+    "These replies for :ensemble changed after the attendance list was sent for": "These replies for :ensemble changed after the attendance list was sent for",
+    ":to (was :from)": ":to (was :from)",
+    "Replies close :count hour before each date starts. Ask an admin to change a closed reply.|Replies close :count hours before each date starts. Ask an admin to change a closed reply.": "Replies close :count hour before each date starts. Ask an admin to change a closed reply.|Replies close :count hours before each date starts. Ask an admin to change a closed reply.",
+    "Nothing": "Nothing",
+    "Email the admins about each change": "Email the admins about each change",
+    "Lock the poll for members": "Lock the poll for members",
+    "Reminders": "Reminders",
+    "Hours before a date to send reminders": "Hours before a date to send reminders",
+    "Sends the attendance list to the ensemble admins, and the setup and van driver reminders, this long before each date. Leave empty to send them only by hand.": "Sends the attendance list to the ensemble admins, and the setup and van driver reminders, this long before each date. Leave empty to send them only by hand.",
+    "After reminders are sent": "After reminders are sent",
+    "What happens when a reply changes after the reminder time. Moderators and admins can always change replies.": "What happens when a reply changes after the reminder time. Moderators and admins can always change replies."
 }
