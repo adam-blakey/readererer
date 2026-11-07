@@ -94,7 +94,7 @@ test('a guest who opens a poll from the home page lands on it after logging in',
     $step('on login');
     $page->waitForEvent('load');
     $step('loaded');
-    $step('state '.json_encode($page->script('document.readyState + " " + location.href + " inputs=" + document.querySelectorAll("input").length')));
+    $step('state '.json_encode($page->script('(() => { const done = new Set(performance.getEntriesByType("resource").map(e => e.name)); const all = [...document.querySelectorAll("script[src],link[rel=stylesheet],link[rel=modulepreload]")].map(e => e.src || e.href); return document.readyState + " inputs=" + document.querySelectorAll("input").length + " pending=" + all.filter(u => !done.has(u)).join(",") + " total=" + all.length + " done=" + done.size; })()')));
     $page->type('username', 'admin');
     $step('typed username');
     $page->type('password', 'password');
