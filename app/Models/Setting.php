@@ -17,7 +17,7 @@ class Setting extends Model
         'repeating_headings' => ['app.readererer_repeating_headings'],
         'image_max_kilobytes' => ['app.readererer_image_max_kilobytes'],
         'terminology' => ['app.readererer_terminology'],
-        'hidden_user_fields' => ['app.readererer_hidden_user_fields'],
+        'shown_user_fields' => ['app.readererer_shown_user_fields'],
     ];
 
     public const TERMS = [

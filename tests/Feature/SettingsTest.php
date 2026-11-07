@@ -2,6 +2,7 @@
 
 use App\Enums\UserRole;
 use App\Models\Setting;
+use App\Models\User;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Storage;
 
@@ -132,16 +133,20 @@ test('deploys link public/storage to the public disk', function () {
         ->and(file_get_contents(base_path('.github/actions/deploy-ssh/action.yml')))->toContain('ln -sfn ../storage/app/public public/storage');
 });
 
-test('hidden member details are left out of the member pages and keep their saved values', function () {
+test('every member detail is shown until the setting is saved', function () {
+    expect(make_user()->getVisible())->toContain('phone_number', 'emergency_contact_name', 'is_over_18');
+});
+
+test('unticked member details are left out of the member pages and keep their saved values', function () {
     $admin = make_user(UserRole::Admin);
     $member = make_user(UserRole::Member, ['phone_number' => '01234 567890', 'date_of_birth' => '1990-01-01']);
 
     $this->actingAs($admin)
-        ->put(route('settings.update'), settings_payload(['hidden_user_fields' => ['phone_number', 'date_of_birth']]))
+        ->put(route('settings.update'), settings_payload(['shown_user_fields' => ['address', 'emergency_contact', 'has_photo_permission', 'is_gift_aiding_subs']]))
         ->assertSessionHasNoErrors();
     reload_settings();
 
-    expect($member->getVisible())->not->toContain('is_over_18');
+    expect($member->getVisible())->toContain('address_line1')->not->toContain('phone_number', 'is_over_18');
 
     $this->actingAs($admin)->get(route('users.show', $member))
         ->assertOk()
@@ -167,8 +172,15 @@ test('hidden member details are left out of the member pages and keep their save
     expect($member->fresh()->phone_number)->toBe('01234 567890');
 });
 
-test('only known member details can be hidden', function () {
+test('unticking every member detail hides them all', function () {
+    $this->actingAs(make_user(UserRole::Admin))->put(route('settings.update'), settings_payload())->assertSessionHasNoErrors();
+    reload_settings();
+
+    expect(User::shownFields())->toBe([]);
+});
+
+test('only known member details can be shown', function () {
     $this->actingAs(make_user(UserRole::Admin))
-        ->put(route('settings.update'), settings_payload(['hidden_user_fields' => ['password']]))
-        ->assertSessionHasErrors('hidden_user_fields.0');
+        ->put(route('settings.update'), settings_payload(['shown_user_fields' => ['password']]))
+        ->assertSessionHasErrors('shown_user_fields.0');
 });

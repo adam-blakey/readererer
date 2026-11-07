@@ -21,7 +21,8 @@ class SettingController extends Controller
         Setting::put('name', $request->validated('name'));
         Setting::put('image_max_kilobytes', (int) $request->validated('image_max_kilobytes'));
         Setting::put('terminology', array_filter($request->validated('terminology', []), 'filled'));
-        Setting::put('hidden_user_fields', $request->validated('hidden_user_fields', []));
+        // Not Setting::put(), which deletes an empty list and so would fall back to showing every field.
+        Setting::updateOrCreate(['key' => 'shown_user_fields'], ['value' => $request->validated('shown_user_fields', [])]);
 
         foreach (['assume_attending', 'allow_change_to_unknown', 'repeating_headings'] as $key) {
             Setting::put($key, $request->boolean($key));

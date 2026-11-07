@@ -522,6 +522,6 @@
     "Emergency contact city": "Emergency contact city",
     "Emergency contact post code": "Emergency contact post code",
     "Van driver for": "Van driver for",
-    "Hidden details are left out of every member page and form. Details already saved are kept.": "Hidden details are left out of every member page and form. Details already saved are kept.",
-    "Hidden member details": "Hidden member details"
+    "Ticked details are shown on member pages and forms. Unticking one hides it but keeps the details already saved.": "Ticked details are shown on member pages and forms. Unticking one hides it but keeps the details already saved.",
+    "Member details": "Member details"
 }

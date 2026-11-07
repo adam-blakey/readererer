@@ -28,8 +28,8 @@ class UpdateSettingsRequest extends FormRequest
             'image_max_kilobytes' => ['required', 'integer', 'min:1', 'max:10240'],
             'terminology' => ['sometimes', 'array:'.implode(',', $words)],
             'terminology.*' => ['nullable', 'string', 'max:50'],
-            'hidden_user_fields' => ['sometimes', 'array'],
-            'hidden_user_fields.*' => [Rule::in(array_keys(User::OPTIONAL_FIELDS))],
+            'shown_user_fields' => ['sometimes', 'array'],
+            'shown_user_fields.*' => [Rule::in(array_keys(User::OPTIONAL_FIELDS))],
         ];
     }
 }

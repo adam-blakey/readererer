@@ -17,7 +17,7 @@
 		'has_photo_permission' => __('Photograph permission'),
 		'is_gift_aiding_subs' => __('Gift aid subs'),
 	];
-	$hidden_user_fields = old('hidden_user_fields', config('app.readererer_hidden_user_fields'));
+	$shown_user_fields = old('shown_user_fields', config('app.readererer_shown_user_fields'));
 	$sections = [
 		['ensembles.index', 'music', __('Ensembles')],
 		['instrumentfamilys.index', 'guitar-pick', __('Instrument families')],
@@ -42,7 +42,7 @@
 			@method('PUT')
 
 			<fieldset class="card-body" @disabled(! $can_edit)>
-				<x-forms.error-summary :fields="['name', 'logo', 'remove_logo', 'image_max_kilobytes', 'assume_attending', 'allow_change_to_unknown', 'repeating_headings', 'terminology', 'terminology.*', 'hidden_user_fields', 'hidden_user_fields.*']" />
+				<x-forms.error-summary :fields="['name', 'logo', 'remove_logo', 'image_max_kilobytes', 'assume_attending', 'allow_change_to_unknown', 'repeating_headings', 'terminology', 'terminology.*', 'shown_user_fields', 'shown_user_fields.*']" />
 				@if (session('status'))
 					<div class="alert alert-success" role="alert">{{ session('status') }}</div>
 				@endif
@@ -93,11 +93,11 @@
 							</div>
 						@endforeach
 
-						<h2 class="mt-4 mb-1">{{ __('Hidden member details') }}</h2>
-						<p class="text-secondary">{{ __('Hidden details are left out of every member page and form. Details already saved are kept.') }}</p>
+						<h2 class="mt-4 mb-1">{{ __('Member details') }}</h2>
+						<p class="text-secondary">{{ __('Ticked details are shown on member pages and forms. Unticking one hides it but keeps the details already saved.') }}</p>
 						@foreach ($user_fields as $key => $label)
 							<label class="form-check">
-								<input class="form-check-input" name="hidden_user_fields[]" type="checkbox" value="{{ $key }}" @checked(in_array($key, $hidden_user_fields))>
+								<input class="form-check-input" name="shown_user_fields[]" type="checkbox" value="{{ $key }}" @checked(in_array($key, $shown_user_fields))>
 								<span class="form-check-label">{{ $label }}</span>
 							</label>
 						@endforeach

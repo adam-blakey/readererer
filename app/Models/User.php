@@ -17,7 +17,7 @@ class User extends Authenticatable
 {
     use AutoSortable, HasFactory, HasImage, Notifiable, SoftDeletes;
 
-    /** The fields an admin can hide on the settings page, each with the attributes it covers. */
+    /** The fields an admin can choose to show on the settings page, each with the attributes it covers. */
     public const OPTIONAL_FIELDS = [
         'phone_number' => ['phone_number'],
         'address' => ['address_line1', 'address_line2', 'address_city', 'address_post_code'],
@@ -44,7 +44,6 @@ class User extends Authenticatable
         'email',
         'role',
         'setup_group',
-        'is_over_18',
         'created_at',
         'updated_at',
     ];
@@ -60,14 +59,20 @@ class User extends Authenticatable
     ];
 
     /** @return array<int, string> */
+    public static function shownFields(): array
+    {
+        return Arr::flatten(Arr::only(self::OPTIONAL_FIELDS, config('app.readererer_shown_user_fields')));
+    }
+
+    /** @return array<int, string> */
     public static function hiddenFields(): array
     {
-        return Arr::flatten(Arr::only(self::OPTIONAL_FIELDS, config('app.readererer_hidden_user_fields')));
+        return Arr::flatten(Arr::except(self::OPTIONAL_FIELDS, config('app.readererer_shown_user_fields')));
     }
 
     public function getVisible(): array
     {
-        return array_values(array_diff($this->visible, self::hiddenFields()));
+        return array_merge($this->visible, self::shownFields());
     }
 
     public function attendances()
