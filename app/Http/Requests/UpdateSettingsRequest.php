@@ -2,6 +2,7 @@
 
 namespace App\Http\Requests;
 
+use App\Enums\Color;
 use App\Models\Ensemble;
 use App\Models\Setting;
 use App\Models\User;
@@ -23,6 +24,7 @@ class UpdateSettingsRequest extends FormRequest
             'name' => ['required', 'string', 'max:255'],
             'logo' => ['nullable', 'image', 'mimes:jpeg,png,webp,gif', 'max:'.config('app.readererer_image_max_kilobytes')],
             'remove_logo' => ['sometimes', 'boolean'],
+            'primary_color' => ['nullable', Rule::enum(Color::class)],
             'assume_attending' => ['sometimes', 'boolean'],
             'allow_change_to_unknown' => ['sometimes', 'boolean'],
             'repeating_headings' => ['sometimes', 'boolean'],

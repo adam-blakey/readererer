@@ -12,6 +12,7 @@ class Setting extends Model
     public const CONFIG_KEYS = [
         'name' => ['app.name', 'mail.from.name'],
         'logo' => ['app.readererer_logo'],
+        'primary_color' => ['app.readererer_primary_color'],
         'assume_attending' => ['app.readererer_assume_attending'],
         'allow_change_to_unknown' => ['app.readererer_allow_change_to_unknown'],
         'repeating_headings' => ['app.readererer_repeating_headings'],

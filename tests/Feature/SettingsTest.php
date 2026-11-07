@@ -98,8 +98,9 @@ test('settings reject unknown words and invalid values', function () {
             'name' => '',
             'image_max_kilobytes' => 0,
             'terminology' => ['piece' => 'tune'],
+            'primary_color' => 'magenta',
         ]))
-        ->assertSessionHasErrors(['name', 'image_max_kilobytes', 'terminology']);
+        ->assertSessionHasErrors(['name', 'image_max_kilobytes', 'terminology', 'primary_color']);
 
     expect(Setting::count())->toBe(0);
 });
@@ -197,4 +198,21 @@ test('the email logging switch is saved to the config', function () {
     reload_settings();
 
     expect(config('app.readererer_log_emails'))->toBeTrue();
+});
+
+test('the featured colour themes every page and the maintenance illustration', function () {
+    $admin = make_user(UserRole::Admin);
+    $this->actingAs($admin)
+        ->put(route('settings.update'), settings_payload(['primary_color' => 'red']))
+        ->assertSessionHasNoErrors();
+
+    reload_settings();
+
+    expect(config('app.readererer_primary_color'))->toBe('red');
+    $this->actingAs($admin)->get(route('settings.edit'))
+        ->assertSee('data-bs-theme-primary="red"', false)
+        ->assertSee('name="primary_color" type="radio" value="red" checked', false);
+    expect(view('errors::503')->render())
+        ->toContain('data-bs-theme-primary="red"')
+        ->toContain('var(--tblr-primary');
 });

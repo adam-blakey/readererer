@@ -19,6 +19,7 @@ class SettingController extends Controller
     public function update(UpdateSettingsRequest $request)
     {
         Setting::put('name', $request->validated('name'));
+        Setting::put('primary_color', $request->validated('primary_color'));
         Setting::put('image_max_kilobytes', (int) $request->validated('image_max_kilobytes'));
         Setting::put('reminder_hours', (int) $request->validated('reminder_hours'));
         Setting::put('after_reminders', $request->validated('after_reminders'));
