@@ -24,8 +24,8 @@ jobs:
       name: qa
       url: https://${{ vars.APP_DOMAIN }}
     steps:
-      - uses: actions/checkout@v7.0.1
-      - uses: $/.github/actions/deploy-ssh
+      - uses: actions/checkout@v7
+      - uses: ./.github/actions/deploy-ssh
         env:
           CF_ACCESS_CLIENT_ID: ${{ secrets.CF_ACCESS_CLIENT_ID }}
           CF_ACCESS_CLIENT_SECRET: ${{ secrets.CF_ACCESS_CLIENT_SECRET }}
@@ -60,7 +60,7 @@ jobs:
           fi
       # Tagged before deploying: .cpanel.yml writes `git describe --tags` to VERSION.
       - id: version
-        uses: mathieudutour/github-tag-action@v7.0.0
+        uses: mathieudutour/github-tag-action@v7
         with:
           github_token: ${{ github.token }}
           default_bump: minor
@@ -77,8 +77,8 @@ jobs:
       name: ${{ matrix.environment }}
       url: https://${{ vars.APP_DOMAIN }}
     steps:
-      - uses: actions/checkout@v7.0.1
-      - uses: $/.github/actions/deploy-cpanel
+      - uses: actions/checkout@v7
+      - uses: ./.github/actions/deploy-cpanel
         env:
           CF_ACCESS_CLIENT_ID: ${{ secrets.CF_ACCESS_CLIENT_ID }}
           CF_ACCESS_CLIENT_SECRET: ${{ secrets.CF_ACCESS_CLIENT_SECRET }}
@@ -94,7 +94,7 @@ jobs:
     permissions:
       contents: write
     steps:
-      - uses: softprops/action-gh-release@v3.0.4
+      - uses: softprops/action-gh-release@v3
         with:
           tag_name: ${{ needs.release_tag.outputs.tag }}
           target_commitish: ${{ github.sha }}
@@ -111,7 +111,7 @@ jobs:
       SSH: ssh -i ~/.ssh/deploy -p ${{ vars.DEPLOY_SSH_PORT }} -o StrictHostKeyChecking=no
       HOST: ${{ vars.DEPLOY_SSH_USER }}@${{ vars.DEPLOY_SSH_HOST }}
     steps:
-      - uses: actions/checkout@v7.0.1
+      - uses: actions/checkout@v7
       - run: |
           test -n '${{ vars.APP_DOMAIN }}'
           mkdir -p ~/.ssh

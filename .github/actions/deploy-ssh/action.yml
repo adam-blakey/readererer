@@ -22,7 +22,7 @@ inputs:
 runs:
   using: composite
   steps:
-    - uses: actions/download-artifact@v8.0.2
+    - uses: actions/download-artifact@v8
       with:
         name: build
     - shell: bash
@@ -63,6 +63,6 @@ runs:
           php artisan event:cache
           php artisan queue:restart
         EOF
-    - uses: $/.github/actions/check-site
+    - uses: ./.github/actions/check-site
       with:
         domain: ${{ inputs.domain }}

@@ -17,7 +17,7 @@ jobs:
     runs-on: ubuntu-24.04
     steps:
     - name: Checkout repository
-      uses: actions/checkout@v7.0.1
+      uses: actions/checkout@v7
 
     - name: Build the app image
       run: docker build -t readererer .
