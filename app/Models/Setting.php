@@ -2,9 +2,11 @@
 
 namespace App\Models;
 
+use Illuminate\Contracts\Encryption\DecryptException;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\QueryException;
 use Illuminate\Database\SQLiteDatabaseDoesNotExistException;
+use Illuminate\Support\Facades\Crypt;
 use Illuminate\Support\Facades\Storage;
 
 class Setting extends Model
@@ -24,7 +26,14 @@ class Setting extends Model
         'log_emails' => ['app.readererer_log_emails'],
         'reminder_hours' => ['app.readererer_reminder_hours'],
         'after_reminders' => ['app.readererer_after_reminders'],
+        'google_login' => ['app.readererer_google_login'],
+        'google_client_id' => ['services.google.client_id'],
+        'google_client_secret' => ['services.google.client_secret'],
+        'google_register_domain' => ['app.readererer_google_register_domain'],
+        'google_register_role' => ['app.readererer_google_register_role'],
     ];
+
+    public const ENCRYPTED = ['google_client_secret'];
 
     public const AFTER_REMINDERS = ['nothing', 'follow_up', 'lock'];
 
@@ -58,6 +67,14 @@ class Setting extends Model
                 $value = Storage::disk('public')->url($value);
             }
 
+            if (in_array($key, self::ENCRYPTED, true)) {
+                try {
+                    $value = Crypt::decryptString($value);
+                } catch (DecryptException) {
+                    continue; // Encrypted with a previous APP_KEY.
+                }
+            }
+
             foreach (self::CONFIG_KEYS[$key] as $config_key) {
                 config([$config_key => $value]);
             }
@@ -69,7 +86,7 @@ class Setting extends Model
         if (blank($value)) {
             static::where('key', $key)->delete();
         } else {
-            static::updateOrCreate(['key' => $key], ['value' => $value]);
+            static::updateOrCreate(['key' => $key], ['value' => in_array($key, self::ENCRYPTED, true) ? Crypt::encryptString($value) : $value]);
         }
     }
 }

@@ -4,6 +4,7 @@ use App\Http\Controllers\Auth\AuthenticatedSessionController;
 use App\Http\Controllers\Auth\ConfirmablePasswordController;
 use App\Http\Controllers\Auth\EmailVerificationNotificationController;
 use App\Http\Controllers\Auth\EmailVerificationPromptController;
+use App\Http\Controllers\Auth\GoogleLoginController;
 use App\Http\Controllers\Auth\LoginLinkController;
 use App\Http\Controllers\Auth\NewPasswordController;
 use App\Http\Controllers\Auth\PasswordController;
@@ -16,6 +17,12 @@ Route::middleware('guest')->group(function () {
         ->name('login');
 
     Route::post('login', [AuthenticatedSessionController::class, 'store']);
+
+    Route::get('auth/google', [GoogleLoginController::class, 'redirect'])
+        ->name('google.redirect');
+
+    Route::get('auth/google/callback', [GoogleLoginController::class, 'callback'])
+        ->name('google.callback');
 
     Route::get('login/email', [LoginLinkController::class, 'create'])
         ->name('login-link.request');

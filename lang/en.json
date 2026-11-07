@@ -560,5 +560,21 @@
     "Hours before a date to send reminders": "Hours before a date to send reminders",
     "Sends the attendance list to the ensemble admins, and the setup and van driver reminders, this long before each date. Leave empty to send them only by hand.": "Sends the attendance list to the ensemble admins, and the setup and van driver reminders, this long before each date. Leave empty to send them only by hand.",
     "After reminders are sent": "After reminders are sent",
-    "What happens when a reply changes after the reminder time. Moderators and admins can always change replies.": "What happens when a reply changes after the reminder time. Moderators and admins can always change replies."
+    "What happens when a reply changes after the reminder time. Moderators and admins can always change replies.": "What happens when a reply changes after the reminder time. Moderators and admins can always change replies.",
+    "Logging in with Google failed. Please try again.": "Logging in with Google failed. Please try again.",
+    "Your Google account has no verified email address.": "Your Google account has no verified email address.",
+    "More than one account uses :email, so log in with your username instead.": "More than one account uses :email, so log in with your username instead.",
+    "No account uses :email.": "No account uses :email.",
+    "Lets members log in with the Google account that has their email address. :create of type Web application in the Google Cloud console and add :url as an authorised redirect URI. To change a client you already have, open it from the :clients.": "Lets members log in with the Google account that has their email address. :create of type Web application in the Google Cloud console and add :url as an authorised redirect URI. To change a client you already have, open it from the :clients.",
+    "Allow login with Google": "Allow login with Google",
+    "Client ID": "Client ID",
+    "Client secret": "Client secret",
+    "A secret is saved. Leave this empty to keep it.": "A secret is saved. Leave this empty to keep it.",
+    "Stored encrypted.": "Stored encrypted.",
+    "Register new users from this domain": "Register new users from this domain",
+    "Someone logging in with a Google account on this domain who has no account yet gets one with the role below. Leave empty to only let existing users log in.": "Someone logging in with a Google account on this domain who has no account yet gets one with the role below. Leave empty to only let existing users log in.",
+    "Role for new users": "Role for new users",
+    "Enter a domain name such as example.org, without the @.": "Enter a domain name such as example.org, without the @.",
+    "Create an OAuth client": "Create an OAuth client",
+    "Clients page": "Clients page"
 }
