@@ -92,6 +92,8 @@ test('a guest who opens a poll from the home page lands on it after logging in',
     $step('clicked term');
     $page->assertPathIs('/login');
     $step('on login');
+    $page->waitForEvent('load');
+    $step('loaded');
     $step('state '.json_encode($page->script('document.readyState + " " + location.href + " inputs=" + document.querySelectorAll("input").length')));
     $page->type('username', 'admin');
     $step('typed username');
