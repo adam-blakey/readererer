@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use App\Enums\EmailStatus;
+use App\Mail\AttendanceChangedMail;
 use App\Mail\AttendanceListMail;
 use App\Mail\RosterChangedMail;
 use App\Mail\SetupReminderMail;
@@ -30,6 +31,7 @@ class EmailLog extends Model
 
     public const TYPE_LABELS = [
         AttendanceListMail::class => 'Attendance list',
+        AttendanceChangedMail::class => 'Attendance changed',
         SetupReminderMail::class => 'Setup-group reminder',
         VanDriverReminderMail::class => 'Van-driver reminder',
         RosterChangedMail::class => 'Setup groups/driver changed',

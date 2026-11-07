@@ -23,6 +23,11 @@
 		config('app.readererer_setup_groups') ? ['setupgroups.index', 'users', __('Setup groups')] : null,
 	]);
 	$can_edit = Gate::allows('edit.settings');
+	$after_reminders = [
+		'nothing' => __('Nothing'),
+		'follow_up' => __('Email the admins about each change'),
+		'lock' => __('Lock the poll for members'),
+	];
 @endphp
 
 <x-layout>
@@ -40,7 +45,7 @@
 			@method('PUT')
 
 			<fieldset class="card-body" @disabled(! $can_edit)>
-				<x-forms.error-summary :fields="['name', 'logo', 'remove_logo', 'image_max_kilobytes', 'assume_attending', 'allow_change_to_unknown', 'repeating_headings', 'setup_groups', 'van_drivers', 'single_ensemble', 'terminology', 'terminology.*']" />
+				<x-forms.error-summary :fields="['name', 'logo', 'remove_logo', 'image_max_kilobytes', 'assume_attending', 'allow_change_to_unknown', 'repeating_headings', 'setup_groups', 'van_drivers', 'single_ensemble', 'reminder_hours', 'after_reminders', 'terminology', 'terminology.*']" />
 				@if (session('status'))
 					<div class="alert alert-success" role="alert">{{ session('status') }}</div>
 				@endif
@@ -95,6 +100,28 @@
 								</div>
 							@endforeach
 						@endforeach
+
+						<h2 class="mt-4 mb-3">{{ __('Reminders') }}</h2>
+						<div class="mb-3">
+							<label class="form-label" for="reminder_hours">{{ __('Hours before a date to send reminders') }}</label>
+							<input class="form-control @error('reminder_hours') is-invalid @enderror" id="reminder_hours" max="720" min="1" name="reminder_hours" type="number" value="{{ old('reminder_hours', config('app.readererer_reminder_hours') ?: '') }}">
+							<div class="form-hint">{{ __('Sends the attendance list to the ensemble admins, and the setup and van driver reminders, this long before each date. Leave empty to send them only by hand.') }}</div>
+							@error('reminder_hours')
+								<x-forms.input-error :messages="$message" />
+							@enderror
+						</div>
+						<div class="mb-3">
+							<label class="form-label required" for="after_reminders">{{ __('After reminders are sent') }}</label>
+							<select class="form-select @error('after_reminders') is-invalid @enderror" id="after_reminders" name="after_reminders" required>
+								@foreach ($after_reminders as $value => $label)
+									<option value="{{ $value }}" @selected(old('after_reminders', config('app.readererer_after_reminders')) === $value)>{{ $label }}</option>
+								@endforeach
+							</select>
+							<div class="form-hint">{{ __('What happens when a reply changes after the reminder time. Moderators and admins can always change replies.') }}</div>
+							@error('after_reminders')
+								<x-forms.input-error :messages="$message" />
+							@enderror
+						</div>
 					</div>
 					<div class="col-xl-6">
 						<h2 class="mb-1">{{ __('Wording') }}</h2>

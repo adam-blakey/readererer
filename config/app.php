@@ -144,5 +144,7 @@ return [
     'readererer_setup_groups' => env('READERERER_SETUP_GROUPS', true),
     'readererer_van_drivers' => env('READERERER_VAN_DRIVERS', true),
     'readererer_single_ensemble' => env('READERERER_SINGLE_ENSEMBLE', false),
+    'readererer_reminder_hours' => env('READERERER_REMINDER_HOURS'),
+    'readererer_after_reminders' => env('READERERER_AFTER_REMINDERS', 'nothing'),
 
 ];
