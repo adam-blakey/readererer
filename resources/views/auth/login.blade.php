@@ -61,15 +61,19 @@
 								</div>
 							</form>
 						</div>
-						@if (google_login_enabled())
-							<div class="hr-text">{{ __('or') }}</div>
-							<div class="card-body">
-								<a class="btn w-100" href="{{ route('google.redirect') }}" tabindex="6">
+						<div class="hr-text">{{ __('or') }}</div>
+						<div class="card-body">
+							@if (google_login_enabled())
+								<a class="mb-2 btn w-100" href="{{ route('google.redirect') }}" tabindex="6">
 									<x-icon name="brand-google" />
 									{{ __('Login with Google') }}
 								</a>
-							</div>
-						@endif
+							@endif
+							<x-a class="btn w-100" :route="'login-link.request'" tabindex="6">
+								<x-icon name="mail" />
+								{{ __('Email me a login link') }}
+							</x-a>
+						</div>
 					</div>
 					<div class="mt-3 text-center text-secondary">
 						{{ __("Don't have an account yet?") }} <a href="./sign-up.html" tabindex="7">{{ __('Sign up') }}</a>

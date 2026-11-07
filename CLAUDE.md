@@ -68,6 +68,8 @@ Role-based via the `UserRole` int enum (`Guest=0, Ensemble=1, Member=2, Moderato
 
 Users can also log in with Google (`GoogleLoginController`, `google.redirect`/`google.callback` routes, through `laravel/socialite`) once the settings page turns on `app.readererer_google_login` and fills in `services.google.client_id` and `services.google.client_secret` (`google_login_enabled()` in `helpers.php`). The secret is in `Setting::ENCRYPTED`, so `Setting::put()` encrypts it with `APP_KEY` and `applyToConfig()` decrypts it. A verified Google email signs in the user with that email address (matched case-insensitively). An address with no account gets one only when its domain is `app.readererer_google_register_domain`, with the role in `app.readererer_google_register_role`.
 
+Members can also log in with an emailed link (`LoginLinkController`, `login-link.*` routes), and opening it shows a button that logs in so email link scanners cannot use it up. Password reset links and login links are both an `EmailLinkType` (`ResetPassword`, `LoginLink`), sent by `$type->send($email)` as the `EmailLink` notification: the type decides who may get one, the page it links to and the email's wording, and the token comes from the password broker, so every type is single-use, expires and is throttled alike. Shared `Ensemble` logins can neither request nor use a login link.
+
 A user with `must_change_password` set (new users, from the web form or `user:create`) is held on the change password page (`password.edit`) by the `EnsurePasswordIsChanged` middleware, appended to the whole `web` group because many routes rely only on `->can()`. Changing or resetting the password clears it.
 
 ### Soft deletes everywhere
