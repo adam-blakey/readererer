@@ -45,7 +45,7 @@
 						<a class="dropdown-item" href="{{ route('attendance.register.show', ['ensemble' => $ensemble, 'termDate' => $term_date]) }}">
 							{{ $term_date->date_label }}
 							@if ($term_date->is_concert)
-								<span class="ms-1 badge bg-green-lt">{{ __('Concert') }}</span>
+								<span class="ms-1 badge bg-primary-lt">{{ __('Concert') }}</span>
 							@endif
 						</a>
 					@endforeach

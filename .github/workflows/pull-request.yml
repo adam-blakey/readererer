@@ -1,6 +1,7 @@
 name: Build, Test & Deploy (PR)
 
 on:
+  workflow_dispatch:
   pull_request:
 
 permissions:

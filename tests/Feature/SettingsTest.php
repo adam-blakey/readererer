@@ -276,3 +276,19 @@ test('the Google login section links to the Google Cloud console pages for OAuth
         ->assertSee('href="https://console.cloud.google.com/auth/clients"', false)
         ->assertSee('<code>'.route('google.callback').'</code>', false);
 });
+
+test('an admin can upload and remove the favicon', function () {
+    $admin = make_user(UserRole::Admin);
+
+    $this->actingAs($admin)->put(route('settings.update'), settings_payload(['favicon' => UploadedFile::fake()->image('icon.png')]))
+        ->assertSessionHasNoErrors();
+    $path = Setting::where('key', 'favicon')->value('value');
+    Storage::disk('public')->assertExists($path);
+
+    reload_settings();
+    expect(favicon_url())->toEndWith('/storage/'.$path);
+
+    $this->actingAs($admin)->put(route('settings.update'), settings_payload(['remove_favicon' => '1']));
+    Storage::disk('public')->assertMissing($path);
+    expect(Setting::where('key', 'favicon')->exists())->toBeFalse();
+});
