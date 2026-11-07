@@ -1,4 +1,4 @@
-@props(['page_name', 'has_uploaded_logo', 'has_google_client_secret'])
+@props(['page_name', 'has_uploaded_logo', 'has_uploaded_favicon', 'has_google_client_secret'])
 
 @php
 	use App\Enums\Color;
@@ -59,7 +59,7 @@
 			@method('PUT')
 
 			<fieldset class="card-body" @disabled(! $can_edit)>
-				<x-forms.error-summary :fields="['name', 'logo', 'remove_logo', 'primary_color', 'image_max_kilobytes', 'assume_attending', 'allow_change_to_unknown', 'repeating_headings', 'setup_groups', 'van_drivers', 'single_ensemble', 'reminder_hours', 'after_reminders', 'log_emails', 'terminology', 'terminology.*', 'shown_user_fields', 'shown_user_fields.*', 'google_login', 'google_client_id', 'google_client_secret', 'google_register_domain', 'google_register_role']" />
+				<x-forms.error-summary :fields="['name', 'logo', 'remove_logo', 'favicon', 'remove_favicon', 'primary_color', 'image_max_kilobytes', 'assume_attending', 'allow_change_to_unknown', 'repeating_headings', 'setup_groups', 'van_drivers', 'single_ensemble', 'reminder_hours', 'after_reminders', 'log_emails', 'terminology', 'terminology.*', 'shown_user_fields', 'shown_user_fields.*', 'google_login', 'google_client_id', 'google_client_secret', 'google_register_domain', 'google_register_role']" />
 				@if (session('status'))
 					<div class="alert alert-success" role="alert">{{ session('status') }}</div>
 				@endif
@@ -87,6 +87,21 @@
 								<label class="mt-2 form-check">
 									<input class="form-check-input" name="remove_logo" type="checkbox" value="1" @checked(old('remove_logo'))>
 									<span class="form-check-label">{{ __('Remove the uploaded logo') }}</span>
+								</label>
+							@endif
+						</div>
+						<div class="mb-3">
+							<label class="form-label" for="favicon">{{ __('Favicon') }}</label>
+							<img alt="" class="mb-2 d-block" src="{{ favicon_url() }}" style="max-height: 2rem">
+							<input accept="image/jpeg,image/png,image/webp,image/gif" class="form-control @error('favicon') is-invalid @enderror" id="favicon" name="favicon" type="file">
+							<div class="form-hint">{{ __('Shown in browser tabs. A square PNG works best.') }}</div>
+							@error('favicon')
+								<x-forms.input-error :messages="$message" />
+							@enderror
+							@if ($has_uploaded_favicon)
+								<label class="mt-2 form-check">
+									<input class="form-check-input" name="remove_favicon" type="checkbox" value="1" @checked(old('remove_favicon'))>
+									<span class="form-check-label">{{ __('Remove the uploaded favicon') }}</span>
 								</label>
 							@endif
 						</div>

@@ -25,6 +25,8 @@ class UpdateSettingsRequest extends FormRequest
             'name' => ['required', 'string', 'max:255'],
             'logo' => ['nullable', 'image', 'mimes:jpeg,png,webp,gif', 'max:'.config('app.readererer_image_max_kilobytes')],
             'remove_logo' => ['sometimes', 'boolean'],
+            'favicon' => ['nullable', 'image', 'mimes:jpeg,png,webp,gif', 'max:'.config('app.readererer_image_max_kilobytes')],
+            'remove_favicon' => ['sometimes', 'boolean'],
             'primary_color' => ['nullable', Rule::enum(Color::class)],
             'assume_attending' => ['sometimes', 'boolean'],
             'allow_change_to_unknown' => ['sometimes', 'boolean'],

@@ -22,6 +22,13 @@ function logo_url(): string
     return filled($logo) ? asset($logo) : Vite::asset('resources/images/readererer-long-logo.svg');
 }
 
+function favicon_url(): string
+{
+    $favicon = config('app.readererer_favicon');
+
+    return filled($favicon) ? asset($favicon) : Vite::asset('resources/images/favicon.png');
+}
+
 function google_login_enabled(): bool
 {
     return config('app.readererer_google_login') && filled(config('services.google.client_id')) && filled(config('services.google.client_secret'));
