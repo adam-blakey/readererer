@@ -27,7 +27,7 @@ class UserSeeder extends Seeder
         foreach (UserRole::cases() as $role) {
             $user = User::factory()->create([
                 'role' => $role,
-                'image' => app()->environment('testing') ? null : 'https://adam.blakey.family/wp-content/uploads/sites/4/2022/02/Adam-cutaway-4.png.webp',
+                'image' => 'https://adam.blakey.family/wp-content/uploads/sites/4/2022/02/Adam-cutaway-4.png.webp',
                 'username' => strtolower($roleNames[$i]),
                 'email' => $roleNames[$i].'@example.com',
                 'password' => bcrypt('password'),
