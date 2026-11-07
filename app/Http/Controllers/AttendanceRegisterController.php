@@ -21,7 +21,7 @@ class AttendanceRegisterController extends Controller
     {
         $this->authorize('viewAny', RegisterEntry::class);
 
-        $term_dates = TermDate::with(['term', 'concert_ensembles', 'register_entries'])
+        $term_dates = TermDate::with(['term', 'concert_ensembles', 'register_entries', 'email_logs.recipients', 'setup_group', 'van_driver'])
             ->orderByDesc('start_datetime')
             ->paginate(15);
 
@@ -33,7 +33,7 @@ class AttendanceRegisterController extends Controller
         return view('attendances.registers', [
             'term_dates' => $term_dates,
             'ensembles' => $ensembles,
-            'page_name' => __('Attendance registers'),
+            'page_name' => __('Upcoming rehearsals'),
         ]);
     }
 

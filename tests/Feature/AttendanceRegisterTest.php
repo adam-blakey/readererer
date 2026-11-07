@@ -6,6 +6,7 @@ use App\Enums\UserRole;
 use App\Models\Attendance;
 use App\Models\Ensemble;
 use App\Models\RegisterEntry;
+use App\Models\SetupGroup;
 use App\Models\Term;
 
 test('the register index requires moderator or above', function () {
@@ -217,6 +218,42 @@ test('the index lists each date with a link to the registers that apply to it', 
     $response->assertSee(route('attendance.register.show', ['ensemble' => $ensemble, 'termDate' => $concert]), false);
     $response->assertDontSee(route('attendance.register.show', ['ensemble' => $otherEnsemble, 'termDate' => $concert]), false);
     $response->assertSee('1 present');
+});
+
+test('the index links each date to the polls of the ensembles it applies to', function () {
+    $ensemble = Ensemble::factory()->create();
+    $otherEnsemble = Ensemble::factory()->create();
+    $term = Term::factory()->create();
+    make_term_date($term, $ensemble);
+
+    $this->actingAs(make_user(UserRole::Admin))
+        ->get(route('attendance.register.index'))
+        ->assertOk()
+        ->assertSee('Upcoming rehearsals')
+        ->assertSee(route('attendance.poll.show', ['ensemble' => $ensemble, 'term' => $term]), false)
+        ->assertDontSee(route('attendance.poll.show', ['ensemble' => $otherEnsemble, 'term' => $term]), false)
+        ->assertSee('View poll');
+});
+
+test('moderators can view the index but not use the email actions', function () {
+    $termDate = make_term_date(Term::factory()->create());
+    $termDate->update([
+        'setup_group_id' => SetupGroup::factory()->create()->id,
+        'van_driver_id' => make_user()->id,
+    ]);
+    $moderator = make_user(UserRole::Moderator);
+
+    $this->actingAs($moderator)
+        ->get(route('attendance.register.index'))
+        ->assertOk()
+        ->assertSee($termDate->date_label)
+        ->assertDontSee(route('term-dates.send-attendance-list', $termDate), false)
+        ->assertDontSee(route('term-dates.send-setup-reminder', $termDate), false)
+        ->assertDontSee(route('term-dates.send-van-driver-reminder', $termDate), false);
+
+    $this->actingAs($moderator)->post(route('term-dates.send-attendance-list', $termDate))->assertForbidden();
+    $this->actingAs($moderator)->post(route('term-dates.send-setup-reminder', $termDate))->assertForbidden();
+    $this->actingAs($moderator)->post(route('term-dates.send-van-driver-reminder', $termDate))->assertForbidden();
 });
 
 test('a register that has been taken shows its members and their notes', function () {

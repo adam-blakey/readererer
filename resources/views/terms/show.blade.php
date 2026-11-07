@@ -1,4 +1,4 @@
-@props(['term', 'ensembles', 'nextRehearsal' => null, 'nextConcert' => null])
+@props(['term', 'nextRehearsal' => null, 'nextConcert' => null])
 
 <x-layout>
     <div class="container">
@@ -40,7 +40,7 @@
 						<div class="card-header">
 							<h2 class="mb-0 card-heading">{{ __('All dates') }}</h2>
 						</div>
-						<x-term-dates-table :term_dates="$term->term_dates" :ensembles="$ensembles" />
+						<x-term-dates-table :term_dates="$term->term_dates" />
 					</div>
 				</div>
 			</div>

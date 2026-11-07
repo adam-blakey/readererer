@@ -1,7 +1,7 @@
 @php
 	$nav_items = [
 	    [
-	        'title' => __('Attendance register'),
+	        'title' => __('Upcoming rehearsals'),
 	        'icon' => 'list-check',
 	        'route' => 'attendance.register.index',
 	        'auth' => Auth::user()?->can('viewAny', App\Models\RegisterEntry::class),
