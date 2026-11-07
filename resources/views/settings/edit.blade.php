@@ -1,6 +1,8 @@
-@props(['page_name', 'has_uploaded_logo'])
+@props(['page_name', 'has_uploaded_logo', 'has_google_client_secret'])
 
 @php
+	use App\Enums\Color;
+	use App\Enums\UserRole;
 	use App\Models\Setting;
 
 	$terminology = config('app.readererer_terminology');
@@ -57,7 +59,7 @@
 			@method('PUT')
 
 			<fieldset class="card-body" @disabled(! $can_edit)>
-				<x-forms.error-summary :fields="['name', 'logo', 'remove_logo', 'image_max_kilobytes', 'assume_attending', 'allow_change_to_unknown', 'repeating_headings', 'setup_groups', 'van_drivers', 'single_ensemble', 'reminder_hours', 'after_reminders', 'log_emails', 'terminology', 'terminology.*', 'shown_user_fields', 'shown_user_fields.*']" />
+				<x-forms.error-summary :fields="['name', 'logo', 'remove_logo', 'primary_color', 'image_max_kilobytes', 'assume_attending', 'allow_change_to_unknown', 'repeating_headings', 'setup_groups', 'van_drivers', 'single_ensemble', 'reminder_hours', 'after_reminders', 'log_emails', 'terminology', 'terminology.*', 'shown_user_fields', 'shown_user_fields.*', 'google_login', 'google_client_id', 'google_client_secret', 'google_register_domain', 'google_register_role']" />
 				@if (session('status'))
 					<div class="alert alert-success" role="alert">{{ session('status') }}</div>
 				@endif
@@ -87,6 +89,23 @@
 									<span class="form-check-label">{{ __('Remove the uploaded logo') }}</span>
 								</label>
 							@endif
+						</div>
+						<div class="mb-3">
+							<div class="form-label" id="primary_color_label">{{ __('Featured colour') }}</div>
+							<div aria-labelledby="primary_color_label" class="row g-2" role="radiogroup">
+								@foreach (Color::cases() as $color)
+									<div class="col-auto">
+										<label class="form-colorinput" title="{{ $color->label() }}">
+											<input aria-label="{{ $color->label() }}" class="form-colorinput-input" name="primary_color" type="radio" value="{{ $color->value }}" @checked(old('primary_color', config('app.readererer_primary_color')) === $color->value)>
+											<span class="form-colorinput-color bg-{{ $color->cssClass() }}"></span>
+										</label>
+									</div>
+								@endforeach
+							</div>
+							<div class="form-hint">{{ __('Used for buttons, links and illustrations.') }}</div>
+							@error('primary_color')
+								<x-forms.input-error :messages="$message" />
+							@enderror
 						</div>
 						<div class="mb-3">
 							<label class="form-label required" for="image_max_kilobytes">{{ __('Largest image upload (KB)') }}</label>
@@ -172,6 +191,59 @@
 									@endforeach
 								</tbody>
 							</table>
+						</div>
+
+						<h2 class="mt-4 mb-1">{{ __('Login with Google') }}</h2>
+						<p class="text-secondary">{!! __('Lets members log in with the Google account that has their email address. :create of type Web application in the Google Cloud console and add :url as an authorised redirect URI. To change a client you already have, open it from the :clients.', [
+							'create' => '<a href="https://console.cloud.google.com/auth/clients/create" rel="noopener" target="_blank">'.e(__('Create an OAuth client')).'</a>',
+							'url' => '<code>'.e(route('google.callback')).'</code>',
+							'clients' => '<a href="https://console.cloud.google.com/auth/clients" rel="noopener" target="_blank">'.e(__('Clients page')).'</a>',
+						]) !!}</p>
+						<div class="mb-3">
+							<input name="google_login" type="hidden" value="0">
+							<label class="form-check form-switch">
+								<input @class(['form-check-input', 'is-invalid' => $errors->has('google_login')]) name="google_login" type="checkbox" value="1" @checked(old('google_login', config('app.readererer_google_login')))>
+								<span class="form-check-label">{{ __('Allow login with Google') }}</span>
+							</label>
+						</div>
+						<div class="mb-3">
+							<label class="form-label" for="google_client_id">{{ __('Client ID') }}</label>
+							<input class="form-control @error('google_client_id') is-invalid @enderror" id="google_client_id" maxlength="255" name="google_client_id" type="text" value="{{ old('google_client_id', config('services.google.client_id')) }}">
+							@error('google_client_id')
+								<x-forms.input-error :messages="$message" />
+							@enderror
+						</div>
+						<div class="mb-3">
+							<label class="form-label" for="google_client_secret">{{ __('Client secret') }}</label>
+							<input autocomplete="off" class="form-control @error('google_client_secret') is-invalid @enderror" id="google_client_secret" maxlength="255" name="google_client_secret" type="password">
+							<div class="form-hint">{{ $has_google_client_secret ? __('A secret is saved. Leave this empty to keep it.') : __('Stored encrypted.') }}</div>
+							@error('google_client_secret')
+								<x-forms.input-error :messages="$message" />
+							@enderror
+						</div>
+						<div class="mb-3">
+							<label class="form-label" for="google_register_domain">{{ __('Register new users from this domain') }}</label>
+							<div class="input-group">
+								<span class="input-group-text">@</span>
+								<input class="form-control @error('google_register_domain') is-invalid @enderror" id="google_register_domain" maxlength="255" name="google_register_domain" placeholder="example.org" type="text" value="{{ old('google_register_domain', config('app.readererer_google_register_domain')) }}">
+							</div>
+							<div class="form-hint">{{ __('Someone logging in with a Google account on this domain who has no account yet gets one with the role below. Leave empty to only let existing users log in.') }}</div>
+							@error('google_register_domain')
+								<x-forms.input-error :messages="$message" />
+							@enderror
+						</div>
+						<div class="mb-3">
+							<label class="form-label" for="google_register_role">{{ __('Role for new users') }}</label>
+							<select class="form-select @error('google_register_role') is-invalid @enderror" id="google_register_role" name="google_register_role">
+								<option value="">{{ __('None') }}</option>
+								@foreach (UserRole::cases() as $role)
+									@continue($role === UserRole::Ensemble)
+									<option value="{{ $role->value }}" @selected((string) old('google_register_role', config('app.readererer_google_register_role')) === (string) $role->value)>{{ $role->label() }}</option>
+								@endforeach
+							</select>
+							@error('google_register_role')
+								<x-forms.input-error :messages="$message" />
+							@enderror
 						</div>
 					</div>
 				</div>

@@ -14,14 +14,14 @@ enum EmailLinkType
     public function send(string $email): string
     {
         return Password::sendResetLink(
-            $this->credentials($email),
+            self::credentials($email),
             fn (User $user, string $token) => $user->notify(new EmailLink($this, $token))
         );
     }
 
     public function user(string $email, string $token): ?User
     {
-        $user = Password::getUser($this->credentials($email));
+        $user = Password::getUser(self::credentials($email));
 
         return $user && Password::tokenExists($user, $token) ? $user : null;
     }
@@ -35,11 +35,8 @@ enum EmailLinkType
     }
 
     /** @return array<int|string, mixed> */
-    private function credentials(string $email): array
+    public static function credentials(string $email): array
     {
-        return match ($this) {
-            self::ResetPassword => ['email' => $email],
-            self::LoginLink => ['email' => $email, fn ($query) => $query->where('role', '!=', UserRole::Ensemble)],
-        };
+        return ['email' => $email, fn ($query) => $query->where('role', '!=', UserRole::Ensemble)];
     }
 }

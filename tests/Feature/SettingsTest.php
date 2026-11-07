@@ -4,6 +4,7 @@ use App\Enums\UserRole;
 use App\Models\Setting;
 use App\Models\User;
 use Illuminate\Http\UploadedFile;
+use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Storage;
 
 beforeEach(function () {
@@ -98,8 +99,9 @@ test('settings reject unknown words and invalid values', function () {
             'name' => '',
             'image_max_kilobytes' => 0,
             'terminology' => ['piece' => 'tune'],
+            'primary_color' => 'magenta',
         ]))
-        ->assertSessionHasErrors(['name', 'image_max_kilobytes', 'terminology']);
+        ->assertSessionHasErrors(['name', 'image_max_kilobytes', 'terminology', 'primary_color']);
 
     expect(Setting::count())->toBe(0);
 });
@@ -197,4 +199,73 @@ test('the email logging switch is saved to the config', function () {
     reload_settings();
 
     expect(config('app.readererer_log_emails'))->toBeTrue();
+});
+
+test('the featured colour themes every page and the maintenance illustration', function () {
+    $admin = make_user(UserRole::Admin);
+    $this->actingAs($admin)
+        ->put(route('settings.update'), settings_payload(['primary_color' => 'red']))
+        ->assertSessionHasNoErrors();
+
+    reload_settings();
+
+    expect(config('app.readererer_primary_color'))->toBe('red');
+    $this->actingAs($admin)->get(route('settings.edit'))
+        ->assertSee('data-bs-theme-primary="red"', false)
+        ->assertSee('name="primary_color" type="radio" value="red" checked', false);
+
+    Route::get('/test-unavailable', fn () => abort(503));
+    $this->get('/test-unavailable')
+        ->assertStatus(503)
+        ->assertSee('data-bs-theme-primary="red"', false)
+        ->assertSee('var(--tblr-primary', false);
+});
+
+test('the Google login settings are saved, with the client secret encrypted', function () {
+    $admin = make_user(UserRole::Admin);
+    $google = [
+        'google_login' => '1',
+        'google_client_id' => 'client-id',
+        'google_client_secret' => 'client-secret',
+        'google_register_domain' => 'Example.org',
+        'google_register_role' => (string) UserRole::Moderator->value,
+    ];
+
+    $this->actingAs($admin)->put(route('settings.update'), settings_payload($google))->assertSessionHasNoErrors();
+
+    $stored = Setting::where('key', 'google_client_secret')->value('value');
+    reload_settings();
+
+    expect($stored)->not->toContain('client-secret')
+        ->and(config('app.readererer_google_login'))->toBeTrue()
+        ->and(config('services.google.client_id'))->toBe('client-id')
+        ->and(config('services.google.client_secret'))->toBe('client-secret')
+        ->and(config('app.readererer_google_register_domain'))->toBe('example.org')
+        ->and(config('app.readererer_google_register_role'))->toBe(UserRole::Moderator->value);
+
+    $this->actingAs($admin)->get(route('settings.edit'))->assertDontSee('client-secret');
+
+    $this->actingAs($admin)
+        ->put(route('settings.update'), settings_payload(['google_client_secret' => ''] + $google))
+        ->assertSessionHasNoErrors();
+    reload_settings();
+
+    expect(config('services.google.client_secret'))->toBe('client-secret');
+});
+
+test('Google login needs a client ID and secret, and registration needs both a domain and a role', function () {
+    $this->actingAs(make_user(UserRole::Admin))
+        ->put(route('settings.update'), settings_payload(['google_login' => '1', 'google_register_domain' => 'example.org']))
+        ->assertSessionHasErrors(['google_client_id', 'google_client_secret', 'google_register_role']);
+
+    $this->actingAs(make_user(UserRole::Admin))
+        ->put(route('settings.update'), settings_payload(['google_register_domain' => '@example.org', 'google_register_role' => (string) UserRole::Ensemble->value]))
+        ->assertSessionHasErrors(['google_register_domain', 'google_register_role']);
+});
+
+test('the Google login section links to the Google Cloud console pages for OAuth clients', function () {
+    $this->actingAs(make_user(UserRole::Admin))->get(route('settings.edit'))
+        ->assertSee('href="https://console.cloud.google.com/auth/clients/create"', false)
+        ->assertSee('href="https://console.cloud.google.com/auth/clients"', false)
+        ->assertSee('<code>'.route('google.callback').'</code>', false);
 });

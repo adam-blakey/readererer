@@ -22,6 +22,11 @@ function logo_url(): string
     return filled($logo) ? asset($logo) : Vite::asset('resources/images/readererer-long-logo.svg');
 }
 
+function google_login_enabled(): bool
+{
+    return config('app.readererer_google_login') && filled(config('services.google.client_id')) && filled(config('services.google.client_secret'));
+}
+
 /** The site's only ensemble while single-ensemble mode is on, else null. */
 function single_ensemble(): ?Ensemble
 {
