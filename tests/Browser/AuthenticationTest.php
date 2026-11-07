@@ -1,5 +1,7 @@
 <?php
 
+use App\Models\Ensemble;
+use App\Models\Term;
 use App\Models\User;
 use Database\Seeders\SetupGroupSeeder;
 use Database\Seeders\UserSeeder;
@@ -75,4 +77,18 @@ test('a logged-in user can log out from the user menu', function () {
         ->assertVisible('.navbar a[href$="/login"]');
 
     $this->assertGuest();
+});
+
+test('a guest who opens a poll from the home page lands on it after logging in', function () {
+    $ensemble = Ensemble::factory()->create();
+    $term = Term::factory()->create(['name' => 'Spring term']);
+    make_term_date($term);
+
+    visit('/')
+        ->click('Spring term')
+        ->assertPathIs('/login')
+        ->type('username', 'admin')
+        ->type('password', 'password')
+        ->click('button[type="submit"]')
+        ->assertPathIs(route('attendance.poll.show', ['ensemble' => $ensemble, 'term' => $term], absolute: false));
 });

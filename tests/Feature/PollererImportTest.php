@@ -406,7 +406,7 @@ test('confirming imports the previewed file and deletes it', function () {
 });
 
 test('the import page is for admins only', function () {
-    $this->get(route('settings.import'))->assertRedirect('/login');
+    $this->get(route('settings.import'))->assertRedirectContains('/login?redirect=');
 
     foreach ([UserRole::Guest, UserRole::Ensemble, UserRole::Member, UserRole::Moderator] as $role) {
         $user = make_user($role);

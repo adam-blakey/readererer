@@ -11,7 +11,7 @@ use App\Models\Term;
 test('the register index requires moderator or above', function () {
     $url = route('attendance.register.index');
 
-    $this->get($url)->assertForbidden();
+    $this->get($url)->assertRedirectContains('/login?redirect=');
     $this->actingAs(make_user(UserRole::Ensemble))->get($url)->assertForbidden();
     $this->actingAs(make_user(UserRole::Member))->get($url)->assertForbidden();
     $this->actingAs(make_user(UserRole::Moderator))->get($url)->assertOk();
@@ -23,7 +23,7 @@ test('the register for a date requires moderator or above', function () {
     $termDate = make_term_date(Term::factory()->create());
     $url = route('attendance.register.show', ['ensemble' => $ensemble->slug, 'termDate' => $termDate->id]);
 
-    $this->get($url)->assertForbidden();
+    $this->get($url)->assertRedirectContains('/login?redirect=');
 
     $member = make_user(UserRole::Member);
     join_ensemble($member, $ensemble);

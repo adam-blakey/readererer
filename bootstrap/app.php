@@ -4,6 +4,8 @@ use App\Http\Middleware\EnsurePasswordIsChanged;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
+use Illuminate\Http\Request;
+use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
 
 return Application::configure(basePath: dirname(__DIR__))
     ->withRouting(
@@ -13,5 +15,12 @@ return Application::configure(basePath: dirname(__DIR__))
     )
     ->withMiddleware(function (Middleware $middleware) {
         $middleware->web(append: [EnsurePasswordIsChanged::class]);
+        $middleware->redirectGuestsTo(fn (Request $request) => login_url($request));
     })
-    ->withExceptions(function (Exceptions $exceptions) {})->create();
+    ->withExceptions(function (Exceptions $exceptions) {
+        $exceptions->render(function (AccessDeniedHttpException $e, Request $request) {
+            if (! $request->user() && $request->isMethod('GET') && ! $request->expectsJson()) {
+                return redirect(login_url($request));
+            }
+        });
+    })->create();

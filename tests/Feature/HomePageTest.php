@@ -26,15 +26,28 @@ test('the home page lists each ensemble with its active polls', function () {
     $this->get('/')
         ->assertOk()
         ->assertSeeInOrder(['String Orchestra', 'Spring term', 'Wind Band', 'Spring term'])
-        ->assertDontSee('Last year')
-        ->assertDontSee(route('attendance.poll.show', ['ensemble' => Ensemble::first(), 'term' => Term::first()]));
+        ->assertDontSee('Last year');
 });
 
-test('the home page links polls for users who can open them', function () {
+test('guests and users who can open them get links to each ensemble and poll', function (?UserRole $role) {
     $ensemble = Ensemble::factory()->create();
     $term = make_term('Spring term', now()->addWeek());
 
-    $this->actingAs(make_user(UserRole::Admin))
-        ->get('/')
+    if ($role) {
+        $this->actingAs(make_user($role));
+    }
+
+    $this->get('/')
+        ->assertSee(route('ensembles.show', $ensemble))
         ->assertSee(route('attendance.poll.show', ['ensemble' => $ensemble, 'term' => $term]));
+})->with([null, UserRole::Admin]);
+
+test('the home page does not link ensembles a member cannot open', function () {
+    $ensemble = Ensemble::factory()->create();
+    make_term('Spring term', now()->addWeek());
+
+    $this->actingAs(make_user(UserRole::Member))
+        ->get('/')
+        ->assertSee($ensemble->name)
+        ->assertDontSee(route('ensembles.show', $ensemble));
 });
