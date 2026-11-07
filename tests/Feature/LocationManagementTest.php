@@ -57,3 +57,13 @@ test('changing the address looks the coordinates up again', function () {
 
     expect($location->fresh()->only('latitude', 'longitude'))->toBe(['latitude' => 1.0, 'longitude' => 2.0]);
 });
+
+test('the location pages embed an OpenStreetMap map once the coordinates are known', function () {
+    $pinned = Location::factory()->create(['latitude' => 51.5, 'longitude' => -0.1]);
+    $unpinned = Location::factory()->create(['latitude' => null, 'longitude' => null]);
+    $admin = make_user(UserRole::Admin);
+
+    $this->actingAs($admin)->get(route('locations.show', $pinned))->assertOk()->assertSee('<iframe class="w-100 d-block border-0" height="400" loading="lazy" src="https://www.openstreetmap.org/export/embed.html?bbox=', false)->assertSee('marker=51.5%2C-0.1', false);
+    $this->actingAs($admin)->get(route('locations.edit', $pinned))->assertOk()->assertSee('<iframe', false);
+    $this->actingAs($admin)->get(route('locations.show', $unpinned))->assertOk()->assertDontSee('<iframe', false)->assertSee('No coordinates yet.');
+});

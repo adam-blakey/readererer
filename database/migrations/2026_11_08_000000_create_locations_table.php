@@ -23,10 +23,18 @@ return new class extends Migration
             $table->boolean('time_tbc')->default(false);
             $table->foreignIdFor(Location::class)->nullable()->constrained()->nullOnDelete();
         });
+
+        Schema::table('terms', function (Blueprint $table) {
+            $table->foreignIdFor(Location::class)->nullable()->constrained()->nullOnDelete();
+        });
     }
 
     public function down(): void
     {
+        Schema::table('terms', function (Blueprint $table) {
+            $table->dropConstrainedForeignIdFor(Location::class);
+        });
+
         Schema::table('term_dates', function (Blueprint $table) {
             $table->dropConstrainedForeignIdFor(Location::class);
             $table->dropColumn('time_tbc');

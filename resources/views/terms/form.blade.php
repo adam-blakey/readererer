@@ -25,7 +25,7 @@
 							<h2 class="mb-0 card-heading">{{ __('Edit term details') }}</h2>
 						</div>
 						<div class="card-body">
-							<x-forms.error-summary :fields="['name', 'slug', 'term_dates.*.start_datetime', 'term_dates.*.end_datetime', 'term_dates.*.time_tbc', 'term_dates.*.location_id']" />
+							<x-forms.error-summary :fields="['name', 'slug', 'location_id', 'term_dates.*.start_datetime', 'term_dates.*.end_datetime', 'term_dates.*.time_tbc', 'term_dates.*.location_id']" />
 
 							<form action="{{ $form_route }}" id="term-edit-form" method="POST" data-dirty-check>
 								@csrf
@@ -48,6 +48,19 @@
 											<label class="form-label" for="slug">{{ __('Slug') }}</label>
    								            <input class="form-control" id="slug" name="slug" placeholder="term-slug" type="text" value="{{ old('slug', $term->slug) }}" data-initial="{{ $term->slug }}">
 											@error('slug')
+												<x-forms.input-error :messages="$message" />
+											@enderror
+										</div>
+										<div class="mb-3">
+											<label class="form-label" for="location_id">{{ __('Default location') }}</label>
+											<select class="form-select" id="location_id" name="location_id" data-initial="{{ $term->location_id ?? '' }}">
+												<option value="">{{ __('TBC') }}</option>
+												@foreach(($locations ?? collect()) as $location)
+													<option value="{{ $location->id }}" @selected((int) old('location_id', $term->location_id) === $location->id)>{{ $location->name }}</option>
+												@endforeach
+											</select>
+											<small class="form-hint">{{ __('Dates without a location of their own take this one.') }}</small>
+											@error('location_id')
 												<x-forms.input-error :messages="$message" />
 											@enderror
 										</div>
@@ -75,7 +88,7 @@
                                                     <div class="col-6 col-md-4 col-lg-2">
                                                         <label class="form-label">{{ __('Location') }}</label>
                                                         <select class="form-select" name="term_dates[__INDEX__][location_id]" data-initial="">
-                                                            <option value="">{{ __('TBC') }}</option>
+                                                            <option value="">{{ __('Term default') }}</option>
                                                             @foreach(($locations ?? collect()) as $location)
                                                                 <option value="{{ $location->id }}">{{ $location->name }}</option>
                                                             @endforeach
@@ -178,7 +191,7 @@
                                                         <div class="col-6 col-md-4 col-lg-2">
                                                             <label class="form-label">{{ __('Location') }}</label>
                                                             <select class="form-select" name="term_dates[{{ $i }}][location_id]" data-initial="{{ $orig?->location_id ?? '' }}">
-                                                                <option value="" @selected(empty($selectedLocation))>{{ __('TBC') }}</option>
+                                                                <option value="" @selected(empty($selectedLocation))>{{ __('Term default') }}</option>
                                                                 @foreach(($locations ?? collect()) as $location)
                                                                     <option value="{{ $location->id }}" @selected((int) $selectedLocation === $location->id)>{{ $location->name }}</option>
                                                                 @endforeach

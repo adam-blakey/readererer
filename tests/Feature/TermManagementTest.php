@@ -42,9 +42,12 @@ test('a term can be created with term dates', function () {
 test('a term date can have its time to be confirmed and a location', function () {
     $location = Location::factory()->create(['name' => 'Town Hall']);
 
+    $default = Location::factory()->create(['name' => 'Church Hall']);
+
     $this->actingAs(make_user(UserRole::Admin))->post(route('terms.store'), [
         'name' => 'Spring 2026',
         'slug' => 'spring-2026',
+        'location_id' => $default->id,
         'term_dates' => [
             ['start_datetime' => '2026-01-05 19:00:00', 'end_datetime' => '2026-01-05 21:00:00', 'time_tbc' => '1', 'location_id' => $location->id],
             ['start_datetime' => '2026-01-12 19:00:00', 'end_datetime' => '2026-01-12 21:00:00'],
@@ -55,11 +58,12 @@ test('a term date can have its time to be confirmed and a location', function ()
     expect($tbc->time_tbc)->toBeTrue()
         ->and($tbc->location->is($location))->toBeTrue()
         ->and($confirmed->time_tbc)->toBeFalse()
-        ->and($confirmed->location_id)->toBeNull();
+        ->and($confirmed->location_id)->toBeNull()
+        ->and($tbc->term->location->is($default))->toBeTrue();
 
     $this->actingAs(make_user(UserRole::Admin))
         ->get(route('terms.show', $tbc->term))
-        ->assertSeeInOrder(['Mon, 5 Jan 2026', 'TBC', 'Town Hall', 'Mon, 12 Jan 2026', '19:00–21:00', 'TBC']);
+        ->assertSeeInOrder(['Church Hall', 'Mon, 5 Jan 2026', 'TBC', 'Town Hall', 'Mon, 12 Jan 2026', '19:00–21:00', 'Church Hall']);
 });
 
 test('creating a term requires a name and a unique slug', function () {

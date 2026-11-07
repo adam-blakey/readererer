@@ -19,6 +19,7 @@ class UpdateTermRequest extends FormRequest
         return [
             'name' => 'required|string|max:255',
             'slug' => ['required', 'string', 'max:255', Rule::unique('terms', 'slug')->ignore($this->term)],
+            'location_id' => 'nullable|integer|exists:locations,id',
 
             'term_dates' => 'array',
             'term_dates.*.id' => 'nullable|integer',

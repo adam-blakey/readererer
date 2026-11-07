@@ -590,5 +590,10 @@
     "Longitude": "Longitude",
     "Map": "Map",
     "Open": "Open",
-    "Open in OpenStreetMap": "Open in OpenStreetMap"
+    "Open in OpenStreetMap": "Open in OpenStreetMap",
+    "Default location": "Default location",
+    "Dates without a location of their own take this one.": "Dates without a location of their own take this one.",
+    "Term default": "Term default",
+    "Map of :name": "Map of :name",
+    "No coordinates yet. Add an address to look them up, or enter them yourself.": "No coordinates yet. Add an address to look them up, or enter them yourself."
 }

@@ -70,6 +70,26 @@ test('location label is the location name, or TBC without one', function () {
     expect($termDate->fresh()->location_label)->toBe('Town Hall');
 });
 
+test('a date without a location inherits the term\'s default', function () {
+    $termDate = term_date_at('2026-01-05 19:00:00', '2026-01-05 21:30:00');
+    $termDate->term->update(['location_id' => Location::factory()->create(['name' => 'Term Hall'])->id]);
+
+    expect($termDate->fresh()->location_label)->toBe('Term Hall');
+
+    $termDate->update(['location_id' => Location::factory()->create(['name' => 'Concert Hall'])->id]);
+
+    expect($termDate->fresh()->location_label)->toBe('Concert Hall');
+});
+
+test('a date whose time is TBC is saved at midnight, so reminders count from the start of the day', function () {
+    config(['app.readererer_reminder_hours' => 24]);
+    $termDate = term_date_at('2026-01-05 19:00:00', '2026-01-06 21:30:00', ['time_tbc' => true]);
+
+    expect($termDate->start_datetime->format('Y-m-d H:i'))->toBe('2026-01-05 00:00')
+        ->and($termDate->end_datetime->format('Y-m-d H:i'))->toBe('2026-01-06 00:00')
+        ->and($termDate->remindersDueAt()->format('Y-m-d H:i'))->toBe('2026-01-04 00:00');
+});
+
 test('relative label names today, tomorrow and yesterday', function () {
     expect(term_date_days_away(0)->relative_label)->toBe('Today');
     expect(term_date_days_away(1)->relative_label)->toBe('Tomorrow');

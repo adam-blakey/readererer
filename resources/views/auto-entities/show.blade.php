@@ -91,5 +91,8 @@
                 </x-card>
             </div>
         </x-card-row>
+        @isset($below)
+            @include($below)
+        @endisset
     </div>
 </x-layout>

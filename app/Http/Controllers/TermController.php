@@ -70,6 +70,7 @@ class TermController extends Controller
         $validated = $request->validate([
             'name' => 'required|string|max:255',
             'slug' => 'required|string|max:255|unique:terms',
+            'location_id' => 'nullable|integer|exists:locations,id',
 
             'term_dates' => 'array',
             'term_dates.*.id' => 'nullable|integer',
@@ -84,7 +85,7 @@ class TermController extends Controller
         ]);
 
         $term = DB::transaction(function () use ($validated) {
-            $term = Term::create(Arr::only($validated, ['name', 'slug']));
+            $term = Term::create(Arr::only($validated, ['name', 'slug', 'location_id']));
             $this->syncTermDates($term, $validated['term_dates'] ?? []);
 
             return $term;
@@ -95,7 +96,7 @@ class TermController extends Controller
 
     public function show(Term $term)
     {
-        $term->load('term_dates.concert_ensembles', 'term_dates.location')->with('van_driver');
+        $term->load('location', 'term_dates.concert_ensembles', 'term_dates.location')->with('van_driver');
         $ensembles = Ensemble::orderBy('name')->get();
 
         return view('terms.show', [
@@ -128,7 +129,7 @@ class TermController extends Controller
     {
         DB::transaction(function () use ($request, $term) {
             $this->syncTermDates($term, $request->validated('term_dates', []));
-            $term->update($request->safe()->only(['name', 'slug']));
+            $term->update($request->safe()->only(['name', 'slug', 'location_id']));
         });
 
         return redirect()->route('terms.show', $term);
@@ -154,7 +155,7 @@ class TermController extends Controller
     private function locationOptions(Term $term)
     {
         return Location::withTrashed()
-            ->where(fn ($query) => $query->whereNull('deleted_at')->orWhereIn('id', $term->term_dates->pluck('location_id')->filter()))
+            ->where(fn ($query) => $query->whereNull('deleted_at')->orWhereIn('id', $term->term_dates->pluck('location_id')->push($term->location_id)->filter()))
             ->orderBy('name')
             ->get();
     }

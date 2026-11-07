@@ -64,6 +64,8 @@ class LocationController extends Controller
             'edit_route' => 'locations.edit',
             'destroy_route' => 'locations.destroy',
             'restore_route' => 'locations.restore',
+            'below' => 'locations.map',
+            'location' => $location,
         ]);
     }
 
@@ -75,6 +77,8 @@ class LocationController extends Controller
             'update' => true,
             'fields' => get_create_fields($location),
             'form_route' => route('locations.update', $location),
+            'below' => 'locations.map',
+            'location' => $location,
         ]);
     }
 

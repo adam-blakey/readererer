@@ -66,6 +66,22 @@ class Location extends Model
         return $this->hasMany(TermDate::class);
     }
 
+    /** OpenStreetMap's embeddable map with a marker, when the coordinates are known. */
+    public function getMapEmbedUrlAttribute(): ?string
+    {
+        if ($this->latitude === null || $this->longitude === null) {
+            return null;
+        }
+
+        $bbox = [$this->longitude - 0.008, $this->latitude - 0.004, $this->longitude + 0.008, $this->latitude + 0.004];
+
+        return 'https://www.openstreetmap.org/export/embed.html?'.http_build_query([
+            'bbox' => implode(',', $bbox),
+            'layer' => 'mapnik',
+            'marker' => $this->latitude.','.$this->longitude,
+        ]);
+    }
+
     /** OpenStreetMap's page for the location: a pin at its coordinates, or else a search for its address. */
     public function getMapUrlAttribute(): ?string
     {

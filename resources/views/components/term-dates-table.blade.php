@@ -55,7 +55,7 @@
                             @endif
                         </td>
                         <td class="text-nowrap">{{ $td->time_label }}</td>
-                        <td><x-location-link :location="$td->location" /></td>
+                        <td><x-location-link :location="$td->inferred_location" /></td>
                         <td>
                             @if ($td->is_concert)
                                 <span class="badge bg-primary text-primary-fg">{{ __('Concert') }} ({{ $td->concert_ensemble_names }})</span>
