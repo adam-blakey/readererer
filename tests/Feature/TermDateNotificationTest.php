@@ -143,7 +143,7 @@ test('guests are redirected to login when sending notifications', function () {
         ->assertRedirect('/login');
 });
 
-test('the term show page lists sent emails in the history', function () {
+test('the upcoming rehearsals page lists sent emails in the history', function () {
     $termDate = make_notification_term_date();
     $log = EmailLog::create([
         'term_date_id' => $termDate->id,
@@ -154,7 +154,7 @@ test('the term show page lists sent emails in the history', function () {
     $log->recipients()->create(['name' => 'Jane', 'email' => 'jane@example.com', 'status' => EmailStatus::Sent]);
 
     $this->actingAs(make_user(UserRole::Admin))
-        ->get(route('terms.show', $termDate->term))
+        ->get(route('attendance.register.index'))
         ->assertOk()
         ->assertSee('Attendance list — a rehearsal')
         ->assertSee('Send attendance list now');

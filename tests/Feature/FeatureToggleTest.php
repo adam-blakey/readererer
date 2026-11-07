@@ -39,7 +39,7 @@ test('single-ensemble mode cannot be turned on while there are several ensembles
         ->assertSessionHasErrors('single_ensemble');
 });
 
-test('with setup groups off their pages are closed and the term dates table hides them', function () {
+test('with setup groups off their pages are closed and the date tables hide them', function () {
     config(['app.readererer_setup_groups' => false]);
     $admin = make_user(UserRole::Admin);
     $setupGroup = SetupGroup::factory()->create(['name' => 'Group Hidden']);
@@ -52,7 +52,10 @@ test('with setup groups off their pages are closed and the term dates table hide
 
     $this->actingAs($admin)->get(route('terms.show', $termDate->term))
         ->assertOk()
-        ->assertDontSee(__('Setup group'))
+        ->assertDontSee(__('Setup group'));
+
+    $this->actingAs($admin)->get(route('attendance.register.index'))
+        ->assertOk()
         ->assertDontSee(__('Resend setup reminder'));
 });
 

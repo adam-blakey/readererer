@@ -97,11 +97,9 @@ class TermController extends Controller
     public function show(Term $term)
     {
         $term->load('location', 'term_dates.concert_ensembles', 'term_dates.location')->with('van_driver');
-        $ensembles = Ensemble::orderBy('name')->get();
 
         return view('terms.show', [
             'term' => $term,
-            'ensembles' => $ensembles,
             'page_name' => $term->name,
         ]);
     }

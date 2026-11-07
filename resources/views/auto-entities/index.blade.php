@@ -8,12 +8,12 @@
                     <div class="d-flex align-items-center">
                         <form method="GET" action="{{ url()->current() }}" class="d-flex align-items-center gap-2">
                             <label class="form-check m-4 pb-0">
-                                <input class="form-check-input" type="checkbox" id="withTrashed" name="with_trashed" value="1" {{ request('with_trashed') ? 'checked' : '' }} onchange="this.form.submit()">
+                                <input class="form-check-input" type="checkbox" id="withTrashed" name="with_trashed" value="1" {{ request('with_trashed') ? 'checked' : '' }} data-submit-on-change>
                                 <span class="form-check-label">{{ __('Show archived') }}</span>
                             </label>
                             @if ($show_past_toggle)
                                 <label class="form-check m-4 pb-0">
-                                    <input class="form-check-input" type="checkbox" id="withPast" name="with_past" value="1" {{ request('with_past') ? 'checked' : '' }} onchange="this.form.submit()">
+                                    <input class="form-check-input" type="checkbox" id="withPast" name="with_past" value="1" {{ request('with_past') ? 'checked' : '' }} data-submit-on-change>
                                     <span class="form-check-label">{{ __('Show past terms') }}</span>
                                 </label>
                             @endif

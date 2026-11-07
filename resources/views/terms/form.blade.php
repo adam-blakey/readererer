@@ -250,7 +250,7 @@
 		</div>
 	</div>
 
-	<script>
+	<script nonce="{{ Vite::cspNonce() }}">
 		document.addEventListener('DOMContentLoaded', function () {
 			const form = document.getElementById('term-edit-form');
 			const list = document.getElementById('term-dates-list');

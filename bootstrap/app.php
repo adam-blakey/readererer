@@ -1,9 +1,12 @@
 <?php
 
+use App\Http\Middleware\AddSecurityHeaders;
 use App\Http\Middleware\EnsurePasswordIsChanged;
+use App\Http\Middleware\PreventRequestForgery;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
+use Illuminate\Foundation\Http\Middleware\PreventRequestForgery as FrameworkPreventRequestForgery;
 use Illuminate\Http\Request;
 use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
 
@@ -14,7 +17,11 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware) {
-        $middleware->web(append: [EnsurePasswordIsChanged::class]);
+        $middleware->append(AddSecurityHeaders::class);
+        $middleware->web(
+            append: [EnsurePasswordIsChanged::class],
+            replace: [FrameworkPreventRequestForgery::class => PreventRequestForgery::class],
+        );
         $middleware->redirectGuestsTo(fn (Request $request) => login_url($request));
     })
     ->withExceptions(function (Exceptions $exceptions) {

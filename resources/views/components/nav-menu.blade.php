@@ -1,7 +1,7 @@
 @php
 	$nav_items = [
 	    [
-	        'title' => __('Attendance register'),
+	        'title' => __('Upcoming rehearsals'),
 	        'icon' => 'list-check',
 	        'route' => 'attendance.register.index',
 	        'auth' => Auth::user()?->can('viewAny', App\Models\RegisterEntry::class),
@@ -61,7 +61,7 @@
                         <x-a class="dropdown-item" :route="'password.edit'">{{ __('Change password') }}</x-a>
 						<form action="{{ route('logout') }}" method="POST">
 							@csrf
-							<a class="dropdown-item" href="{{ route('logout') }}" onclick="event.preventDefault(); this.closest('form').submit();">{{ __('Logout') }}</a>
+							<button class="dropdown-item" type="submit">{{ __('Logout') }}</button>
 						</form>
 					</div>
 				@endauth

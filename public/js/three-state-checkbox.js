@@ -49,6 +49,7 @@ function initializeAllThreeStateCheckboxes() {
         var button = buttons[i];
         var originalValue = button.getAttribute('data-original-value');
         initializeThreeStateCheckbox(button, originalValue);
+        button.addEventListener('click', (event) => switchThreeStateCheckbox(event.currentTarget, event.currentTarget.dataset.inputId));
     }
 }
 

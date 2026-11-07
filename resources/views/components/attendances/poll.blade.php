@@ -45,7 +45,7 @@
 					@method('PUT')
 					<input name="own" type="hidden" value="0">
 					<label class="form-check form-switch mb-0">
-						<input class="form-check-input" name="own" onchange="this.form.submit()" type="checkbox" value="1" @checked($own_view)>
+						<input class="form-check-input" name="own" data-submit-on-change type="checkbox" value="1" @checked($own_view)>
 						<span class="form-check-label">{{ __('Only show me') }}</span>
 					</label>
 				</form>

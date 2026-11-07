@@ -59,7 +59,7 @@
 
 @if ($errors->hasAny(['reset_link', 'password', 'password_confirmation']))
     @push('scripts')
-        <script>
+        <script nonce="{{ Vite::cspNonce() }}">
             window.addEventListener('load', () => document.querySelector('[data-bs-target="#modal-reset-password"]')?.click());
         </script>
     @endpush

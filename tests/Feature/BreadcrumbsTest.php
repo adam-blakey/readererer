@@ -67,7 +67,7 @@ test('a poll and a register hang off their own index', function () {
     expect(Breadcrumbs::generate('attendance.poll.show', $ensemble, $term)->pluck('title')->all())
         ->toBe(['Home', 'Attendance updates', 'Concert Band: Autumn 2026'])
         ->and(Breadcrumbs::generate('attendance.register.show', $ensemble, $term_date)->pluck('title')->all())
-        ->toBe(['Home', 'Attendance registers', 'Concert Band: '.$term_date->date_label]);
+        ->toBe(['Home', 'Upcoming rehearsals', 'Concert Band: '.$term_date->date_label]);
 
 });
 

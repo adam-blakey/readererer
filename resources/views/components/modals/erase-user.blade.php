@@ -32,7 +32,7 @@
 
 @if ($errors->has('confirm_name'))
     @push('scripts')
-        <script>
+        <script nonce="{{ Vite::cspNonce() }}">
             window.addEventListener('load', () => document.querySelector('[data-bs-target="#modal-erase-user"]')?.click());
         </script>
     @endpush

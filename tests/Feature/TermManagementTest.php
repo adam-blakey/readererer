@@ -292,10 +292,10 @@ test('the term show page lists its dates in a table', function () {
         ->assertSee('Concert')
         ->assertSee('Rehearsal')
         ->assertSee('19:00–21:00')
-        ->assertSee('Send attendance list now');
+        ->assertDontSee('Send attendance list now');
 });
 
-test('the term show page collapses all but the latest email into an accordion', function () {
+test('the upcoming rehearsals page collapses all but the latest email into an accordion', function () {
     $termDate = TermDate::forceCreate([
         'term_id' => Term::factory()->create()->id,
         'start_datetime' => '2026-05-01 19:00:00',
@@ -318,7 +318,7 @@ test('the term show page collapses all but the latest email into an accordion', 
     ]);
 
     $this->actingAs(make_user(UserRole::Admin))
-        ->get(route('terms.show', $termDate->term))
+        ->get(route('attendance.register.index'))
         ->assertOk()
         ->assertSee('Newer attendance list')
         ->assertSee('Older attendance list')
