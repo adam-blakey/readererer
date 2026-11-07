@@ -532,6 +532,8 @@
     "Shows setup groups, their badges and setup reminders. Turning this off hides them but keeps their data.": "Shows setup groups, their badges and setup reminders. Turning this off hides them but keeps their data.",
     "Use van drivers": "Use van drivers",
     "Shows van drivers and van driver reminders. Turning this off hides them but keeps their data.": "Shows van drivers and van driver reminders. Turning this off hides them but keeps their data.",
+    "Log emails instead of sending them": "Log emails instead of sending them",
+    "Writes emails to storage/logs/emails.log rather than sending them. Use this on test sites so members are not emailed.": "Writes emails to storage/logs/emails.log rather than sending them. Use this on test sites so members are not emailed.",
     "Single ensemble": "Single ensemble",
     "For a site with one ensemble: new users join it when they are created. Needs a site with at most one ensemble, and stops more being added.": "For a site with one ensemble: new users join it when they are created. Needs a site with at most one ensemble, and stops more being added.",
     "This site is set up for a single ensemble.": "This site is set up for a single ensemble.",

@@ -184,3 +184,13 @@ test('only known member details can be shown', function () {
         ->put(route('settings.update'), settings_payload(['shown_user_fields' => ['password']]))
         ->assertSessionHasErrors('shown_user_fields.0');
 });
+
+test('the email logging switch is saved to the config', function () {
+    $this->actingAs(make_user(UserRole::Admin))
+        ->put(route('settings.update'), settings_payload(['log_emails' => '1']))
+        ->assertSessionHasNoErrors();
+
+    reload_settings();
+
+    expect(config('app.readererer_log_emails'))->toBeTrue();
+});

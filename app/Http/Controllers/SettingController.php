@@ -24,7 +24,7 @@ class SettingController extends Controller
         // Not Setting::put(), which deletes an empty list and so would fall back to showing every field.
         Setting::updateOrCreate(['key' => 'shown_user_fields'], ['value' => $request->validated('shown_user_fields', [])]);
 
-        foreach (['assume_attending', 'allow_change_to_unknown', 'repeating_headings', 'setup_groups', 'van_drivers', 'single_ensemble'] as $key) {
+        foreach (['assume_attending', 'allow_change_to_unknown', 'repeating_headings', 'setup_groups', 'van_drivers', 'single_ensemble', 'log_emails'] as $key) {
             Setting::put($key, $request->boolean($key));
         }
 

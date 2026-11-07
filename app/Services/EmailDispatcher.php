@@ -2,6 +2,7 @@
 
 namespace App\Services;
 
+use App\Contracts\EmailSender;
 use App\Enums\EmailStatus;
 use App\Models\EmailLog;
 use App\Models\TermDate;
@@ -9,11 +10,12 @@ use App\Models\User;
 use Illuminate\Mail\Mailable;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Log;
-use Illuminate\Support\Facades\Mail;
 use Throwable;
 
 class EmailDispatcher
 {
+    public function __construct(private EmailSender $sender) {}
+
     /**
      * Send a mailable to each recipient and record it in an EmailLog. The
      * factory builds one mailable per recipient so addresses don't accumulate.
@@ -47,7 +49,7 @@ class EmailDispatcher
             $error = null;
 
             try {
-                Mail::to($recipient)->send($mailableFactory());
+                $this->sender->send($recipient, $mailableFactory());
             } catch (Throwable $exception) {
                 $status = EmailStatus::Failed;
                 $error = $exception->getMessage();

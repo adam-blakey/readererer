@@ -15,6 +15,9 @@
 			'van_drivers' => [__('Use van drivers'), __('Shows van drivers and van driver reminders. Turning this off hides them but keeps their data.')],
 			'single_ensemble' => [__('Single ensemble'), __('For a site with one ensemble: new users join it when they are created. Needs a site with at most one ensemble, and stops more being added.')],
 		],
+		__('Email') => [
+			'log_emails' => [__('Log emails instead of sending them'), __('Writes emails to storage/logs/emails.log rather than sending them. Use this on test sites so members are not emailed.')],
+		],
 	];
 	$user_fields = [
 		'phone_number' => __('Phone number'),
@@ -49,7 +52,7 @@
 			@method('PUT')
 
 			<fieldset class="card-body" @disabled(! $can_edit)>
-				<x-forms.error-summary :fields="['name', 'logo', 'remove_logo', 'image_max_kilobytes', 'assume_attending', 'allow_change_to_unknown', 'repeating_headings', 'setup_groups', 'van_drivers', 'single_ensemble', 'terminology', 'terminology.*', 'shown_user_fields', 'shown_user_fields.*']" />
+				<x-forms.error-summary :fields="['name', 'logo', 'remove_logo', 'image_max_kilobytes', 'assume_attending', 'allow_change_to_unknown', 'repeating_headings', 'setup_groups', 'van_drivers', 'single_ensemble', 'log_emails', 'terminology', 'terminology.*', 'shown_user_fields', 'shown_user_fields.*']" />
 				@if (session('status'))
 					<div class="alert alert-success" role="alert">{{ session('status') }}</div>
 				@endif
