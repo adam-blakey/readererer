@@ -21,6 +21,14 @@ Breadcrumbs::for('login', function (BreadcrumbTrail $trail) {
     $trail->push(__('Login'), route('login'));
 });
 
+Breadcrumbs::for('login-link.request', function (BreadcrumbTrail $trail) {
+    $trail->push(__('Email me a login link'), route('login-link.request'));
+});
+
+Breadcrumbs::for('login-link.show', function (BreadcrumbTrail $trail, string $token) {
+    $trail->push(__('Login'), route('login-link.show', $token));
+});
+
 Breadcrumbs::for('password.request', function (BreadcrumbTrail $trail) {
     $trail->push(__('Forgot password'), route('password.request'));
 });
