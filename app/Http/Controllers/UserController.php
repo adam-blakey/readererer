@@ -38,12 +38,21 @@ class UserController extends Controller
         } else {
             $query = $query->whereNull('deleted_at');
         }
-        $users = $query->autosort()->paginate(10)->appends(request()->only('with_trashed'));
+        $ensemble_options = Ensemble::orderBy('name')->pluck('name', 'id')->all() + ['none' => __('No ensemble')];
+        $chosen = array_intersect(array_keys($ensemble_options), array_map('strval', Arr::wrap(request('ensembles'))));
+        if (count($chosen) > 0 && count($chosen) < count($ensemble_options)) {
+            $ensemble_ids = array_diff($chosen, ['none']);
+            $query = $query->where(fn ($query) => $query
+                ->when($ensemble_ids, fn ($query) => $query->whereHas('ensembles', fn ($query) => $query->whereKey($ensemble_ids)))
+                ->when(in_array('none', $chosen), fn ($query) => $query->orWhereDoesntHave('ensembles')));
+        }
+        $users = $query->with(['ensembles', 'setup_group'])->autosort()->paginate(10)->appends(request()->only('with_trashed', 'ensembles'));
 
         return view('auto-entities.index', [
             'entities' => $users,
             'page_name' => __('Users'),
             'page_subname' => __('Users overview'),
+            'ensemble_filter' => $ensemble_options,
             'create_entity' => [
                 'route' => 'users.create',
                 'name' => __('user'),

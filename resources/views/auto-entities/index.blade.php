@@ -1,4 +1,4 @@
-@props(['entities', 'create_entity' => null, 'show_past_toggle' => false])
+@props(['entities', 'create_entity' => null, 'show_past_toggle' => false, 'ensemble_filter' => null])
 
 <x-layout>
 	<div class="container-xl">
@@ -7,7 +7,6 @@
 				<x-card>
                     <div class="d-flex align-items-center">
                         <form method="GET" action="{{ url()->current() }}" class="d-flex align-items-center gap-2">
-                            <input type="hidden" name="page" value="{{ request('page') }}" />
                             <label class="form-check m-4 pb-0">
                                 <input class="form-check-input" type="checkbox" id="withTrashed" name="with_trashed" value="1" {{ request('with_trashed') ? 'checked' : '' }} onchange="this.form.submit()">
                                 <span class="form-check-label">{{ __('Show archived') }}</span>
@@ -17,6 +16,11 @@
                                     <input class="form-check-input" type="checkbox" id="withPast" name="with_past" value="1" {{ request('with_past') ? 'checked' : '' }} onchange="this.form.submit()">
                                     <span class="form-check-label">{{ __('Show past terms') }}</span>
                                 </label>
+                            @endif
+                            @if ($ensemble_filter)
+                                <div class="m-4">
+                                    <x-forms.multi-select name="ensembles" :options="$ensemble_filter" :selected="Arr::wrap(request('ensembles'))" :label="__('Ensembles')" :placeholder="__('All ensembles')" submit_on_close />
+                                </div>
                             @endif
                         </form>
                         <div class="card-actions ms-auto me-4">

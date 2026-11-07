@@ -44,6 +44,7 @@ class User extends Authenticatable
         'email',
         'role',
         'setup_group',
+        'ensembles',
         'created_at',
         'updated_at',
     ];
