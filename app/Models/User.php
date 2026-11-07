@@ -25,6 +25,7 @@ class User extends Authenticatable
         'email',
         'role',
         'setup_group',
+        'ensembles',
         'is_over_18',
         'created_at',
         'updated_at',
