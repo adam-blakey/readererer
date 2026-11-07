@@ -21,7 +21,7 @@
                             @endif
                             @if ($entity->deleted_at != null)
                                 @if ($restore_route)
-                                    <form method="POST" action="{{ route($restore_route, $entity) }}" onsubmit="return confirm('{{ __('Are you sure you want to unarchive this record?') }}');">
+                                    <form method="POST" action="{{ route($restore_route, $entity) }}" data-confirm="{{ __('Are you sure you want to unarchive this record?') }}">
                                         @csrf
                                         @method('PATCH')
                                         <button type="submit" class="btn btn-success">{{ __('Unarchive') }}</button>
@@ -29,7 +29,7 @@
                                 @endif
                             @else
                                 @if ($destroy_route)
-                                    <form method="POST" action="{{ route($destroy_route, $entity) }}" onsubmit="return confirm('{{ __('Are you sure you want to archive this record?') }}');">
+                                    <form method="POST" action="{{ route($destroy_route, $entity) }}" data-confirm="{{ __('Are you sure you want to archive this record?') }}">
                                         @csrf
                                         @method('DELETE')
                                         <button type="submit" class="btn btn-danger">{{ __('Archive') }}</button>

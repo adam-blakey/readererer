@@ -165,7 +165,7 @@
 									</div>
 									@can('manage', $user)
 									<div class="ms-auto align-self-center">
-										<form method="POST" action="{{ route('users.ensembles.destroy', ['user' => $user, 'ensemble' => $ensemble]) }}" onsubmit="return confirm('{{ __('Remove this user from :name?', ['name' => $ensemble->name]) }}');">
+										<form method="POST" action="{{ route('users.ensembles.destroy', ['user' => $user, 'ensemble' => $ensemble]) }}" data-confirm="{{ __('Remove this user from :name?', ['name' => $ensemble->name]) }}">
 											@csrf
 											@method('DELETE')
 											<button type="submit" class="btn btn-outline-danger btn-sm">{{ __('Remove') }}</button>
