@@ -170,11 +170,11 @@ test('an oversized image is rejected', function () {
     expect($ensemble->fresh()->image)->toBeNull();
 });
 
-test('a model without an image shows the placeholder image', function () {
-    Vite::shouldReceive('asset')->with('resources/images/placeholder.svg')->andReturn('/build/placeholder.svg');
+test('a model without an image shows its own placeholder image', function () {
+    Vite::shouldReceive('asset')->andReturnUsing(fn (string $path) => "/build/{$path}");
 
-    expect(Ensemble::factory()->create(['image' => null])->image_url)->toBe('/build/placeholder.svg')
-        ->and(User::factory()->create(['image' => null])->image_url)->toBe('/build/placeholder.svg');
+    expect(Ensemble::factory()->create(['image' => null])->image_url)->toBe('/build/resources/images/placeholders/ensembles.svg')
+        ->and(User::factory()->create(['image' => null])->image_url)->toBe('/build/resources/images/placeholders/users.svg');
 });
 
 test('the edit forms render the image upload field', function () {

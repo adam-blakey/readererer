@@ -29,7 +29,7 @@ trait HasImage
     public function getImageUrlAttribute(): string
     {
         if (blank($this->image)) {
-            return Vite::asset('resources/images/placeholder.svg');
+            return Vite::asset('resources/images/placeholders/'.$this->getTable().'.svg');
         }
 
         return static::isStoredImage($this->image) ? Storage::disk('public')->url($this->image) : $this->image;
