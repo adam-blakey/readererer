@@ -7,6 +7,7 @@ use App\Models\Ensemble;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Http\Request;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Schema;
@@ -367,4 +368,18 @@ function unhandled_error_messages(?ViewErrorBag $errors, array $rendered): array
         ->reject(fn ($messages, $key) => Str::is($rendered, $key))
         ->flatten()
         ->all();
+}
+
+function login_url(Request $request): string
+{
+    $route = $request->route();
+
+    if (! $request->isMethod('GET') || ! $route?->getName()) {
+        return route('login');
+    }
+
+    return route('login', [
+        'redirect' => $route->getName(),
+        'parameters' => array_merge($request->query(), $route->originalParameters()),
+    ]);
 }

@@ -1,38 +1,60 @@
-@props(['terms'])
+@props(['ensembles', 'terms'])
 
 <x-layout :show_page_header="false">
 	<div class="container-xl">
-		<x-card-row>
-			<div class="col-md-12">
-				<x-card>
-					<x-card-header>
-						{{ __('Welcome to Readererer!') }}
-					</x-card-header>
-					<x-card-body>
-						<p>
-							@auth
-								{{ __('Hello, :name!', ['name' => Auth::user()->name]) }}
-							@endauth
-							{{ __('Readererer is an app designed to help amateur music groups manage their pieces of music and rehearsal attendance efficiently.') }}</p>
-						<h2>{{ __('Rough feature list') }}</h2>
-						<ul>
-							<li><strong>{{ __('Manage pieces of music:') }}</strong> {{ __('Easily add, edit, and organise your music pieces.') }}</li>
-							<li><strong>{{ __('Track rehearsal attendance:') }}</strong> {{ __('Keep track of who is attending rehearsals and who is not; receive reminders and attendance summaries via email.') }}</li>
-							<li><strong>{{ __('Organise ensembles:') }}</strong> {{ __('Manage different ensembles and their members along with their contact details.') }}</li>
-							<li><strong>{{ __('Term management:') }}</strong> {{ __('Organise your rehearsals and performances by term.') }}</li>
-						</ul>
-						@guest
-							<a class="btn btn-primary" href="{{ route('login') }}"><x-icon name="login" /> {{ __('Log in') }}</a>
-						@endguest
-						@auth
-							<form action="{{ route('logout') }}" method="POST">
-								@csrf
-								<button class="btn btn-primary" type="submit"><x-icon name="logout" /> {{ __('Log out') }}</button>
-							</form>
-						@endauth
-					</x-card-body>
-				</x-card>
+		@guest
+			<div class="d-flex align-items-center justify-content-between mb-3">
+				<span class="text-muted">{{ __('Log in to reply to a poll.') }}</span>
+				<a class="btn btn-primary" href="{{ route('login') }}"><x-icon name="login" /> {{ __('Log in') }}</a>
 			</div>
-		</x-card-row>
+		@endguest
+		@php($single = single_ensemble() !== null)
+		<div class="row row-cards">
+			@forelse($ensembles as $ensemble)
+				@php($linked = Auth::guest() || Gate::allows('view', $ensemble))
+				<div @class(['col-12' => $single, 'col-md-6 col-lg-4' => ! $single])>
+					<x-card>
+						@unless($single)
+						<div class="card-header">
+							<span class="avatar avatar-sm me-2" style="background-image: url({{ $ensemble->image_url }})"></span>
+							<h2 class="mb-0 card-title">
+								@if($linked)
+									<a class="text-primary" href="{{ route('ensembles.show', $ensemble) }}">{{ $ensemble->name }}</a>
+								@else
+									{{ $ensemble->name }}
+								@endif
+							</h2>
+						</div>
+						@endunless
+						@if($terms->isEmpty())
+							<x-card-body>
+								<p class="mb-0 text-muted">{{ __('Nothing upcoming.') }}</p>
+							</x-card-body>
+						@else
+							<div class="list-group list-group-flush">
+								@foreach($terms as $term)
+									@if($linked)
+										<a class="list-group-item list-group-item-action d-flex align-items-center justify-content-between" href="{{ route('attendance.poll.show', ['ensemble' => $ensemble, 'term' => $term]) }}">
+											<span class="text-primary">{{ $term->name }}</span>
+											<x-icon name="chevron-right" />
+										</a>
+									@else
+										<div class="list-group-item">{{ $term->name }}</div>
+									@endif
+								@endforeach
+							</div>
+						@endif
+					</x-card>
+				</div>
+			@empty
+				<div class="col-12">
+					<x-card>
+						<x-card-body>
+							<p class="mb-0 text-muted">{{ __('Nothing upcoming.') }}</p>
+						</x-card-body>
+					</x-card>
+				</div>
+			@endforelse
+		</div>
 	</div>
 </x-layout>

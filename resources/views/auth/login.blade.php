@@ -19,7 +19,7 @@
 					<div class="card card-md">
 						<div class="card-body">
 							<h2 class="mb-4 text-center h2">{{ __('Login to your account') }}</h2>
-							<form action="{{ route('login') }}" method="POST">
+							<form action="{{ route('login', request()->only('redirect', 'parameters')) }}" method="POST">
 								@csrf
 
 								<div class="mb-3">

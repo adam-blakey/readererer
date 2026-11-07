@@ -377,7 +377,7 @@ test('ordinary members cannot view the notifications overview', function () {
 
 test('guests are redirected to login from the notifications overview', function () {
     $this->get(route('notifications.index'))
-        ->assertRedirect('/login');
+        ->assertRedirectContains('/login?redirect=');
 });
 
 test('the van driver reminder email renders', function () {

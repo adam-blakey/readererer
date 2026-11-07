@@ -101,7 +101,7 @@ test('the history requires moderator or above', function () {
     $bandmate = make_user(UserRole::Member);
     join_ensemble($bandmate, $ensemble);
 
-    $this->get($url)->assertForbidden();
+    $this->get($url)->assertRedirectContains('/login?redirect=');
     $this->actingAs($ensembleLogin)->get($url)->assertForbidden();
     $this->actingAs($bandmate)->get($url)->assertForbidden();
     $this->actingAs(make_user(UserRole::Moderator))->get($url)->assertOk();
