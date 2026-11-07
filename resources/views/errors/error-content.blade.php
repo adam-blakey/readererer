@@ -5,8 +5,8 @@
 				<div class="empty">
 					@hasSection('illustration')
 						<div class="empty-img">
-							<img src="{{ Vite::asset('resources/images/tabler/' . app()->view->getSections()['illustration'] . '-light.png') }}" class="hide-theme-dark" height="256" alt="">
-							<img src="{{ Vite::asset('resources/images/tabler/' . app()->view->getSections()['illustration'] . '-dark.png') }}" class="hide-theme-light" height="256" alt="">
+							<img src="{{ Vite::asset('resources/images/tabler/' . app()->view->getSections()['illustration'] . '-light.png') }}" class="hide-theme-dark" width="341" alt="">
+							<img src="{{ Vite::asset('resources/images/tabler/' . app()->view->getSections()['illustration'] . '-dark.png') }}" class="hide-theme-light" width="341" alt="">
 						</div>
 					@else
 						<div class="empty-header">@yield('error_code')</div>
