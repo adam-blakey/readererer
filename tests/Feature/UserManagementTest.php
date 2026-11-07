@@ -375,7 +375,7 @@ test('ensemble logins and members cannot manage users', function (UserRole $role
 
     $this->actingAs($actor)->get(route('users.index'))->assertForbidden();
     $this->actingAs($actor)->post(route('users.store'), $payload)->assertForbidden();
-    $this->actingAs($actor)->patch(route('users.update', $actor), $payload)->assertForbidden();
+    $this->actingAs($actor)->patch(route('users.update', $target), $payload)->assertForbidden();
     $this->actingAs($actor)->delete(route('users.destroy', $target))->assertForbidden();
     $this->actingAs($actor)->delete(route('users.ensembles.destroy', [$target, $ensemble]))->assertForbidden();
 
@@ -383,6 +383,49 @@ test('ensemble logins and members cannot manage users', function (UserRole $role
     expect($target->fresh()->trashed())->toBeFalse();
     expect($target->fresh()->ensembles)->toHaveCount(1);
 })->with([UserRole::Ensemble, UserRole::Member]);
+
+test('members can view and edit their own details but not their role, setup group or ensembles', function () {
+    $member = make_user(UserRole::Member);
+    $other = make_user(UserRole::Member);
+    $group = SetupGroup::factory()->create();
+    $ensemble = Ensemble::factory()->create();
+    join_ensemble($member, $ensemble);
+    config(['app.readererer_setup_groups' => true]);
+
+    $this->actingAs($member)->get(route('users.show', $member))->assertOk()->assertSee(__('My profile'));
+    $this->actingAs($member)->get(route('users.edit', $member))
+        ->assertOk()
+        ->assertDontSee('name="role"', false)
+        ->assertDontSee('name="setup_group"', false)
+        ->assertDontSee(__('Add to ensemble'));
+    $this->actingAs($member)->get(route('users.show', $other))->assertForbidden();
+    $this->actingAs($member)->get(route('users.edit', $other))->assertForbidden();
+
+    $this->actingAs($member)->patch(route('users.update', $member), [
+        'first_name' => 'New',
+        'last_name' => 'Name',
+        'email' => 'new@example.com',
+        'role' => UserRole::Admin->value,
+        'setup_group' => $group->id,
+    ])->assertRedirect(route('users.show', $member));
+
+    $member->refresh();
+    expect($member->first_name)->toBe('New')
+        ->and($member->email)->toBe('new@example.com')
+        ->and($member->role)->toBe(UserRole::Member)
+        ->and($member->setup_group_id)->toBeNull();
+
+    $this->actingAs($member)->delete(route('users.ensembles.destroy', [$member, $ensemble]))->assertForbidden();
+    $this->actingAs($member)->post(route('users.ensembles.store', $member), ['ensemble_id' => $ensemble->id])->assertForbidden();
+    expect($member->fresh()->ensembles)->toHaveCount(1);
+});
+
+test('ensemble logins cannot view or edit their own details', function () {
+    $login = make_user(UserRole::Ensemble);
+
+    $this->actingAs($login)->get(route('users.show', $login))->assertForbidden();
+    $this->actingAs($login)->get(route('users.edit', $login))->assertForbidden();
+});
 
 test('moderators cannot grant a role above their own or edit an admin', function () {
     $moderator = make_user(UserRole::Moderator);

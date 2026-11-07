@@ -158,7 +158,8 @@ test('unticked member details are left out of the member pages and keep their sa
         ->assertOk()
         ->assertDontSee('01234 567890')
         ->assertDontSee(__('Over 18'))
-        ->assertSee(__('Address'));
+        ->assertSee(__('Address'))
+        ->assertDontSee(__('No additional info available'));
 
     foreach ([route('users.create'), route('users.edit', $member)] as $url) {
         $this->actingAs($admin)->get($url)
@@ -179,10 +180,16 @@ test('unticked member details are left out of the member pages and keep their sa
 });
 
 test('unticking every member detail hides them all', function () {
-    $this->actingAs(make_user(UserRole::Admin))->put(route('settings.update'), settings_payload())->assertSessionHasNoErrors();
+    $admin = make_user(UserRole::Admin);
+    $this->actingAs($admin)->put(route('settings.update'), settings_payload())->assertSessionHasNoErrors();
     reload_settings();
 
     expect(User::shownFields())->toBe([]);
+
+    $member = make_user();
+    $this->actingAs($member)->get(route('users.show', $member))
+        ->assertOk()
+        ->assertSee(__('No additional info available'));
 });
 
 test('only known member details can be shown', function () {

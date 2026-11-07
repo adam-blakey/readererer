@@ -141,11 +141,12 @@ class UserController extends Controller
     public function update(UpdateUserRequest $request, User $user): RedirectResponse
     {
         $attributes = $request->validated();
+        $changes_setup_group = array_key_exists('setup_group', $attributes);
         $setup_group_id = Arr::pull($attributes, 'setup_group');
 
         $user->applyImageInput($request->file('image'), $request->boolean('remove_image'));
         $user->update(Arr::except($attributes, ['image', 'remove_image']));
-        if (config('app.readererer_setup_groups')) {
+        if (config('app.readererer_setup_groups') && $changes_setup_group) {
             $user->setup_group()->associate($setup_group_id ? SetupGroup::find($setup_group_id) : null);
         }
 
@@ -273,7 +274,7 @@ class UserController extends Controller
 
     public function attachEnsemble(Request $request, User $user): RedirectResponse
     {
-        $this->authorize('update', $user);
+        $this->authorize('manage', $user);
 
         $validated = $request->validate([
             'ensemble_id' => 'required|exists:ensembles,id',
@@ -300,7 +301,7 @@ class UserController extends Controller
 
     public function detachEnsemble(User $user, Ensemble $ensemble): RedirectResponse
     {
-        $this->authorize('update', $user);
+        $this->authorize('manage', $user);
 
         $pivot = UserEnsemble::where('user_id', $user->id)
             ->where('ensemble_id', $ensemble->id)

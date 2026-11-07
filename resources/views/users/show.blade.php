@@ -160,6 +160,9 @@
 											<strong>{{ $user->is_gift_aiding_subs ? __('Yes') : __('No') }}</strong>
 										</div>
 									@endif
+									@unless (config('app.readererer_setup_groups') || in_array('has_photo_permission', $shown) || in_array('is_gift_aiding_subs', $shown))
+										<p class="text-secondary mb-0">{{ __('No additional info available') }}</p>
+									@endunless
 								</div>
 							</div>
 						</div>

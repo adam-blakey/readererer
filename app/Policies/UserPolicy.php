@@ -19,7 +19,7 @@ class UserPolicy
 
     public function view(User $user, User $user_)
     {
-        if ($user->role->value >= UserRole::Moderator->value) {
+        if ($user->role->value >= UserRole::Moderator->value || $this->isOwnMemberAccount($user, $user_)) {
             return Response::allow();
         }
 
@@ -36,6 +36,15 @@ class UserPolicy
     }
 
     public function update(User $user, User $user_)
+    {
+        if ($this->isOwnMemberAccount($user, $user_)) {
+            return Response::allow();
+        }
+
+        return $this->manage($user, $user_);
+    }
+
+    public function manage(User $user, User $user_)
     {
         if ($user->role->value >= UserRole::Moderator->value && $user_->role->value <= $user->role->value) {
             return Response::allow();
@@ -87,5 +96,10 @@ class UserPolicy
         }
 
         return Response::deny();
+    }
+
+    private function isOwnMemberAccount(User $user, User $user_): bool
+    {
+        return $user->is($user_) && $user->role->value >= UserRole::Member->value;
     }
 }
