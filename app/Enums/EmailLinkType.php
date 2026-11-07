@@ -11,7 +11,6 @@ enum EmailLinkType
     case ResetPassword;
     case LoginLink;
 
-    /** Sends a link through the password broker, so every type is single-use, expires and is throttled alike. */
     public function send(string $email): string
     {
         return Password::sendResetLink(
