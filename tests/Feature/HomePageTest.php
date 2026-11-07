@@ -51,3 +51,13 @@ test('the home page does not link ensembles a member cannot open', function () {
         ->assertSee($ensemble->name)
         ->assertDontSee(route('ensembles.show', $ensemble));
 });
+
+test('a single-ensemble site lists its polls without the ensemble heading', function () {
+    config(['app.readererer_single_ensemble' => true]);
+    $ensemble = Ensemble::factory()->create(['name' => 'Wind Band']);
+    $term = make_term('Spring term', now()->addWeek());
+
+    $this->get('/')
+        ->assertDontSee('Wind Band')
+        ->assertSee(route('attendance.poll.show', ['ensemble' => $ensemble, 'term' => $term]));
+});
