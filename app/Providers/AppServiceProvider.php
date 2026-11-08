@@ -18,6 +18,7 @@ use Illuminate\Support\Facades\Context;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\URL;
 use Illuminate\Support\ServiceProvider;
+use Laravel\Nightwatch\Core as Nightwatch;
 use Laravel\Pennant\Feature;
 use Laravel\Pulse\Facades\Pulse;
 
@@ -41,6 +42,12 @@ class AppServiceProvider extends ServiceProvider
     public function boot(): void
     {
         GeneralSettings::applyToConfig();
+
+        if (! config('app.readererer_analytics')) {
+            // Nightwatch reads its config before the settings are applied, so the opt-out samples nothing instead.
+            $nightwatch = $this->app->make(Nightwatch::class);
+            $nightwatch->config['sampling'] = array_fill_keys(array_keys($nightwatch->config['sampling']), 0.0);
+        }
 
         Feature::discover();
 

@@ -23,7 +23,7 @@
 			'log_emails' => [__('Log emails instead of sending them'), __('Writes emails to storage/logs/emails.log rather than sending them. Use this on test sites so members are not emailed.')],
 		],
 		__('Analytics') => [
-			'analytics' => [__('Send anonymous analytics'), __('Once a minute, sends the Readererer developers at logs.blakey.family which pages were used, how long they took and whether they worked. No names, email addresses, IP addresses or other details of members are sent.')],
+			'analytics' => [__('Send analytics to Laravel Nightwatch'), __('Sends page timings, errors and logs to Laravel Nightwatch so the Readererer developers can find problems. Also needs the site\'s Nightwatch token.')],
 		],
 	];
 	$user_fields = [

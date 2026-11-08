@@ -285,7 +285,7 @@ document root `domains/readererer.blakey.family/public` before step 6.
    the output. Keep prod's existing key. Then re-run the deploy.
 
 5. **Cron.** Automatic reminder emails (the reminder time on the settings
-   page) and the opt-in analytics need Laravel's scheduler. In **Cron Jobs** add one that runs every
+   page) need Laravel's scheduler. In **Cron Jobs** add one that runs every
    minute:
    `cd ~/domains/<domain> && php artisan schedule:run > /dev/null 2>&1`.
    Without it reminders can still be sent by hand from the term page. There

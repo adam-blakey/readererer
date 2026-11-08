@@ -714,6 +714,6 @@
     "Enter the name of your dep.": "Enter the name of your dep.",
     "Who is coming instead?": "Who is coming instead?",
     "Analytics": "Analytics",
-    "Send anonymous analytics": "Send anonymous analytics",
-    "Once a minute, sends the Readererer developers at logs.blakey.family which pages were used, how long they took and whether they worked. No names, email addresses, IP addresses or other details of members are sent.": "Once a minute, sends the Readererer developers at logs.blakey.family which pages were used, how long they took and whether they worked. No names, email addresses, IP addresses or other details of members are sent."
+    "Send analytics to Laravel Nightwatch": "Send analytics to Laravel Nightwatch",
+    "Sends page timings, errors and logs to Laravel Nightwatch so the Readererer developers can find problems. Also needs the site's Nightwatch token.": "Sends page timings, errors and logs to Laravel Nightwatch so the Readererer developers can find problems. Also needs the site's Nightwatch token."
 }
