@@ -19,6 +19,7 @@ test('every named GET page has a breadcrumb trail', function () {
         'verification.verify',
         'ensembles.seating-plan.download',
         'health',
+        'livewire.preview-file',
     ];
 
     $missing = collect(Route::getRoutes())

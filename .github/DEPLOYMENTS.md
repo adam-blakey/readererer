@@ -285,7 +285,26 @@ document root `domains/readererer.blakey.family/public` before step 6.
    minute:
    `cd ~/domains/<domain> && php artisan schedule:run > /dev/null 2>&1`.
    Without it reminders can still be sent by hand from the term page. There
-   are no queued jobs.
+   are no queued jobs. The scheduler also runs `health:check` every five
+   minutes, which requests the site's own `/health` and shows the result on
+   **Settings → Monitoring**; that page warns when no check has run for 15
+   minutes, which usually means this cron job has stopped. For a site behind
+   Cloudflare Access, set `CF_ACCESS_CLIENT_ID` and `CF_ACCESS_CLIENT_SECRET`
+   in `.env` so the check is let through.
+6. **Logs.** `LOG_STACK=daily` writes JSON lines to
+   `storage/logs/laravel-<date>.log`, kept for `LOG_DAILY_DAYS` (14) days.
+   Add channels to `LOG_STACK`, separated by commas, to send logs elsewhere
+   too:
+   - `slack`: set `LOG_SLACK_WEBHOOK_URL` to a Slack incoming webhook. Entries
+     at `LOG_SLACK_LEVEL` (`error`) and above are posted, including failed
+     health checks.
+   - `http`: posts each request's entries as one JSON array to `LOG_HTTP_URL`
+     with `LOG_HTTP_TOKEN` as a bearer token, after the response is sent.
+     For Better Stack, use the source's ingesting host
+     (`https://<host>`) and source token. For Axiom, use
+     `https://api.axiom.co/v1/datasets/<dataset>/ingest?timestamp-field=dt`
+     and an API token with ingest access. If the service cannot be reached
+     the entries are dropped and the failure goes to PHP's error log.
 
 ### Rules (Settings → Rules → Rulesets → `main`)
 

@@ -1,5 +1,7 @@
 <?php
 
+use App\Logging\HttpLogHandler;
+use Monolog\Formatter\JsonFormatter;
 use Monolog\Handler\NullHandler;
 use Monolog\Handler\StreamHandler;
 use Monolog\Handler\SyslogUdpHandler;
@@ -77,6 +79,7 @@ return [
             'path' => storage_path('logs/laravel.log'),
             'level' => env('LOG_LEVEL', 'debug'),
             'days' => env('LOG_DAILY_DAYS', 14),
+            'formatter' => env('LOG_DAILY_JSON', true) ? JsonFormatter::class : null,
             'replace_placeholders' => true,
         ],
 
@@ -85,7 +88,19 @@ return [
             'url' => env('LOG_SLACK_WEBHOOK_URL'),
             'username' => env('LOG_SLACK_USERNAME', 'Laravel Log'),
             'emoji' => env('LOG_SLACK_EMOJI', ':boom:'),
-            'level' => env('LOG_LEVEL', 'critical'),
+            'level' => env('LOG_SLACK_LEVEL', 'error'),
+            'replace_placeholders' => true,
+        ],
+
+        'http' => [
+            'driver' => 'monolog',
+            'level' => env('LOG_HTTP_LEVEL', 'info'),
+            'handler' => HttpLogHandler::class,
+            'handler_with' => [
+                'url' => env('LOG_HTTP_URL'),
+                'token' => env('LOG_HTTP_TOKEN'),
+            ],
+            'formatter' => 'default',
             'replace_placeholders' => true,
         ],
 
