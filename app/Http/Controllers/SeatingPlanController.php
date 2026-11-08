@@ -7,8 +7,10 @@ use App\Models\InstrumentFamily;
 use App\Models\TermDate;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Http\Request;
+use Illuminate\Support\Arr;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Validator;
 
 class SeatingPlanController extends Controller
 {
@@ -36,27 +38,13 @@ class SeatingPlanController extends Controller
             $user->original_seat_column = $user->pivot->seat_column;
         });
 
-        $groupedUsers = $users->groupBy(function ($user) {
-            return $user->pivot->seat_row ?? 'unassigned';
-        });
+        $groupedUsers = $users->groupBy(
+            fn ($user) => is_seat_row($user->pivot->seat_row) ? $user->pivot->seat_row : 'unassigned'
+        );
 
-        $maxRow = $groupedUsers->keys()
-            ->filter(fn ($key) => $key !== 'unassigned')
-            ->max();
-
-        if (! $maxRow) {
-            $maxRow = 'A';
-        }
-
-        $nextRow = $maxRow;
-        $nextRow++;
-        $allRows = range('A', $nextRow);
-
-        $finalGroupedUsers = new Collection;
-
-        foreach ($allRows as $row) {
-            $finalGroupedUsers->put($row, $groupedUsers->get($row, new Collection));
-        }
+        $rows = seat_rows($groupedUsers->keys());
+        $rows[] = $rows ? str_increment(end($rows)) : 'A';
+        $finalGroupedUsers = collect($rows)->mapWithKeys(fn ($row) => [$row => $groupedUsers->get($row, new Collection)]);
 
         $unassignedUsers = $groupedUsers->get('unassigned', new Collection)
             ->sortBy('name')
@@ -93,25 +81,27 @@ class SeatingPlanController extends Controller
     {
         $this->authorize('update', $ensemble);
 
-        $input = $request->input();
-        $seatingPlan = json_decode($input['seating_plan'], true);
+        $request->validate(['seating_plan' => ['required', 'json']]);
+        $seatingPlan = Validator::make(['rows' => json_decode($request->input('seating_plan'), true)], [
+            'rows' => ['required', 'array'],
+            'rows.*' => ['array'],
+            'rows.*.*.id' => ['required', 'integer'],
+            'rows.*.*.column' => ['nullable', 'integer', 'min:1'],
+        ])->after(function ($validator) {
+            foreach (array_keys(Arr::wrap($validator->getData()['rows'])) as $row) {
+                if ($row !== 'unassigned' && ! is_seat_row($row)) {
+                    $validator->errors()->add('seating_plan', __('The seating plan has a row that is not named with capital letters.'));
+                }
+            }
+        })->validate()['rows'];
 
         DB::transaction(function () use ($seatingPlan, $ensemble) {
             foreach ($seatingPlan as $row => $users) {
-                if ($row === 'unassigned') {
-                    foreach ($users as $user) {
-                        $ensemble->users()->updateExistingPivot($user['id'], [
-                            'seat_row' => null,
-                            'seat_column' => null,
-                        ]);
-                    }
-                } else {
-                    foreach ($users as $user) {
-                        $ensemble->users()->updateExistingPivot($user['id'], [
-                            'seat_row' => $row,
-                            'seat_column' => $user['column'],
-                        ]);
-                    }
+                foreach ($users as $user) {
+                    $ensemble->users()->updateExistingPivot($user['id'], [
+                        'seat_row' => $row === 'unassigned' ? null : $row,
+                        'seat_column' => $row === 'unassigned' ? null : $user['column'],
+                    ]);
                 }
             }
         });
