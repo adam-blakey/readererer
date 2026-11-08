@@ -4,6 +4,7 @@ use App\Enums\AttendanceStatus;
 use App\Enums\UserRole;
 use App\Models\Attendance;
 use App\Models\Ensemble;
+use App\Models\Location;
 use App\Models\SetupGroup;
 use App\Models\Term;
 use App\Models\TermDate;
@@ -368,4 +369,22 @@ test('the own-dates view marks the dates the member sets up and drives the van',
     config(['app.readererer_setup_groups' => false, 'app.readererer_van_drivers' => false]);
 
     expect($pills())->toBe(0);
+});
+
+test('the poll names the term\'s location and marks dates held elsewhere with a symbol', function () {
+    $ensemble = Ensemble::factory()->create();
+    $term = Term::factory()->create(['location_id' => Location::factory()->create(['name' => 'Church Hall'])->id]);
+    make_term_date($term);
+    $away = make_term_date($term);
+    $away->update(['location_id' => Location::factory()->create(['name' => 'Town Hall'])->id]);
+    $member = make_user(UserRole::Member);
+    join_ensemble($member, $ensemble);
+
+    $html = $this->actingAs($member)
+        ->get(route('attendance.poll.show', ['ensemble' => $ensemble, 'term' => $term]))
+        ->assertOk()
+        ->assertSeeInOrder(['Locations', 'Church Hall', '*', 'Town Hall'])
+        ->getContent();
+
+    expect(substr_count($html, '<strong>*</strong>'))->toBe(2); // the legend and the away date's heading
 });

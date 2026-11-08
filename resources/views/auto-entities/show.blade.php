@@ -42,7 +42,7 @@
                     <div class="card-body">
                         @foreach($attributes as $attribute)
                             @php
-                                $clean_attribute = clean_attribute_name($attribute);
+                                $clean_attribute = column_label($entity, $attribute);
                                 $icon_name = $entity->getIconForAttribute($attribute) ?? 'pencil';
                             @endphp
                             <div class="mb-2">
@@ -60,6 +60,12 @@
                                             @endif
                                             {{ $loop->last ? '' : ',' }}
                                         @endforeach
+                                    @endif
+                                @elseif (str_ends_with($attribute, '_url'))
+                                    @if ($entity->$attribute)
+                                        <a href="{{ $entity->$attribute }}" rel="noopener" target="_blank"><x-icon name="external-link" /> {{ __('Open') }}</a>
+                                    @else
+                                        -
                                     @endif
                                 @elseif (str_contains($attribute, 'color'))
                                     @php
@@ -85,5 +91,8 @@
                 </x-card>
             </div>
         </x-card-row>
+        @isset($below)
+            @include($below)
+        @endisset
     </div>
 </x-layout>

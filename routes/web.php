@@ -8,6 +8,7 @@ use App\Http\Controllers\EnsembleController;
 use App\Http\Controllers\HealthCheckController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\InstrumentFamilyController;
+use App\Http\Controllers\LocationController;
 use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\PieceController;
 use App\Http\Controllers\PollererImportController;
@@ -92,6 +93,9 @@ Route::middleware('auth')->group(function () {
     Route::resource('instrument-families', InstrumentFamilyController::class)
         ->names('instrumentfamilys')
         ->parameter('instrument-families', 'instrumentFamily');
+
+    Route::patch('/locations/{id}/restore', [LocationController::class, 'restore'])->name('locations.restore');
+    Route::resource('locations', LocationController::class);
 
     Route::patch('/pieces/{id}/restore', [PieceController::class, 'restore'])->name('pieces.restore');
     Route::resource('pieces', PieceController::class);

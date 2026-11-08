@@ -15,6 +15,7 @@
                 <tr>
                     <th>{{ __('Date') }}</th>
                     <th>{{ __('Time') }}</th>
+                    <th>{{ __('Location') }}</th>
                     <th>{{ __('Type') }}</th>
                     @if ($show_setup_groups)
                         <th>{{ __('Setup group') }}</th>
@@ -35,6 +36,7 @@
                             @endif
                         </td>
                         <td class="text-nowrap">{{ $td->time_label }}</td>
+                        <td><x-location-link :location="$td->inferred_location" /></td>
                         <td>
                             @if ($td->is_concert)
                                 <span class="badge bg-primary text-primary-fg">{{ __('Concert') }} ({{ $td->concert_ensemble_names }})</span>

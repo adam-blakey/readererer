@@ -5,6 +5,7 @@ use App\Enums\UserRole;
 use App\Mail\AttendanceListMail;
 use App\Models\EmailLog;
 use App\Models\Ensemble;
+use App\Models\Location;
 use App\Models\SetupGroup;
 use App\Models\Term;
 use App\Models\TermDate;
@@ -36,6 +37,33 @@ test('a term can be created with term dates', function () {
     expect($term->number_of_rehearsals)->toBe(1);
     expect($term->number_of_concerts)->toBe(1);
     expect($term->term_dates->last()->concert_ensembles->modelKeys())->toBe([$ensemble->id]);
+});
+
+test('a term date can have its time to be confirmed and a location', function () {
+    $location = Location::factory()->create(['name' => 'Town Hall']);
+
+    $default = Location::factory()->create(['name' => 'Church Hall']);
+
+    $this->actingAs(make_user(UserRole::Admin))->post(route('terms.store'), [
+        'name' => 'Spring 2026',
+        'slug' => 'spring-2026',
+        'location_id' => $default->id,
+        'term_dates' => [
+            ['start_datetime' => '2026-01-05 19:00:00', 'end_datetime' => '2026-01-05 21:00:00', 'time_tbc' => '1', 'location_id' => $location->id],
+            ['start_datetime' => '2026-01-12 19:00:00', 'end_datetime' => '2026-01-12 21:00:00'],
+        ],
+    ]);
+
+    [$tbc, $confirmed] = Term::firstWhere('slug', 'spring-2026')->term_dates->sortBy('start_datetime')->values();
+    expect($tbc->time_tbc)->toBeTrue()
+        ->and($tbc->location->is($location))->toBeTrue()
+        ->and($confirmed->time_tbc)->toBeFalse()
+        ->and($confirmed->location_id)->toBeNull()
+        ->and($tbc->term->location->is($default))->toBeTrue();
+
+    $this->actingAs(make_user(UserRole::Admin))
+        ->get(route('terms.show', $tbc->term))
+        ->assertSeeInOrder(['Church Hall', 'Mon, 5 Jan 2026', 'TBC', 'Town Hall', 'Mon, 12 Jan 2026', '19:00–21:00', 'Church Hall']);
 });
 
 test('creating a term requires a name and a unique slug', function () {
@@ -387,4 +415,16 @@ test('a term cannot be renamed to another term\'s slug but may keep its own', fu
     $this->actingAs($admin)
         ->patch(route('terms.update', $term), ['name' => 'Spring', 'slug' => 'spring-2027'])
         ->assertSessionHasNoErrors();
+});
+
+test('the term form labels each date\'s empty location with the term\'s default and offers to add one', function () {
+    $term = Term::factory()->create(['location_id' => Location::factory()->create(['name' => 'Church Hall'])->id]);
+    make_term_date($term);
+
+    $this->actingAs(make_user(UserRole::Admin))
+        ->get(route('terms.edit', $term))
+        ->assertOk()
+        ->assertSee('Default: Church Hall')
+        ->assertSee('<option value="new">Add new location…</option>', false)
+        ->assertSee('id="modal-add-location"', false);
 });

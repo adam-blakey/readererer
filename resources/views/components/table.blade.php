@@ -76,6 +76,12 @@
                                     @endif
 								@elseif (gettype($entity->$attribute) == 'object' and class_exists(get_class($entity->$attribute)))
 									<x-clickable-model :model="$entity->$attribute" />
+                                @elseif (str_ends_with($attribute, '_url'))
+                                    @if ($entity->$attribute)
+                                        <a href="{{ $entity->$attribute }}" rel="noopener" target="_blank"><x-icon name="external-link" /> {{ __('Open') }}</a>
+                                    @else
+                                        -
+                                    @endif
                                 @elseif (str_contains($attribute, 'color'))
                                     @php
                                         $colorClass = color_name_to_css_class($entity->$attribute);

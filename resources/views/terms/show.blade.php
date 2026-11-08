@@ -13,6 +13,7 @@
                 <div class="list-inline list-inline-dots text-secondary mt-1 mb-0">
                     <span class="list-inline-item"><x-icon name="calendar" />{{ $term->formattedTermDateRange }}</span>
                     <span class="list-inline-item"><x-icon name="link" />{{ $term->slug }}</span>
+                    <span class="list-inline-item"><x-icon name="map-pin" />{{ __('Default location') }}: <x-location-link :location="$term->location" /></span>
                     <span class="list-inline-item">{{ __('Created :time', ['time' => $term->created_at?->diffForHumans()]) }}</span>
                     <span class="list-inline-item">{{ __('Updated :time', ['time' => $term->updated_at?->diffForHumans()]) }}</span>
                 </div>

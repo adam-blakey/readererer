@@ -6,6 +6,7 @@ use Illuminate\Database\Eloquent\Attributes\Scope;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Carbon;
@@ -46,6 +47,7 @@ class Term extends Model
         'name',
         'slug',
         'term_dates',
+        'location_id',
     ];
 
     public function casts(): array
@@ -60,7 +62,13 @@ class Term extends Model
 
     public function term_dates(): HasMany
     {
-        return $this->hasMany(TermDate::class)->orderBy('start_datetime');
+        return $this->hasMany(TermDate::class)->orderBy('start_datetime')->chaperone();
+    }
+
+    /** The default location for dates that do not set their own. */
+    public function location(): BelongsTo
+    {
+        return $this->belongsTo(Location::class)->withTrashed();
     }
 
     #[Scope]

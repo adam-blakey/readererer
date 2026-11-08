@@ -87,6 +87,7 @@ $auto_entity = function (string $route_prefix, string $index_label, string $crea
 $auto_entity('composers', 'Composers', 'New composer');
 $auto_entity('ensembles', 'Ensembles', 'New ensemble');
 $auto_entity('instrumentfamilys', 'Instrument families', 'New instrument family');
+$auto_entity('locations', 'Locations', 'New location');
 $auto_entity('pieces', 'Pieces', 'New piece');
 $auto_entity('setlists', 'Setlists', 'New setlist');
 $auto_entity('setupgroups', 'Setup groups', 'New setup group');
