@@ -231,8 +231,8 @@ function get_create_fields(object $dummy): array
             $select_multiple = $isBelongsToMany;
             $default_option = null;
             $icon = call_or_default($dummy, 'getIconForAttribute', $name, 'pencil');
-            $options = $relatedClass::orderBy('name')
-                ->get();
+            // Sorted in PHP because `name` can be an accessor (User), not a column.
+            $options = $relatedClass::all()->sortBy('name', SORT_NATURAL | SORT_FLAG_CASE)->values();
         } else {
             $column = $columns->firstWhere('name', $fillable_entry) ?? null;
             if (! $column) {
