@@ -30,6 +30,7 @@ class GeneralSettings extends Settings
         'van_drivers' => ['app.readererer_van_drivers'],
         'single_ensemble' => ['app.readererer_single_ensemble'],
         'log_emails' => ['app.readererer_log_emails'],
+        'analytics' => ['app.readererer_analytics'],
         'reminder_hours' => ['app.readererer_reminder_hours'],
         'concert_reminder_hours' => ['app.readererer_concert_reminder_hours'],
         'after_reminders' => ['app.readererer_after_reminders'],
@@ -84,6 +85,8 @@ class GeneralSettings extends Settings
     public ?bool $single_ensemble;
 
     public ?bool $log_emails;
+
+    public ?bool $analytics;
 
     public ?int $reminder_hours;
 

@@ -152,6 +152,7 @@ return [
     'readererer_van_drivers' => env('READERERER_VAN_DRIVERS', true),
     'readererer_single_ensemble' => env('READERERER_SINGLE_ENSEMBLE', false),
     'readererer_log_emails' => env('READERERER_LOG_EMAILS', false),
+    'readererer_analytics' => env('READERERER_ANALYTICS', false),
     'readererer_reminder_hours' => env('READERERER_REMINDER_HOURS'),
     'readererer_concert_reminder_hours' => env('READERERER_CONCERT_REMINDER_HOURS'),
     'readererer_after_reminders' => env('READERERER_AFTER_REMINDERS', 'nothing'),

@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Middleware\AddLogContext;
 use App\Http\Middleware\AddSecurityHeaders;
 use App\Http\Middleware\EnsurePasswordIsChanged;
 use App\Http\Middleware\PreventRequestForgery;
@@ -8,6 +9,8 @@ use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
 use Illuminate\Foundation\Http\Middleware\PreventRequestForgery as FrameworkPreventRequestForgery;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Validation\ValidationException;
 use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
 
 return Application::configure(basePath: dirname(__DIR__))
@@ -19,12 +22,15 @@ return Application::configure(basePath: dirname(__DIR__))
     ->withMiddleware(function (Middleware $middleware) {
         $middleware->append(AddSecurityHeaders::class);
         $middleware->web(
-            append: [EnsurePasswordIsChanged::class],
+            append: [AddLogContext::class, EnsurePasswordIsChanged::class],
             replace: [FrameworkPreventRequestForgery::class => PreventRequestForgery::class],
         );
         $middleware->redirectGuestsTo(fn (Request $request) => login_url($request));
     })
     ->withExceptions(function (Exceptions $exceptions) {
+        $exceptions->render(function (ValidationException $e) {
+            Log::info('Validation failed', ['fields' => array_keys($e->errors())]);
+        });
         $exceptions->render(function (AccessDeniedHttpException $e, Request $request) {
             if (! $request->user() && $request->isMethod('GET') && ! $request->expectsJson()) {
                 return redirect(login_url($request));

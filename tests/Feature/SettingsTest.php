@@ -5,6 +5,7 @@ use App\Models\User;
 use App\Settings\GeneralSettings;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Storage;
 
@@ -213,6 +214,28 @@ test('the email logging switch is saved to the config', function () {
     reload_settings();
 
     expect(config('app.readererer_log_emails'))->toBeTrue();
+});
+
+test('the analytics switch is saved to the config', function () {
+    $this->actingAs(make_user(UserRole::Admin))
+        ->put(route('settings.update'), settings_payload(['analytics' => '1']))
+        ->assertSessionHasNoErrors();
+
+    reload_settings();
+
+    expect(config('app.readererer_analytics'))->toBeTrue();
+});
+
+test('saving the settings logs which settings changed but not their values', function () {
+    Log::spy();
+
+    $this->actingAs(make_user(UserRole::Admin))
+        ->put(route('settings.update'), settings_payload(['google_client_id' => 'secret-client-id']))
+        ->assertSessionHasNoErrors();
+
+    Log::shouldHaveReceived('info')->with('Site settings saved', Mockery::on(
+        fn (array $context) => in_array('google_client_id', $context['changed'], true) && ! str_contains(json_encode($context), 'secret-client-id')
+    ))->once();
 });
 
 test('the featured colour themes every page and the maintenance illustration', function () {

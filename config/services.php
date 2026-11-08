@@ -14,6 +14,11 @@ return [
     |
     */
 
+    'cloudflare_access' => [
+        'client_id' => env('CF_ACCESS_CLIENT_ID'),
+        'client_secret' => env('CF_ACCESS_CLIENT_SECRET'),
+    ],
+
     'postmark' => [
         'token' => env('POSTMARK_TOKEN'),
     ],

@@ -415,3 +415,12 @@ function login_url(Request $request): string
         'parameters' => array_merge($request->query(), $route->originalParameters()),
     ]);
 }
+
+/**
+ * Masks email addresses, and drops the SQL and bindings that Laravel adds to query exception messages,
+ * so text can leave the site without members' details.
+ */
+function redact_personal_data(string $text): string
+{
+    return preg_replace(['/ \(Connection: .*\)$/s', '/[\w.+-]+@[\w-]+(?:\.[\w-]+)+/'], ['', '[email]'], $text);
+}

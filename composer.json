@@ -11,7 +11,9 @@
         "diglactic/laravel-breadcrumbs": "^10.1",
         "fakerphp/faker": "1.24.1",
         "laravel/framework": "^13.0",
+        "laravel/nightwatch": "^1.30",
         "laravel/pennant": "^1.26",
+        "laravel/pulse": "^1.8",
         "laravel/socialite": "^5.31",
         "laravel/tinker": "^3.0",
         "s-damian/larasort": "^2.0",
@@ -62,7 +64,7 @@
     },
     "extra": {
         "laravel": {
-            "dont-discover": []
+            "dont-discover": ["livewire/livewire"]
         }
     },
     "config": {
