@@ -22,6 +22,7 @@ class GeneralSettings extends Settings
         'allow_change_to_unknown' => ['app.readererer_allow_change_to_unknown'],
         'repeating_headings' => ['app.readererer_repeating_headings'],
         'depping' => ['app.readererer_depping'],
+        'hide_past_dates' => ['app.readererer_hide_past_dates'],
         'image_max_kilobytes' => ['app.readererer_image_max_kilobytes'],
         'terminology' => ['app.readererer_terminology'],
         'shown_user_fields' => ['app.readererer_shown_user_fields'],
@@ -30,6 +31,7 @@ class GeneralSettings extends Settings
         'single_ensemble' => ['app.readererer_single_ensemble'],
         'log_emails' => ['app.readererer_log_emails'],
         'reminder_hours' => ['app.readererer_reminder_hours'],
+        'concert_reminder_hours' => ['app.readererer_concert_reminder_hours'],
         'after_reminders' => ['app.readererer_after_reminders'],
         'google_login' => ['app.readererer_google_login'],
         'google_client_id' => ['services.google.client_id'],
@@ -67,6 +69,8 @@ class GeneralSettings extends Settings
 
     public ?bool $depping;
 
+    public ?bool $hide_past_dates;
+
     public ?int $image_max_kilobytes;
 
     public ?array $terminology;
@@ -82,6 +86,8 @@ class GeneralSettings extends Settings
     public ?bool $log_emails;
 
     public ?int $reminder_hours;
+
+    public ?int $concert_reminder_hours;
 
     public ?string $after_reminders;
 

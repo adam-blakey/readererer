@@ -24,6 +24,7 @@ class SettingController extends Controller
         $settings->primary_color = $request->validated('primary_color');
         $settings->image_max_kilobytes = (int) $request->validated('image_max_kilobytes');
         $settings->reminder_hours = (int) $request->validated('reminder_hours');
+        $settings->concert_reminder_hours = (int) $request->validated('concert_reminder_hours');
         $settings->after_reminders = $request->validated('after_reminders');
         $settings->terminology = array_filter($request->validated('terminology', []), 'filled') ?: null;
         $settings->shown_user_fields = $request->validated('shown_user_fields', []);
@@ -36,7 +37,7 @@ class SettingController extends Controller
             $settings->google_client_secret = $request->validated('google_client_secret');
         }
 
-        foreach (['assume_attending', 'allow_change_to_unknown', 'repeating_headings', 'depping', 'setup_groups', 'van_drivers', 'single_ensemble', 'log_emails', 'google_login'] as $key) {
+        foreach (['assume_attending', 'allow_change_to_unknown', 'repeating_headings', 'hide_past_dates', 'depping', 'setup_groups', 'van_drivers', 'single_ensemble', 'log_emails', 'google_login'] as $key) {
             $settings->{$key} = $request->boolean($key);
         }
 
