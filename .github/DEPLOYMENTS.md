@@ -57,7 +57,10 @@ requests show no skipped release jobs.
      `proc_open`, which Composer scripts need), checks the site's `.env` has a
      valid `APP_KEY` (as above), then `npm ci` and `npm run build`.
      Only then does it put the app in maintenance mode (skipped on a site's
-     first deploy, whose folder has no `vendor` for `artisan` to load yet). It rsyncs the app's
+     first deploy, whose folder has no `vendor` for `artisan` to load yet),
+     after first rsyncing `vendor` and `bootstrap` into the site's folder:
+     the pull has already put the new code there, and `artisan down` boots
+     it, so it needs the new packages and no stale `bootstrap/cache`. It rsyncs the app's
      folders (`app`, `bootstrap`, `config`, `database`, `lang`, `resources`,
      `routes`, `vendor`, `public/build`, `public/js`) into the site's folder
      with deletion, which also clears
