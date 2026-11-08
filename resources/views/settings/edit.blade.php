@@ -3,7 +3,7 @@
 @php
 	use App\Enums\Color;
 	use App\Enums\UserRole;
-	use App\Models\Setting;
+	use App\Settings\GeneralSettings;
 
 	$terminology = config('app.readererer_terminology');
 	$switch_groups = [
@@ -201,7 +201,7 @@
 									</tr>
 								</thead>
 								<tbody>
-									@foreach (Setting::TERMS as $singular => $plural)
+									@foreach (GeneralSettings::TERMS as $singular => $plural)
 										<tr>
 											<td>{{ $singular }} / {{ $plural }}</td>
 											@foreach ([$singular, $plural] as $word)

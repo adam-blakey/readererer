@@ -2,7 +2,7 @@
 
 use App\Enums\UserRole;
 use App\Models\Ensemble;
-use App\Models\Setting;
+use App\Settings\GeneralSettings;
 use Laravel\Pennant\Feature;
 use Tests\Fixtures\ExampleFlag;
 
@@ -43,7 +43,7 @@ test('saving the page stores each flag\'s options', function () {
         ->assertSessionHasNoErrors()
         ->assertRedirect('/feature-flags');
 
-    expect(Setting::where('key', 'feature_flags')->value('value'))->toBe([ExampleFlag::class => [
+    expect(app(GeneralSettings::class)->feature_flags)->toBe([ExampleFlag::class => [
         'enabled' => true,
         'roles' => [UserRole::Member->value],
         'ensembles' => [$ensemble->id],

@@ -8,11 +8,11 @@ use App\Enums\UserRole;
 use App\Models\Attendance;
 use App\Models\Ensemble;
 use App\Models\InstrumentFamily;
-use App\Models\Setting;
 use App\Models\SetupGroup;
 use App\Models\Term;
 use App\Models\TermDate;
 use App\Models\User;
+use App\Settings\GeneralSettings;
 use DateTime;
 use DateTimeZone;
 use Illuminate\Database\Eloquent\Model;
@@ -240,6 +240,10 @@ class PollererImporter
 
             $commit ? DB::commit() : DB::rollBack();
         });
+
+        if (! $commit) {
+            app(GeneralSettings::class)->refresh();
+        }
 
         if ($commit) {
             $this->downloadImages();
@@ -703,15 +707,16 @@ class PollererImporter
     private function importSettings(): void
     {
         $settings = $this->export['settings'];
+        $site = app(GeneralSettings::class);
 
         if (filled($settings['group_name'] ?? null)) {
-            Setting::put('name', $settings['group_name']);
+            $site->name = $settings['group_name'];
             $this->counts['Settings']++;
         }
 
         foreach (self::BOOLEAN_SETTINGS as $from => $to) {
             if (isset($settings[$from])) {
-                Setting::put($to, filter_var($settings[$from], FILTER_VALIDATE_BOOLEAN));
+                $site->{$to} = filter_var($settings[$from], FILTER_VALIDATE_BOOLEAN);
                 $this->counts['Settings']++;
             }
         }
@@ -725,9 +730,11 @@ class PollererImporter
         }
 
         if ($terminology) {
-            Setting::put('terminology', $terminology);
+            $site->terminology = $terminology;
             $this->counts['Settings']++;
         }
+
+        $site->save();
 
         $logo = trim((string) ($settings['logo_url'] ?? ''));
 
@@ -748,7 +755,7 @@ class PollererImporter
             } elseif ($ensemble) {
                 $this->warnings[] = __('The image for :ensemble could not be downloaded from :url, so it links to that address instead.', ['ensemble' => $name, 'url' => $url]);
             } elseif ($path) {
-                Setting::put('logo', $path);
+                app(GeneralSettings::class)->fill(['logo' => $path])->save();
                 $this->counts['Settings']++;
             } else {
                 $this->warnings[] = __('The logo could not be downloaded from :url, so it was left out.', ['url' => $url]);
