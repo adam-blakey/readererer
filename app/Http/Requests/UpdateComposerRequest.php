@@ -9,12 +9,15 @@ class UpdateComposerRequest extends FormRequest
 {
     public function authorize(): bool
     {
-        return false;
+        return true;
     }
 
     /** @return array<string, ValidationRule|array<mixed>|string> */
     public function rules(): array
     {
-        return [];
+        return [
+            'first_name' => ['required', 'string', 'max:255'],
+            'last_name' => ['required', 'string', 'max:255'],
+        ];
     }
 }

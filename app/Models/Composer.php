@@ -13,6 +13,11 @@ class Composer extends Model
     use AutoSortable;
     use HasFactory;
 
+    protected $fillable = [
+        'first_name',
+        'last_name',
+    ];
+
     protected $visible = [
         'first_name',
         'last_name',

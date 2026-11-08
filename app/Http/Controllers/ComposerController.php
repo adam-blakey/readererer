@@ -5,6 +5,8 @@ namespace App\Http\Controllers;
 use App\Http\Requests\StoreComposerRequest;
 use App\Http\Requests\UpdateComposerRequest;
 use App\Models\Composer;
+use Illuminate\Http\RedirectResponse;
+use Illuminate\View\View;
 
 class ComposerController extends Controller
 {
@@ -34,11 +36,35 @@ class ComposerController extends Controller
 
     public function store(StoreComposerRequest $request) {}
 
-    public function show(Composer $composer) {}
+    public function show(Composer $composer): View
+    {
+        return view('auto-entities.show', [
+            'entity' => $composer,
+            'page_name' => __('Composers'),
+            'page_subname' => __('Composer :name', ['name' => $composer->name]),
+            'edit_route' => 'composers.edit',
+            'destroy_route' => 'composers.destroy',
+            'restore_route' => 'composers.restore',
+        ]);
+    }
 
-    public function edit(Composer $composer) {}
+    public function edit(Composer $composer): View
+    {
+        return view('auto-entities.form', [
+            'page_name' => __('Composers'),
+            'page_subname' => __('Update composer'),
+            'update' => true,
+            'fields' => get_create_fields($composer),
+            'form_route' => route('composers.update', $composer),
+        ]);
+    }
 
-    public function update(UpdateComposerRequest $request, Composer $composer) {}
+    public function update(UpdateComposerRequest $request, Composer $composer): RedirectResponse
+    {
+        $composer->update($request->validated());
+
+        return to_route('composers.show', $composer);
+    }
 
     public function destroy(Composer $composer)
     {

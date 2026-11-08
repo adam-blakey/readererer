@@ -2,6 +2,7 @@
 
 namespace App\Policies;
 
+use App\Enums\UserRole;
 use App\Models\Composer;
 use App\Models\User;
 use Illuminate\Auth\Access\Response;
@@ -15,7 +16,7 @@ class ComposerPolicy
 
     public function view(User $user, Composer $composer)
     {
-        return Response::deny();
+        return $user->role->value >= UserRole::Moderator->value ? Response::allow() : Response::deny();
     }
 
     public function create(User $user)
@@ -25,7 +26,7 @@ class ComposerPolicy
 
     public function update(User $user, Composer $composer)
     {
-        return Response::deny();
+        return $user->role->value >= UserRole::Admin->value ? Response::allow() : Response::deny();
     }
 
     public function delete(User $user, Composer $composer)
