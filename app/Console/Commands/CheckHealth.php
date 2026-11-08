@@ -39,6 +39,7 @@ class CheckHealth extends Command
         Pulse::set('health_check', 'latest', json_encode(['status' => $status, 'duration' => $duration, 'error' => $error]));
 
         if ($error !== null) {
+            Pulse::set('health_check_failure', (string) now()->getTimestamp(), json_encode(['duration' => $duration, 'error' => $error]));
             Log::error('Health check failed', ['url' => $url, 'error' => $error, 'duration_ms' => $duration]);
             $this->error("{$url} is down: {$error}");
 

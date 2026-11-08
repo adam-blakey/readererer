@@ -38,6 +38,11 @@ test('the page shows what Pulse recorded', function () {
     Pulse::record('health_check', 'up', 120)->count()->avg();
     Pulse::record('health_check', 'down', 80)->count()->avg();
     Pulse::set('health_check', 'latest', json_encode(['status' => 'down', 'duration' => 80, 'error' => 'HTTP 503']));
+    Pulse::set('health_check_failure', (string) now()->timestamp, json_encode(['duration' => 80, 'error' => 'HTTP 503']));
+    Pulse::record('cache_hit', 'settings')->count();
+    Pulse::record('cache_hit', 'settings')->count();
+    Pulse::record('cache_hit', 'settings')->count();
+    Pulse::record('cache_miss', 'settings')->count();
     Pulse::ingest();
 
     $this->actingAs($user)
@@ -50,6 +55,8 @@ test('the page shows what Pulse recorded', function () {
         ->assertSee('50%')
         ->assertSee('120 ms')
         ->assertSee('HTTP 503')
+        ->assertSee('75%')
+        ->assertSee('tracking-block bg-yellow', false)
         ->assertDontSee('Check that the scheduler');
 });
 
@@ -80,6 +87,7 @@ test('the health check command logs a failure', function () {
     $this->artisan('health:check')->assertFailed();
     Pulse::ingest();
 
+    expect(Pulse::values('health_check_failure'))->toHaveCount(1);
     Log::shouldHaveReceived('error')->once()->withArgs(fn ($message, $context) => $context['error'] === 'HTTP 503');
     expect(json_decode(Pulse::values('health_check', ['latest'])->first()->value, true))
         ->toMatchArray(['status' => 'down', 'error' => 'HTTP 503']);
@@ -92,4 +100,33 @@ test('the health check command sends the Cloudflare Access service token', funct
     $this->artisan('health:check')->assertSuccessful();
 
     Http::assertSent(fn ($request) => $request->hasHeader('CF-Access-Client-Id', 'id') && $request->hasHeader('CF-Access-Client-Secret', 'secret'));
+});
+
+test('the application log shows the newest entries and filters by level', function () {
+    $storage = sys_get_temp_dir().'/readererer-logs-'.uniqid();
+    mkdir($storage.'/logs', recursive: true);
+    app()->useStoragePath($storage);
+    file_put_contents($storage.'/logs/laravel-2026-11-08.log', implode("\n", [
+        json_encode(['message' => 'Reminder skipped', 'context' => ['term_date_id' => 4], 'level_name' => 'INFO', 'datetime' => '2026-11-08T09:00:00+00:00', 'extra' => []]),
+        '[2026-11-08 09:05:00] production.ERROR: Old style failure',
+        '#0 app/Broken.php(12): explode()',
+        '',
+    ]));
+
+    $admin = make_user(UserRole::Admin);
+
+    $this->actingAs($admin)
+        ->get(route('settings.monitoring.logs'))
+        ->assertOk()
+        ->assertSeeInOrder(['Old style failure', '#0 app/Broken.php(12)', 'Reminder skipped', '&quot;term_date_id&quot;: 4'], false);
+
+    $this->actingAs($admin)
+        ->get(route('settings.monitoring.logs', ['level' => 'error']))
+        ->assertOk()
+        ->assertSee('Old style failure')
+        ->assertDontSee('Reminder skipped');
+
+    $this->actingAs(make_user(UserRole::Moderator))
+        ->get(route('settings.monitoring.logs'))
+        ->assertForbidden();
 });

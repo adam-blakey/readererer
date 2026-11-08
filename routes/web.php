@@ -76,7 +76,8 @@ Route::middleware('auth')->group(function () {
 
     Route::get('/settings', [SettingController::class, 'edit'])->name('settings.edit')->can('view.settings');
     Route::put('/settings', [SettingController::class, 'update'])->name('settings.update')->can('edit.settings');
-    Route::get('/settings/monitoring', MonitoringController::class)->name('settings.monitoring')->can('edit.settings');
+    Route::get('/settings/monitoring', [MonitoringController::class, 'index'])->name('settings.monitoring')->can('edit.settings');
+    Route::get('/settings/monitoring/logs', [MonitoringController::class, 'logs'])->name('settings.monitoring.logs')->can('edit.settings');
     Route::get('/settings/import', [PollererImportController::class, 'create'])->name('settings.import')->can('edit.settings');
     Route::post('/settings/import/preview', [PollererImportController::class, 'preview'])->name('settings.import.preview')->can('edit.settings');
     Route::post('/settings/import', [PollererImportController::class, 'store'])->name('settings.import.store')->can('edit.settings');

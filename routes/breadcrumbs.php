@@ -62,6 +62,11 @@ Breadcrumbs::for('settings.monitoring', function (BreadcrumbTrail $trail) {
     $trail->push(__('Monitoring'), route('settings.monitoring'));
 });
 
+Breadcrumbs::for('settings.monitoring.logs', function (BreadcrumbTrail $trail) {
+    $trail->parent('settings.monitoring');
+    $trail->push(__('Application log'), route('settings.monitoring.logs'));
+});
+
 Breadcrumbs::for('feature-flags.edit', function (BreadcrumbTrail $trail) {
     $trail->parent('home');
     $trail->push(__('Feature flags'), route('feature-flags.edit'));
