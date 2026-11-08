@@ -116,7 +116,7 @@
                                         @csrf
                                         <button type="submit" class="btn btn-sm bg-info text-info-fg">
                                             <x-icon name="list-check" />
-                                            {{ __('Send attendance list now') }}
+                                            {{ $td->hasSent(\App\Mail\AttendanceListMail::class) ? __('Resend attendance list now') : __('Send attendance list now') }}
                                         </button>
                                     </form>
                                     @if ($show_setup_groups && $td->setup_group)
@@ -124,7 +124,7 @@
                                             @csrf
                                             <button type="submit" class="btn btn-sm bg-info-lt text-info-lt-fg">
                                                 <x-icon name="bell-ringing" />
-                                                {{ __('Resend setup reminder') }}
+                                                {{ $td->hasSent(\App\Mail\SetupReminderMail::class) ? __('Resend setup reminder') : __('Send setup reminder') }}
                                             </button>
                                         </form>
                                     @endif
@@ -133,7 +133,7 @@
                                             @csrf
                                             <button type="submit" class="btn btn-sm bg-info text-info-fg">
                                                 <x-icon name="truck" />
-                                                {{ __('Send van driver reminder') }}
+                                                {{ $td->hasSent(\App\Mail\VanDriverReminderMail::class) ? __('Resend van driver reminder') : __('Send van driver reminder') }}
                                             </button>
                                         </form>
                                     @endif

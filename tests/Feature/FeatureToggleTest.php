@@ -51,7 +51,7 @@ test('with setup groups off their pages are closed and the term dates table hide
     $this->actingAs($admin)->get(route('terms.show', $termDate->term))
         ->assertOk()
         ->assertDontSee(__('Setup group'))
-        ->assertDontSee(__('Resend setup reminder'));
+        ->assertDontSee('setup reminder');
 });
 
 test('with setup groups off saving a user or a term keeps their setup groups', function () {

@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Enums\EmailStatus;
 use App\Observers\TermDateObserver;
 use Illuminate\Database\Eloquent\Attributes\ObservedBy;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -79,6 +80,12 @@ class TermDate extends Model
     public function email_logs(): HasMany
     {
         return $this->hasMany(EmailLog::class)->latest();
+    }
+
+    public function hasSent(string $mailableClass): bool
+    {
+        return $this->email_logs
+            ->contains(fn (EmailLog $log) => $log->mailable_class === $mailableClass && $log->status !== EmailStatus::Failed);
     }
 
     public function register_entries(): HasMany
