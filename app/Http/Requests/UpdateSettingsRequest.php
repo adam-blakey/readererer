@@ -37,6 +37,7 @@ class UpdateSettingsRequest extends FormRequest
             'van_drivers' => ['sometimes', 'boolean'],
             'single_ensemble' => ['sometimes', 'boolean', Rule::when(Ensemble::count() > 1, 'declined')],
             'log_emails' => ['sometimes', 'boolean'],
+            'analytics' => ['sometimes', 'boolean'],
             'reminder_hours' => ['nullable', 'integer', 'min:1', 'max:720'],
             'concert_reminder_hours' => ['nullable', 'integer', 'min:1', 'max:720'],
             'after_reminders' => ['required', Rule::in(GeneralSettings::AFTER_REMINDERS)],

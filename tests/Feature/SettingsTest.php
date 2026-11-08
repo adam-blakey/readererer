@@ -215,6 +215,16 @@ test('the email logging switch is saved to the config', function () {
     expect(config('app.readererer_log_emails'))->toBeTrue();
 });
 
+test('the analytics switch is saved to the config', function () {
+    $this->actingAs(make_user(UserRole::Admin))
+        ->put(route('settings.update'), settings_payload(['analytics' => '1']))
+        ->assertSessionHasNoErrors();
+
+    reload_settings();
+
+    expect(config('app.readererer_analytics'))->toBeTrue();
+});
+
 test('the featured colour themes every page and the maintenance illustration', function () {
     $admin = make_user(UserRole::Admin);
     $this->actingAs($admin)
