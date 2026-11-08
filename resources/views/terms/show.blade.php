@@ -4,12 +4,12 @@
     <div class="container">
         <div class="row align-items-center">
             <div class="col">
-                <h1 class="my-0 font-bold">
-                    {{ $term->name }}
+                <div class="d-flex align-items-center gap-2 flex-wrap">
+                    <h1 class="my-0 font-bold">{{ $term->name }}</h1>
                     @if($term->term_dates_count ?? $term->term_dates?->count())
-                        <span class="badge bg-blue text-blue-fg align-middle">{{ trans_choice(':count date|:count dates', $term->term_dates_count ?? $term->term_dates->count()) }}</span>
+                        <span class="badge bg-blue text-blue-fg">{{ trans_choice(':count date|:count dates', $term->term_dates_count ?? $term->term_dates->count()) }}</span>
                     @endif
-                </h1>
+                </div>
                 <div class="list-inline list-inline-dots text-secondary mt-1 mb-0">
                     <span class="list-inline-item"><x-icon name="calendar" />{{ $term->formattedTermDateRange }}</span>
                     <span class="list-inline-item"><x-icon name="link" />{{ $term->slug }}</span>
