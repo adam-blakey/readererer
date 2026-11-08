@@ -34,7 +34,7 @@
 	$own_view = $self && auth()->user()->setting('poll_own_view', false);
 	$show_registers = $can_take_registers && $term_dates->isNotEmpty();
 
-	// Dates away from the term's default venue are marked with footnote symbols, doubled once they run out (*, †, … then **, ††, …).
+	// Dates away from the term's default location are marked with footnote symbols, doubled once they run out (*, †, … then **, ††, …).
 	$footnote_symbols = ['*', '†', '‡', '§', '¶', '‖'];
 	$other_locations = $term_dates->map->inferred_location->filter()->unique('id')
 		->reject(fn ($location) => $location->is($term->location))->values();
@@ -83,7 +83,7 @@
 @if ($term->location or $other_locations->isNotEmpty())
 	<div class="card-body py-2 border-bottom">
 		<div class="list-inline list-inline-dots mb-0">
-			<span class="list-inline-item"><x-icon name="map-pin" /> {{ __('Venue') }}: <x-location-link :location="$term->location" /></span>
+			<span class="list-inline-item"><x-icon name="map-pin" /> {{ __('Locations') }}: <x-location-link :location="$term->location" /></span>
 			@foreach ($other_locations as $location)
 				<span class="list-inline-item"><strong>{{ $location_symbols[$location->id] }}</strong> <x-location-link :location="$location" /></span>
 			@endforeach

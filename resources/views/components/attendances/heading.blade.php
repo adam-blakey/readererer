@@ -25,20 +25,22 @@
 				{{ $term_date->start_datetime->format('Y') }}<br />
 			@endif
 			{{ $term_date->start_datetime->format('D') }}<br />
+			{{-- Two lines either way, so the setup group badges below stay in line. --}}
 			@if ($term_date->time_tbc)
+				{{ __('Time') }}<br />
 				{{ __('TBC') }}<br />
 			@else
 				{{ $term_date->start_datetime->format('G:i') }}<br />
 				{{ $term_date->end_datetime->format('G:i') }}<br />
-			@endif
-			@if ($symbol = $location_symbols[$term_date->inferred_location?->id] ?? null)
-				<strong>{{ $symbol }}</strong><br />
 			@endif
             @if (config('app.readererer_setup_groups') && $term_date->setup_group != null)
                 <div class="mt-2">
                     <x-setup-group-badge :setup_group="$term_date->setup_group" :tooltip="false" />
                 </div>
             @endif
+			@if ($symbol = $location_symbols[$term_date->inferred_location?->id] ?? null)
+				<div class="mt-1"><strong>{{ $symbol }}</strong></div>
+			@endif
 		</th>
 	@endforeach
 </tr>

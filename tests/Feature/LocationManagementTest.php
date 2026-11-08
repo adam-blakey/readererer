@@ -43,7 +43,9 @@ test('coordinates entered by hand are kept, and a failed lookup leaves them empt
 
     $unknown = Location::firstWhere('name', 'Unknown');
     expect($unknown->latitude)->toBeNull()
-        ->and($unknown->map_url)->toBe('https://www.openstreetmap.org/search?query=Nowhere+at+all');
+        ->and($unknown->map_url)->toBe('https://www.openstreetmap.org/search?query=Nowhere+at+all')
+        ->and(Location::factory()->make(['name' => 'Village Hall', 'address' => null, 'latitude' => null, 'longitude' => null])->map_url)
+        ->toBe('https://www.openstreetmap.org/search?query=Village+Hall');
     Http::assertSentCount(1);
 });
 

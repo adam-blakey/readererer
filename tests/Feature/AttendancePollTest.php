@@ -371,7 +371,7 @@ test('the own-dates view marks the dates the member sets up and drives the van',
     expect($pills())->toBe(0);
 });
 
-test('the poll names the term\'s venue and marks dates held elsewhere with a symbol', function () {
+test('the poll names the term\'s location and marks dates held elsewhere with a symbol', function () {
     $ensemble = Ensemble::factory()->create();
     $term = Term::factory()->create(['location_id' => Location::factory()->create(['name' => 'Church Hall'])->id]);
     make_term_date($term);
@@ -383,7 +383,7 @@ test('the poll names the term\'s venue and marks dates held elsewhere with a sym
     $html = $this->actingAs($member)
         ->get(route('attendance.poll.show', ['ensemble' => $ensemble, 'term' => $term]))
         ->assertOk()
-        ->assertSeeInOrder(['Venue', 'Church Hall', '*', 'Town Hall'])
+        ->assertSeeInOrder(['Locations', 'Church Hall', '*', 'Town Hall'])
         ->getContent();
 
     expect(substr_count($html, '<strong>*</strong>'))->toBe(2); // the legend and the away date's heading
