@@ -34,11 +34,7 @@ class UserController extends Controller
     public function index()
     {
         $query = User::query();
-        if (request('with_trashed')) {
-            $query = $query->withTrashed();
-        } else {
-            $query = $query->whereNull('deleted_at');
-        }
+        $query->when(request('with_trashed'), fn ($query) => $query->withTrashed());
         $ensemble_options = Ensemble::orderBy('name')->pluck('name', 'id')->all() + ['none' => __('No ensemble')];
         $chosen = array_intersect(array_keys($ensemble_options), array_map('strval', Arr::wrap(request('ensembles'))));
         if (count($chosen) > 0 && count($chosen) < count($ensemble_options)) {

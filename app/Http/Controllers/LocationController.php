@@ -18,11 +18,7 @@ class LocationController extends Controller
     public function index()
     {
         $query = Location::query();
-        if (request('with_trashed')) {
-            $query = $query->withTrashed();
-        } else {
-            $query = $query->whereNull('deleted_at');
-        }
+        $query->when(request('with_trashed'), fn ($query) => $query->withTrashed());
         $locations = $query->autosort()->paginate(10)->appends(request()->only('with_trashed'));
 
         return view('auto-entities.index', [

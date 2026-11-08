@@ -23,11 +23,7 @@ class EnsembleController extends Controller
     public function index()
     {
         $query = Ensemble::query();
-        if (request('with_trashed')) {
-            $query = $query->withTrashed();
-        } else {
-            $query = $query->whereNull('deleted_at');
-        }
+        $query->when(request('with_trashed'), fn ($query) => $query->withTrashed());
         $ensembles = $query->with(['admins'])->withCount('users')->autosort()->paginate(10)->appends(request()->only('with_trashed'));
 
         return view('auto-entities.index', [

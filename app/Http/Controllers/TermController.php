@@ -24,11 +24,7 @@ class TermController extends Controller
     public function index()
     {
         $query = Term::query();
-        if (request('with_trashed')) {
-            $query = $query->withTrashed();
-        } else {
-            $query = $query->whereNull('deleted_at');
-        }
+        $query->when(request('with_trashed'), fn ($query) => $query->withTrashed());
         if (! request('with_past')) {
             $query = $query->current();
         }
@@ -49,7 +45,7 @@ class TermController extends Controller
     public function create(): View
     {
         $term = new Term;
-        $ensembles = Ensemble::whereNull('deleted_at')->orderBy('name')->get();
+        $ensembles = Ensemble::orderBy('name')->get();
         $setup_groups = SetupGroup::orderBy('name')->get();
         $van_drivers = User::orderBy('first_name')->orderBy('last_name')->get();
 
@@ -107,7 +103,7 @@ class TermController extends Controller
     public function edit(Term $term)
     {
         $term->load('term_dates.concert_ensembles');
-        $ensembles = Ensemble::whereNull('deleted_at')->orderBy('name')->get();
+        $ensembles = Ensemble::orderBy('name')->get();
         $setup_groups = SetupGroup::orderBy('name')->get();
         $van_drivers = User::orderBy('first_name')->orderBy('last_name')->get();
 

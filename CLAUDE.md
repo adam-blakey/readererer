@@ -126,7 +126,6 @@ Before building UI, look for an existing example and reuse it: first a Blade com
 
 - `Model::preventSilentlyDiscardingAttributes()` is enabled in local env (`AppServiceProvider`) — mass-assignment of non-fillable attributes throws, so keep `$fillable` accurate.
 - Helper functions in `app/helpers.php` are global (snake_case); Blade leans on them heavily. Check there before writing new view-logic helpers.
-- `docs/development-plan.md` is the running TODO / priorities list — consult it for intended direction and known bugs (e.g. seating-plan row bugs, missing edit views).
 - Tabler icons are referenced by name through the `<x-icon>` component / `Icon` attribute, not raw SVG.
 - `AddSecurityHeaders` (global middleware) sends a Content Security Policy whose `script-src` allows only same-origin files and a per-request nonce, plus the other security headers; `public/.htaccess` covers files Apache serves directly. So no inline event handlers (`onclick=` etc.): use a data attribute and a listener (`data-confirm` and `data-submit-on-change` are handled in `resources/js/form-actions.js`), and give any inline `<script>` `nonce="{{ Vite::cspNonce() }}"`.
 - Every form starts with `<x-forms.error-summary :fields="..." />`, passing the field names it renders (wildcards allowed, e.g. `term_dates.*.start_datetime`). It lists the validation errors that have no field of their own to appear beside.
