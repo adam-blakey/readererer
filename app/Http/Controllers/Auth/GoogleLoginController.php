@@ -10,6 +10,7 @@ use Illuminate\Database\UniqueConstraintViolationException;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
 use Laravel\Socialite\Contracts\User as GoogleUser;
 use Laravel\Socialite\Facades\Socialite;
@@ -33,33 +34,37 @@ class GoogleLoginController extends Controller
         try {
             $google = Socialite::driver('google')->user();
         } catch (InvalidStateException|GuzzleException) {
-            return $this->fail(__('Logging in with Google failed. Please try again.'));
+            return $this->fail(__('Logging in with Google failed. Please try again.'), 'oauth_error');
         }
 
         $email = Str::lower((string) $google->getEmail());
 
         if ($email === '' || ! ($google->getRaw()['email_verified'] ?? false)) {
-            return $this->fail(__('Your Google account has no verified email address.'));
+            return $this->fail(__('Your Google account has no verified email address.'), 'unverified_email');
         }
 
         $users = User::withTrashed()->whereRaw('lower(email) = ?', [$email])->limit(2)->get();
 
         if ($users->count() > 1) {
-            return $this->fail(__('More than one account uses :email, so log in with your username instead.', ['email' => $email]));
+            return $this->fail(__('More than one account uses :email, so log in with your username instead.', ['email' => $email]), 'duplicate_accounts');
         }
 
         if ($users->first()?->trashed()) {
-            return $this->fail(__('The account for :email has been removed.', ['email' => $email]));
+            return $this->fail(__('The account for :email has been removed.', ['email' => $email]), 'account_removed');
         }
 
         if ($users->first()?->role === UserRole::Ensemble) {
-            return $this->fail(__('Shared ensemble logins cannot log in with Google.'));
+            return $this->fail(__('Shared ensemble logins cannot log in with Google.'), 'shared_login');
         }
 
         $user = $users->first() ?? $this->register($google, $email);
 
+        if ($user && $users->isEmpty()) {
+            Log::info('Account created from a Google login', ['user_id' => $user->id, 'role' => $user->role->name]);
+        }
+
         if (! $user) {
-            return $this->fail(__('No account uses :email.', ['email' => $email]));
+            return $this->fail(__('No account uses :email.', ['email' => $email]), 'no_account');
         }
 
         Auth::login($user);
@@ -91,8 +96,10 @@ class GoogleLoginController extends Controller
         ]), when: fn (Throwable $exception) => $exception instanceof UniqueConstraintViolationException);
     }
 
-    private function fail(string $message): RedirectResponse
+    private function fail(string $message, string $reason): RedirectResponse
     {
+        Log::warning('Google login failed', ['reason' => $reason]);
+
         return to_route('login')->withErrors(['username' => $message]);
     }
 }

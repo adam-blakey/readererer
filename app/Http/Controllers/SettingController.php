@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\UpdateSettingsRequest;
 use App\Settings\GeneralSettings;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
 
 class SettingController extends Controller
@@ -20,6 +21,7 @@ class SettingController extends Controller
 
     public function update(UpdateSettingsRequest $request, GeneralSettings $settings)
     {
+        $before = $settings->toArray();
         $settings->name = $request->validated('name');
         $settings->primary_color = $request->validated('primary_color');
         $settings->image_max_kilobytes = (int) $request->validated('image_max_kilobytes');
@@ -54,6 +56,8 @@ class SettingController extends Controller
         }
 
         $settings->save();
+
+        Log::info('Site settings saved', ['changed' => array_keys(array_filter($settings->toArray(), fn ($value, $key) => $value !== ($before[$key] ?? null), ARRAY_FILTER_USE_BOTH))]);
 
         return redirect()->route('settings.edit')->with('status', __('Settings saved.'));
     }

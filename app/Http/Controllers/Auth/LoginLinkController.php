@@ -8,6 +8,7 @@ use App\Models\User;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Password;
 use Illuminate\View\View;
 
@@ -27,6 +28,10 @@ class LoginLinkController extends Controller
         ]);
 
         $status = EmailLinkType::LoginLink->send($request->email);
+
+        if ($status !== Password::RESET_LINK_SENT) {
+            Log::warning('Login link not sent', ['status' => $status]);
+        }
 
         if ($status === Password::RESET_THROTTLED) {
             return back()->withInput($request->only('email'))->withErrors(['email' => __($status)]);
@@ -70,6 +75,8 @@ class LoginLinkController extends Controller
 
     private function invalid(): RedirectResponse
     {
+        Log::warning('Login link was invalid or had expired');
+
         return redirect()->route('login-link.request')->withErrors(['email' => __('This login link is invalid or has expired.')]);
     }
 }

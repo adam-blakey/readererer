@@ -6,6 +6,7 @@ use App\Http\Requests\UpdateFeatureFlagsRequest;
 use App\Models\Ensemble;
 use App\Settings\GeneralSettings;
 use App\Support\FeatureFlag;
+use Illuminate\Support\Facades\Log;
 use Laravel\Pennant\Feature;
 
 class FeatureFlagController extends Controller
@@ -29,6 +30,8 @@ class FeatureFlagController extends Controller
             'from_version' => $request->validated("flags.$class.from_version"),
         ])->all();
         $settings->save();
+
+        Log::info('Feature flags saved', ['enabled' => array_keys(array_filter($settings->feature_flags, fn (array $flag) => $flag['enabled']))]);
 
         return redirect()->route('feature-flags.edit')->with('status', __('Feature flags saved.'));
     }

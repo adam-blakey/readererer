@@ -58,7 +58,7 @@ class EmailDispatcher
                 Log::warning('Failed to send notification email to a recipient.', [
                     'email_log_id' => $log->id,
                     'mailable' => $sample::class,
-                    'recipient' => $recipient->email,
+                    'user_id' => $recipient->id,
                     'error' => $error,
                 ]);
             }

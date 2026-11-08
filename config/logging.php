@@ -1,5 +1,7 @@
 <?php
 
+use App\Logging\NightwatchRedaction;
+use Laravel\Nightwatch\Factories\Logger;
 use Monolog\Formatter\JsonFormatter;
 use Monolog\Handler\NullHandler;
 use Monolog\Handler\StreamHandler;
@@ -130,6 +132,13 @@ return [
         'null' => [
             'driver' => 'monolog',
             'handler' => NullHandler::class,
+        ],
+
+        'nightwatch' => [
+            'driver' => 'custom',
+            'via' => Logger::class,
+            'level' => env('NIGHTWATCH_LOG_LEVEL', env('LOG_LEVEL', 'debug')),
+            'tap' => [NightwatchRedaction::class],
         ],
 
         'emergency' => [

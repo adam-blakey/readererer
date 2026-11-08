@@ -4,8 +4,10 @@ namespace App\Http\Controllers;
 
 use App\Services\PollererImporter;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Validation\ValidationException;
+use Throwable;
 
 class PollererImportController extends Controller
 {
@@ -51,6 +53,11 @@ class PollererImportController extends Controller
         try {
             $export = PollererImporter::parse(Storage::disk('local')->get($pending['path']));
             $summary = (new PollererImporter($export, $request->user(), $request->boolean('keep_clock_times')))->import();
+            Log::info('Pollererer import finished', ['counts' => $summary['counts'], 'warnings' => count($summary['warnings'])]);
+        } catch (Throwable $e) {
+            Log::error('Pollererer import failed', ['exception' => $e::class]);
+
+            throw $e;
         } finally {
             $this->forgetPendingImport($request);
         }

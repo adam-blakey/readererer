@@ -4,18 +4,25 @@ namespace App\Providers;
 
 use App\Contracts\EmailSender;
 use App\Enums\UserRole;
+use App\Logging\NightwatchRedaction;
 use App\Models\User;
 use App\Services\EmailSenders\LogEmailSender;
 use App\Services\EmailSenders\SmtpEmailSender;
 use App\Settings\GeneralSettings;
 use App\Translation\TerminologyLoader;
 use Barryvdh\Debugbar\Facades\Debugbar;
+use Illuminate\Auth\Events\Failed;
+use Illuminate\Auth\Events\Lockout;
+use Illuminate\Auth\Events\Login;
+use Illuminate\Auth\Events\PasswordReset;
 use Illuminate\Contracts\Translation\Loader;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Foundation\AliasLoader;
 use Illuminate\Pagination\Paginator;
 use Illuminate\Support\Facades\Context;
+use Illuminate\Support\Facades\Event;
 use Illuminate\Support\Facades\Gate;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\URL;
 use Illuminate\Support\ServiceProvider;
 use Laravel\Nightwatch\Core as Nightwatch;
@@ -43,11 +50,23 @@ class AppServiceProvider extends ServiceProvider
     {
         GeneralSettings::applyToConfig();
 
+        $nightwatch = $this->app->make(Nightwatch::class);
+
         if (! config('app.readererer_analytics')) {
             // Nightwatch reads its config before the settings are applied, so the opt-out samples nothing instead.
-            $nightwatch = $this->app->make(Nightwatch::class);
             $nightwatch->config['sampling'] = array_fill_keys(array_keys($nightwatch->config['sampling']), 0.0);
         }
+
+        $nightwatch->user(NightwatchRedaction::user(...));
+        $nightwatch->redactRequests(NightwatchRedaction::request(...));
+        $nightwatch->redactOutgoingRequests(NightwatchRedaction::outgoingRequest(...));
+        $nightwatch->redactCommands(NightwatchRedaction::command(...));
+        $nightwatch->redactExceptions(NightwatchRedaction::exception(...));
+
+        Event::listen(Login::class, fn (Login $event) => Log::info('User logged in', ['user_id' => $event->user->getAuthIdentifier(), 'remember' => $event->remember]));
+        Event::listen(Failed::class, fn (Failed $event) => Log::warning('Login failed', ['user_id' => $event->user?->getAuthIdentifier()]));
+        Event::listen(Lockout::class, fn () => Log::warning('Login locked out after too many attempts'));
+        Event::listen(PasswordReset::class, fn (PasswordReset $event) => Log::info('Password reset', ['user_id' => $event->user->getAuthIdentifier()]));
 
         Feature::discover();
 
