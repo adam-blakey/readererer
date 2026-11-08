@@ -546,9 +546,9 @@ test('the user edit form saves contact details, date of birth and permissions', 
 test('the users index lists ensembles and filters by ensemble', function () {
     $strings = Ensemble::factory()->create(['name' => 'String Orchestra']);
     $winds = Ensemble::factory()->create(['name' => 'Wind Band']);
-    User::factory()->create(['first_name' => 'Violet'])->ensembles()->attach($strings);
-    User::factory()->create(['first_name' => 'Oboe'])->ensembles()->attach($winds);
-    User::factory()->create(['first_name' => 'Loner']);
+    User::factory()->create(['first_name' => 'Violist1'])->ensembles()->attach($strings);
+    User::factory()->create(['first_name' => 'Oboist1'])->ensembles()->attach($winds);
+    User::factory()->create(['first_name' => 'Loner1']);
     $admin = make_user(UserRole::Admin);
     $admin->ensembles()->attach($strings);
     $this->actingAs($admin);
@@ -558,20 +558,20 @@ test('the users index lists ensembles and filters by ensemble', function () {
         ->assertSee(__('All ensembles'))
         ->assertSee(__('Select all'))
         ->assertSee(__('No ensemble'))
-        ->assertSee(['Violet', 'Oboe', 'Loner']);
+        ->assertSee(['Violist1', 'Oboist1', 'Loner1']);
 
     $this->get(route('users.index', ['ensembles' => [$strings->id]]))
-        ->assertSee('Violet')->assertDontSee('Oboe')->assertDontSee('Loner');
+        ->assertSee('Violist1')->assertDontSee('Oboist1')->assertDontSee('Loner1');
 
     $this->get(route('users.index', ['ensembles' => ['none']]))
-        ->assertSee('Loner')->assertDontSee('Violet')->assertDontSee('Oboe');
+        ->assertSee('Loner1')->assertDontSee('Violist1')->assertDontSee('Oboist1');
 
     $this->get(route('users.index', ['ensembles' => [$winds->id, 'none']]))
-        ->assertSee(['Oboe', 'Loner'])->assertDontSee('Violet');
+        ->assertSee(['Oboist1', 'Loner1'])->assertDontSee('Violist1');
 
     $this->get(route('users.index', ['ensembles' => [$strings->id, $winds->id, 'none']]))
-        ->assertSee(['Violet', 'Oboe', 'Loner']);
+        ->assertSee(['Violist1', 'Oboist1', 'Loner1']);
 
     $this->get(route('users.index', ['ensembles' => ['junk']]))
-        ->assertSee(['Violet', 'Oboe', 'Loner']);
+        ->assertSee(['Violist1', 'Oboist1', 'Loner1']);
 });
