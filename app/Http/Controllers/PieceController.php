@@ -2,8 +2,6 @@
 
 namespace App\Http\Controllers;
 
-use App\Http\Requests\StorePieceRequest;
-use App\Http\Requests\UpdatePieceRequest;
 use App\Models\Piece;
 
 class PieceController extends Controller
@@ -16,11 +14,7 @@ class PieceController extends Controller
     public function index()
     {
         $query = Piece::query();
-        if (request('with_trashed')) {
-            $query = $query->withTrashed();
-        } else {
-            $query = $query->whereNull('deleted_at');
-        }
+        $query->when(request('with_trashed'), fn ($query) => $query->withTrashed());
         $pieces = $query->with(['composer'])->autosort()->paginate(10)->appends(request()->only('with_trashed'));
 
         return view('auto-entities.index', [
@@ -30,10 +24,6 @@ class PieceController extends Controller
         ]);
     }
 
-    public function create() {}
-
-    public function store(StorePieceRequest $request) {}
-
     public function show(Piece $piece)
     {
         return view('pieces.show', [
@@ -41,10 +31,6 @@ class PieceController extends Controller
             'page_name' => $piece->title,
         ]);
     }
-
-    public function edit(Piece $piece) {}
-
-    public function update(UpdatePieceRequest $request, Piece $piece) {}
 
     public function destroy(Piece $piece)
     {

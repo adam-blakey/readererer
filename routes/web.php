@@ -79,7 +79,7 @@ Route::middleware('auth')->group(function () {
     Route::post('/settings/import', [PollererImportController::class, 'store'])->name('settings.import.store')->can('edit.settings');
 
     Route::patch('/composers/{id}/restore', [ComposerController::class, 'restore'])->name('composers.restore');
-    Route::resource('composers', ComposerController::class);
+    Route::resource('composers', ComposerController::class)->only(['index', 'destroy']);
 
     Route::patch('/ensembles/{id}/restore', [EnsembleController::class, 'restore'])->name('ensembles.restore');
     Route::resource('ensembles', EnsembleController::class);
@@ -98,10 +98,10 @@ Route::middleware('auth')->group(function () {
     Route::resource('locations', LocationController::class);
 
     Route::patch('/pieces/{id}/restore', [PieceController::class, 'restore'])->name('pieces.restore');
-    Route::resource('pieces', PieceController::class);
+    Route::resource('pieces', PieceController::class)->only(['index', 'show', 'destroy']);
 
     Route::patch('/setlists/{id}/restore', [SetlistController::class, 'restore'])->name('setlists.restore');
-    Route::resource('setlists', SetlistController::class);
+    Route::resource('setlists', SetlistController::class)->only(['index', 'destroy']);
 
     Route::patch('/setup-groups/{id}/restore', [SetupGroupController::class, 'restore'])->name('setupgroups.restore');
     Route::resource('setup-groups', SetupGroupController::class)

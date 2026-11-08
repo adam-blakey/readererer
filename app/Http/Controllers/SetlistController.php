@@ -2,8 +2,6 @@
 
 namespace App\Http\Controllers;
 
-use App\Http\Requests\StoreSetlistRequest;
-use App\Http\Requests\UpdateSetlistRequest;
 use App\Models\Setlist;
 
 class SetlistController extends Controller
@@ -16,11 +14,7 @@ class SetlistController extends Controller
     public function index()
     {
         $query = Setlist::query();
-        if (request('with_trashed')) {
-            $query = $query->withTrashed();
-        } else {
-            $query = $query->whereNull('deleted_at');
-        }
+        $query->when(request('with_trashed'), fn ($query) => $query->withTrashed());
         $setlists = $query->autosort()->paginate(10)->appends(request()->only('with_trashed'));
 
         return view('auto-entities.index', [
@@ -29,16 +23,6 @@ class SetlistController extends Controller
             'page_subname' => __('Setlist overview'),
         ]);
     }
-
-    public function create() {}
-
-    public function store(StoreSetlistRequest $request) {}
-
-    public function show(Setlist $setlist) {}
-
-    public function edit(Setlist $setlist) {}
-
-    public function update(UpdateSetlistRequest $request, Setlist $setlist) {}
 
     public function destroy(Setlist $setlist)
     {
