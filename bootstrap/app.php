@@ -10,6 +10,7 @@ use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
 use Illuminate\Foundation\Http\Middleware\PreventRequestForgery as FrameworkPreventRequestForgery;
 use Illuminate\Http\Request;
+use Illuminate\Validation\ValidationException;
 use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
 
 return Application::configure(basePath: dirname(__DIR__))
@@ -27,6 +28,12 @@ return Application::configure(basePath: dirname(__DIR__))
         $middleware->redirectGuestsTo(fn (Request $request) => login_url($request));
     })
     ->withExceptions(function (Exceptions $exceptions) {
+        $exceptions->report(function (Throwable $e) {
+            record_analytics('exception', ['exception.type' => $e::class, 'http.route' => app()->runningInConsole() ? null : analytics_route()], true);
+        });
+        $exceptions->render(function (ValidationException $e, Request $request) {
+            record_analytics('validation', ['http.route' => analytics_route($request), 'fields' => implode(',', array_keys($e->errors()))], true);
+        });
         $exceptions->render(function (AccessDeniedHttpException $e, Request $request) {
             if (! $request->user() && $request->isMethod('GET') && ! $request->expectsJson()) {
                 return redirect(login_url($request));

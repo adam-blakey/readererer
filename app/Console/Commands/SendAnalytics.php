@@ -63,18 +63,18 @@ class SendAnalytics extends Command
             ])],
             'scopeLogs' => [[
                 'scope' => ['name' => 'readererer.analytics'],
-                'logRecords' => $batch->map(fn ($event) => [
-                    'timeUnixNano' => strtotime($event->created_at).'000000000',
-                    'severityNumber' => 9,
-                    'severityText' => 'INFO',
-                    'body' => ['stringValue' => 'request'],
-                    'attributes' => $this->attributes([
-                        'http.request.method' => $event->method,
-                        'http.route' => $event->route,
-                        'http.response.status_code' => (int) $event->status,
-                        'duration_ms' => $event->duration_ms === null ? null : (int) $event->duration_ms,
-                    ]),
-                ])->all(),
+                'logRecords' => $batch->map(function ($event) {
+                    $attributes = json_decode($event->attributes, true);
+                    $failed = ($attributes['outcome'] ?? null) === 'failure';
+
+                    return [
+                        'timeUnixNano' => strtotime($event->created_at).'000000000',
+                        'severityNumber' => $failed ? 17 : 9,
+                        'severityText' => $failed ? 'ERROR' : 'INFO',
+                        'body' => ['stringValue' => $event->name],
+                        'attributes' => $this->attributes($attributes),
+                    ];
+                })->all(),
             ]],
         ]]];
     }

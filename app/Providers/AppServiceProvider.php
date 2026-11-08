@@ -10,11 +10,16 @@ use App\Services\EmailSenders\SmtpEmailSender;
 use App\Settings\GeneralSettings;
 use App\Translation\TerminologyLoader;
 use Barryvdh\Debugbar\Facades\Debugbar;
+use Illuminate\Auth\Events\Failed;
+use Illuminate\Auth\Events\Lockout;
+use Illuminate\Auth\Events\Login;
+use Illuminate\Auth\Events\PasswordReset;
 use Illuminate\Contracts\Translation\Loader;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Foundation\AliasLoader;
 use Illuminate\Pagination\Paginator;
 use Illuminate\Support\Facades\Context;
+use Illuminate\Support\Facades\Event;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\URL;
 use Illuminate\Support\ServiceProvider;
@@ -51,6 +56,11 @@ class AppServiceProvider extends ServiceProvider
         Context::add('site', parse_url((string) config('app.url'), PHP_URL_HOST));
 
         Paginator::defaultView('pagination::default');
+
+        Event::listen(Login::class, fn () => record_analytics('login', ['http.route' => analytics_route()]));
+        Event::listen(Failed::class, fn () => record_analytics('login', ['http.route' => analytics_route()], true));
+        Event::listen(Lockout::class, fn () => record_analytics('login.lockout', [], true));
+        Event::listen(PasswordReset::class, fn () => record_analytics('password.reset'));
 
         Gate::define('view.dashboard', function (User $user) {
             return true;
