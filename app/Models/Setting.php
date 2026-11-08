@@ -19,6 +19,7 @@ class Setting extends Model
         'assume_attending' => ['app.readererer_assume_attending'],
         'allow_change_to_unknown' => ['app.readererer_allow_change_to_unknown'],
         'repeating_headings' => ['app.readererer_repeating_headings'],
+        'depping' => ['app.readererer_depping'],
         'image_max_kilobytes' => ['app.readererer_image_max_kilobytes'],
         'terminology' => ['app.readererer_terminology'],
         'shown_user_fields' => ['app.readererer_shown_user_fields'],

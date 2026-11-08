@@ -388,3 +388,68 @@ test('the poll names the term\'s location and marks dates held elsewhere with a 
 
     expect(substr_count($html, '<strong>*</strong>'))->toBe(2); // the legend and the away date's heading
 });
+
+test('with depping on, a member can send a dep and name them', function () {
+    config(['app.readererer_depping' => true]);
+
+    $ensemble = Ensemble::factory()->create();
+    $term = Term::factory()->create();
+    $termDate = TermDate::forceCreate([
+        'term_id' => $term->id,
+        'start_datetime' => now()->addWeek(),
+        'end_datetime' => now()->addWeek()->addHours(2),
+    ]);
+    $member = make_user(UserRole::Member);
+    join_ensemble($member, $ensemble);
+
+    $this->actingAs($member)->post(route('attendance.poll.store', ['ensemble' => $ensemble->slug, 'term' => $term->slug]), [
+        "status-t{$termDate->id}m{$member->id}" => AttendanceStatus::Depping->value,
+        "dep-t{$termDate->id}m{$member->id}" => 'Jane Dep',
+    ])->assertRedirect();
+
+    expect(Attendance::sole())
+        ->status->toBe(AttendanceStatus::Depping)
+        ->dep_name->toBe('Jane Dep')
+        ->status_text->toBe('Sending a dep: Jane Dep');
+
+    $this->get(route('attendance.poll.show', ['ensemble' => $ensemble->slug, 'term' => $term->slug]))
+        ->assertOk()
+        ->assertSee('data-original-value="3"', false)
+        ->assertSee('value="Jane Dep"', false);
+
+    $this->post(route('attendance.poll.store', ['ensemble' => $ensemble->slug, 'term' => $term->slug]), [
+        "status-t{$termDate->id}m{$member->id}" => AttendanceStatus::Attending->value,
+        "dep-t{$termDate->id}m{$member->id}" => 'Jane Dep',
+    ]);
+
+    expect(Attendance::latest('id')->first()->dep_name)->toBeNull();
+});
+
+test('with depping off, a dep reply is ignored and earlier deps show as attending', function () {
+    config(['app.readererer_depping' => false]);
+
+    $ensemble = Ensemble::factory()->create();
+    $term = Term::factory()->create();
+    $termDate = TermDate::forceCreate([
+        'term_id' => $term->id,
+        'start_datetime' => now()->addWeek(),
+        'end_datetime' => now()->addWeek()->addHours(2),
+    ]);
+    $member = make_user(UserRole::Member);
+    join_ensemble($member, $ensemble);
+
+    $this->actingAs($member)->post(route('attendance.poll.store', ['ensemble' => $ensemble->slug, 'term' => $term->slug]), [
+        "status-t{$termDate->id}m{$member->id}" => AttendanceStatus::Depping->value,
+    ])->assertRedirect();
+
+    expect(Attendance::count())->toBe(0);
+
+    Attendance::create(['user_id' => $member->id, 'term_date_id' => $termDate->id, 'ensemble_id' => $ensemble->id, 'status' => AttendanceStatus::Depping, 'dep_name' => 'Jane Dep', 'edit_user_id' => $member->id, 'edit_ip' => '127.0.0.1']);
+
+    expect(Attendance::sole()->status_text)->toBe('Attending');
+
+    $this->get(route('attendance.poll.show', ['ensemble' => $ensemble->slug, 'term' => $term->slug]))
+        ->assertOk()
+        ->assertDontSee('dep-name', false)
+        ->assertSee('data-original-value="1"', false);
+});

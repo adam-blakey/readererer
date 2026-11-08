@@ -90,6 +90,7 @@ class AttendanceController extends Controller
             $status = is_numeric($value) ? AttendanceStatus::tryFrom((int) $value) : null;
 
             if ($status === null
+                || ($status === AttendanceStatus::Depping && ! config('app.readererer_depping'))
                 || ! preg_match('/^status-t(\d+)m(\d+)$/', $key, $ids)
                 || ! $term_dates->has((int) $ids[1])
                 || ! $members->has((int) $ids[2])
@@ -99,6 +100,8 @@ class AttendanceController extends Controller
 
             $term_date = $term_dates[(int) $ids[1]];
             $member = $members[(int) $ids[2]];
+            $dep_name = $request->input("dep-t{$ids[1]}m{$ids[2]}");
+            $dep_name = $status === AttendanceStatus::Depping && is_string($dep_name) ? mb_substr($dep_name, 0, 255) : null;
 
             if ($this->sendsFollowUps($term_date)) {
                 $previous = $this->effectiveStatus(Attendance::where([
@@ -117,6 +120,7 @@ class AttendanceController extends Controller
                 'term_date_id' => $term_date->id,
                 'ensemble_id' => $ensemble->id,
                 'status' => $status,
+                'dep_name' => $dep_name,
                 'edit_user_id' => Auth::id(),
                 'edit_ip' => $request->ip(),
             ]);
@@ -143,8 +147,6 @@ class AttendanceController extends Controller
 
     private function effectiveStatus(?AttendanceStatus $status): AttendanceStatus
     {
-        $status ??= AttendanceStatus::Unknown;
-
-        return $status === AttendanceStatus::Unknown && config('app.readererer_assume_attending') ? AttendanceStatus::Attending : $status;
+        return ($status ?? AttendanceStatus::Unknown)->displayed();
     }
 }

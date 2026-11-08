@@ -37,7 +37,7 @@ class SettingController extends Controller
             Setting::put('google_client_secret', $request->validated('google_client_secret'));
         }
 
-        foreach (['assume_attending', 'allow_change_to_unknown', 'repeating_headings', 'setup_groups', 'van_drivers', 'single_ensemble', 'log_emails', 'google_login'] as $key) {
+        foreach (['assume_attending', 'allow_change_to_unknown', 'repeating_headings', 'depping', 'setup_groups', 'van_drivers', 'single_ensemble', 'log_emails', 'google_login'] as $key) {
             Setting::put($key, $request->boolean($key));
         }
 

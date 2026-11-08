@@ -113,6 +113,7 @@
 					@php
 						$setup_group = ($term_date->setup_group && $self->setup_group && $term_date->setup_group->id == $self->setup_group->id) ? $self->setup_group : null;
 						$is_van_driver = $van_driver_ids->get($term_date->id) === $self->id;
+						$attendance = $self->latestAttendanceFor($term_date, $ensemble);
 					@endphp
 					<tr>
 						<td class="{{ $term_date->concert_ensembles->contains($ensemble) ? 'bg-primary-subtle' : '' }}">
@@ -131,7 +132,7 @@
 							@endif
 						</td>
 						<td class="w-1 text-center {{ $term_date->concert_ensembles->contains($ensemble) ? 'bg-primary-subtle' : '' }}">
-							<x-forms.input-three-state-checkbox :$allow_change_to_unknown :$assume_attending :member_id="$self->id" :status="$self->latestAttendanceFor($term_date, $ensemble)?->status ?? App\Enums\AttendanceStatus::Unknown" :term_date_id="$term_date->id" :$setup_group :$is_van_driver :locked="$locked_ids->contains($term_date->id)" />
+							<x-forms.input-three-state-checkbox :$allow_change_to_unknown :$assume_attending :member_id="$self->id" :status="$attendance?->status ?? App\Enums\AttendanceStatus::Unknown" :dep_name="$attendance?->dep_name" :term_date_id="$term_date->id" :$setup_group :$is_van_driver :locked="$locked_ids->contains($term_date->id)" />
 						</td>
 					</tr>
 				@endforeach
@@ -183,7 +184,8 @@
 						@foreach ($term_dates as $term_date)
                             <td class="w-1 {{ $term_date->concert_ensembles->contains($ensemble) ? 'bg-primary-subtle' : '' }}">
 								@php
-									$attendance_value = $member->latestAttendanceFor($term_date, $ensemble)?->status ?? App\Enums\AttendanceStatus::Unknown;
+									$attendance = $member->latestAttendanceFor($term_date, $ensemble);
+									$attendance_value = $attendance?->status ?? App\Enums\AttendanceStatus::Unknown;
 
                                     if ($term_date->setup_group != null && $member->setup_group != null)
                                     {
@@ -196,7 +198,7 @@
 
                                     $is_van_driver = $van_driver_ids->get($term_date->id) === $member->id;
 								@endphp
-								<x-forms.input-three-state-checkbox :$allow_change_to_unknown :$assume_attending :member_id="$member->id" :status="$attendance_value" :term_date_id="$term_date->id" :$setup_group :$is_van_driver :locked="$locked_ids->contains($term_date->id)" />
+								<x-forms.input-three-state-checkbox :$allow_change_to_unknown :$assume_attending :member_id="$member->id" :status="$attendance_value" :dep_name="$attendance?->dep_name" :term_date_id="$term_date->id" :$setup_group :$is_van_driver :locked="$locked_ids->contains($term_date->id)" />
 							</td>
 						@endforeach
 					</tr>

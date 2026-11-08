@@ -11,6 +11,7 @@
 			'assume_attending' => [__('Assume members are attending'), __('Members who have not replied to a poll count as attending.')],
 			'allow_change_to_unknown' => [__('Allow changing a reply back to unknown'), __('Lets members clear their poll reply once they have given one.')],
 			'repeating_headings' => [__('Repeat headings in polls'), __('Groups the poll by section, repeating the date headings above each group.')],
+			'depping' => [__('Allow sending a dep'), __('Adds a fourth poll reply for members sending someone in their place, with the name of who is coming. A dep counts as attending.')],
 		],
 		__('Features') => [
 			'setup_groups' => [__('Use setup groups'), __('Shows setup groups, their badges and setup reminders. Turning this off hides them but keeps their data.')],
@@ -60,7 +61,7 @@
 			@method('PUT')
 
 			<fieldset class="card-body" @disabled(! $can_edit)>
-				<x-forms.error-summary :fields="['name', 'logo', 'remove_logo', 'favicon', 'remove_favicon', 'primary_color', 'image_max_kilobytes', 'assume_attending', 'allow_change_to_unknown', 'repeating_headings', 'setup_groups', 'van_drivers', 'single_ensemble', 'reminder_hours', 'after_reminders', 'log_emails', 'terminology', 'terminology.*', 'shown_user_fields', 'shown_user_fields.*', 'google_login', 'google_client_id', 'google_client_secret', 'google_register_domain', 'google_register_role']" />
+				<x-forms.error-summary :fields="['name', 'logo', 'remove_logo', 'favicon', 'remove_favicon', 'primary_color', 'image_max_kilobytes', 'assume_attending', 'allow_change_to_unknown', 'repeating_headings', 'depping', 'setup_groups', 'van_drivers', 'single_ensemble', 'reminder_hours', 'after_reminders', 'log_emails', 'terminology', 'terminology.*', 'shown_user_fields', 'shown_user_fields.*', 'google_login', 'google_client_id', 'google_client_secret', 'google_register_domain', 'google_register_role']" />
 				@if (session('status'))
 					<div class="alert alert-success" role="alert">{{ session('status') }}</div>
 				@endif

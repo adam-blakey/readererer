@@ -58,7 +58,9 @@ history, and totals use the latest reply for each member.
   attending, not-attending and unknown totals per date. The register records actual
   attendance on the day (present, absent or late) for each member, date and ensemble.
   Poll behaviour is set by the config keys `readererer_assume_attending`,
-  `readererer_allow_change_to_unknown` and `readererer_repeating_headings`.
+  `readererer_allow_change_to_unknown`, `readererer_repeating_headings` and
+  `readererer_depping`, which adds a fourth reply for a member sending a dep, with
+  the dep's name.
 - **Settings**: admins can change the site name, logo, poll options, image upload
   limit and the words used for rehearsals, concerts, ensembles, terms, members, setup
   groups and van drivers. Saved settings override the `.env` values, which stay as the

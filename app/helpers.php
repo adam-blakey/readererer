@@ -116,6 +116,7 @@ function member_status_totals($members, $term_date, ?Ensemble $ensemble = null):
 
         switch ($attendance_value) {
             case AttendanceStatus::Attending:
+            case AttendanceStatus::Depping:
                 $number_attending++;
                 break;
             case AttendanceStatus::NotAttending:

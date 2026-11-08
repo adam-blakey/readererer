@@ -1,13 +1,19 @@
-@props(['status', 'ensemble_id', 'term_date_id', 'member_id', 'assume_attending', 'allow_change_to_unknown', 'setup_group', 'is_van_driver', 'locked' => false])
+@props(['status', 'ensemble_id', 'term_date_id', 'member_id', 'assume_attending', 'allow_change_to_unknown', 'setup_group', 'is_van_driver', 'locked' => false, 'dep_name' => null])
 
 @php
 	$input_id = 'status-t' . $term_date_id . 'm' . $member_id;
+	$dep_input_id = 'dep-t' . $term_date_id . 'm' . $member_id;
+	$depping = config('app.readererer_depping');
 
-	$display_status = ($assume_attending and $status == App\Enums\AttendanceStatus::Unknown) ? App\Enums\AttendanceStatus::Attending : $status;
+	$display_status = $status->displayed();
+	$is_depping = $display_status === App\Enums\AttendanceStatus::Depping;
 @endphp
 
-<button class="form-check-input three-state-checkbox" data-allow-change-to-unknown="{{ $allow_change_to_unknown }}" data-assume-attending="{{ $assume_attending }}" data-original-value="{{ $display_status }}" data-input-id="{{ $input_id }}" type="button" @disabled($locked)>
+<button class="form-check-input three-state-checkbox" data-allow-change-to-unknown="{{ $allow_change_to_unknown }}" data-assume-attending="{{ $assume_attending }}" data-depping="{{ $depping }}" data-original-value="{{ $display_status }}" data-input-id="{{ $input_id }}" type="button" title="{{ $is_depping && $dep_name ? __('Sending a dep: :name', ['name' => $dep_name]) : '' }}" @disabled($locked)>
     @if ($setup_group != null)
         <x-setup-group-badge :$setup_group show_as_dot="false" show_with_van="{{ $is_van_driver }}" />
     @endif
 </button>
+@if ($depping)
+	<input @class(['form-control form-control-sm mt-1 dep-name', 'd-none' => ! $is_depping]) aria-label="{{ __('Name of your dep') }}" data-for="{{ $input_id }}" maxlength="255" name="{{ $dep_input_id }}" placeholder="{{ __('Dep\'s name') }}" size="8" type="text" value="{{ $is_depping ? $dep_name : '' }}" @disabled($locked)>
+@endif

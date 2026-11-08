@@ -7,6 +7,17 @@ enum AttendanceStatus: int
     case Unknown = 0;
     case Attending = 1;
     case NotAttending = 2;
+    case Depping = 3;
+
+    /** How the poll shows the status: an unanswered poll may count as attending, and a dep counts as attending while depping is off. */
+    public function displayed(): self
+    {
+        return match (true) {
+            $this === self::Unknown && config('app.readererer_assume_attending') => self::Attending,
+            $this === self::Depping && ! config('app.readererer_depping') => self::Attending,
+            default => $this,
+        };
+    }
 
     public function label(): string
     {
@@ -14,6 +25,7 @@ enum AttendanceStatus: int
             self::Unknown => __('Unknown'),
             self::Attending => __('Attending'),
             self::NotAttending => __('Not attending'),
+            self::Depping => __('Sending a dep'),
         };
     }
 }
