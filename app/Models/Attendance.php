@@ -68,10 +68,6 @@ class Attendance extends Model
 
     public function getStatusTextAttribute(): string
     {
-        $assume_attending = config('app.readererer_assume_attending');
-
-        $display_status = ($assume_attending and $this->status == AttendanceStatus::Unknown) ? AttendanceStatus::Attending : $this->status;
-
-        return $display_status->label();
+        return $this->status->effective()->label();
     }
 }

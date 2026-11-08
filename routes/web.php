@@ -43,7 +43,7 @@ Route::get('/attendance/poll/{ensemble:slug}/{term:slug}', [AttendanceController
 Route::post('/attendance/poll/{ensemble:slug}/{term:slug}', [AttendanceController::class, 'poll_store'])
     ->withoutScopedBindings()
     ->name('attendance.poll.store')
-    ->can('view', 'ensemble');
+    ->can('create', [Attendance::class, 'ensemble']);
 Route::put('/attendance/poll/view', [AttendanceController::class, 'poll_view'])
     ->name('attendance.poll.view')
     ->middleware('auth');
@@ -58,15 +58,18 @@ Route::get('/attendance/register', [AttendanceRegisterController::class, 'index'
 Route::get('/attendance/register/{ensemble:slug}/{termDate}', [AttendanceRegisterController::class, 'show'])
     ->withoutScopedBindings()
     ->name('attendance.register.show')
-    ->can('viewAny', RegisterEntry::class);
+    ->can('viewAny', RegisterEntry::class)
+    ->can('view', 'ensemble');
 Route::post('/attendance/register/{ensemble:slug}/{termDate}', [AttendanceRegisterController::class, 'store'])
     ->withoutScopedBindings()
     ->name('attendance.register.store')
-    ->can('create', RegisterEntry::class);
+    ->can('create', RegisterEntry::class)
+    ->can('view', 'ensemble');
 
 Route::get('/ensembles/{ensemble}/seating-plan/{termDate}/download', [SeatingPlanController::class, 'download'])
     ->name('ensembles.seating-plan.download')
-    ->withoutScopedBindings();
+    ->withoutScopedBindings()
+    ->can('view', 'ensemble');
 
 Route::middleware('auth')->group(function () {
     Route::get('/notifications', [NotificationController::class, 'index'])
@@ -82,50 +85,50 @@ Route::middleware('auth')->group(function () {
     Route::get('/feature-flags', [FeatureFlagController::class, 'edit'])->name('feature-flags.edit')->can('edit.settings');
     Route::put('/feature-flags', [FeatureFlagController::class, 'update'])->name('feature-flags.update')->can('edit.settings');
 
-    Route::patch('/composers/{id}/restore', [ComposerController::class, 'restore'])->name('composers.restore');
-    Route::resource('composers', ComposerController::class);
+    Route::patch('/composers/{composer}/restore', [ComposerController::class, 'restore'])->name('composers.restore')->withTrashed()->can('restore', 'composer');
+    Route::resource('composers', ComposerController::class)->only(['index', 'destroy']);
 
-    Route::patch('/ensembles/{id}/restore', [EnsembleController::class, 'restore'])->name('ensembles.restore');
+    Route::patch('/ensembles/{ensemble}/restore', [EnsembleController::class, 'restore'])->name('ensembles.restore')->withTrashed()->can('restore', 'ensemble');
     Route::resource('ensembles', EnsembleController::class);
-    Route::get('/ensembles/{ensemble}/members', [EnsembleController::class, 'members'])->name('ensembles.members.index');
-    Route::post('/ensembles/{ensemble}/members', [EnsembleController::class, 'addMember'])->name('ensembles.members.store');
-    Route::delete('/ensembles/{ensemble}/members/{user}', [EnsembleController::class, 'removeMember'])->name('ensembles.members.destroy');
-    Route::get('/ensembles/{ensemble}/seating-plan', [SeatingPlanController::class, 'show'])->name('ensembles.seating-plan.show');
-    Route::put('/ensembles/{ensemble}/seating-plan', [SeatingPlanController::class, 'update'])->name('ensembles.seating-plan.update');
+    Route::get('/ensembles/{ensemble}/members', [EnsembleController::class, 'members'])->name('ensembles.members.index')->can('view', 'ensemble');
+    Route::post('/ensembles/{ensemble}/members', [EnsembleController::class, 'addMember'])->name('ensembles.members.store')->can('update', 'ensemble');
+    Route::delete('/ensembles/{ensemble}/members/{user}', [EnsembleController::class, 'removeMember'])->name('ensembles.members.destroy')->can('update', 'ensemble');
+    Route::get('/ensembles/{ensemble}/seating-plan', [SeatingPlanController::class, 'show'])->name('ensembles.seating-plan.show')->can('update', 'ensemble');
+    Route::put('/ensembles/{ensemble}/seating-plan', [SeatingPlanController::class, 'update'])->name('ensembles.seating-plan.update')->can('update', 'ensemble');
 
-    Route::patch('/instrument-families/{id}/restore', [InstrumentFamilyController::class, 'restore'])->name('instrumentfamilys.restore');
+    Route::patch('/instrument-families/{instrumentFamily}/restore', [InstrumentFamilyController::class, 'restore'])->name('instrumentfamilys.restore')->withTrashed()->can('restore', 'instrumentFamily');
     Route::resource('instrument-families', InstrumentFamilyController::class)
         ->names('instrumentfamilys')
         ->parameter('instrument-families', 'instrumentFamily');
 
-    Route::patch('/locations/{id}/restore', [LocationController::class, 'restore'])->name('locations.restore');
+    Route::patch('/locations/{location}/restore', [LocationController::class, 'restore'])->name('locations.restore')->withTrashed()->can('restore', 'location');
     Route::resource('locations', LocationController::class);
 
-    Route::patch('/pieces/{id}/restore', [PieceController::class, 'restore'])->name('pieces.restore');
-    Route::resource('pieces', PieceController::class);
+    Route::patch('/pieces/{piece}/restore', [PieceController::class, 'restore'])->name('pieces.restore')->withTrashed()->can('restore', 'piece');
+    Route::resource('pieces', PieceController::class)->only(['index', 'show', 'destroy']);
 
-    Route::patch('/setlists/{id}/restore', [SetlistController::class, 'restore'])->name('setlists.restore');
-    Route::resource('setlists', SetlistController::class);
+    Route::patch('/setlists/{setlist}/restore', [SetlistController::class, 'restore'])->name('setlists.restore')->withTrashed()->can('restore', 'setlist');
+    Route::resource('setlists', SetlistController::class)->only(['index', 'destroy']);
 
-    Route::patch('/setup-groups/{id}/restore', [SetupGroupController::class, 'restore'])->name('setupgroups.restore');
+    Route::patch('/setup-groups/{setupGroup}/restore', [SetupGroupController::class, 'restore'])->name('setupgroups.restore')->withTrashed()->can('restore', 'setupGroup');
     Route::resource('setup-groups', SetupGroupController::class)
         ->names('setupgroups')
         ->parameter('setup-groups', 'setupGroup');
 
-    Route::patch('/terms/{id}/restore', [TermController::class, 'restore'])->name('terms.restore');
+    Route::patch('/terms/{term}/restore', [TermController::class, 'restore'])->name('terms.restore')->withTrashed()->can('restore', 'term');
     Route::resource('terms', TermController::class);
 
-    Route::post('/term-dates/{termDate}/send-attendance-list', [TermDateNotificationController::class, 'sendAttendanceList'])->name('term-dates.send-attendance-list');
-    Route::post('/term-dates/{termDate}/send-setup-reminder', [TermDateNotificationController::class, 'sendSetupReminder'])->name('term-dates.send-setup-reminder');
-    Route::post('/term-dates/{termDate}/send-van-driver-reminder', [TermDateNotificationController::class, 'sendVanDriverReminder'])->name('term-dates.send-van-driver-reminder');
+    Route::post('/term-dates/{termDate}/send-attendance-list', [TermDateNotificationController::class, 'sendAttendanceList'])->name('term-dates.send-attendance-list')->can('sendNotifications', 'termDate');
+    Route::post('/term-dates/{termDate}/send-setup-reminder', [TermDateNotificationController::class, 'sendSetupReminder'])->name('term-dates.send-setup-reminder')->can('sendNotifications', 'termDate');
+    Route::post('/term-dates/{termDate}/send-van-driver-reminder', [TermDateNotificationController::class, 'sendVanDriverReminder'])->name('term-dates.send-van-driver-reminder')->can('sendNotifications', 'termDate');
 
-    Route::patch('/users/{id}/restore', [UserController::class, 'restore'])->name('users.restore');
+    Route::patch('/users/{user}/restore', [UserController::class, 'restore'])->name('users.restore')->withTrashed()->can('restore', 'user');
     Route::resource('users', UserController::class)->withTrashed(['show']);
-    Route::delete('/users/{user}/erase', [UserController::class, 'erase'])->name('users.erase')->withTrashed();
-    Route::post('/users/{user}/password-reset-link', [UserController::class, 'sendPasswordResetLink'])->name('users.password-reset-link');
-    Route::put('/users/{user}/password', [UserController::class, 'setPassword'])->name('users.password');
-    Route::post('/users/{user}/ensembles', [UserController::class, 'attachEnsemble'])->name('users.ensembles.store');
-    Route::delete('/users/{user}/ensembles/{ensemble}', [UserController::class, 'detachEnsemble'])->name('users.ensembles.destroy');
+    Route::delete('/users/{user}/erase', [UserController::class, 'erase'])->name('users.erase')->withTrashed()->can('erase', 'user');
+    Route::post('/users/{user}/password-reset-link', [UserController::class, 'sendPasswordResetLink'])->name('users.password-reset-link')->can('resetPassword', 'user');
+    Route::put('/users/{user}/password', [UserController::class, 'setPassword'])->name('users.password')->can('resetPassword', 'user');
+    Route::post('/users/{user}/ensembles', [UserController::class, 'attachEnsemble'])->name('users.ensembles.store')->can('manage', 'user');
+    Route::delete('/users/{user}/ensembles/{ensemble}', [UserController::class, 'detachEnsemble'])->name('users.ensembles.destroy')->can('manage', 'user');
 });
 
 require __DIR__.'/auth.php';

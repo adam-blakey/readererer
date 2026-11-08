@@ -16,8 +16,6 @@ class TermDateNotificationController extends Controller
     /** Email the attendance list to the concert ensemble's admins, or every ensemble's admins for a rehearsal. */
     public function sendAttendanceList(TermDate $termDate): RedirectResponse
     {
-        $this->authorize('sendNotifications', $termDate);
-
         $recipients = $termDate->attendanceListRecipients();
 
         if ($recipients->isEmpty()) {
@@ -32,7 +30,6 @@ class TermDateNotificationController extends Controller
     /** Email a setup reminder to the members and van drivers of the date's setup group. */
     public function sendSetupReminder(TermDate $termDate): RedirectResponse
     {
-        $this->authorize('sendNotifications', $termDate);
         abort_unless(config('app.readererer_setup_groups'), 404);
 
         $setupGroup = $termDate->setup_group;
@@ -55,7 +52,6 @@ class TermDateNotificationController extends Controller
     /** Email the date's van driver: the one assigned, or inferred from the setup group's rotation. */
     public function sendVanDriverReminder(TermDate $termDate): RedirectResponse
     {
-        $this->authorize('sendNotifications', $termDate);
         abort_unless(config('app.readererer_van_drivers'), 404);
 
         $driver = $termDate->inferred_van_driver;
