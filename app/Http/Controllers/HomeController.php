@@ -11,7 +11,7 @@ class HomeController extends Controller
     {
         return view('home', [
             'ensembles' => Ensemble::orderBy('name')->get(),
-            'terms' => Term::current()->with('term_dates')->get()->sortBy('latest_date'),
+            'terms' => Term::current()->visibleTo(auth()->user())->with('term_dates')->get()->sortBy('latest_date'),
             'page_name' => config('app.name'),
         ]);
     }

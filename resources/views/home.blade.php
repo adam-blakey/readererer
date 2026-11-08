@@ -35,7 +35,7 @@
 								@foreach($terms as $term)
 									@if($linked)
 										<a class="list-group-item list-group-item-action d-flex align-items-center justify-content-between" href="{{ route('attendance.poll.show', ['ensemble' => $ensemble, 'term' => $term]) }}">
-											<span class="text-primary">{{ $term->name }}</span>
+											<span class="text-primary">{{ $term->name }}@if ($term->hidden) <span class="badge bg-secondary-lt ms-1">{{ __('Hidden') }}</span>@endif</span>
 											<x-icon name="chevron-right" />
 										</a>
 									@else

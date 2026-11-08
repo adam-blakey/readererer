@@ -113,10 +113,10 @@ class TermDate extends Model
         return ! $this->is_concert || $this->concert_ensembles->contains($ensemble);
     }
 
-    /** When the automatic reminders go out, or null when they are turned off. */
+    /** When the automatic reminders go out, or null when they are turned off. Concerts can have their own lead time. */
     public function remindersDueAt(): ?Carbon
     {
-        $hours = (int) config('app.readererer_reminder_hours');
+        $hours = (int) (($this->is_concert ? config('app.readererer_concert_reminder_hours') : null) ?: config('app.readererer_reminder_hours'));
 
         return $hours > 0 ? $this->start_datetime->copy()->subHours($hours) : null;
     }
@@ -126,12 +126,16 @@ class TermDate extends Model
         return $this->remindersDueAt()?->isPast() ?? false;
     }
 
-    /** Polls lock for everyone below moderator once reminders are due, when the site is set to lock them. */
+    /** Polls lock for everyone below moderator once the date has started, or once reminders are due when the site is set to lock them. */
     public function isLockedFor(User $user): bool
     {
-        return config('app.readererer_after_reminders') === 'lock'
-            && $this->isPastReminderTime()
-            && $user->role->value < UserRole::Moderator->value;
+        return $user->role->value < UserRole::Moderator->value
+            && ($this->start_datetime->isPast() || $this->isLockedByReminders());
+    }
+
+    public function isLockedByReminders(): bool
+    {
+        return config('app.readererer_after_reminders') === 'lock' && $this->isPastReminderTime();
     }
 
     /** The concert ensembles' admins, or every ensemble's admins for a rehearsal. */
