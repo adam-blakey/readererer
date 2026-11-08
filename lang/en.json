@@ -718,7 +718,5 @@
     "Who is coming instead?": "Who is coming instead?",
     "Analytics": "Analytics",
     "Send analytics to Laravel Nightwatch": "Send analytics to Laravel Nightwatch",
-    "Sends page timings, errors and logs to Laravel Nightwatch so the Readererer developers can find problems. Members appear only as an ID, and email and IP addresses are removed. Also needs the site's Nightwatch token.": "Sends page timings, errors and logs to Laravel Nightwatch so the Readererer developers can find problems. Members appear only as an ID, and email and IP addresses are removed. Also needs the site's Nightwatch token.",
-    "Unsaved changes warning": "Unsaved changes warning",
-    "Asks signed-in users to confirm before leaving a page with a form they have changed but not saved, such as a poll.": "Asks signed-in users to confirm before leaving a page with a form they have changed but not saved, such as a poll."
+    "Sends page timings, errors and logs to Laravel Nightwatch so the Readererer developers can find problems. Members appear only as an ID, and email and IP addresses are removed. Also needs the site's Nightwatch token.": "Sends page timings, errors and logs to Laravel Nightwatch so the Readererer developers can find problems. Members appear only as an ID, and email and IP addresses are removed. Also needs the site's Nightwatch token."
 }

@@ -1,11 +1,9 @@
 <?php
 
 use App\Enums\UserRole;
-use App\Features\UnsavedChangesWarning;
 use App\Models\Ensemble;
 use App\Models\InstrumentFamily;
 use App\Models\Term;
-use Laravel\Pennant\Feature;
 
 test('the generic edit form opts into the change check but the create form does not', function () {
     $instrumentFamily = InstrumentFamily::create(['name' => 'Bassoons']);
@@ -68,15 +66,8 @@ test('the attendance poll and register forms opt into the change check', functio
         ->assertSee('data-dirty-check', false);
 });
 
-test('pages warn about unsaved changes only for signed-in users with the flag on', function () {
+test('pages warn about unsaved changes only for signed-in users', function () {
     $this->get(route('login'))->assertOk()->assertDontSee('data-warn-unsaved', false);
-    $this->actingAs(make_user(UserRole::Member))->get(route('dashboard'))->assertOk()->assertDontSee('data-warn-unsaved', false);
-
-    config(['app.readererer_feature_flags' => [UnsavedChangesWarning::class => ['enabled' => true]]]);
-    Feature::flushCache();
 
     $this->actingAs(make_user(UserRole::Member))->get(route('dashboard'))->assertOk()->assertSee('data-warn-unsaved', false);
-
-    auth()->logout();
-    $this->get(route('login'))->assertOk()->assertDontSee('data-warn-unsaved', false);
 });
