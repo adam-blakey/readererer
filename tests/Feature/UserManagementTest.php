@@ -445,6 +445,22 @@ test('moderators cannot grant a role above their own or edit an admin', function
     expect($admin->fresh()->role)->toBe(UserRole::Admin);
 });
 
+test('users cannot change their own role', function (UserRole $role) {
+    $actor = make_user($role);
+
+    $this->actingAs($actor)->get(route('users.edit', $actor))
+        ->assertOk()
+        ->assertDontSee('name="role"', false)
+        ->assertSee('You cannot change your own role.');
+
+    $this->actingAs($actor)
+        ->patch(route('users.update', $actor), ['first_name' => 'A', 'last_name' => 'B', 'email' => 'a@example.com', 'role' => UserRole::Member->value])
+        ->assertRedirect(route('users.show', $actor));
+
+    expect($actor->fresh()->role)->toBe($role)
+        ->and($actor->fresh()->first_name)->toBe('A');
+})->with([UserRole::Admin, UserRole::Moderator]);
+
 test('creating a user retries with a fresh username if the generated one is taken meanwhile', function () {
     $raced = false;
     User::creating(function (User $user) use (&$raced) {

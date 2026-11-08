@@ -65,11 +65,18 @@
 								@can('manage', $user)
 								<div class="mb-3">
 									<label class="form-label required">{{ __('Role') }}</label>
+									@if (auth()->user()->is($user))
+										<select class="form-select" disabled>
+											<option selected>{{ $user->role->label() }}</option>
+										</select>
+										<small class="form-hint">{{ __('You cannot change your own role.') }}</small>
+									@else
 									<select name="role" class="form-select @error('role') is-invalid @enderror" required>
 										@foreach ($roles as $role)
 											<option value="{{ $role->value }}" {{ (int) old('role', $user->role->value) === $role->value ? 'selected' : '' }}>{{ $role->label() }}</option>
 										@endforeach
 									</select>
+									@endif
 									@error('role')
 										<div class="invalid-feedback">{{ $message }}</div>
 									@enderror

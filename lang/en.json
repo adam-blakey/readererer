@@ -313,6 +313,7 @@
     "Reset your password": "Reset your password",
     "Restored.": "Restored.",
     "Role": "Role",
+    "You cannot change your own role.": "You cannot change your own role.",
     "Row :number": "Row :number",
     "Row :row of :table has an invalid :column.": "Row :row of :table has an invalid :column.",
     "Row :row of :table is missing :columns.": "Row :row of :table is missing :columns.",
