@@ -141,7 +141,7 @@
 							</div>
 						</td>
 						<td>
-							<input class="form-control form-control-sm" maxlength="255" name="notes[{{ $member->id }}]" placeholder="{{ __('Optional note') }}" type="text" value="{{ $entry?->notes }}" />
+							<input class="form-control form-control-sm w-100 min-w-16" maxlength="255" name="notes[{{ $member->id }}]" placeholder="{{ __('Optional note') }}" type="text" value="{{ $entry?->notes }}" />
 						</td>
 					</tr>
 				@empty

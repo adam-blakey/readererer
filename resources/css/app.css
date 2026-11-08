@@ -109,6 +109,10 @@
     min-height: 2rem;
 }
 
+.min-w-16 {
+    min-width: 16rem;
+}
+
 .download-menu {
     max-height: 20rem;
     min-width: 20rem;
