@@ -80,7 +80,7 @@ class AttendanceController extends Controller
 
     public function poll_store(Ensemble $ensemble, Term $term, Request $request, EmailDispatcher $dispatcher)
     {
-        $this->authorize('view', $ensemble);
+        $this->authorize('update', new Attendance(['ensemble_id' => $ensemble->id]));
 
         $members = $ensemble->users()->wherePivotNotNull('instrument_family_id')->get()->keyBy('id');
         $term_dates = $term->term_dates->load('concert_ensembles')->filter(fn (TermDate $term_date) => $term_date->appliesToEnsemble($ensemble))->keyBy('id');
@@ -101,13 +101,13 @@ class AttendanceController extends Controller
             $member = $members[(int) $ids[2]];
 
             if ($this->sendsFollowUps($term_date)) {
-                $previous = $this->effectiveStatus(Attendance::where([
+                $previous = (Attendance::where([
                     'user_id' => $member->id,
                     'term_date_id' => $term_date->id,
                     'ensemble_id' => $ensemble->id,
-                ])->latest()->latest('id')->value('status'));
+                ])->latest()->latest('id')->value('status') ?? AttendanceStatus::Unknown)->effective();
 
-                if ($previous !== $this->effectiveStatus($status)) {
+                if ($previous !== $status->effective()) {
                     $changes[$term_date->id][] = ['name' => $member->name, 'from' => $previous->label(), 'to' => $status->label()];
                 }
             }
@@ -139,12 +139,5 @@ class AttendanceController extends Controller
         return config('app.readererer_after_reminders') === 'follow_up'
             && $term_date->isPastReminderTime()
             && $term_date->start_datetime->isFuture();
-    }
-
-    private function effectiveStatus(?AttendanceStatus $status): AttendanceStatus
-    {
-        $status ??= AttendanceStatus::Unknown;
-
-        return $status === AttendanceStatus::Unknown && config('app.readererer_assume_attending') ? AttendanceStatus::Attending : $status;
     }
 }
