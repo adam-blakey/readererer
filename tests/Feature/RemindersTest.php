@@ -89,7 +89,7 @@ test('a locked poll keeps members from changing replies after the reminder time'
 
     $this->actingAs($member)
         ->get(route('attendance.poll.show', ['ensemble' => $ensemble->slug, 'term' => $soon->term->slug]))
-        ->assertSee('Replies close 24 hours before each date starts.')
+        ->assertSee("Replies close when a date's reminders are sent.")
         ->assertSee('disabled', false);
 
     post_poll($ensemble, $soon, $member, AttendanceStatus::NotAttending);
@@ -131,4 +131,31 @@ test('the attendance changed email renders', function () {
     $html = (new AttendanceChangedMail($termDate, $ensemble, [['name' => 'Ada Lovelace', 'from' => 'Attending', 'to' => 'Not attending']]))->render();
 
     expect($html)->toContain('Wind Band')->toContain('Ada Lovelace')->toContain('Not attending (was Attending)');
+});
+
+test('concerts can have their own reminder time', function () {
+    config(['app.readererer_concert_reminder_hours' => 72]);
+    $ensemble = Ensemble::factory()->create();
+    $ensemble->admins()->attach(make_user(UserRole::Member)->id);
+    $concert = make_term_date_in(48);
+    $concert->concert_ensembles()->attach($ensemble->id);
+    make_term_date_in(48);
+
+    $this->artisan('reminders:send')->assertSuccessful();
+
+    Mail::assertSentCount(1);
+    Mail::assertSent(AttendanceListMail::class, fn ($mail) => $mail->termDate->is($concert));
+});
+
+test('the attendance list carries the seating plan of each ensemble that has one', function () {
+    $seated = Ensemble::factory()->create(['name' => 'Wind Band']);
+    join_ensemble(make_user(UserRole::Member), $seated, seatRow: 'A', seatColumn: 1);
+    $unseated = Ensemble::factory()->create(['name' => 'Choir']);
+    join_ensemble(make_user(UserRole::Member), $unseated);
+
+    $attachments = (new AttendanceListMail(make_term_date_in(12)))->attachments();
+
+    expect($attachments)->toHaveCount(1)
+        ->and($attachments[0]->as)->toBe('Seating plan - Wind Band.pdf')
+        ->and($attachments[0]->mime)->toBe('application/pdf');
 });

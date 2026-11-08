@@ -5,6 +5,7 @@ namespace App\Mail;
 use App\Models\Ensemble;
 use App\Models\TermDate;
 use Illuminate\Bus\Queueable;
+use Illuminate\Mail\Attachment;
 use Illuminate\Mail\Mailable;
 use Illuminate\Mail\Mailables\Content;
 use Illuminate\Mail\Mailables\Envelope;
@@ -35,13 +36,29 @@ class AttendanceListMail extends Mailable
         );
     }
 
-    private function members(): Collection
+    /** A seating plan for each of the date's ensembles that has one. */
+    public function attachments(): array
     {
-        $ensembles = $this->termDate->is_concert
+        return $this->ensembles()
+            ->filter->hasSeatingPlan()
+            ->map(fn (Ensemble $ensemble) => Attachment::fromData(
+                fn () => $ensemble->seatingPlanPdf($this->termDate)->output(),
+                __('Seating plan - :ensemble.pdf', ['ensemble' => $ensemble->name]),
+            )->withMime('application/pdf'))
+            ->values()
+            ->all();
+    }
+
+    private function ensembles(): Collection
+    {
+        return $this->termDate->is_concert
             ? $this->termDate->concert_ensembles->load('users')
             : Ensemble::with('users')->get();
+    }
 
-        return $ensembles
+    private function members(): Collection
+    {
+        return $this->ensembles()
             ->flatMap->users
             ->unique('id')
             ->values();

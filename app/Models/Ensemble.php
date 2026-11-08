@@ -4,6 +4,8 @@ namespace App\Models;
 
 use App\Enums\UserRole;
 use App\Traits\HasImage;
+use Barryvdh\DomPDF\Facade\Pdf;
+use Barryvdh\DomPDF\PDF as SeatingPlanPdf;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
@@ -84,5 +86,23 @@ class Ensemble extends Model
             ->withPivot('seat_row')
             ->where('role', '!=', UserRole::Ensemble)
             ->orderBy('first_name');
+    }
+
+    public function hasSeatingPlan(): bool
+    {
+        return $this->users()->wherePivotNotNull('seat_row')->exists();
+    }
+
+    public function seatingPlanPdf(TermDate $termDate): SeatingPlanPdf
+    {
+        $members = $this->users()
+            ->wherePivotNotNull('instrument_family_id')
+            ->with(['attendances' => fn ($query) => $query->where('term_date_id', $termDate->id)])
+            ->get();
+
+        $instrumentFamilies = InstrumentFamily::whereIn('id', $members->pluck('pivot.instrument_family_id'))->orderBy('name')->get()->keyBy('id');
+
+        return Pdf::loadView('mail.seating-plan-pdf', ['ensemble' => $this, 'termDate' => $termDate, 'members' => $members, 'instrumentFamilies' => $instrumentFamilies])
+            ->setPaper('a4', 'landscape');
     }
 }

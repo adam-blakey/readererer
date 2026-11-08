@@ -89,7 +89,7 @@ test('a member with no changes shows never updated', function () {
         ->assertSee('Never updated.');
 });
 
-test('the history requires moderator or above', function () {
+test('the history is open to anyone who can see the ensemble', function () {
     $ensemble = Ensemble::factory()->create();
     $term = Term::factory()->create();
     $member = make_user(UserRole::Member);
@@ -102,29 +102,30 @@ test('the history requires moderator or above', function () {
     join_ensemble($bandmate, $ensemble);
 
     $this->get($url)->assertRedirectContains('/login?redirect=');
-    $this->actingAs($ensembleLogin)->get($url)->assertForbidden();
-    $this->actingAs($bandmate)->get($url)->assertForbidden();
+    $this->actingAs(make_user(UserRole::Member))->get($url)->assertForbidden();
+    $this->actingAs($ensembleLogin)->get($url)->assertOk();
+    $this->actingAs($bandmate)->get($url)->assertOk();
     $this->actingAs(make_user(UserRole::Moderator))->get($url)->assertOk();
-    $this->actingAs(make_user(UserRole::Admin))->get($url)->assertOk();
 });
 
-test('the poll shows a history button only to those who may see the history', function () {
+test('the poll links each member to their history with when they last changed a reply', function () {
     $ensemble = Ensemble::factory()->create();
     $term = Term::factory()->create();
-    history_term_date($term, '2030-03-04 19:30');
+    $termDate = history_term_date($term, '2030-03-04 19:30');
     $member = make_user(UserRole::Member);
     join_ensemble($member, $ensemble);
-    $pollUrl = route('attendance.poll.show', ['ensemble' => $ensemble->slug, 'term' => $term->slug]);
-    $historyUrl = history_url($ensemble, $term, $member);
+    $quiet = make_user(UserRole::Member);
+    join_ensemble($quiet, $ensemble);
+    $this->travelTo('2030-01-03 10:00');
+    record_history_change($member, $termDate, $ensemble, AttendanceStatus::Attending, $member, '2030-01-01 10:00');
 
-    $this->actingAs(make_user(UserRole::Moderator))->get($pollUrl)
+    $this->actingAs($member)->get(route('attendance.poll.show', ['ensemble' => $ensemble->slug, 'term' => $term->slug]))
         ->assertOk()
-        ->assertSee($historyUrl, false)
-        ->assertSee('View edit history for '.$member->name);
-
-    $this->actingAs($member)->get($pollUrl)
-        ->assertOk()
-        ->assertDontSee($historyUrl, false);
+        ->assertSee(history_url($ensemble, $term, $member), false)
+        ->assertSee('View edit history for '.$member->name)
+        ->assertSee('2d ago')
+        ->assertSee(history_url($ensemble, $term, $quiet), false)
+        ->assertSee('Never');
 });
 
 test('the attendance updates table shows the term date as Y-m-d', function () {

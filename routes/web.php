@@ -49,7 +49,7 @@ Route::put('/attendance/poll/view', [AttendanceController::class, 'poll_view'])
 Route::get('/attendance/poll/{ensemble:slug}/{term:slug}/history/{user}', [AttendanceController::class, 'history'])
     ->withoutScopedBindings()
     ->name('attendance.poll.history')
-    ->can('viewAny', Attendance::class);
+    ->can('view', 'ensemble');
 
 Route::get('/attendance/register', [AttendanceRegisterController::class, 'index'])
     ->name('attendance.register.index')

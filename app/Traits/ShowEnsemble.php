@@ -10,7 +10,7 @@ trait ShowEnsemble
 {
     public function show(Ensemble $ensemble)
     {
-        $upcoming_terms = Term::current()
+        $upcoming_terms = Term::current()->visibleTo(auth()->user())
             ->with('term_dates.concert_ensembles')
             ->get()
             ->sortBy('latest_date');

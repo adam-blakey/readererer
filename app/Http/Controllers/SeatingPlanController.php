@@ -5,7 +5,6 @@ namespace App\Http\Controllers;
 use App\Models\Ensemble;
 use App\Models\InstrumentFamily;
 use App\Models\TermDate;
-use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Http\Request;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
@@ -123,15 +122,6 @@ class SeatingPlanController extends Controller
     {
         $this->authorize('view', $ensemble);
 
-        $members = $ensemble->users()
-            ->wherePivotNotNull('instrument_family_id')
-            ->with(['attendances' => fn ($query) => $query->where('term_date_id', $termDate->id)])
-            ->get();
-
-        $instrumentFamilies = InstrumentFamily::whereIn('id', $members->pluck('pivot.instrument_family_id'))->orderBy('name')->get()->keyBy('id');
-
-        return Pdf::loadView('mail.seating-plan-pdf', compact('ensemble', 'termDate', 'members', 'instrumentFamilies'))
-            ->setPaper('a4', 'landscape')
-            ->stream();
+        return $ensemble->seatingPlanPdf($termDate)->stream();
     }
 }

@@ -30,7 +30,7 @@
 							<h2 class="mb-0 card-heading">{{ __('Edit term details') }}</h2>
 						</div>
 						<div class="card-body">
-							<x-forms.error-summary :fields="['name', 'slug', 'location_id', 'term_dates.*.start_datetime', 'term_dates.*.end_datetime', 'term_dates.*.time_tbc', 'term_dates.*.location_id']" />
+							<x-forms.error-summary :fields="['name', 'slug', 'location_id', 'hidden', 'term_dates.*.start_datetime', 'term_dates.*.end_datetime', 'term_dates.*.time_tbc', 'term_dates.*.location_id']" />
 
 							<form action="{{ $form_route }}" id="term-edit-form" method="POST" data-dirty-check data-default-label="{{ __('Default: :location') }}" data-tbc-label="{{ __('TBC') }}">
 								@csrf
@@ -69,6 +69,17 @@
 											</select>
 											<small class="form-hint">{{ __('Dates without a location of their own take this one.') }}</small>
 											@error('location_id')
+												<x-forms.input-error :messages="$message" />
+											@enderror
+										</div>
+										<div class="mb-3">
+											<input name="hidden" type="hidden" value="0">
+											<label class="form-check form-switch">
+												<input class="form-check-input" name="hidden" type="checkbox" value="1" @checked(old('hidden', $term->hidden))>
+												<span class="form-check-label">{{ __('Hide from members') }}</span>
+											</label>
+											<small class="form-hint">{{ __('Members cannot see or reply to the polls of a hidden term. Moderators and admins still can.') }}</small>
+											@error('hidden')
 												<x-forms.input-error :messages="$message" />
 											@enderror
 										</div>

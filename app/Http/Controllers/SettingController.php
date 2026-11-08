@@ -24,6 +24,7 @@ class SettingController extends Controller
         Setting::put('primary_color', $request->validated('primary_color'));
         Setting::put('image_max_kilobytes', (int) $request->validated('image_max_kilobytes'));
         Setting::put('reminder_hours', (int) $request->validated('reminder_hours'));
+        Setting::put('concert_reminder_hours', (int) $request->validated('concert_reminder_hours'));
         Setting::put('after_reminders', $request->validated('after_reminders'));
         Setting::put('terminology', array_filter($request->validated('terminology', []), 'filled'));
         // Not Setting::put(), which deletes an empty list and so would fall back to showing every field.
@@ -37,7 +38,7 @@ class SettingController extends Controller
             Setting::put('google_client_secret', $request->validated('google_client_secret'));
         }
 
-        foreach (['assume_attending', 'allow_change_to_unknown', 'repeating_headings', 'setup_groups', 'van_drivers', 'single_ensemble', 'log_emails', 'google_login'] as $key) {
+        foreach (['assume_attending', 'allow_change_to_unknown', 'repeating_headings', 'hide_past_dates', 'setup_groups', 'van_drivers', 'single_ensemble', 'log_emails', 'google_login'] as $key) {
             Setting::put($key, $request->boolean($key));
         }
 

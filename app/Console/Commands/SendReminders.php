@@ -17,7 +17,7 @@ class SendReminders extends Command
 
     public function handle(EmailDispatcher $dispatcher): int
     {
-        $hours = (int) config('app.readererer_reminder_hours');
+        $hours = max((int) config('app.readererer_reminder_hours'), (int) config('app.readererer_concert_reminder_hours'));
 
         if ($hours <= 0) {
             return self::SUCCESS;
@@ -25,7 +25,8 @@ class SendReminders extends Command
 
         $termDates = TermDate::with('email_logs')
             ->whereBetween('start_datetime', [now(), now()->addHours($hours)])
-            ->get();
+            ->get()
+            ->filter->isPastReminderTime();
 
         foreach ($termDates as $termDate) {
             $sent = $termDate->email_logs

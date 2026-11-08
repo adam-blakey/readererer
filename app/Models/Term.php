@@ -25,6 +25,7 @@ class Term extends Model
         'number_of_concerts',
         'earliest_date',
         'latest_date',
+        'hidden',
         'created_at',
         'updated_at',
     ];
@@ -48,6 +49,7 @@ class Term extends Model
         'slug',
         'term_dates',
         'location_id',
+        'hidden',
     ];
 
     public function casts(): array
@@ -57,6 +59,7 @@ class Term extends Model
             'updated_at' => 'datetime',
             'earliest_date' => 'datetime',
             'latest_date' => 'datetime',
+            'hidden' => 'boolean',
         ];
     }
 
@@ -77,6 +80,15 @@ class Term extends Model
         $query->where(fn (Builder $query) => $query
             ->whereDoesntHave('term_dates')
             ->orWhereHas('term_dates', fn (Builder $query) => $query->where('end_datetime', '>=', now())));
+    }
+
+    /** Hidden terms are only listed for moderators and above. */
+    #[Scope]
+    protected function visibleTo(Builder $query, ?User $user): void
+    {
+        if (! $user?->can('viewAny', Term::class)) {
+            $query->where('hidden', false);
+        }
     }
 
     public function getNumberOfRehearsalsAttribute(): int

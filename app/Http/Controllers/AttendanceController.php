@@ -28,7 +28,7 @@ class AttendanceController extends Controller
 
     public function poll(Ensemble $ensemble, Term $term, Request $request)
     {
-        $this->authorize('view', $ensemble);
+        $this->authorizePoll($ensemble, $term);
 
         $term_dates = $term->term_dates
             ->load('concert_ensembles')
@@ -41,7 +41,15 @@ class AttendanceController extends Controller
             ->with(['setup_group', 'attendances' => fn ($query) => $query->whereIn('term_date_id', $term_dates->pluck('id'))])
             ->get();
 
+        $ended = $term_dates->isNotEmpty() && $term_dates->every(fn (TermDate $term_date) => $term_date->end_datetime->isPast());
+
+        if (config('app.readererer_hide_past_dates')) {
+            $term_dates = $term_dates->reject(fn (TermDate $term_date) => $term_date->end_datetime->isPast())->values();
+        }
+
         return view('attendances.poll', [
+            'ended' => $ended,
+            'next_term' => $ended ? $this->nextTerm($term, $request->user()) : null,
             'members' => $members,
             'term' => $term,
             'term_dates' => $term_dates,
@@ -52,7 +60,28 @@ class AttendanceController extends Controller
             'page_name' => $ensemble->name.': '.$term->name,
             'ensemble' => $ensemble,
             'sortby' => $request->query('sortby') ?? 'first_name',
+            'sortdir' => $request->query('sortdir') === 'desc' ? 'desc' : 'asc',
         ]);
+    }
+
+    /** The upcoming term that starts soonest, for a poll whose dates have all passed. */
+    private function nextTerm(Term $term, User $user): ?Term
+    {
+        return Term::whereKeyNot($term->id)
+            ->whereHas('term_dates', fn ($query) => $query->where('end_datetime', '>=', now()))
+            ->visibleTo($user)
+            ->with('term_dates')
+            ->get()
+            ->sortBy('earliest_date')
+            ->first();
+    }
+
+    /** Anyone who can see the ensemble can use its polls, except those of a hidden term, which need a moderator. */
+    private function authorizePoll(Ensemble $ensemble, Term $term): void
+    {
+        $this->authorize('view', $ensemble);
+
+        abort_if($term->hidden && Auth::user()->cannot('viewAny', Term::class), 404);
     }
 
     public function poll_view(Request $request)
@@ -64,6 +93,8 @@ class AttendanceController extends Controller
 
     public function history(Ensemble $ensemble, Term $term, User $user)
     {
+        $this->authorizePoll($ensemble, $term);
+
         $attendances = Attendance::with(['term_date', 'edit_user' => fn ($query) => $query->withTrashed()])
             ->where('user_id', $user->id)
             ->where('ensemble_id', $ensemble->id)
@@ -80,7 +111,7 @@ class AttendanceController extends Controller
 
     public function poll_store(Ensemble $ensemble, Term $term, Request $request, EmailDispatcher $dispatcher)
     {
-        $this->authorize('view', $ensemble);
+        $this->authorizePoll($ensemble, $term);
 
         $members = $ensemble->users()->wherePivotNotNull('instrument_family_id')->get()->keyBy('id');
         $term_dates = $term->term_dates->load('concert_ensembles')->filter(fn (TermDate $term_date) => $term_date->appliesToEnsemble($ensemble))->keyBy('id');
