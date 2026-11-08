@@ -89,10 +89,10 @@ function initializeAllThreeStateCheckboxes() {
     // Changing only the dep's name still has to submit the status it belongs to.
     for (const depName of document.querySelectorAll('.dep-name')) {
         depName.addEventListener('input', () => {
-            var button = depName.parentNode.querySelector('.three-state-checkbox');
+            var button = depName.closest('.dep-cell').querySelector('.three-state-checkbox');
             statusInputField(button, button.dataset.inputId);
         });
-        depName.addEventListener('invalid', () => depName.parentNode.classList.add('open'));
+        depName.addEventListener('invalid', () => depName.closest('.dep-cell').classList.add('open'));
     }
 
     document.addEventListener('click', (event) => {

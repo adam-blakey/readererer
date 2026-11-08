@@ -610,7 +610,6 @@
     "Sending a dep: :name": "Sending a dep: :name",
     ":dep (dep for :name)": ":dep (dep for :name)",
     ":name (sending a dep)": ":name (sending a dep)",
-    "Name of your dep": "Name of your dep",
     "Dep's name": "Dep's name",
     "Allow sending a dep": "Allow sending a dep",
     "Adds a fourth poll reply for members sending someone in their place, with the name of who is coming. A dep counts as attending.": "Adds a fourth poll reply for members sending someone in their place, with the name of who is coming. A dep counts as attending.",
@@ -635,5 +634,6 @@
     "There are no feature flags yet.": "There are no feature flags yet.",
     "Save feature flags": "Save feature flags",
     "Enter the name of each dep.": "Enter the name of each dep.",
-    "Enter the name of your dep.": "Enter the name of your dep."
+    "Enter the name of your dep.": "Enter the name of your dep.",
+    "Who is coming instead?": "Who is coming instead?"
 }
