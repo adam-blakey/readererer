@@ -5,8 +5,8 @@ namespace App\Http\Requests;
 use App\Enums\Color;
 use App\Enums\UserRole;
 use App\Models\Ensemble;
-use App\Models\Setting;
 use App\Models\User;
+use App\Settings\GeneralSettings;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
 
@@ -19,7 +19,7 @@ class UpdateSettingsRequest extends FormRequest
 
     public function rules(): array
     {
-        $words = array_merge(array_keys(Setting::TERMS), array_values(Setting::TERMS));
+        $words = array_merge(array_keys(GeneralSettings::TERMS), array_values(GeneralSettings::TERMS));
 
         return [
             'name' => ['required', 'string', 'max:255'],
@@ -37,7 +37,7 @@ class UpdateSettingsRequest extends FormRequest
             'single_ensemble' => ['sometimes', 'boolean', Rule::when(Ensemble::count() > 1, 'declined')],
             'log_emails' => ['sometimes', 'boolean'],
             'reminder_hours' => ['nullable', 'integer', 'min:1', 'max:720'],
-            'after_reminders' => ['required', Rule::in(Setting::AFTER_REMINDERS)],
+            'after_reminders' => ['required', Rule::in(GeneralSettings::AFTER_REMINDERS)],
             'image_max_kilobytes' => ['required', 'integer', 'min:1', 'max:10240'],
             'terminology' => ['sometimes', 'array:'.implode(',', $words)],
             'terminology.*' => ['nullable', 'string', 'max:50'],
@@ -45,7 +45,7 @@ class UpdateSettingsRequest extends FormRequest
             'shown_user_fields.*' => [Rule::in(array_keys(User::OPTIONAL_FIELDS))],
             'google_login' => ['sometimes', 'boolean'],
             'google_client_id' => ['nullable', 'string', 'max:255', 'required_if_accepted:google_login'],
-            'google_client_secret' => ['nullable', 'string', 'max:255', Rule::requiredIf(fn () => $this->boolean('google_login') && ! Setting::where('key', 'google_client_secret')->exists())],
+            'google_client_secret' => ['nullable', 'string', 'max:255', Rule::requiredIf(fn () => $this->boolean('google_login') && blank(app(GeneralSettings::class)->google_client_secret))],
             'google_register_domain' => ['nullable', 'string', 'max:255', 'regex:/^[a-z0-9-]+(\.[a-z0-9-]+)+$/i', 'required_with:google_register_role'],
             'google_register_role' => ['nullable', Rule::enum(UserRole::class)->except(UserRole::Ensemble), 'required_with:google_register_domain'],
         ];
