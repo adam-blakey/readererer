@@ -55,7 +55,8 @@
                     <th style="padding: 0.15em 0.4em; border: 2px solid black;">{{ $totals['attending'] }}</th>
                 </tr>
                 @foreach($members as $member)
-                    @php($attendance_value = $member->latestAttendanceFor($termDate, $ensemble)?->status ?? App\Enums\AttendanceStatus::Unknown)
+                    @php($attendance = $member->latestAttendanceFor($termDate, $ensemble))
+                    @php($attendance_value = $attendance?->status ?? App\Enums\AttendanceStatus::Unknown)
                     <tr>
                         <td style="padding: 0.15em 0.4em; border: 2px solid black; border-left: 6px solid {{ color_name_to_hex($instrumentFamilies->get($member->pivot->instrument_family_id)?->color) ?? '#000000' }};">
                             @switch($attendance_value)
@@ -71,6 +72,9 @@
                                     @break
                                 @case(App\Enums\AttendanceStatus::NotAttending)
                                     <s style="color: #9CA3AF; text-decoration: line-through;">{{ $member->name }}</s>
+                                    @break
+                                @case(App\Enums\AttendanceStatus::Depping)
+                                    <span>{{ $attendance->dep_name ? __(':dep (dep for :name)', ['dep' => $attendance->dep_name, 'name' => $member->name]) : __(':name (sending a dep)', ['name' => $member->name]) }}</span>
                                     @break
                             @endswitch
                         </td>

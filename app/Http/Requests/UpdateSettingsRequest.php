@@ -31,6 +31,7 @@ class UpdateSettingsRequest extends FormRequest
             'assume_attending' => ['sometimes', 'boolean'],
             'allow_change_to_unknown' => ['sometimes', 'boolean'],
             'repeating_headings' => ['sometimes', 'boolean'],
+            'depping' => ['sometimes', 'boolean'],
             'hide_past_dates' => ['sometimes', 'boolean'],
             'setup_groups' => ['sometimes', 'boolean'],
             'van_drivers' => ['sometimes', 'boolean'],

@@ -1,4 +1,33 @@
-const threeStateCheckboxClasses = ['three-state-checkbox-unknown', 'three-state-checkbox-attending', 'three-state-checkbox-not-attending'];
+const threeStateCheckboxClasses = ['three-state-checkbox-unknown', 'three-state-checkbox-attending', 'three-state-checkbox-not-attending', 'three-state-checkbox-depping'];
+const DEPPING = 3;
+
+// Insert the hidden input field holding the status if it doesn't exist yet, so only changed statuses are submitted.
+function statusInputField(buttonField, inputFieldId) {
+    var inputField = document.getElementById(inputFieldId);
+    if (inputField == null) {
+        inputField = document.createElement("input");
+        inputField.type = 'hidden';
+        inputField.id = inputFieldId;
+        inputField.name = inputFieldId;
+        inputField.value = buttonField.getAttribute('data-original-value');
+
+        buttonField.parentNode.appendChild(inputField);
+    }
+
+    return inputField;
+}
+
+function depNameField(buttonField) {
+    return buttonField.parentNode.querySelector('.dep-name');
+}
+
+function openDepName(buttonField) {
+    var depName = depNameField(buttonField);
+    if (depName != null) {
+        buttonField.parentNode.classList.add('open');
+        depName.focus();
+    }
+}
 
 function switchThreeStateCheckbox(buttonField, inputFieldId) {
     // Some quick validation.
@@ -7,24 +36,19 @@ function switchThreeStateCheckbox(buttonField, inputFieldId) {
         return;
     }
 
-    // Insert a new hidden input field if it doesn't exist.
-    var inputField = document.getElementById(inputFieldId);
-    if (inputField == null) {
-        inputField = document.createElement("input");
-        inputField.type = 'hidden';
-        inputField.id = inputFieldId;
-        inputField.name = inputFieldId;
-
-        // Set the original value of the input field.
-        var originalValue = buttonField.getAttribute('data-original-value');
-        inputField.value = originalValue;
-
-        buttonField.parentNode.appendChild(inputField);
+    // Without hover, the first tap on a dep shows their name rather than moving on.
+    var cell = buttonField.parentNode;
+    if (cell.classList.contains('depping') && !cell.classList.contains('open') && window.matchMedia('(hover: none)').matches) {
+        openDepName(buttonField);
+        return;
     }
 
+    var inputField = statusInputField(buttonField, inputFieldId);
+
     // Set the value of the input field.
+    var depping = buttonField.getAttribute('data-depping');
     var value = Number(inputField.value);
-    value = (value + 1) % 3;
+    value = (value + 1) % (depping ? 4 : 3);
 
     // If we assume attending or we don't allow changing to unknown, then we advance from unknown to attending.
     var assumeAttending = buttonField.getAttribute('data-assume-attending');
@@ -35,8 +59,18 @@ function switchThreeStateCheckbox(buttonField, inputFieldId) {
 
     // Set value in input field and display the button appropriately.
     inputField.value = value;
-    buttonField.classList.remove(threeStateCheckboxClasses[0], threeStateCheckboxClasses[1], threeStateCheckboxClasses[2]);
+    buttonField.classList.remove(...threeStateCheckboxClasses);
     buttonField.classList.add(threeStateCheckboxClasses[value]);
+
+    cell.classList.toggle('depping', value == DEPPING);
+    cell.classList.remove('open');
+    var depName = depNameField(buttonField);
+    if (depName != null) {
+        depName.required = value == DEPPING;
+        if (value == DEPPING) {
+            openDepName(buttonField);
+        }
+    }
 }
 
 function initializeThreeStateCheckbox(buttonField, originalValue) {
@@ -51,6 +85,23 @@ function initializeAllThreeStateCheckboxes() {
         initializeThreeStateCheckbox(button, originalValue);
         button.addEventListener('click', (event) => switchThreeStateCheckbox(event.currentTarget, event.currentTarget.dataset.inputId));
     }
+
+    // Changing only the dep's name still has to submit the status it belongs to.
+    for (const depName of document.querySelectorAll('.dep-name')) {
+        depName.addEventListener('input', () => {
+            var button = depName.closest('.dep-cell').querySelector('.three-state-checkbox');
+            statusInputField(button, button.dataset.inputId);
+        });
+        depName.addEventListener('invalid', () => depName.closest('.dep-cell').classList.add('open'));
+    }
+
+    document.addEventListener('click', (event) => {
+        for (const cell of document.querySelectorAll('.dep-cell.open')) {
+            if (!cell.contains(event.target)) {
+                cell.classList.remove('open');
+            }
+        }
+    });
 }
 
 window.addEventListener('DOMContentLoaded', (event) => {

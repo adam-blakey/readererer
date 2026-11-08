@@ -73,8 +73,8 @@ test('a nullable enum select offers an empty option that is selected when there 
 
     $options = enum_select_options($html, 'status');
 
-    expect($options->pluck('value')->all())->toBe(['', '0', '1', '2']);
-    expect($options->pluck('label')->all())->toBe(['—', 'Unknown', 'Attending', 'Not attending']);
+    expect($options->pluck('value')->all())->toBe(['', '0', '1', '2', '3']);
+    expect($options->pluck('label')->all())->toBe(['—', 'Unknown', 'Attending', 'Not attending', 'Sending a dep']);
     expect($options->where('selected')->pluck('value')->all())->toBe(['']);
 });
 

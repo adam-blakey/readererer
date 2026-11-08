@@ -18,6 +18,7 @@ class Attendance extends Model
         'term_date_id',
         'ensemble_id',
         'status',
+        'dep_name',
         'edit_user_id',
         'edit_ip',
     ];
@@ -68,6 +69,10 @@ class Attendance extends Model
 
     public function getStatusTextAttribute(): string
     {
-        return $this->status->effective()->label();
+        $display_status = $this->status->effective();
+
+        return $display_status === AttendanceStatus::Depping && $this->dep_name
+            ? __('Sending a dep: :name', ['name' => $this->dep_name])
+            : $display_status->label();
     }
 }

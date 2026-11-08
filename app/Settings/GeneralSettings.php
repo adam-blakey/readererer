@@ -21,6 +21,7 @@ class GeneralSettings extends Settings
         'assume_attending' => ['app.readererer_assume_attending'],
         'allow_change_to_unknown' => ['app.readererer_allow_change_to_unknown'],
         'repeating_headings' => ['app.readererer_repeating_headings'],
+        'depping' => ['app.readererer_depping'],
         'hide_past_dates' => ['app.readererer_hide_past_dates'],
         'image_max_kilobytes' => ['app.readererer_image_max_kilobytes'],
         'terminology' => ['app.readererer_terminology'],
@@ -65,6 +66,8 @@ class GeneralSettings extends Settings
     public ?bool $allow_change_to_unknown;
 
     public ?bool $repeating_headings;
+
+    public ?bool $depping;
 
     public ?bool $hide_past_dates;
 

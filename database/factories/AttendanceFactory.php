@@ -28,6 +28,7 @@ class AttendanceFactory extends Factory
 
         return [
             'status' => $this->faker->randomElement(AttendanceStatus::cases()),
+            'dep_name' => fn (array $attributes) => $attributes['status'] === AttendanceStatus::Depping ? $this->faker->name() : null,
             'edit_ip' => $this->faker->ipv4(),
             'user_id' => $user->id,
             'edit_user_id' => $user->id,

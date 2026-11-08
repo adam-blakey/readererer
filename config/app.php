@@ -140,6 +140,7 @@ return [
     'readererer_assume_attending' => env('READERERER_ASSUME_ATTENDING', false),
     'readererer_allow_change_to_unknown' => env('READERERER_ALLOW_CHANGE_TO_UNKNOWN', false),
     'readererer_repeating_headings' => env('READERERER_REPEATING_HEADINGS', false),
+    'readererer_depping' => env('READERERER_DEPPING', false),
     'readererer_hide_past_dates' => env('READERERER_HIDE_PAST_DATES', false),
     'readererer_image_max_kilobytes' => env('READERERER_IMAGE_MAX_KILOBYTES', 2048),
     'readererer_logo' => env('READERERER_LOGO'),

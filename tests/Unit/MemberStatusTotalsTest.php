@@ -116,3 +116,17 @@ test('unknown members count as attending when assume_attending is enabled', func
         'not_attending' => 1,
     ]);
 });
+
+test('a member sending a dep counts as attending', function () {
+    config(['app.readererer_assume_attending' => false]);
+
+    $termDate = make_term_date();
+    $member = User::factory()->create();
+    record_attendance($member, $termDate, AttendanceStatus::Depping);
+
+    expect(member_status_totals(User::with('attendances')->whereKey($member->id)->get(), $termDate))->toBe([
+        'attending' => 1,
+        'not_attending' => 0,
+        'unknown' => 0,
+    ]);
+});
