@@ -2,7 +2,6 @@
 
 namespace App\Settings;
 
-use App\Settings\Casts\EncryptedString;
 use Illuminate\Database\QueryException;
 use Illuminate\Database\SQLiteDatabaseDoesNotExistException;
 use Illuminate\Support\Facades\Storage;
@@ -97,9 +96,9 @@ class GeneralSettings extends Settings
         return 'general';
     }
 
-    public static function casts(): array
+    public static function encrypted(): array
     {
-        return ['google_client_secret' => EncryptedString::class];
+        return ['google_client_secret'];
     }
 
     public static function applyToConfig(): void

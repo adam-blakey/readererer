@@ -16,7 +16,8 @@ return new class extends Migration
 
     public function up(): void
     {
-        $values = DB::table('settings')->pluck('value', 'key');
+        // The package encrypts in a different format, so the Google client secret is entered again.
+        $values = DB::table('settings')->where('key', '!=', 'google_client_secret')->pluck('value', 'key');
 
         Schema::drop('settings');
         Schema::create('settings', function (Blueprint $table) {
@@ -38,7 +39,7 @@ return new class extends Migration
 
     public function down(): void
     {
-        $rows = DB::table('settings')->where('group', 'general')->where('payload', '!=', 'null')->get(['name', 'payload']);
+        $rows = DB::table('settings')->where('group', 'general')->where('payload', '!=', 'null')->where('name', '!=', 'google_client_secret')->get(['name', 'payload']);
 
         Schema::drop('settings');
         Schema::create('settings', function (Blueprint $table) {

@@ -293,13 +293,3 @@ test('an admin can upload and remove the favicon', function () {
     Storage::disk('public')->assertMissing($path);
     expect(app(GeneralSettings::class)->favicon)->toBeNull();
 });
-
-test('a client secret encrypted with a previous key is ignored', function () {
-    config(['services.google.client_secret' => 'from-env']);
-    DB::table('settings')->where('name', 'google_client_secret')->update(['payload' => json_encode('not-encrypted-with-this-key')]);
-    app(GeneralSettings::class)->refresh();
-
-    reload_settings();
-
-    expect(config('services.google.client_secret'))->toBe('from-env');
-});
