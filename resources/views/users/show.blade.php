@@ -30,13 +30,13 @@
                         <x-icon name="pencil" />
                         {{ __('Edit') }}
                     </x-a>
-                    @endif
                     @can('resetPassword', $user)
                         <a href="#" class="btn" data-bs-toggle="modal" data-bs-target="#modal-reset-password">
                             <x-icon name="key" />
                             {{ __('Reset password') }}
                         </a>
                     @endcan
+                    @endif
                     @can('erase', $user)
                         <a href="#" class="btn btn-outline-danger" data-bs-toggle="modal" data-bs-target="#modal-erase-user">
                             <x-icon name="trash" />
@@ -187,9 +187,9 @@
 			</div>
 		</div>
 	</div>
-    @can('resetPassword', $user)
+    @if (! $user->trashed() && Gate::allows('resetPassword', $user))
         <x-modals.reset-password :user="$user" />
-    @endcan
+    @endif
     @can('erase', $user)
         <x-modals.erase-user :user="$user" />
     @endcan

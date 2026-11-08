@@ -125,7 +125,8 @@ test('a soft-deleted user can be shown and erased', function () {
         ->assertOk()
         ->assertSee(__('Erase personal data'))
         ->assertSee(route('users.restore', $user), false)
-        ->assertDontSee(route('users.edit', $user), false);
+        ->assertDontSee(route('users.edit', $user), false)
+        ->assertDontSee(__('Reset password'));
 
     erase($admin, $user)->assertRedirect(route('users.index'));
 
