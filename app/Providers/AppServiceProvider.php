@@ -4,10 +4,10 @@ namespace App\Providers;
 
 use App\Contracts\EmailSender;
 use App\Enums\UserRole;
-use App\Models\Setting;
 use App\Models\User;
 use App\Services\EmailSenders\LogEmailSender;
 use App\Services\EmailSenders\SmtpEmailSender;
+use App\Settings\GeneralSettings;
 use App\Translation\TerminologyLoader;
 use Barryvdh\Debugbar\Facades\Debugbar;
 use Illuminate\Contracts\Translation\Loader;
@@ -34,7 +34,7 @@ class AppServiceProvider extends ServiceProvider
 
     public function boot(): void
     {
-        Setting::applyToConfig();
+        GeneralSettings::applyToConfig();
 
         if (str_starts_with((string) config('app.url'), 'https://')) {
             URL::forceScheme('https');

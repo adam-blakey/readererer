@@ -1,9 +1,10 @@
 <?php
 
 use App\Enums\UserRole;
-use App\Models\Setting;
 use App\Models\User;
+use App\Settings\GeneralSettings;
 use Illuminate\Http\UploadedFile;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Storage;
 
@@ -27,7 +28,7 @@ function settings_payload(array $overrides = []): array
 
 function reload_settings(): void
 {
-    Setting::applyToConfig();
+    GeneralSettings::applyToConfig();
     app('translator')->setLoaded([]);
 }
 
@@ -63,7 +64,7 @@ test('saved settings show on the settings page', function () {
 });
 
 test('the wording setting renames words in translated text', function () {
-    Setting::put('terminology', ['rehearsal' => 'practice', 'rehearsals' => 'practices', 'member' => 'player', 'concert' => 'gig']);
+    app(GeneralSettings::class)->fill(['terminology' => ['rehearsal' => 'practice', 'rehearsals' => 'practices', 'member' => 'player', 'concert' => 'gig']])->save();
     reload_settings();
 
     expect(__('Next rehearsal'))->toBe('Next practice')
@@ -77,20 +78,20 @@ test('an admin can upload, replace and remove the logo', function () {
 
     $this->actingAs($admin)->put(route('settings.update'), settings_payload(['logo' => UploadedFile::fake()->image('first.png')]))
         ->assertSessionHasNoErrors();
-    $first = Setting::where('key', 'logo')->value('value');
+    $first = app(GeneralSettings::class)->logo;
     Storage::disk('public')->assertExists($first);
 
     reload_settings();
     expect(logo_url())->toEndWith('/storage/'.$first);
 
     $this->actingAs($admin)->put(route('settings.update'), settings_payload(['logo' => UploadedFile::fake()->image('second.png')]));
-    $second = Setting::where('key', 'logo')->value('value');
+    $second = app(GeneralSettings::class)->logo;
     Storage::disk('public')->assertMissing($first);
     Storage::disk('public')->assertExists($second);
 
     $this->actingAs($admin)->put(route('settings.update'), settings_payload(['remove_logo' => '1']));
     Storage::disk('public')->assertMissing($second);
-    expect(Setting::where('key', 'logo')->exists())->toBeFalse();
+    expect(app(GeneralSettings::class)->logo)->toBeNull();
 });
 
 test('settings reject unknown words and invalid values', function () {
@@ -103,7 +104,7 @@ test('settings reject unknown words and invalid values', function () {
         ]))
         ->assertSessionHasErrors(['name', 'image_max_kilobytes', 'terminology', 'primary_color']);
 
-    expect(Setting::count())->toBe(0);
+    expect(DB::table('settings')->where('payload', '!=', 'null')->count())->toBe(0);
 });
 
 test('moderators and admins see the settings link', function () {
@@ -240,7 +241,7 @@ test('the Google login settings are saved, with the client secret encrypted', fu
 
     $this->actingAs($admin)->put(route('settings.update'), settings_payload($google))->assertSessionHasNoErrors();
 
-    $stored = Setting::where('key', 'google_client_secret')->value('value');
+    $stored = DB::table('settings')->where('name', 'google_client_secret')->value('payload');
     reload_settings();
 
     expect($stored)->not->toContain('client-secret')
@@ -282,7 +283,7 @@ test('an admin can upload and remove the favicon', function () {
 
     $this->actingAs($admin)->put(route('settings.update'), settings_payload(['favicon' => UploadedFile::fake()->image('icon.png')]))
         ->assertSessionHasNoErrors();
-    $path = Setting::where('key', 'favicon')->value('value');
+    $path = app(GeneralSettings::class)->favicon;
     Storage::disk('public')->assertExists($path);
 
     reload_settings();
@@ -290,5 +291,15 @@ test('an admin can upload and remove the favicon', function () {
 
     $this->actingAs($admin)->put(route('settings.update'), settings_payload(['remove_favicon' => '1']));
     Storage::disk('public')->assertMissing($path);
-    expect(Setting::where('key', 'favicon')->exists())->toBeFalse();
+    expect(app(GeneralSettings::class)->favicon)->toBeNull();
+});
+
+test('a client secret encrypted with a previous key is ignored', function () {
+    config(['services.google.client_secret' => 'from-env']);
+    DB::table('settings')->where('name', 'google_client_secret')->update(['payload' => json_encode('not-encrypted-with-this-key')]);
+    app(GeneralSettings::class)->refresh();
+
+    reload_settings();
+
+    expect(config('services.google.client_secret'))->toBe('from-env');
 });
