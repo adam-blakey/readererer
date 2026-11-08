@@ -157,7 +157,30 @@ test('the upcoming rehearsals page lists sent emails in the history', function (
         ->get(route('attendance.register.index'))
         ->assertOk()
         ->assertSee('Attendance list — a rehearsal')
-        ->assertSee('Send attendance list now');
+        ->assertSee('Resend attendance list now')
+        ->assertDontSee('Send attendance list now');
+});
+
+test('the registers page says send until that type of email has been sent, and ignores failed ones', function () {
+    config(['app.readererer_setup_groups' => true, 'app.readererer_van_drivers' => true]);
+    $setupGroup = SetupGroup::factory()->create();
+    $setupGroup->van_drivers()->attach(make_user(UserRole::Member)->id);
+    $termDate = make_notification_term_date(['setup_group_id' => $setupGroup->id]);
+    $admin = make_user(UserRole::Admin);
+
+    $this->actingAs($admin)->get(route('attendance.register.index'))
+        ->assertSee('Send attendance list now')
+        ->assertSee('Send setup reminder')
+        ->assertSee('Send van driver reminder');
+
+    EmailLog::create(['term_date_id' => $termDate->id, 'mailable_class' => SetupReminderMail::class, 'subject' => 's', 'status' => EmailStatus::Failed]);
+    EmailLog::create(['term_date_id' => $termDate->id, 'mailable_class' => VanDriverReminderMail::class, 'subject' => 'v', 'status' => EmailStatus::Sent]);
+
+    $this->get(route('attendance.register.index'))
+        ->assertSee('Send attendance list now')
+        ->assertSee('Send setup reminder')
+        ->assertDontSee('Send van driver reminder')
+        ->assertSee('Resend van driver reminder');
 });
 
 test('the attendance list email renders', function () {
