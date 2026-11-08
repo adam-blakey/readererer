@@ -35,13 +35,15 @@ class AttendanceListMail extends Mailable
         );
     }
 
+    /** Members without an instrument family are still setting up their membership, so are left off, as on the poll. */
     private function members(): Collection
     {
-        $ensembles = $this->termDate->is_concert
-            ? $this->termDate->concert_ensembles->load('users')
-            : Ensemble::with('users')->get();
+        $ensembles = $this->termDate->is_concert ? $this->termDate->concert_ensembles : Ensemble::all();
+        $users = fn ($query) => $query->wherePivotNotNull('instrument_family_id')
+            ->with(['attendances' => fn ($query) => $query->where('term_date_id', $this->termDate->id)]);
 
         return $ensembles
+            ->load(['users' => $users])
             ->flatMap->users
             ->unique('id')
             ->values();
