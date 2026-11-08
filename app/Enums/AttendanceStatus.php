@@ -9,8 +9,8 @@ enum AttendanceStatus: int
     case NotAttending = 2;
     case Depping = 3;
 
-    /** How the poll shows the status: an unanswered poll may count as attending, and a dep counts as attending while depping is off. */
-    public function displayed(): self
+    /** An unknown reply counts as attending when the site assumes members attend, and a dep counts as attending while depping is off. */
+    public function effective(): self
     {
         return match (true) {
             $this === self::Unknown && config('app.readererer_assume_attending') => self::Attending,

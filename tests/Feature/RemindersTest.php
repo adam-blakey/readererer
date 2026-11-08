@@ -1,5 +1,6 @@
 <?php
 
+use App\Contracts\EmailSender;
 use App\Enums\AttendanceStatus;
 use App\Enums\UserRole;
 use App\Mail\AttendanceChangedMail;
@@ -11,6 +12,9 @@ use App\Models\Ensemble;
 use App\Models\SetupGroup;
 use App\Models\Term;
 use App\Models\TermDate;
+use App\Models\User;
+use App\Services\EmailSenders\SmtpEmailSender;
+use Illuminate\Mail\Mailable;
 use Illuminate\Support\Facades\Mail;
 
 function make_term_date_in(int $hours, array $attributes = []): TermDate
@@ -131,4 +135,25 @@ test('the attendance changed email renders', function () {
     $html = (new AttendanceChangedMail($termDate, $ensemble, [['name' => 'Ada Lovelace', 'from' => 'Attending', 'to' => 'Not attending']]))->render();
 
     expect($html)->toContain('Wind Band')->toContain('Ada Lovelace')->toContain('Not attending (was Attending)');
+});
+
+test('a reminder that failed for every recipient is sent again on the next run', function () {
+    Ensemble::factory()->create()->admins()->attach(make_user(UserRole::Member)->id);
+    make_term_date_in(12);
+
+    app()->bind(EmailSender::class, fn () => new class implements EmailSender
+    {
+        public function send(User $recipient, Mailable $mailable): void
+        {
+            throw new RuntimeException('Mail server unreachable');
+        }
+    });
+    $this->artisan('reminders:send')->assertSuccessful();
+    Mail::assertNothingSent();
+
+    app()->bind(EmailSender::class, SmtpEmailSender::class);
+    $this->artisan('reminders:send')->assertSuccessful();
+    $this->artisan('reminders:send')->assertSuccessful();
+
+    Mail::assertSent(AttendanceListMail::class, 1);
 });

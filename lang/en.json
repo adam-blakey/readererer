@@ -614,6 +614,8 @@
     "Dep's name": "Dep's name",
     "Allow sending a dep": "Allow sending a dep",
     "Adds a fourth poll reply for members sending someone in their place, with the name of who is coming. A dep counts as attending.": "Adds a fourth poll reply for members sending someone in their place, with the name of who is coming. A dep counts as attending.",
+    "The account for :email has been removed.": "The account for :email has been removed.",
+    "The seating plan has a row that is not named with capital letters.": "The seating plan has a row that is not named with capital letters.",
     "Feature flags": "Feature flags",
     "Feature flags saved.": "Feature flags saved.",
     "Enter a valid date and time.": "Enter a valid date and time.",

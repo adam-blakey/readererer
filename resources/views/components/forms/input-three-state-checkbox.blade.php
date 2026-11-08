@@ -5,7 +5,7 @@
 	$dep_input_id = 'dep-t' . $term_date_id . 'm' . $member_id;
 	$depping = config('app.readererer_depping');
 
-	$display_status = $status->displayed();
+	$display_status = $status->effective();
 	$is_depping = $display_status === App\Enums\AttendanceStatus::Depping;
 @endphp
 

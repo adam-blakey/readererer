@@ -229,3 +229,10 @@ test('apply_terminology swaps whole words and keeps their case', function () {
         ->and(apply_terminology('Setup group for :rehearsal', $terminology))->toBe('Crew for :rehearsal')
         ->and(apply_terminology('Rehearsalroom', $terminology))->toBe('Rehearsalroom');
 });
+
+test('seat_rows counts from A to the last valid row, with Z followed by AA', function () {
+    expect(seat_rows([]))->toBe([])
+        ->and(seat_rows(['B', null, 'unassigned', 'a', 3]))->toBe(['A', 'B'])
+        ->and(seat_rows(['AB', 'Z', 'C']))->toHaveCount(28)
+        ->and(array_slice(seat_rows(['AB', 'Z']), -3))->toBe(['Z', 'AA', 'AB']);
+});

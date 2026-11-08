@@ -7,12 +7,8 @@
     ]);
     $rowGroupedMembers = $members->groupBy('pivot.seat_row');
 
-    $minRow = $rowGroupedMembers->keys()->min();
-    $maxRow = $rowGroupedMembers->keys()->max();
-    $numberOfRows = (gettype($minRow) == "string" && gettype($maxRow) == "string")
-        ? ord(strtoupper($maxRow)) - ord(strtoupper($minRow))
-        : $maxRow - $minRow;
-    $numberOfRows++;
+    $rows = collect(seat_rows($rowGroupedMembers->keys()))->skipUntil(fn ($row) => $rowGroupedMembers->has($row));
+    $numberOfRows = max(1, $rows->count());
 @endphp
 <html>
 <head>
@@ -46,7 +42,7 @@
 </p>
 
 <section style="display: flex; flex-wrap: wrap; justify-content: space-between;">
-    @for($row = $minRow; $row <= $maxRow; $row++)
+    @foreach($rows as $row)
         @php
             $members = $rowGroupedMembers[$row] ?? [];
 
@@ -87,7 +83,7 @@
                 @endforeach
         </table>
         </div>
-    @endfor
+    @endforeach
 </section>
 </body>
 </html>

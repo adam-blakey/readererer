@@ -173,6 +173,18 @@ test('the attendance list email renders', function () {
     expect($html)->toContain($member->name);
 });
 
+test('the attendance list leaves out members with no instrument family, as the poll does', function () {
+    $ensemble = Ensemble::factory()->create();
+    $member = make_user(UserRole::Member);
+    $settingUp = make_user(UserRole::Member);
+    join_ensemble($member, $ensemble);
+    $settingUp->ensembles()->attach($ensemble->id);
+
+    $html = (new AttendanceListMail(make_notification_term_date([], $ensemble)))->render();
+
+    expect($html)->toContain($member->name)->not->toContain($settingUp->name);
+});
+
 test('the setup reminder email renders', function () {
     $setupGroup = SetupGroup::factory()->create(['name' => 'Group A']);
     $termDate = make_notification_term_date(['setup_group_id' => $setupGroup->id]);

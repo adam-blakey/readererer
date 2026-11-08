@@ -69,7 +69,7 @@ class Attendance extends Model
 
     public function getStatusTextAttribute(): string
     {
-        $display_status = $this->status->displayed();
+        $display_status = $this->status->effective();
 
         return $display_status === AttendanceStatus::Depping && $this->dep_name
             ? __('Sending a dep: :name', ['name' => $this->dep_name])

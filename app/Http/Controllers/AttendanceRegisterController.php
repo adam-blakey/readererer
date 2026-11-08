@@ -20,8 +20,6 @@ class AttendanceRegisterController extends Controller
 {
     public function index(Request $request)
     {
-        $this->authorize('viewAny', RegisterEntry::class);
-
         $term_dates = TermDate::with(['term', 'concert_ensembles', 'register_entries', 'email_logs.recipients', 'setup_group', 'van_driver'])
             ->orderByDesc('start_datetime')
             ->paginate(15);
@@ -40,9 +38,6 @@ class AttendanceRegisterController extends Controller
 
     public function show(Ensemble $ensemble, TermDate $termDate, Request $request)
     {
-        $this->authorize('viewAny', RegisterEntry::class);
-        $this->authorize('view', $ensemble);
-
         abort_unless($termDate->appliesToEnsemble($ensemble), 404);
 
         $sortby = $request->query('sortby') ?? 'first_name';
@@ -64,9 +59,6 @@ class AttendanceRegisterController extends Controller
 
     public function store(Ensemble $ensemble, TermDate $termDate, Request $request)
     {
-        $this->authorize('create', RegisterEntry::class);
-        $this->authorize('view', $ensemble);
-
         abort_unless($termDate->appliesToEnsemble($ensemble), 404);
 
         $validated = $request->validate([
