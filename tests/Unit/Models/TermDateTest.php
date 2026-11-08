@@ -82,7 +82,7 @@ test('a date without a location inherits the term\'s default', function () {
 });
 
 test('a date whose time is TBC is saved at midnight, so reminders count from the start of the day', function () {
-    config(['app.readererer_reminder_hours' => 24]);
+    config(['app.readererer_reminder_minutes' => 24 * 60]);
     $termDate = term_date_at('2026-01-05 19:00:00', '2026-01-06 21:30:00', ['time_tbc' => true]);
 
     expect($termDate->start_datetime->format('Y-m-d H:i'))->toBe('2026-01-05 00:00')

@@ -116,9 +116,9 @@ class TermDate extends Model
     /** When the automatic reminders go out, or null when they are turned off. Concerts can have their own lead time. */
     public function remindersDueAt(): ?Carbon
     {
-        $hours = (int) (($this->is_concert ? config('app.readererer_concert_reminder_hours') : null) ?: config('app.readererer_reminder_hours'));
+        $minutes = (int) (($this->is_concert ? config('app.readererer_concert_reminder_minutes') : null) ?: config('app.readererer_reminder_minutes'));
 
-        return $hours > 0 ? $this->start_datetime->copy()->subHours($hours) : null;
+        return $minutes > 0 ? $this->start_datetime->copy()->subMinutes($minutes) : null;
     }
 
     public function isPastReminderTime(): bool

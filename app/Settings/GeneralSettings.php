@@ -31,8 +31,8 @@ class GeneralSettings extends Settings
         'single_ensemble' => ['app.readererer_single_ensemble'],
         'log_emails' => ['app.readererer_log_emails'],
         'analytics' => ['app.readererer_analytics'],
-        'reminder_hours' => ['app.readererer_reminder_hours'],
-        'concert_reminder_hours' => ['app.readererer_concert_reminder_hours'],
+        'reminder_minutes' => ['app.readererer_reminder_minutes'],
+        'concert_reminder_minutes' => ['app.readererer_concert_reminder_minutes'],
         'after_reminders' => ['app.readererer_after_reminders'],
         'google_login' => ['app.readererer_google_login'],
         'google_client_id' => ['services.google.client_id'],
@@ -88,9 +88,9 @@ class GeneralSettings extends Settings
 
     public ?bool $analytics;
 
-    public ?int $reminder_hours;
+    public ?int $reminder_minutes;
 
-    public ?int $concert_reminder_hours;
+    public ?int $concert_reminder_minutes;
 
     public ?string $after_reminders;
 

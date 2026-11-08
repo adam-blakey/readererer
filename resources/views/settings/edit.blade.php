@@ -65,7 +65,7 @@
 			@method('PUT')
 
 			<fieldset class="card-body" @disabled(! $can_edit)>
-				<x-forms.error-summary :fields="['name', 'logo', 'remove_logo', 'favicon', 'remove_favicon', 'primary_color', 'image_max_kilobytes', 'assume_attending', 'allow_change_to_unknown', 'repeating_headings', 'hide_past_dates', 'depping', 'setup_groups', 'van_drivers', 'single_ensemble', 'reminder_hours', 'concert_reminder_hours', 'after_reminders', 'log_emails', 'analytics', 'terminology', 'terminology.*', 'shown_user_fields', 'shown_user_fields.*', 'google_login', 'google_client_id', 'google_client_secret', 'google_register_domain', 'google_register_role']" />
+				<x-forms.error-summary :fields="['name', 'logo', 'remove_logo', 'favicon', 'remove_favicon', 'primary_color', 'image_max_kilobytes', 'assume_attending', 'allow_change_to_unknown', 'repeating_headings', 'hide_past_dates', 'depping', 'setup_groups', 'van_drivers', 'single_ensemble', 'reminder_hours', 'reminder_minutes', 'concert_reminder_hours', 'concert_reminder_minutes', 'after_reminders', 'log_emails', 'analytics', 'terminology', 'terminology.*', 'shown_user_fields', 'shown_user_fields.*', 'google_login', 'google_client_id', 'google_client_secret', 'google_register_domain', 'google_register_role']" />
 				@if (session('status'))
 					<div class="alert alert-success" role="alert">{{ session('status') }}</div>
 				@endif
@@ -154,22 +154,24 @@
 						@endforeach
 
 						<h2 class="mt-4 mb-3">{{ __('Reminders') }}</h2>
-						<div class="mb-3">
-							<label class="form-label" for="reminder_hours">{{ __('Hours before a date to send reminders') }}</label>
-							<input class="form-control @error('reminder_hours') is-invalid @enderror" id="reminder_hours" max="720" min="1" name="reminder_hours" type="number" value="{{ old('reminder_hours', config('app.readererer_reminder_hours') ?: '') }}">
-							<div class="form-hint">{{ __('Sends the attendance list to the ensemble admins, and the setup and van driver reminders, this long before each date. Leave empty to send them only by hand.') }}</div>
-							@error('reminder_hours')
-								<x-forms.input-error :messages="$message" />
-							@enderror
-						</div>
-						<div class="mb-3">
-							<label class="form-label" for="concert_reminder_hours">{{ __('Hours before a concert to send reminders') }}</label>
-							<input class="form-control @error('concert_reminder_hours') is-invalid @enderror" id="concert_reminder_hours" max="720" min="1" name="concert_reminder_hours" type="number" value="{{ old('concert_reminder_hours', config('app.readererer_concert_reminder_hours') ?: '') }}">
-							<div class="form-hint">{{ __('Concerts use this instead when it is set. Leave empty to use the same time as rehearsals.') }}</div>
-							@error('concert_reminder_hours')
-								<x-forms.input-error :messages="$message" />
-							@enderror
-						</div>
+						@foreach (['reminder' => [__('Time before a date to send reminders'), __('Sends the attendance list to the ensemble admins, and the setup and van driver reminders, this long before each date. Leave empty to send them only by hand.')], 'concert_reminder' => [__('Time before a concert to send reminders'), __('Concerts use this instead when it is set. Leave empty to use the same time as rehearsals.')]] as $key => [$label, $hint])
+							@php($minutes = (int) config('app.readererer_'.$key.'_minutes'))
+							<div class="mb-3">
+								<label class="form-label" for="{{ $key }}_hours">{{ $label }}</label>
+								<div class="input-group">
+									<input class="form-control @error($key.'_hours') is-invalid @enderror" id="{{ $key }}_hours" max="720" min="0" name="{{ $key }}_hours" type="number" value="{{ old($key.'_hours', intdiv($minutes, 60) ?: '') }}">
+									<span class="input-group-text">{{ __('hours') }}</span>
+									<input aria-label="{{ __('Minutes') }}" class="form-control @error($key.'_minutes') is-invalid @enderror" max="59" min="0" name="{{ $key }}_minutes" type="number" value="{{ old($key.'_minutes', $minutes % 60 ?: '') }}">
+									<span class="input-group-text">{{ __('minutes') }}</span>
+								</div>
+								<div class="form-hint">{{ $hint }}</div>
+								@foreach (['_hours', '_minutes'] as $suffix)
+									@error($key.$suffix)
+										<x-forms.input-error :messages="$message" />
+									@enderror
+								@endforeach
+							</div>
+						@endforeach
 						<div class="mb-3">
 							<label class="form-label required" for="after_reminders">{{ __('After reminders are sent') }}</label>
 							<select class="form-select @error('after_reminders') is-invalid @enderror" id="after_reminders" name="after_reminders" required>

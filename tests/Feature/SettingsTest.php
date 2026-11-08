@@ -24,6 +24,7 @@ function settings_payload(array $overrides = []): array
         'depping' => '1',
         'hide_past_dates' => '1',
         'reminder_hours' => '48',
+        'reminder_minutes' => '30',
         'concert_reminder_hours' => '72',
         'after_reminders' => 'lock',
         'terminology' => ['rehearsal' => 'practice', 'rehearsals' => 'practices', 'concert' => ''],
@@ -52,8 +53,8 @@ test('an admin can save the settings and they override the config', function () 
         ->and(config('app.readererer_repeating_headings'))->toBeTrue()
         ->and(config('app.readererer_depping'))->toBeTrue()
         ->and(config('app.readererer_hide_past_dates'))->toBeTrue()
-        ->and(config('app.readererer_reminder_hours'))->toBe(48)
-        ->and(config('app.readererer_concert_reminder_hours'))->toBe(72)
+        ->and(config('app.readererer_reminder_minutes'))->toBe(48 * 60 + 30)
+        ->and(config('app.readererer_concert_reminder_minutes'))->toBe(72 * 60)
         ->and(config('app.readererer_after_reminders'))->toBe('lock')
         ->and(config('app.readererer_terminology'))->toBe(['rehearsal' => 'practice', 'rehearsals' => 'practices']);
 });
@@ -67,6 +68,8 @@ test('saved settings show on the settings page', function () {
     $this->actingAs($admin)->get(route('settings.edit'))
         ->assertOk()
         ->assertSee('value="Riverside Band"', false)
+        ->assertSee('name="reminder_hours" type="number" value="48"', false)
+        ->assertSee('name="reminder_minutes" type="number" value="30"', false)
         ->assertSee('value="practices"', false);
 });
 
