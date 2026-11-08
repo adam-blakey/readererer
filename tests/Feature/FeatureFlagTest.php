@@ -43,13 +43,13 @@ test('saving the page stores each flag\'s options', function () {
         ->assertSessionHasNoErrors()
         ->assertRedirect('/feature-flags');
 
-    expect(app(GeneralSettings::class)->feature_flags)->toBe([ExampleFlag::class => [
+    expect(app(GeneralSettings::class)->feature_flags[ExampleFlag::class])->toBe([
         'enabled' => true,
         'roles' => [UserRole::Member->value],
         'ensembles' => [$ensemble->id],
         'starts_at' => '2026-12-01T09:00',
         'from_version' => 'v1.5.0',
-    ]]);
+    ]);
 });
 
 test('invalid options are rejected', function () {
