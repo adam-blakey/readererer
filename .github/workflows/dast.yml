@@ -41,7 +41,8 @@ jobs:
       if: always() && hashFiles('report_md.md') != ''
       run: |
         echo "# Logged out" >> "$GITHUB_STEP_SUMMARY"
-        cat report_md.md >> "$GITHUB_STEP_SUMMARY"
+        sed '/^## Alert Detail/,$d' report_md.md >> "$GITHUB_STEP_SUMMARY"
+        echo "Alert details are in the \`zap_scan\` artifact." >> "$GITHUB_STEP_SUMMARY"
         rm report_md.md
 
     - name: Log in as an admin
@@ -84,7 +85,8 @@ jobs:
       if: always() && hashFiles('report_md.md') != ''
       run: |
         echo "# Logged in as an admin" >> "$GITHUB_STEP_SUMMARY"
-        cat report_md.md >> "$GITHUB_STEP_SUMMARY"
+        sed '/^## Alert Detail/,$d' report_md.md >> "$GITHUB_STEP_SUMMARY"
+        echo "Alert details are in the \`zap_scan_admin\` artifact." >> "$GITHUB_STEP_SUMMARY"
 
     - name: Show app logs
       if: failure()
