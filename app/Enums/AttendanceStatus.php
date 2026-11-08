@@ -8,6 +8,12 @@ enum AttendanceStatus: int
     case Attending = 1;
     case NotAttending = 2;
 
+    /** An unknown reply counts as attending when the site assumes members attend. */
+    public function effective(): self
+    {
+        return $this === self::Unknown && config('app.readererer_assume_attending') ? self::Attending : $this;
+    }
+
     public function label(): string
     {
         return match ($this) {

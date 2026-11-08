@@ -14,6 +14,18 @@
             </div>
             <div class="col-auto ms-auto">
                 <div class="btn-list">
+                    @if ($user->trashed())
+                        @can('restore', $user)
+                            <form method="POST" action="{{ route('users.restore', $user) }}" data-confirm="{{ __('Are you sure you want to unarchive this record?') }}">
+                                @csrf
+                                @method('PATCH')
+                                <button type="submit" class="btn btn-outline-success">
+                                    <x-icon name="restore" />
+                                    {{ __('Unarchive') }}
+                                </button>
+                            </form>
+                        @endcan
+                    @else
                     <x-a aria-label="{{ __('Edit') }}" class="btn" :route="'users.edit'" :user="$user">
                         <x-icon name="pencil" />
                         {{ __('Edit') }}
@@ -24,6 +36,7 @@
                             {{ __('Reset password') }}
                         </a>
                     @endcan
+                    @endif
                     @can('erase', $user)
                         <a href="#" class="btn btn-outline-danger" data-bs-toggle="modal" data-bs-target="#modal-erase-user">
                             <x-icon name="trash" />
@@ -33,6 +46,9 @@
                 </div>
             </div>
         </div>
+        @if ($user->trashed())
+            <div class="mt-3 alert alert-warning" role="alert">{{ __('This user is archived. Unarchive them to let them log in again, or erase their personal data permanently.') }}</div>
+        @endif
         @if (session('status'))
             <div class="mt-3 alert alert-success" role="alert">{{ session('status') }}</div>
         @endif
@@ -171,9 +187,9 @@
 			</div>
 		</div>
 	</div>
-    @can('resetPassword', $user)
+    @if (! $user->trashed() && Gate::allows('resetPassword', $user))
         <x-modals.reset-password :user="$user" />
-    @endcan
+    @endif
     @can('erase', $user)
         <x-modals.erase-user :user="$user" />
     @endcan

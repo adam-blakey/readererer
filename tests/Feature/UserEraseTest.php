@@ -118,7 +118,15 @@ test('a soft-deleted user can be shown and erased', function () {
     $user = make_user(UserRole::Member);
     $user->delete();
 
-    $this->actingAs($admin)->get(route('users.show', [$user, 'with_trashed' => 1]))->assertOk()->assertSee(__('Erase personal data'));
+    $this->actingAs($admin)->get(route('users.index', ['with_trashed' => 1]))
+        ->assertSee(route('users.show', [$user, 'with_trashed' => 1]), false);
+
+    $this->actingAs($admin)->get(route('users.show', [$user, 'with_trashed' => 1]))
+        ->assertOk()
+        ->assertSee(__('Erase personal data'))
+        ->assertSee(route('users.restore', $user), false)
+        ->assertDontSee(route('users.edit', $user), false)
+        ->assertDontSee(__('Reset password'));
 
     erase($admin, $user)->assertRedirect(route('users.index'));
 

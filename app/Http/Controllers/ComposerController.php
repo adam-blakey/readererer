@@ -2,8 +2,6 @@
 
 namespace App\Http\Controllers;
 
-use App\Http\Requests\StoreComposerRequest;
-use App\Http\Requests\UpdateComposerRequest;
 use App\Models\Composer;
 
 class ComposerController extends Controller
@@ -16,11 +14,7 @@ class ComposerController extends Controller
     public function index()
     {
         $query = Composer::query();
-        if (request('with_trashed')) {
-            $query = $query->withTrashed();
-        } else {
-            $query = $query->whereNull('deleted_at');
-        }
+        $query->when(request('with_trashed'), fn ($query) => $query->withTrashed());
         $composers = $query->autosort()->paginate(10)->appends(request()->only('with_trashed'));
 
         return view('auto-entities.index', [
@@ -30,16 +24,6 @@ class ComposerController extends Controller
         ]);
     }
 
-    public function create() {}
-
-    public function store(StoreComposerRequest $request) {}
-
-    public function show(Composer $composer) {}
-
-    public function edit(Composer $composer) {}
-
-    public function update(UpdateComposerRequest $request, Composer $composer) {}
-
     public function destroy(Composer $composer)
     {
         $composer->delete();
@@ -47,11 +31,9 @@ class ComposerController extends Controller
         return redirect()->back()->with('status', __('Record deleted.'));
     }
 
-    public function restore(int $id)
+    public function restore(Composer $composer)
     {
-        $entity = Composer::withTrashed()->findOrFail($id);
-        $this->authorize('restore', $entity);
-        $entity->restore();
+        $composer->restore();
 
         return redirect()->back()->with('status', __('Restored.'));
     }

@@ -35,6 +35,15 @@ document.addEventListener('DOMContentLoaded', function () {
         return card;
     }
 
+    // Counts like spreadsheet columns, matching PHP's str_increment: Z is followed by AA.
+    function nextRowName(name) {
+        const last = name.slice(-1);
+        if (last !== 'Z') {
+            return name.slice(0, -1) + String.fromCharCode(last.charCodeAt(0) + 1);
+        }
+        return (name.length > 1 ? nextRowName(name.slice(0, -1)) : 'A') + 'A';
+    }
+
     // Exactly one empty row after the last occupied one, so there is always somewhere to drop a member.
     function normaliseRows() {
         const rows = assignedRows();
@@ -51,10 +60,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
         if (lastOccupied === rows.length - 1) {
             const lastRow = rows[lastOccupied];
-            const letter = lastRow
-                ? String.fromCharCode(lastRow.dataset.row.charCodeAt(0) + 1)
-                : 'A';
-            rowsContainer.appendChild(createRow(letter));
+            rowsContainer.appendChild(createRow(lastRow ? nextRowName(lastRow.dataset.row) : 'A'));
         }
     }
 

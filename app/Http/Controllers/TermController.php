@@ -24,11 +24,7 @@ class TermController extends Controller
     public function index()
     {
         $query = Term::query();
-        if (request('with_trashed')) {
-            $query = $query->withTrashed();
-        } else {
-            $query = $query->whereNull('deleted_at');
-        }
+        $query->when(request('with_trashed'), fn ($query) => $query->withTrashed());
         if (! request('with_past')) {
             $query = $query->current();
         }
@@ -49,7 +45,7 @@ class TermController extends Controller
     public function create(): View
     {
         $term = new Term;
-        $ensembles = Ensemble::whereNull('deleted_at')->orderBy('name')->get();
+        $ensembles = Ensemble::orderBy('name')->get();
         $setup_groups = SetupGroup::orderBy('name')->get();
         $van_drivers = User::orderBy('first_name')->orderBy('last_name')->get();
 
@@ -108,7 +104,7 @@ class TermController extends Controller
     public function edit(Term $term)
     {
         $term->load('term_dates.concert_ensembles');
-        $ensembles = Ensemble::whereNull('deleted_at')->orderBy('name')->get();
+        $ensembles = Ensemble::orderBy('name')->get();
         $setup_groups = SetupGroup::orderBy('name')->get();
         $van_drivers = User::orderBy('first_name')->orderBy('last_name')->get();
 
@@ -141,11 +137,9 @@ class TermController extends Controller
         return redirect()->back()->with('status', __('Record deleted.'));
     }
 
-    public function restore(int $id)
+    public function restore(Term $term)
     {
-        $entity = Term::withTrashed()->findOrFail($id);
-        $this->authorize('restore', $entity);
-        $entity->restore();
+        $term->restore();
 
         return redirect()->back()->with('status', __('Restored.'));
     }

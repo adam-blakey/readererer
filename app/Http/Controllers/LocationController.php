@@ -18,11 +18,7 @@ class LocationController extends Controller
     public function index()
     {
         $query = Location::query();
-        if (request('with_trashed')) {
-            $query = $query->withTrashed();
-        } else {
-            $query = $query->whereNull('deleted_at');
-        }
+        $query->when(request('with_trashed'), fn ($query) => $query->withTrashed());
         $locations = $query->autosort()->paginate(10)->appends(request()->only('with_trashed'));
 
         return view('auto-entities.index', [
@@ -106,11 +102,9 @@ class LocationController extends Controller
         return redirect()->back()->with('status', __('Record deleted.'));
     }
 
-    public function restore(int $id)
+    public function restore(Location $location)
     {
-        $entity = Location::withTrashed()->findOrFail($id);
-        $this->authorize('restore', $entity);
-        $entity->restore();
+        $location->restore();
 
         return redirect()->back()->with('status', __('Restored.'));
     }

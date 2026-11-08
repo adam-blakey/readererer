@@ -4,6 +4,7 @@ namespace App\Policies;
 
 use App\Enums\UserRole;
 use App\Models\Attendance;
+use App\Models\Ensemble;
 use App\Models\User;
 use Illuminate\Auth\Access\Response;
 
@@ -27,22 +28,13 @@ class AttendancePolicy
         return Response::deny();
     }
 
-    public function create(User $user)
+    public function create(User $user, ?Ensemble $ensemble = null)
     {
         if ($user->role->value >= UserRole::Moderator->value) {
             return Response::allow();
         }
 
-        return Response::deny();
-    }
-
-    public function update(User $user, Attendance $attendance)
-    {
-        if ($user->role->value >= UserRole::Moderator->value) {
-            return Response::allow();
-        }
-
-        if ($user->role->value >= UserRole::Ensemble->value && $user->ensembles->contains('id', $attendance->ensemble_id)) {
+        if ($ensemble && $user->role->value >= UserRole::Ensemble->value && $user->ensembles->contains($ensemble)) {
             return Response::allow();
         }
 

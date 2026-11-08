@@ -34,11 +34,7 @@ class UserController extends Controller
     public function index()
     {
         $query = User::query();
-        if (request('with_trashed')) {
-            $query = $query->withTrashed();
-        } else {
-            $query = $query->whereNull('deleted_at');
-        }
+        $query->when(request('with_trashed'), fn ($query) => $query->withTrashed());
         $ensemble_options = Ensemble::orderBy('name')->pluck('name', 'id')->all() + ['none' => __('No ensemble')];
         $chosen = array_intersect(array_keys($ensemble_options), array_map('strval', Arr::wrap(request('ensembles'))));
         if (count($chosen) > 0 && count($chosen) < count($ensemble_options)) {
@@ -179,10 +175,8 @@ class UserController extends Controller
         return redirect()->back()->with('status', __('Record deleted.'));
     }
 
-    public function restore(int $userId)
+    public function restore(User $user)
     {
-        $user = User::withTrashed()->findOrFail($userId);
-        $this->authorize('restore', $user);
         $user->restore();
 
         return redirect()->back()->with('status', __('User restored.'));
@@ -245,7 +239,6 @@ class UserController extends Controller
 
     public function sendPasswordResetLink(User $user): RedirectResponse
     {
-        $this->authorize('resetPassword', $user);
         abort_if(blank($user->email), 422);
 
         $status = EmailLinkType::ResetPassword->send($user->email);
@@ -257,8 +250,6 @@ class UserController extends Controller
 
     public function setPassword(Request $request, User $user): RedirectResponse
     {
-        $this->authorize('resetPassword', $user);
-
         $validated = $request->validate([
             'password' => ['required', 'confirmed', PasswordRule::defaults()],
         ]);
@@ -274,8 +265,6 @@ class UserController extends Controller
 
     public function attachEnsemble(Request $request, User $user): RedirectResponse
     {
-        $this->authorize('manage', $user);
-
         $validated = $request->validate([
             'ensemble_id' => 'required|exists:ensembles,id',
             'instrument_family_id' => 'required|exists:instrument_families,id',
@@ -301,8 +290,6 @@ class UserController extends Controller
 
     public function detachEnsemble(User $user, Ensemble $ensemble): RedirectResponse
     {
-        $this->authorize('manage', $user);
-
         $pivot = UserEnsemble::where('user_id', $user->id)
             ->where('ensemble_id', $ensemble->id)
             ->firstOrFail();
