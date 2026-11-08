@@ -62,6 +62,11 @@ Breadcrumbs::for('settings.monitoring', function (BreadcrumbTrail $trail) {
     $trail->push(__('Monitoring'), route('settings.monitoring'));
 });
 
+Breadcrumbs::for('feature-flags.edit', function (BreadcrumbTrail $trail) {
+    $trail->parent('home');
+    $trail->push(__('Feature flags'), route('feature-flags.edit'));
+});
+
 Breadcrumbs::for('settings.import', function (BreadcrumbTrail $trail) {
     $trail->parent('settings.edit');
     $trail->push(__('Import from Pollererer'), route('settings.import'));

@@ -5,6 +5,7 @@ use App\Http\Controllers\AttendanceRegisterController;
 use App\Http\Controllers\ComposerController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\EnsembleController;
+use App\Http\Controllers\FeatureFlagController;
 use App\Http\Controllers\HealthCheckController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\InstrumentFamilyController;
@@ -79,6 +80,9 @@ Route::middleware('auth')->group(function () {
     Route::get('/settings/import', [PollererImportController::class, 'create'])->name('settings.import')->can('edit.settings');
     Route::post('/settings/import/preview', [PollererImportController::class, 'preview'])->name('settings.import.preview')->can('edit.settings');
     Route::post('/settings/import', [PollererImportController::class, 'store'])->name('settings.import.store')->can('edit.settings');
+
+    Route::get('/feature-flags', [FeatureFlagController::class, 'edit'])->name('feature-flags.edit')->can('edit.settings');
+    Route::put('/feature-flags', [FeatureFlagController::class, 'update'])->name('feature-flags.update')->can('edit.settings');
 
     Route::patch('/composers/{id}/restore', [ComposerController::class, 'restore'])->name('composers.restore');
     Route::resource('composers', ComposerController::class);

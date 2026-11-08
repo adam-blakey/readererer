@@ -57,7 +57,10 @@ requests show no skipped release jobs.
      `proc_open`, which Composer scripts need), checks the site's `.env` has a
      valid `APP_KEY` (as above), then `npm ci` and `npm run build`.
      Only then does it put the app in maintenance mode (skipped on a site's
-     first deploy, whose folder has no `vendor` for `artisan` to load yet). It rsyncs the app's
+     first deploy, whose folder has no `vendor` for `artisan` to load yet),
+     after first rsyncing `vendor` and `bootstrap` into the site's folder:
+     the pull has already put the new code there, and `artisan down` boots
+     it, so it needs the new packages and no stale `bootstrap/cache`. It rsyncs the app's
      folders (`app`, `bootstrap`, `config`, `database`, `lang`, `resources`,
      `routes`, `vendor`, `public/build`, `public/js`) into the site's folder
      with deletion, which also clears
@@ -94,16 +97,17 @@ requests show no skipped release jobs.
    deployment failed but does not roll it back: on `main` it stops the
    environments after it, and for a production site it holds back the GitHub
    release.
-3. **Production releases** run as three jobs on `main`:
+3. **Production releases** run as four jobs on `main`:
    - **`release_tag`** runs in the `release` environment, whose wait timer
      batches merges. It cancels the run if a newer `main` run is in
      progress, then works out the next version from the Conventional Commits
      since the last tag and pushes that tag, so that the servers'
      `git describe` names the release.
-   - **`deploy_prod`** deploys every production site at once (a matrix over
-     `prod`, `nsw-beta` and `blackwood-beta`); one site failing does not stop the others.
+   - **`deploy_prod`** deploys `prod`.
+   - **`deploy_beta`** deploys `nsw-beta` and `blackwood-beta` (a matrix; one
+     failing does not stop the other) once `prod` has deployed.
    - **`release`** publishes a GitHub release for the tag with generated
-     notes once every site has deployed. If a site fails, the tag exists
+     notes once qa and every site have deployed. If a site fails, the tag exists
      without a release until its job is re-run.
 4. **`docs`** runs after every environment has deployed. It rsyncs `site/`
    (following the logo symlink into `resources/images/`) to
@@ -142,12 +146,12 @@ match exactly), with:
   ends cancel themselves). Optionally add Required reviewers. It gates every
   production site, so the wait timer formerly on `prod` moves here.
 - **`prod`**, **`nsw-beta`**, **`blackwood-beta`** — Deployment branches: `main` only, and no wait
-  timer (they deploy as soon as `release_tag` finishes).
+  timer (`prod` deploys as soon as `release_tag` finishes, the others once `prod` has).
 - **`docs`** — Deployment branches: `main` only.
 
 To add another production site, create its environment with the variables
 below, set it up in cPanel as in "cPanel Git deployment, once per production
-site", and add its name to the `deploy_prod` matrix in `main.yml`.
+site", and add its name to the `deploy_beta` matrix in `main.yml`.
 
 ### Variables and secret
 

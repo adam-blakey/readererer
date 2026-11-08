@@ -18,6 +18,7 @@ use Illuminate\Support\Facades\Context;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\URL;
 use Illuminate\Support\ServiceProvider;
+use Laravel\Pennant\Feature;
 use Laravel\Pulse\Facades\Pulse;
 
 class AppServiceProvider extends ServiceProvider
@@ -40,6 +41,8 @@ class AppServiceProvider extends ServiceProvider
     public function boot(): void
     {
         Setting::applyToConfig();
+
+        Feature::discover();
 
         if (str_starts_with((string) config('app.url'), 'https://')) {
             URL::forceScheme('https');
