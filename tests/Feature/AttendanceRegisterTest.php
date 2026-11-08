@@ -8,6 +8,7 @@ use App\Models\Ensemble;
 use App\Models\RegisterEntry;
 use App\Models\SetupGroup;
 use App\Models\Term;
+use App\Models\TermDate;
 
 test('the register index requires moderator or above', function () {
     $url = route('attendance.register.index');
@@ -218,6 +219,17 @@ test('the index lists each date with a link to the registers that apply to it', 
     $response->assertSee(route('attendance.register.show', ['ensemble' => $ensemble, 'termDate' => $concert]), false);
     $response->assertDontSee(route('attendance.register.show', ['ensemble' => $otherEnsemble, 'termDate' => $concert]), false);
     $response->assertSee('1 present');
+});
+
+test('the index lists the earliest date first', function () {
+    $term = Term::factory()->create();
+    $later = TermDate::factory()->create(['term_id' => $term->id, 'start_datetime' => now()->addWeeks(2), 'end_datetime' => now()->addWeeks(2)->addHours(2)]);
+    $sooner = TermDate::factory()->create(['term_id' => $term->id, 'start_datetime' => now()->addDay(), 'end_datetime' => now()->addDay()->addHours(2)]);
+
+    $response = $this->actingAs(make_user(UserRole::Admin))->get(route('attendance.register.index'));
+
+    $response->assertOk();
+    expect($response->viewData('term_dates')->pluck('id')->all())->toBe([$sooner->id, $later->id]);
 });
 
 test('the index links each date to the polls of the ensembles it applies to', function () {
