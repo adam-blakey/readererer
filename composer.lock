@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "f52a9b9b0603157822aec6678fa12489",
+    "content-hash": "6df926a621399ebf9a3b734ef9bf4026",
     "packages": [
         {
             "name": "barryvdh/laravel-dompdf",
@@ -4661,64 +4661,6 @@
                 "source": "https://github.com/bobthecow/psysh/tree/v0.12.24"
             },
             "time": "2026-06-29T15:41:09+00:00"
-        },
-        {
-            "name": "raccoonwatch/laravel",
-            "version": "v0.1.1",
-            "source": {
-                "type": "git",
-                "url": "https://github.com/agustind/raccoon-laravel.git",
-                "reference": "22b79748b81d3baa4225bd578c93e0e22867cb2a"
-            },
-            "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/agustind/raccoon-laravel/zipball/22b79748b81d3baa4225bd578c93e0e22867cb2a",
-                "reference": "22b79748b81d3baa4225bd578c93e0e22867cb2a",
-                "shasum": ""
-            },
-            "require": {
-                "ext-zlib": "*",
-                "illuminate/cache": "^11.0|^12.0|^13.0",
-                "illuminate/http": "^11.0|^12.0|^13.0",
-                "illuminate/support": "^11.0|^12.0|^13.0",
-                "laravel/nightwatch": "^1.30",
-                "php": "^8.2"
-            },
-            "require-dev": {
-                "orchestra/testbench": "^9.0|^10.0|^11.0",
-                "phpunit/phpunit": "^11.0|^12.0"
-            },
-            "type": "library",
-            "extra": {
-                "laravel": {
-                    "providers": [
-                        "Raccoon\\Laravel\\RaccoonServiceProvider"
-                    ]
-                }
-            },
-            "autoload": {
-                "psr-4": {
-                    "Raccoon\\Laravel\\": "src/"
-                }
-            },
-            "notification-url": "https://packagist.org/downloads/",
-            "license": [
-                "MIT"
-            ],
-            "description": "Send Laravel Nightwatch events to Raccoon over HTTPS from processes with no agent next to them, such as Laravel Cloud's managed queue and Vapor.",
-            "homepage": "https://raccoon.watch",
-            "keywords": [
-                "laravel",
-                "monitoring",
-                "nightwatch",
-                "queue",
-                "raccoon"
-            ],
-            "support": {
-                "issues": "https://github.com/agustind/raccoon-laravel/issues",
-                "source": "https://github.com/agustind/raccoon-laravel/tree/v0.1.1"
-            },
-            "time": "2026-11-03T16:53:27+00:00"
         },
         {
             "name": "ramsey/collection",
@@ -13446,5 +13388,5 @@
     "platform-overrides": {
         "php": "8.5.0"
     },
-    "plugin-api-version": "2.9.0"
+    "plugin-api-version": "2.6.0"
 }
