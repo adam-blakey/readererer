@@ -13,6 +13,7 @@ use App\Models\User;
 use App\Services\EmailDispatcher;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Log;
 
 class AttendanceController extends Controller
 {
@@ -114,6 +115,8 @@ class AttendanceController extends Controller
         $members = $ensemble->users()->wherePivotNotNull('instrument_family_id')->get()->keyBy('id');
         $term_dates = $term->term_dates->load('concert_ensembles')->filter(fn (TermDate $term_date) => $term_date->appliesToEnsemble($ensemble))->keyBy('id');
         $changes = [];
+        $replies = 0;
+        $locked = 0;
 
         if (config('app.readererer_depping')) {
             $request->validate(collect($request->keys())
@@ -129,8 +132,13 @@ class AttendanceController extends Controller
                 || ($status === AttendanceStatus::Depping && ! config('app.readererer_depping'))
                 || ! preg_match('/^status-t(\d+)m(\d+)$/', $key, $ids)
                 || ! $term_dates->has((int) $ids[1])
-                || ! $members->has((int) $ids[2])
-                || $term_dates[(int) $ids[1]]->isLockedFor($request->user())) {
+                || ! $members->has((int) $ids[2])) {
+                continue;
+            }
+
+            if ($term_dates[(int) $ids[1]]->isLockedFor($request->user())) {
+                $locked++;
+
                 continue;
             }
 
@@ -159,6 +167,13 @@ class AttendanceController extends Controller
                 'edit_user_id' => Auth::id(),
                 'edit_ip' => $request->ip(),
             ]);
+            $replies++;
+        }
+
+        Log::info('Poll replies saved', ['ensemble_id' => $ensemble->id, 'term_id' => $term->id, 'replies' => $replies]);
+
+        if ($locked) {
+            Log::warning('Poll replies ignored because their dates are locked', ['ensemble_id' => $ensemble->id, 'term_id' => $term->id, 'replies' => $locked]);
         }
 
         foreach ($changes as $term_date_id => $term_date_changes) {

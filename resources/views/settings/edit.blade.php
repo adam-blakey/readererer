@@ -22,6 +22,9 @@
 		__('Email') => [
 			'log_emails' => [__('Log emails instead of sending them'), __('Writes emails to storage/logs/emails.log rather than sending them. Use this on test sites so members are not emailed.')],
 		],
+		__('Analytics') => [
+			'analytics' => [__('Send analytics to Laravel Nightwatch'), __('Sends page timings, errors and logs to Laravel Nightwatch so the Readererer developers can find problems. Members appear only as an ID, and email and IP addresses are removed. Also needs the site\'s Nightwatch token.')],
+		],
 	];
 	$user_fields = [
 		'phone_number' => __('Phone number'),
@@ -62,7 +65,7 @@
 			@method('PUT')
 
 			<fieldset class="card-body" @disabled(! $can_edit)>
-				<x-forms.error-summary :fields="['name', 'logo', 'remove_logo', 'favicon', 'remove_favicon', 'primary_color', 'image_max_kilobytes', 'assume_attending', 'allow_change_to_unknown', 'repeating_headings', 'hide_past_dates', 'depping', 'setup_groups', 'van_drivers', 'single_ensemble', 'reminder_hours', 'concert_reminder_hours', 'after_reminders', 'log_emails', 'terminology', 'terminology.*', 'shown_user_fields', 'shown_user_fields.*', 'google_login', 'google_client_id', 'google_client_secret', 'google_register_domain', 'google_register_role']" />
+				<x-forms.error-summary :fields="['name', 'logo', 'remove_logo', 'favicon', 'remove_favicon', 'primary_color', 'image_max_kilobytes', 'assume_attending', 'allow_change_to_unknown', 'repeating_headings', 'hide_past_dates', 'depping', 'setup_groups', 'van_drivers', 'single_ensemble', 'reminder_hours', 'concert_reminder_hours', 'after_reminders', 'log_emails', 'analytics', 'terminology', 'terminology.*', 'shown_user_fields', 'shown_user_fields.*', 'google_login', 'google_client_id', 'google_client_secret', 'google_register_domain', 'google_register_role']" />
 				@if (session('status'))
 					<div class="alert alert-success" role="alert">{{ session('status') }}</div>
 				@endif
@@ -276,7 +279,10 @@
 			</fieldset>
 			@if ($can_edit)
 				<div class="card-footer d-flex justify-content-between">
-					<a class="btn" href="{{ route('settings.import') }}">{{ __('Import from Pollererer') }}</a>
+					<div class="btn-list">
+						<a class="btn" href="{{ route('settings.import') }}">{{ __('Import from Pollererer') }}</a>
+						<a class="btn" href="{{ route('settings.monitoring') }}">{{ __('Monitoring') }}</a>
+					</div>
 					<button class="btn btn-primary" type="submit">{{ __('Save settings') }}</button>
 				</div>
 			@endif

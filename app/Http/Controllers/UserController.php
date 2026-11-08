@@ -18,6 +18,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Password;
 use Illuminate\Support\Str;
 use Illuminate\Validation\Rules\Password as PasswordRule;
@@ -137,6 +138,7 @@ class UserController extends Controller
     public function update(UpdateUserRequest $request, User $user): RedirectResponse
     {
         $attributes = $request->validated();
+        $role = $user->role;
         $changes_setup_group = array_key_exists('setup_group', $attributes);
         $setup_group_id = Arr::pull($attributes, 'setup_group');
 
@@ -147,6 +149,10 @@ class UserController extends Controller
         }
 
         $user->save();
+
+        if ($user->role !== $role) {
+            Log::notice('User role changed', ['user_id' => $user->id, 'from' => $role->name, 'to' => $user->role->name]);
+        }
 
         return to_route('users.show', $user);
     }
@@ -171,6 +177,7 @@ class UserController extends Controller
     public function destroy(User $user)
     {
         $user->delete();
+        Log::notice('User deleted', ['user_id' => $user->id]);
 
         return redirect()->back()->with('status', __('Record deleted.'));
     }
@@ -178,6 +185,7 @@ class UserController extends Controller
     public function restore(User $user)
     {
         $user->restore();
+        Log::notice('User restored', ['user_id' => $user->id]);
 
         return redirect()->back()->with('status', __('User restored.'));
     }
@@ -233,6 +241,8 @@ class UserController extends Controller
                 $user->delete();
             }
         });
+
+        Log::notice('User personal data erased', ['user_id' => $user->id]);
 
         return to_route('users.index')->with('status', __('Personal data erased.'));
     }

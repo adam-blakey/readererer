@@ -289,7 +289,32 @@ document root `domains/readererer.blakey.family/public` before step 6.
    minute:
    `cd ~/domains/<domain> && php artisan schedule:run > /dev/null 2>&1`.
    Without it reminders can still be sent by hand from the term page. There
-   are no queued jobs.
+   are no queued jobs. The scheduler also runs `health:check` every five
+   minutes, which requests the site's own `/health` and shows the result on
+   **Settings → Monitoring**; that page warns when no check has run for 15
+   minutes, which usually means this cron job has stopped. For a site behind
+   Cloudflare Access, set `CF_ACCESS_CLIENT_ID` and `CF_ACCESS_CLIENT_SECRET`
+   in `.env` so the check is let through.
+6. **Logs.** `LOG_STACK=daily` writes JSON lines to
+   `storage/logs/laravel-<date>.log`, kept for `LOG_DAILY_DAYS` (14) days.
+   Add channels to `LOG_STACK`, separated by commas, to send logs elsewhere
+   too:
+   - `slack`: set `LOG_SLACK_WEBHOOK_URL` to a Slack incoming webhook. Entries
+     at `LOG_SLACK_LEVEL` (`error`) and above are posted, including failed
+     health checks.
+   - `nightwatch`: sends entries at `NIGHTWATCH_LOG_LEVEL` (`info`) and
+     above to [Laravel Nightwatch](https://nightwatch.laravel.com), which also
+     records requests, exceptions, queries, mail and scheduled tasks. Set
+     `NIGHTWATCH_TOKEN` to the application's token; Nightwatch stays off
+     without it. The app sends to a Nightwatch agent at `NIGHTWATCH_INGEST_URI`
+     (`127.0.0.1:2407`; give each site on the same account its own port, as
+     the agent listens on the same address), which must keep running beside
+     the site. There is no
+     supervisor on cPanel, so add a cron job that runs every minute and starts
+     the agent when it is not already running:
+     `cd ~/domains/<domain> && flock -n ~/nightwatch-<domain>.lock php artisan nightwatch:agent --silent > /dev/null 2>&1`.
+     If the host stops long-running processes, the agent is down for up to a
+     minute at a time and entries sent meanwhile are lost.
 
 ### Rules (Settings → Rules → Rulesets → `main`)
 

@@ -1,5 +1,8 @@
 <?php
 
+use App\Logging\NightwatchRedaction;
+use Laravel\Nightwatch\Factories\Logger;
+use Monolog\Formatter\JsonFormatter;
 use Monolog\Handler\NullHandler;
 use Monolog\Handler\StreamHandler;
 use Monolog\Handler\SyslogUdpHandler;
@@ -77,6 +80,7 @@ return [
             'path' => storage_path('logs/laravel.log'),
             'level' => env('LOG_LEVEL', 'debug'),
             'days' => env('LOG_DAILY_DAYS', 14),
+            'formatter' => env('LOG_DAILY_JSON', true) ? JsonFormatter::class : null,
             'replace_placeholders' => true,
         ],
 
@@ -85,7 +89,7 @@ return [
             'url' => env('LOG_SLACK_WEBHOOK_URL'),
             'username' => env('LOG_SLACK_USERNAME', 'Laravel Log'),
             'emoji' => env('LOG_SLACK_EMOJI', ':boom:'),
-            'level' => env('LOG_LEVEL', 'critical'),
+            'level' => env('LOG_SLACK_LEVEL', 'error'),
             'replace_placeholders' => true,
         ],
 
@@ -128,6 +132,13 @@ return [
         'null' => [
             'driver' => 'monolog',
             'handler' => NullHandler::class,
+        ],
+
+        'nightwatch' => [
+            'driver' => 'custom',
+            'via' => Logger::class,
+            'level' => env('NIGHTWATCH_LOG_LEVEL', env('LOG_LEVEL', 'debug')),
+            'tap' => [NightwatchRedaction::class],
         ],
 
         'emergency' => [
