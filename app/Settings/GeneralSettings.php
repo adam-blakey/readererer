@@ -1,15 +1,17 @@
 <?php
 
-namespace App\Models;
+namespace App\Settings;
 
-use Illuminate\Contracts\Encryption\DecryptException;
-use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\QueryException;
 use Illuminate\Database\SQLiteDatabaseDoesNotExistException;
-use Illuminate\Support\Facades\Crypt;
 use Illuminate\Support\Facades\Storage;
+use Spatie\LaravelSettings\Exceptions\MissingSettings;
+use Spatie\LaravelSettings\Settings;
 
-class Setting extends Model
+/**
+ * A null setting falls back to its config value, which comes from .env.
+ */
+class GeneralSettings extends Settings
 {
     public const CONFIG_KEYS = [
         'name' => ['app.name', 'mail.from.name'],
@@ -36,8 +38,6 @@ class Setting extends Model
         'feature_flags' => ['app.readererer_feature_flags'],
     ];
 
-    public const ENCRYPTED = ['google_client_secret'];
-
     public const AFTER_REMINDERS = ['nothing', 'follow_up', 'lock'];
 
     public const TERMS = [
@@ -50,46 +50,76 @@ class Setting extends Model
         'van driver' => 'van drivers',
     ];
 
-    protected $fillable = ['key', 'value'];
+    public ?string $name;
 
-    protected function casts(): array
+    public ?string $logo;
+
+    public ?string $favicon;
+
+    public ?string $primary_color;
+
+    public ?bool $assume_attending;
+
+    public ?bool $allow_change_to_unknown;
+
+    public ?bool $repeating_headings;
+
+    public ?int $image_max_kilobytes;
+
+    public ?array $terminology;
+
+    public ?array $shown_user_fields;
+
+    public ?bool $setup_groups;
+
+    public ?bool $van_drivers;
+
+    public ?bool $single_ensemble;
+
+    public ?bool $log_emails;
+
+    public ?int $reminder_hours;
+
+    public ?string $after_reminders;
+
+    public ?bool $google_login;
+
+    public ?string $google_client_id;
+
+    public ?string $google_client_secret;
+
+    public ?string $google_register_domain;
+
+    public ?int $google_register_role;
+
+    public ?array $feature_flags;
+
+    public static function group(): string
     {
-        return ['value' => 'json'];
+        return 'general';
+    }
+
+    public static function encrypted(): array
+    {
+        return ['google_client_secret'];
     }
 
     public static function applyToConfig(): void
     {
         try {
-            $settings = static::pluck('value', 'key');
-        } catch (QueryException|SQLiteDatabaseDoesNotExistException) {
+            $settings = app(static::class)->toArray();
+        } catch (QueryException|SQLiteDatabaseDoesNotExistException|MissingSettings) {
             return; // Not migrated yet, e.g. during the first deploy.
         }
 
-        foreach ($settings->only(array_keys(self::CONFIG_KEYS)) as $key => $value) {
+        foreach (array_filter($settings, fn ($value) => $value !== null) as $key => $value) {
             if (in_array($key, ['logo', 'favicon'], true)) {
                 $value = Storage::disk('public')->url($value);
-            }
-
-            if (in_array($key, self::ENCRYPTED, true)) {
-                try {
-                    $value = Crypt::decryptString($value);
-                } catch (DecryptException) {
-                    continue; // Encrypted with a previous APP_KEY.
-                }
             }
 
             foreach (self::CONFIG_KEYS[$key] as $config_key) {
                 config([$config_key => $value]);
             }
-        }
-    }
-
-    public static function put(string $key, mixed $value): void
-    {
-        if (blank($value)) {
-            static::where('key', $key)->delete();
-        } else {
-            static::updateOrCreate(['key' => $key], ['value' => in_array($key, self::ENCRYPTED, true) ? Crypt::encryptString($value) : $value]);
         }
     }
 }
