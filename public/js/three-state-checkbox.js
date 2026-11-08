@@ -21,10 +21,25 @@ function depNameField(buttonField) {
     return buttonField.parentNode.querySelector('.dep-name');
 }
 
+function openDepName(buttonField) {
+    var depName = depNameField(buttonField);
+    if (depName != null) {
+        buttonField.parentNode.classList.add('open');
+        depName.focus();
+    }
+}
+
 function switchThreeStateCheckbox(buttonField, inputFieldId) {
     // Some quick validation.
     if (buttonField == null) {
         console.error('buttonField is required.');
+        return;
+    }
+
+    // Without hover, the first tap on a dep shows their name rather than moving on.
+    var cell = buttonField.parentNode;
+    if (cell.classList.contains('depping') && !cell.classList.contains('open') && window.matchMedia('(hover: none)').matches) {
+        openDepName(buttonField);
         return;
     }
 
@@ -47,12 +62,13 @@ function switchThreeStateCheckbox(buttonField, inputFieldId) {
     buttonField.classList.remove(...threeStateCheckboxClasses);
     buttonField.classList.add(threeStateCheckboxClasses[value]);
 
+    cell.classList.toggle('depping', value == DEPPING);
+    cell.classList.remove('open');
     var depName = depNameField(buttonField);
     if (depName != null) {
-        depName.classList.toggle('d-none', value != DEPPING);
         depName.required = value == DEPPING;
         if (value == DEPPING) {
-            depName.focus();
+            openDepName(buttonField);
         }
     }
 }
@@ -76,7 +92,16 @@ function initializeAllThreeStateCheckboxes() {
             var button = depName.parentNode.querySelector('.three-state-checkbox');
             statusInputField(button, button.dataset.inputId);
         });
+        depName.addEventListener('invalid', () => depName.parentNode.classList.add('open'));
     }
+
+    document.addEventListener('click', (event) => {
+        for (const cell of document.querySelectorAll('.dep-cell.open')) {
+            if (!cell.contains(event.target)) {
+                cell.classList.remove('open');
+            }
+        }
+    });
 }
 
 window.addEventListener('DOMContentLoaded', (event) => {

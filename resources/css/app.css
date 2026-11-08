@@ -71,6 +71,20 @@
     background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='white' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath stroke='none' d='M0 0h24v24H0z' fill='none'/%3E%3Cpath d='M7 10h14l-4 -4' /%3E%3Cpath d='M17 14h-14l4 4' /%3E%3C/svg%3E");
 }
 
+.dep-name {
+    display: none;
+    width: 10rem;
+}
+.dep-cell.depping.open .dep-name,
+.dep-cell.depping:focus-within .dep-name {
+    display: block;
+}
+@media (hover: hover) {
+    .dep-cell.depping:hover .dep-name {
+        display: block;
+    }
+}
+
 .table thead th {
     background: #f2f3f4;
 }
