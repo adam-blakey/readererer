@@ -156,4 +156,6 @@ return [
     'readererer_google_register_domain' => env('READERERER_GOOGLE_REGISTER_DOMAIN'),
     'readererer_google_register_role' => env('READERERER_GOOGLE_REGISTER_ROLE'),
 
+    'readererer_feature_flags' => [],
+
 ];
