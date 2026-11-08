@@ -388,3 +388,207 @@ test('the poll names the term\'s location and marks dates held elsewhere with a 
 
     expect(substr_count($html, '<strong>*</strong>'))->toBe(2); // the legend and the away date's heading
 });
+
+test('with depping on, a member can send a dep and name them', function () {
+    config(['app.readererer_depping' => true]);
+
+    $ensemble = Ensemble::factory()->create();
+    $term = Term::factory()->create();
+    $termDate = TermDate::forceCreate([
+        'term_id' => $term->id,
+        'start_datetime' => now()->addWeek(),
+        'end_datetime' => now()->addWeek()->addHours(2),
+    ]);
+    $member = make_user(UserRole::Member);
+    join_ensemble($member, $ensemble);
+
+    $this->actingAs($member)->post(route('attendance.poll.store', ['ensemble' => $ensemble->slug, 'term' => $term->slug]), [
+        "status-t{$termDate->id}m{$member->id}" => AttendanceStatus::Depping->value,
+        "dep-t{$termDate->id}m{$member->id}" => 'Jane Dep',
+    ])->assertRedirect();
+
+    expect(Attendance::sole())
+        ->status->toBe(AttendanceStatus::Depping)
+        ->dep_name->toBe('Jane Dep')
+        ->status_text->toBe('Sending a dep: Jane Dep');
+
+    $this->get(route('attendance.poll.show', ['ensemble' => $ensemble->slug, 'term' => $term->slug]))
+        ->assertOk()
+        ->assertSee('data-original-value="3"', false)
+        ->assertSee('value="Jane Dep"', false);
+
+    $this->post(route('attendance.poll.store', ['ensemble' => $ensemble->slug, 'term' => $term->slug]), [
+        "status-t{$termDate->id}m{$member->id}" => AttendanceStatus::Attending->value,
+        "dep-t{$termDate->id}m{$member->id}" => 'Jane Dep',
+    ]);
+
+    expect(Attendance::latest('id')->first()->dep_name)->toBeNull();
+});
+
+test('with depping off, a dep reply is ignored and earlier deps show as attending', function () {
+    config(['app.readererer_depping' => false]);
+
+    $ensemble = Ensemble::factory()->create();
+    $term = Term::factory()->create();
+    $termDate = TermDate::forceCreate([
+        'term_id' => $term->id,
+        'start_datetime' => now()->addWeek(),
+        'end_datetime' => now()->addWeek()->addHours(2),
+    ]);
+    $member = make_user(UserRole::Member);
+    join_ensemble($member, $ensemble);
+
+    $this->actingAs($member)->post(route('attendance.poll.store', ['ensemble' => $ensemble->slug, 'term' => $term->slug]), [
+        "status-t{$termDate->id}m{$member->id}" => AttendanceStatus::Depping->value,
+    ])->assertRedirect();
+
+    expect(Attendance::count())->toBe(0);
+
+    Attendance::create(['user_id' => $member->id, 'term_date_id' => $termDate->id, 'ensemble_id' => $ensemble->id, 'status' => AttendanceStatus::Depping, 'dep_name' => 'Jane Dep', 'edit_user_id' => $member->id, 'edit_ip' => '127.0.0.1']);
+
+    expect(Attendance::sole()->status_text)->toBe('Attending');
+
+    $this->get(route('attendance.poll.show', ['ensemble' => $ensemble->slug, 'term' => $term->slug]))
+        ->assertOk()
+        ->assertDontSee('dep-name', false)
+        ->assertSee('data-original-value="1"', false);
+});
+
+test('a dep reply needs the dep\'s name, and nothing is saved without it', function (?string $name) {
+    config(['app.readererer_depping' => true]);
+
+    $ensemble = Ensemble::factory()->create();
+    $term = Term::factory()->create();
+    $termDate = TermDate::forceCreate([
+        'term_id' => $term->id,
+        'start_datetime' => now()->addWeek(),
+        'end_datetime' => now()->addWeek()->addHours(2),
+    ]);
+    $member = make_user(UserRole::Member);
+    join_ensemble($member, $ensemble);
+    $poll = route('attendance.poll.show', ['ensemble' => $ensemble->slug, 'term' => $term->slug]);
+
+    $this->actingAs($member)->from($poll)->post(route('attendance.poll.store', ['ensemble' => $ensemble->slug, 'term' => $term->slug]), array_filter([
+        "status-t{$termDate->id}m{$member->id}" => AttendanceStatus::Depping->value,
+        "dep-t{$termDate->id}m{$member->id}" => $name,
+    ], fn ($value) => $value !== null))
+        ->assertRedirect($poll)
+        ->assertSessionHasErrors(["dep-t{$termDate->id}m{$member->id}" => 'Enter the name of each dep.']);
+
+    expect(Attendance::count())->toBe(0);
+
+    $this->get($poll)->assertSee('Enter the name of each dep.');
+})->with(['missing' => [null], 'blank' => ['   ']]);
+
+function poll_url(Ensemble $ensemble, Term $term, array $query = []): string
+{
+    return route('attendance.poll.show', array_merge(['ensemble' => $ensemble->slug, 'term' => $term->slug], $query));
+}
+
+function poll_date(Term $term, string $start): TermDate
+{
+    return TermDate::forceCreate([
+        'term_id' => $term->id,
+        'start_datetime' => $start,
+        'end_datetime' => $start.' +2 hours',
+    ]);
+}
+
+test('the poll sorts members by setup group in either direction', function () {
+    $ensemble = Ensemble::factory()->create();
+    $term = Term::factory()->create();
+    poll_date($term, '+1 week');
+    $first = SetupGroup::factory()->create(['name' => 'Early crew', 'week' => 1]);
+    $second = SetupGroup::factory()->create(['name' => 'Late crew', 'week' => 2]);
+    $zoe = make_user(UserRole::Member, ['first_name' => 'Zoe', 'setup_group_id' => $first->id]);
+    $amy = make_user(UserRole::Member, ['first_name' => 'Amy', 'setup_group_id' => $second->id]);
+    $bob = make_user(UserRole::Member, ['first_name' => 'Bob', 'setup_group_id' => null]);
+    foreach ([$zoe, $amy, $bob] as $member) {
+        join_ensemble($member, $ensemble);
+    }
+    config(['app.readererer_repeating_headings' => true]);
+    $this->actingAs(make_user(UserRole::Admin));
+
+    $this->get(poll_url($ensemble, $term, ['sortby' => 'setup_group']))
+        ->assertOk()
+        ->assertSeeInOrder(['Early crew', 'Zoe', 'Late crew', 'Amy', 'No setup group', 'Bob']);
+
+    $this->get(poll_url($ensemble, $term, ['sortby' => 'setup_group', 'sortdir' => 'desc']))
+        ->assertSeeInOrder(['No setup group', 'Bob', 'Late crew', 'Amy', 'Early crew', 'Zoe']);
+});
+
+test('the poll totals each date at the top and bottom', function () {
+    config(['app.readererer_assume_attending' => false]);
+    $ensemble = Ensemble::factory()->create();
+    $term = Term::factory()->create();
+    $termDate = poll_date($term, '+1 week');
+    foreach ([AttendanceStatus::Attending, AttendanceStatus::Attending, AttendanceStatus::NotAttending, null] as $status) {
+        $member = make_user(UserRole::Member);
+        join_ensemble($member, $ensemble);
+        if ($status) {
+            Attendance::create(['user_id' => $member->id, 'term_date_id' => $termDate->id, 'ensemble_id' => $ensemble->id, 'status' => $status, 'edit_user_id' => $member->id, 'edit_ip' => '127.0.0.1']);
+        }
+    }
+
+    $html = $this->actingAs(make_user(UserRole::Admin))->get(poll_url($ensemble, $term))->assertOk()->getContent();
+
+    expect(substr_count($html, 'Attending (no reply)'))->toBe(2)
+        ->and(preg_match_all('/\s2\s*<span class="text-secondary fw-normal">\(1\)<\/span>/', $html))->toBe(2);
+});
+
+test('replies to dates that have started are closed to members but not moderators', function () {
+    $ensemble = Ensemble::factory()->create();
+    $term = Term::factory()->create();
+    $past = poll_date($term, '-1 hour');
+    $future = poll_date($term, '+1 week');
+    $member = make_user(UserRole::Member);
+    join_ensemble($member, $ensemble);
+    $store = route('attendance.poll.store', ['ensemble' => $ensemble->slug, 'term' => $term->slug]);
+    $replies = [
+        "status-t{$past->id}m{$member->id}" => AttendanceStatus::NotAttending->value,
+        "status-t{$future->id}m{$member->id}" => AttendanceStatus::NotAttending->value,
+    ];
+
+    $this->actingAs($member)->post($store, $replies);
+
+    expect(Attendance::pluck('term_date_id')->all())->toBe([$future->id]);
+
+    $this->actingAs(make_user(UserRole::Moderator))->post($store, $replies);
+
+    expect(Attendance::where('term_date_id', $past->id)->count())->toBe(1);
+});
+
+test('past dates can be left out of the poll', function () {
+    $ensemble = Ensemble::factory()->create();
+    $term = Term::factory()->create();
+    $past = poll_date($term, '-1 week');
+    $future = poll_date($term, '+1 week');
+    join_ensemble(make_user(UserRole::Member), $ensemble);
+    $this->actingAs(make_user(UserRole::Admin));
+
+    expect($this->get(poll_url($ensemble, $term))->viewData('term_dates')->pluck('id')->all())->toBe([$past->id, $future->id]);
+
+    config(['app.readererer_hide_past_dates' => true]);
+
+    expect($this->get(poll_url($ensemble, $term))->viewData('term_dates')->pluck('id')->all())->toBe([$future->id]);
+});
+
+test('a poll whose dates have all passed points to the next term', function () {
+    $ensemble = Ensemble::factory()->create();
+    $member = make_user(UserRole::Member);
+    join_ensemble($member, $ensemble);
+    $oldTerm = Term::factory()->create();
+    poll_date($oldTerm, '-1 week');
+    $nextTerm = Term::factory()->create(['name' => 'Next season', 'slug' => 'next-season']);
+    poll_date($nextTerm, '+1 week');
+    $hiddenTerm = Term::factory()->create(['name' => 'Draft season', 'slug' => 'draft-season', 'hidden' => true]);
+    poll_date($hiddenTerm, '+1 day');
+
+    $this->actingAs($member)->get(poll_url($ensemble, $oldTerm))
+        ->assertOk()
+        ->assertSee('This poll has ended.')
+        ->assertSee('Go to the Next season poll')
+        ->assertSee(poll_url($ensemble, $nextTerm), false);
+
+    $this->get(poll_url($ensemble, $nextTerm))->assertDontSee('This poll has ended.');
+});

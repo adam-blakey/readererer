@@ -15,7 +15,8 @@
         "laravel/pulse": "^1.8",
         "laravel/socialite": "^5.31",
         "laravel/tinker": "^3.0",
-        "s-damian/larasort": "^2.0"
+        "s-damian/larasort": "^2.0",
+        "spatie/laravel-settings": "^3.10"
     },
     "require-dev": {
         "barryvdh/laravel-debugbar": "^4.0",
@@ -62,7 +63,7 @@
     },
     "extra": {
         "laravel": {
-            "dont-discover": []
+            "dont-discover": ["livewire/livewire"]
         }
     },
     "config": {

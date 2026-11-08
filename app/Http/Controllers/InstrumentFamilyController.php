@@ -18,11 +18,7 @@ class InstrumentFamilyController extends Controller
     public function index()
     {
         $query = InstrumentFamily::query();
-        if (request('with_trashed')) {
-            $query = $query->withTrashed();
-        } else {
-            $query = $query->whereNull('deleted_at');
-        }
+        $query->when(request('with_trashed'), fn ($query) => $query->withTrashed());
         $instrumentFamilies = $query->autosort()->paginate(10)->appends(request()->only('with_trashed'));
 
         return view('auto-entities.index', [
@@ -96,11 +92,9 @@ class InstrumentFamilyController extends Controller
         return redirect()->back()->with('status', __('Record deleted.'));
     }
 
-    public function restore(int $id)
+    public function restore(InstrumentFamily $instrumentFamily)
     {
-        $entity = InstrumentFamily::withTrashed()->findOrFail($id);
-        $this->authorize('restore', $entity);
-        $entity->restore();
+        $instrumentFamily->restore();
 
         return redirect()->back()->with('status', __('Restored.'));
     }

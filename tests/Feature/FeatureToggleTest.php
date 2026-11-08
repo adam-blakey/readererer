@@ -2,10 +2,10 @@
 
 use App\Enums\UserRole;
 use App\Models\Ensemble;
-use App\Models\Setting;
 use App\Models\SetupGroup;
 use App\Models\Term;
 use App\Models\User;
+use App\Settings\GeneralSettings;
 
 test('the feature switches are saved with the settings', function () {
     $this->actingAs(make_user(UserRole::Admin))
@@ -19,7 +19,7 @@ test('the feature switches are saved with the settings', function () {
         ])
         ->assertSessionHasNoErrors();
 
-    Setting::applyToConfig();
+    GeneralSettings::applyToConfig();
 
     expect(config('app.readererer_setup_groups'))->toBeFalse()
         ->and(config('app.readererer_van_drivers'))->toBeFalse()

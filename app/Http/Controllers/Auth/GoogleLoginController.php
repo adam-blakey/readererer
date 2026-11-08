@@ -42,10 +42,14 @@ class GoogleLoginController extends Controller
             return $this->fail(__('Your Google account has no verified email address.'));
         }
 
-        $users = User::whereRaw('lower(email) = ?', [$email])->limit(2)->get();
+        $users = User::withTrashed()->whereRaw('lower(email) = ?', [$email])->limit(2)->get();
 
         if ($users->count() > 1) {
             return $this->fail(__('More than one account uses :email, so log in with your username instead.', ['email' => $email]));
+        }
+
+        if ($users->first()?->trashed()) {
+            return $this->fail(__('The account for :email has been removed.', ['email' => $email]));
         }
 
         if ($users->first()?->role === UserRole::Ensemble) {

@@ -116,6 +116,7 @@ function member_status_totals($members, $term_date, ?Ensemble $ensemble = null):
 
         switch ($attendance_value) {
             case AttendanceStatus::Attending:
+            case AttendanceStatus::Depping:
                 $number_attending++;
                 break;
             case AttendanceStatus::NotAttending:
@@ -138,6 +139,29 @@ function member_status_totals($members, $term_date, ?Ensemble $ensemble = null):
             'unknown' => $number_unknown,
         ];
     }
+}
+
+function is_seat_row(mixed $row): bool
+{
+    return is_string($row) && preg_match('/^[A-Z]{1,10}$/', $row) === 1;
+}
+
+/** Seat row names from A up to the last valid one in `$rows`, in seating order, where Z is followed by AA. */
+function seat_rows(iterable $rows): array
+{
+    $last = collect($rows)->filter(is_seat_row(...))->sortBy(fn ($row) => [strlen($row), $row])->last();
+
+    if ($last === null) {
+        return [];
+    }
+
+    $names = ['A'];
+
+    while (end($names) !== $last) {
+        $names[] = str_increment(end($names));
+    }
+
+    return $names;
 }
 
 /** Count register entries by status key; members of `$expected_members` with no entry count as unmarked. */

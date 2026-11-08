@@ -1,5 +1,6 @@
 <?php
 
+use App\Contracts\EmailSender;
 use App\Enums\AttendanceStatus;
 use App\Enums\UserRole;
 use App\Mail\AttendanceChangedMail;
@@ -11,6 +12,9 @@ use App\Models\Ensemble;
 use App\Models\SetupGroup;
 use App\Models\Term;
 use App\Models\TermDate;
+use App\Models\User;
+use App\Services\EmailSenders\SmtpEmailSender;
+use Illuminate\Mail\Mailable;
 use Illuminate\Support\Facades\Mail;
 
 function make_term_date_in(int $hours, array $attributes = []): TermDate
@@ -89,7 +93,7 @@ test('a locked poll keeps members from changing replies after the reminder time'
 
     $this->actingAs($member)
         ->get(route('attendance.poll.show', ['ensemble' => $ensemble->slug, 'term' => $soon->term->slug]))
-        ->assertSee('Replies close 24 hours before each date starts.')
+        ->assertSee("Replies close when a date's reminders are sent.")
         ->assertSee('disabled', false);
 
     post_poll($ensemble, $soon, $member, AttendanceStatus::NotAttending);
@@ -131,4 +135,52 @@ test('the attendance changed email renders', function () {
     $html = (new AttendanceChangedMail($termDate, $ensemble, [['name' => 'Ada Lovelace', 'from' => 'Attending', 'to' => 'Not attending']]))->render();
 
     expect($html)->toContain('Wind Band')->toContain('Ada Lovelace')->toContain('Not attending (was Attending)');
+});
+
+test('concerts can have their own reminder time', function () {
+    config(['app.readererer_concert_reminder_hours' => 72]);
+    $ensemble = Ensemble::factory()->create();
+    $ensemble->admins()->attach(make_user(UserRole::Member)->id);
+    $concert = make_term_date_in(48);
+    $concert->concert_ensembles()->attach($ensemble->id);
+    make_term_date_in(48);
+
+    $this->artisan('reminders:send')->assertSuccessful();
+
+    Mail::assertSentCount(1);
+    Mail::assertSent(AttendanceListMail::class, fn ($mail) => $mail->termDate->is($concert));
+});
+
+test('the attendance list carries the seating plan of each ensemble that has one', function () {
+    $seated = Ensemble::factory()->create(['name' => 'Wind Band']);
+    join_ensemble(make_user(UserRole::Member), $seated, seatRow: 'A', seatColumn: 1);
+    $unseated = Ensemble::factory()->create(['name' => 'Choir']);
+    join_ensemble(make_user(UserRole::Member), $unseated);
+
+    $attachments = (new AttendanceListMail(make_term_date_in(12)))->attachments();
+
+    expect($attachments)->toHaveCount(1)
+        ->and($attachments[0]->as)->toBe('Seating plan - Wind Band.pdf')
+        ->and($attachments[0]->mime)->toBe('application/pdf');
+});
+
+test('a reminder that failed for every recipient is sent again on the next run', function () {
+    Ensemble::factory()->create()->admins()->attach(make_user(UserRole::Member)->id);
+    make_term_date_in(12);
+
+    app()->bind(EmailSender::class, fn () => new class implements EmailSender
+    {
+        public function send(User $recipient, Mailable $mailable): void
+        {
+            throw new RuntimeException('Mail server unreachable');
+        }
+    });
+    $this->artisan('reminders:send')->assertSuccessful();
+    Mail::assertNothingSent();
+
+    app()->bind(EmailSender::class, SmtpEmailSender::class);
+    $this->artisan('reminders:send')->assertSuccessful();
+    $this->artisan('reminders:send')->assertSuccessful();
+
+    Mail::assertSent(AttendanceListMail::class, 1);
 });

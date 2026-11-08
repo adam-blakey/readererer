@@ -2,8 +2,6 @@
 
 namespace App\Http\Controllers;
 
-use App\Http\Requests\StoreSetlistRequest;
-use App\Http\Requests\UpdateSetlistRequest;
 use App\Models\Setlist;
 
 class SetlistController extends Controller
@@ -16,11 +14,7 @@ class SetlistController extends Controller
     public function index()
     {
         $query = Setlist::query();
-        if (request('with_trashed')) {
-            $query = $query->withTrashed();
-        } else {
-            $query = $query->whereNull('deleted_at');
-        }
+        $query->when(request('with_trashed'), fn ($query) => $query->withTrashed());
         $setlists = $query->autosort()->paginate(10)->appends(request()->only('with_trashed'));
 
         return view('auto-entities.index', [
@@ -30,16 +24,6 @@ class SetlistController extends Controller
         ]);
     }
 
-    public function create() {}
-
-    public function store(StoreSetlistRequest $request) {}
-
-    public function show(Setlist $setlist) {}
-
-    public function edit(Setlist $setlist) {}
-
-    public function update(UpdateSetlistRequest $request, Setlist $setlist) {}
-
     public function destroy(Setlist $setlist)
     {
         $setlist->delete();
@@ -47,11 +31,9 @@ class SetlistController extends Controller
         return redirect()->back()->with('status', __('Record deleted.'));
     }
 
-    public function restore(int $id)
+    public function restore(Setlist $setlist)
     {
-        $entity = Setlist::withTrashed()->findOrFail($id);
-        $this->authorize('restore', $entity);
-        $entity->restore();
+        $setlist->restore();
 
         return redirect()->back()->with('status', __('Restored.'));
     }

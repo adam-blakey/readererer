@@ -3,7 +3,7 @@
 @php
 	use App\Enums\Color;
 	use App\Enums\UserRole;
-	use App\Models\Setting;
+	use App\Settings\GeneralSettings;
 
 	$terminology = config('app.readererer_terminology');
 	$switch_groups = [
@@ -11,6 +11,8 @@
 			'assume_attending' => [__('Assume members are attending'), __('Members who have not replied to a poll count as attending.')],
 			'allow_change_to_unknown' => [__('Allow changing a reply back to unknown'), __('Lets members clear their poll reply once they have given one.')],
 			'repeating_headings' => [__('Repeat headings in polls'), __('Groups the poll by section, repeating the date headings above each group.')],
+			'depping' => [__('Allow sending a dep'), __('Adds a fourth poll reply for members sending someone in their place, with the name of who is coming. A dep counts as attending.')],
+			'hide_past_dates' => [__('Hide past dates in polls'), __('Leaves dates that have finished out of the poll.')],
 		],
 		__('Features') => [
 			'setup_groups' => [__('Use setup groups'), __('Shows setup groups, their badges and setup reminders. Turning this off hides them but keeps their data.')],
@@ -60,7 +62,7 @@
 			@method('PUT')
 
 			<fieldset class="card-body" @disabled(! $can_edit)>
-				<x-forms.error-summary :fields="['name', 'logo', 'remove_logo', 'favicon', 'remove_favicon', 'primary_color', 'image_max_kilobytes', 'assume_attending', 'allow_change_to_unknown', 'repeating_headings', 'setup_groups', 'van_drivers', 'single_ensemble', 'reminder_hours', 'after_reminders', 'log_emails', 'terminology', 'terminology.*', 'shown_user_fields', 'shown_user_fields.*', 'google_login', 'google_client_id', 'google_client_secret', 'google_register_domain', 'google_register_role']" />
+				<x-forms.error-summary :fields="['name', 'logo', 'remove_logo', 'favicon', 'remove_favicon', 'primary_color', 'image_max_kilobytes', 'assume_attending', 'allow_change_to_unknown', 'repeating_headings', 'hide_past_dates', 'depping', 'setup_groups', 'van_drivers', 'single_ensemble', 'reminder_hours', 'concert_reminder_hours', 'after_reminders', 'log_emails', 'terminology', 'terminology.*', 'shown_user_fields', 'shown_user_fields.*', 'google_login', 'google_client_id', 'google_client_secret', 'google_register_domain', 'google_register_role']" />
 				@if (session('status'))
 					<div class="alert alert-success" role="alert">{{ session('status') }}</div>
 				@endif
@@ -158,6 +160,14 @@
 							@enderror
 						</div>
 						<div class="mb-3">
+							<label class="form-label" for="concert_reminder_hours">{{ __('Hours before a concert to send reminders') }}</label>
+							<input class="form-control @error('concert_reminder_hours') is-invalid @enderror" id="concert_reminder_hours" max="720" min="1" name="concert_reminder_hours" type="number" value="{{ old('concert_reminder_hours', config('app.readererer_concert_reminder_hours') ?: '') }}">
+							<div class="form-hint">{{ __('Concerts use this instead when it is set. Leave empty to use the same time as rehearsals.') }}</div>
+							@error('concert_reminder_hours')
+								<x-forms.input-error :messages="$message" />
+							@enderror
+						</div>
+						<div class="mb-3">
 							<label class="form-label required" for="after_reminders">{{ __('After reminders are sent') }}</label>
 							<select class="form-select @error('after_reminders') is-invalid @enderror" id="after_reminders" name="after_reminders" required>
 								@foreach ($after_reminders as $value => $label)
@@ -192,7 +202,7 @@
 									</tr>
 								</thead>
 								<tbody>
-									@foreach (Setting::TERMS as $singular => $plural)
+									@foreach (GeneralSettings::TERMS as $singular => $plural)
 										<tr>
 											<td>{{ $singular }} / {{ $plural }}</td>
 											@foreach ([$singular, $plural] as $word)

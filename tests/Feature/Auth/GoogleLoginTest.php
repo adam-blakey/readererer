@@ -118,3 +118,14 @@ test('a shared ensemble login cannot log in with Google', function () {
     $this->assertGuest();
     expect(User::where('email', 'band@example.org')->count())->toBe(1);
 });
+
+test('a removed account on the registration domain is refused rather than registered again', function () {
+    enable_google_login(['app.readererer_google_register_domain' => 'example.org', 'app.readererer_google_register_role' => UserRole::Member->value]);
+    make_user(UserRole::Member, ['email' => 'ada@example.org'])->delete();
+    google_returns('ada@example.org');
+
+    $this->get(route('google.callback'))->assertRedirect(route('login'))->assertSessionHasErrors('username');
+
+    $this->assertGuest();
+    expect(User::withTrashed()->where('email', 'ada@example.org')->count())->toBe(1);
+});

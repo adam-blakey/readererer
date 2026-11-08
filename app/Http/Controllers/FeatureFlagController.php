@@ -4,7 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\UpdateFeatureFlagsRequest;
 use App\Models\Ensemble;
-use App\Models\Setting;
+use App\Settings\GeneralSettings;
 use App\Support\FeatureFlag;
 use Laravel\Pennant\Feature;
 
@@ -19,15 +19,16 @@ class FeatureFlagController extends Controller
         ]);
     }
 
-    public function update(UpdateFeatureFlagsRequest $request)
+    public function update(UpdateFeatureFlagsRequest $request, GeneralSettings $settings)
     {
-        Setting::put('feature_flags', collect($this->flags())->map(fn (FeatureFlag $flag, string $class) => [
+        $settings->feature_flags = collect($this->flags())->map(fn (FeatureFlag $flag, string $class) => [
             'enabled' => $request->boolean("flags.$class.enabled"),
             'roles' => array_map('intval', $request->validated("flags.$class.roles", [])),
             'ensembles' => array_map('intval', $request->validated("flags.$class.ensembles", [])),
             'starts_at' => $request->validated("flags.$class.starts_at"),
             'from_version' => $request->validated("flags.$class.from_version"),
-        ])->all());
+        ])->all();
+        $settings->save();
 
         return redirect()->route('feature-flags.edit')->with('status', __('Feature flags saved.'));
     }

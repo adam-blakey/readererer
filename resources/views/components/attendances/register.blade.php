@@ -1,4 +1,4 @@
-@props(['ensemble', 'term_date', 'members', 'entries', 'polled_statuses', 'instrument_families', 'sortby'])
+@props(['ensemble', 'term_date', 'members', 'entries', 'polled_statuses', 'polled_dep_names', 'instrument_families', 'sortby'])
 
 @use('App\Enums\AttendanceStatus')
 @use('App\Enums\RegisterStatus')
@@ -20,6 +20,7 @@
 	$register_status_from_poll = [
 	    AttendanceStatus::Attending->value => RegisterStatus::Present,
 	    AttendanceStatus::NotAttending->value => RegisterStatus::Absent,
+	    AttendanceStatus::Depping->value => RegisterStatus::Absent,
 	];
 @endphp
 
@@ -114,6 +115,9 @@
 									@break
 								@case (AttendanceStatus::NotAttending)
 									<span class="badge bg-red-lt">{{ __('Not attending') }}</span>
+									@break
+								@case (AttendanceStatus::Depping)
+									<span class="badge bg-lime-lt">{{ $polled_dep_names->get($member->id) ? __('Sending a dep: :name', ['name' => $polled_dep_names->get($member->id)]) : __('Sending a dep') }}</span>
 									@break
 								@default
 									<span class="badge bg-secondary-lt">{{ __('No answer') }}</span>
