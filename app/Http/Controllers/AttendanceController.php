@@ -28,8 +28,6 @@ class AttendanceController extends Controller
 
     public function poll(Ensemble $ensemble, Term $term, Request $request)
     {
-        $this->authorize('view', $ensemble);
-
         $term_dates = $term->term_dates
             ->load('concert_ensembles')
             ->filter(fn (TermDate $term_date) => $term_date->appliesToEnsemble($ensemble))
@@ -80,8 +78,6 @@ class AttendanceController extends Controller
 
     public function poll_store(Ensemble $ensemble, Term $term, Request $request, EmailDispatcher $dispatcher)
     {
-        $this->authorize('update', new Attendance(['ensemble_id' => $ensemble->id]));
-
         $members = $ensemble->users()->wherePivotNotNull('instrument_family_id')->get()->keyBy('id');
         $term_dates = $term->term_dates->load('concert_ensembles')->filter(fn (TermDate $term_date) => $term_date->appliesToEnsemble($ensemble))->keyBy('id');
         $changes = [];

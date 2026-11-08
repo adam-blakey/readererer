@@ -102,11 +102,9 @@ class LocationController extends Controller
         return redirect()->back()->with('status', __('Record deleted.'));
     }
 
-    public function restore(int $id)
+    public function restore(Location $location)
     {
-        $entity = Location::withTrashed()->findOrFail($id);
-        $this->authorize('restore', $entity);
-        $entity->restore();
+        $location->restore();
 
         return redirect()->back()->with('status', __('Restored.'));
     }

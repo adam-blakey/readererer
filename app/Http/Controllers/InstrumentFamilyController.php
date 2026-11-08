@@ -92,11 +92,9 @@ class InstrumentFamilyController extends Controller
         return redirect()->back()->with('status', __('Record deleted.'));
     }
 
-    public function restore(int $id)
+    public function restore(InstrumentFamily $instrumentFamily)
     {
-        $entity = InstrumentFamily::withTrashed()->findOrFail($id);
-        $this->authorize('restore', $entity);
-        $entity->restore();
+        $instrumentFamily->restore();
 
         return redirect()->back()->with('status', __('Restored.'));
     }

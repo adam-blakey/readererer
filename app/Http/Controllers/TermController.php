@@ -136,11 +136,9 @@ class TermController extends Controller
         return redirect()->back()->with('status', __('Record deleted.'));
     }
 
-    public function restore(int $id)
+    public function restore(Term $term)
     {
-        $entity = Term::withTrashed()->findOrFail($id);
-        $this->authorize('restore', $entity);
-        $entity->restore();
+        $term->restore();
 
         return redirect()->back()->with('status', __('Restored.'));
     }

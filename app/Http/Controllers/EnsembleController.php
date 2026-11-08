@@ -93,19 +93,15 @@ class EnsembleController extends Controller
         return redirect()->back()->with('status', __('Record deleted.'));
     }
 
-    public function restore(int $id)
+    public function restore(Ensemble $ensemble)
     {
-        $entity = Ensemble::withTrashed()->findOrFail($id);
-        $this->authorize('restore', $entity);
-        $entity->restore();
+        $ensemble->restore();
 
         return redirect()->back()->with('status', __('Restored.'));
     }
 
     public function members(Ensemble $ensemble): View
     {
-        $this->authorize('view', $ensemble);
-
         return view('ensembles.members', [
             'ensemble' => $ensemble,
             'page_name' => $ensemble->name,
@@ -115,8 +111,6 @@ class EnsembleController extends Controller
 
     public function addMember(Ensemble $ensemble)
     {
-        $this->authorize('update', $ensemble);
-
         $validated = request()->validate([
             'user_id' => 'required|exists:users,id',
             'instrument_family_id' => 'required|exists:instrument_families,id',
@@ -137,8 +131,6 @@ class EnsembleController extends Controller
 
     public function removeMember(Ensemble $ensemble, User $user)
     {
-        $this->authorize('update', $ensemble);
-
         $pivot = UserEnsemble::where('user_id', $user->id)
             ->where('ensemble_id', $ensemble->id)
             ->firstOrFail();

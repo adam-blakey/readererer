@@ -16,8 +16,6 @@ class SeatingPlanController extends Controller
 {
     public function show(Ensemble $ensemble)
     {
-        $this->authorize('update', $ensemble);
-
         $ensemble->load('users');
 
         $users = $ensemble->users->sortBy([
@@ -79,8 +77,6 @@ class SeatingPlanController extends Controller
 
     public function update(Request $request, Ensemble $ensemble)
     {
-        $this->authorize('update', $ensemble);
-
         $request->validate(['seating_plan' => ['required', 'json']]);
         $seatingPlan = Validator::make(['rows' => json_decode($request->input('seating_plan'), true)], [
             'rows' => ['required', 'array'],
@@ -111,8 +107,6 @@ class SeatingPlanController extends Controller
 
     public function download(Ensemble $ensemble, TermDate $termDate)
     {
-        $this->authorize('view', $ensemble);
-
         $members = $ensemble->users()
             ->wherePivotNotNull('instrument_family_id')
             ->with(['attendances' => fn ($query) => $query->where('term_date_id', $termDate->id)])

@@ -8,11 +8,6 @@ use Illuminate\Validation\Rule;
 
 class EraseUserRequest extends FormRequest
 {
-    public function authorize(): bool
-    {
-        return $this->user()->can('erase', $this->route('user'));
-    }
-
     /** @return array<string, ValidationRule|array<mixed>|string> */
     public function rules(): array
     {
