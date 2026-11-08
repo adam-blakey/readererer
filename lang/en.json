@@ -603,5 +603,7 @@
     "New date": "New date",
     "OpenStreetMap contributors": "OpenStreetMap contributors",
     "The map pin is looked up from the address on OpenStreetMap.": "The map pin is looked up from the address on OpenStreetMap.",
-    "The location could not be saved. Try again.": "The location could not be saved. Try again."
+    "The location could not be saved. Try again.": "The location could not be saved. Try again.",
+    "The account for :email has been removed.": "The account for :email has been removed.",
+    "The seating plan has a row that is not named with capital letters.": "The seating plan has a row that is not named with capital letters."
 }
