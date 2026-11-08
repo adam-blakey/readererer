@@ -14,8 +14,8 @@ test('the home page is public', function () {
     $this->get('/')->assertOk();
 });
 
-test('the dashboard is forbidden for guests', function () {
-    $this->get('/dashboard')->assertForbidden();
+test('the dashboard sends guests to log in', function () {
+    $this->get('/dashboard')->assertRedirectContains('/login?redirect=');
 });
 
 test('the dashboard is available to every authenticated role', function (UserRole $role) {
@@ -30,7 +30,7 @@ test('the dashboard is available to every authenticated role', function (UserRol
 })->with([UserRole::Ensemble, UserRole::Member, UserRole::Moderator, UserRole::Admin]);
 
 test('resource indexes redirect guests to the login page', function (string $uri) {
-    $this->get($uri)->assertRedirect('/login');
+    $this->get($uri)->assertRedirectContains('/login?redirect=');
 })->with(['/composers', '/ensembles', '/pieces', '/setlists', '/terms', '/users', '/setup-groups']);
 
 test('composer, piece and setlist indexes are forbidden for every role', function (string $uri, UserRole $role) {
@@ -124,7 +124,7 @@ test('ensemble show is limited to moderators and members of that ensemble', func
     $ensemble = Ensemble::factory()->create();
     $showUrl = route('ensembles.show', $ensemble);
 
-    $this->get($showUrl)->assertRedirect('/login');
+    $this->get($showUrl)->assertRedirectContains('/login?redirect=');
 
     $ensembleLogin = make_user(UserRole::Ensemble);
     join_ensemble($ensembleLogin, $ensemble);
@@ -145,7 +145,7 @@ test('ensemble show is limited to moderators and members of that ensemble', func
 test('the attendance index requires moderator or above', function () {
     $url = route('attendance.index');
 
-    $this->get($url)->assertForbidden();
+    $this->get($url)->assertRedirectContains('/login?redirect=');
     $this->actingAs(make_user(UserRole::Ensemble))->get($url)->assertForbidden();
     $this->actingAs(make_user(UserRole::Member))->get($url)->assertForbidden();
     $this->actingAs(make_user(UserRole::Moderator))->get($url)->assertOk();
@@ -163,7 +163,7 @@ test('the attendance poll page requires permission to view the ensemble', functi
     ]);
     $url = route('attendance.poll.show', ['ensemble' => $ensemble->slug, 'term' => $term->slug]);
 
-    $this->get($url)->assertForbidden();
+    $this->get($url)->assertRedirectContains('/login?redirect=');
 
     $ensembleLogin = make_user(UserRole::Ensemble);
     join_ensemble($ensembleLogin, $ensemble);
@@ -202,7 +202,7 @@ test('submitting the attendance poll requires permission to view the ensemble', 
 });
 
 test('moderators can view the settings page but only admins can change it', function () {
-    $this->get('/settings')->assertRedirect('/login');
+    $this->get('/settings')->assertRedirectContains('/login?redirect=');
     $this->actingAs(make_user(UserRole::Member))->get('/settings')->assertForbidden();
     $this->actingAs(make_user(UserRole::Moderator))->get('/settings')->assertOk();
     $this->actingAs(make_user(UserRole::Moderator))->put('/settings')->assertForbidden();

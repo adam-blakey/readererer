@@ -13,9 +13,27 @@ jobs:
     uses: ./.github/workflows/deploy.yml
     secrets: inherit
 
+  codeql:
+    uses: ./.github/workflows/codeql.yml
+    permissions:
+      security-events: write
+      packages: read
+      actions: read
+      contents: read
+
+  dast:
+    uses: ./.github/workflows/dast.yml
+
+  php_security:
+    uses: ./.github/workflows/php-security.yml
+    permissions:
+      contents: read
+      security-events: write
+      actions: read
+
   deploy_qa:
     if: github.ref == 'refs/heads/main'
-    needs: build
+    needs: [build, codeql, dast, php_security]
     runs-on: ubuntu-24.04
     concurrency:
       group: deploy-qa
@@ -24,7 +42,10 @@ jobs:
       name: qa
       url: https://${{ vars.APP_DOMAIN }}
     steps:
-      - uses: actions/checkout@v7
+      - uses: actions/checkout@v7.0.1
+      - uses: actions/download-artifact@v8.0.2
+        with:
+          name: build
       - uses: ./.github/actions/deploy-ssh
         env:
           CF_ACCESS_CLIENT_ID: ${{ secrets.CF_ACCESS_CLIENT_ID }}
@@ -38,7 +59,8 @@ jobs:
           git-key: ${{ vars.DEPLOY_GIT_KEY }}
 
   release_tag:
-    needs: deploy_qa
+    if: github.ref == 'refs/heads/main'
+    needs: [build, codeql, dast, php_security]
     runs-on: ubuntu-24.04
     permissions:
       actions: write
@@ -60,7 +82,7 @@ jobs:
           fi
       # Tagged before deploying: .cpanel.yml writes `git describe --tags` to VERSION.
       - id: version
-        uses: mathieudutour/github-tag-action@v7
+        uses: mathieudutour/github-tag-action@v7.0.0
         with:
           github_token: ${{ github.token }}
           default_bump: minor
@@ -71,13 +93,36 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        environment: [prod, nsw-beta, blackwood-beta]
+        environment: [prod]
     concurrency: deploy-${{ matrix.environment }}
     environment:
       name: ${{ matrix.environment }}
       url: https://${{ vars.APP_DOMAIN }}
     steps:
-      - uses: actions/checkout@v7
+      - uses: actions/checkout@v7.0.1
+      - uses: ./.github/actions/deploy-cpanel
+        env:
+          CF_ACCESS_CLIENT_ID: ${{ secrets.CF_ACCESS_CLIENT_ID }}
+          CF_ACCESS_CLIENT_SECRET: ${{ secrets.CF_ACCESS_CLIENT_SECRET }}
+        with:
+          host: ${{ vars.CPANEL_HOST }}
+          user: ${{ vars.CPANEL_USER }}
+          token: ${{ secrets.CPANEL_TOKEN }}
+          domain: ${{ vars.APP_DOMAIN }}
+
+  deploy_beta:
+    needs: [release_tag, deploy_prod]
+    runs-on: ubuntu-24.04
+    strategy:
+      fail-fast: false
+      matrix:
+        environment: [nsw-beta, blackwood-beta]
+    concurrency: deploy-${{ matrix.environment }}
+    environment:
+      name: ${{ matrix.environment }}
+      url: https://${{ vars.APP_DOMAIN }}
+    steps:
+      - uses: actions/checkout@v7.0.1
       - uses: ./.github/actions/deploy-cpanel
         env:
           CF_ACCESS_CLIENT_ID: ${{ secrets.CF_ACCESS_CLIENT_ID }}
@@ -89,19 +134,19 @@ jobs:
           domain: ${{ vars.APP_DOMAIN }}
 
   release:
-    needs: [release_tag, deploy_prod]
+    needs: [release_tag, deploy_qa, deploy_prod, deploy_beta]
     runs-on: ubuntu-24.04
     permissions:
       contents: write
     steps:
-      - uses: softprops/action-gh-release@v3
+      - uses: softprops/action-gh-release@v3.0.4
         with:
           tag_name: ${{ needs.release_tag.outputs.tag }}
           target_commitish: ${{ github.sha }}
           generate_release_notes: true
 
   docs:
-    needs: deploy_prod
+    needs: [deploy_prod, deploy_beta]
     runs-on: ubuntu-24.04
     concurrency: deploy-docs
     environment:
@@ -111,7 +156,7 @@ jobs:
       SSH: ssh -i ~/.ssh/deploy -p ${{ vars.DEPLOY_SSH_PORT }} -o StrictHostKeyChecking=no
       HOST: ${{ vars.DEPLOY_SSH_USER }}@${{ vars.DEPLOY_SSH_HOST }}
     steps:
-      - uses: actions/checkout@v7
+      - uses: actions/checkout@v7.0.1
       - run: |
           test -n '${{ vars.APP_DOMAIN }}'
           mkdir -p ~/.ssh

@@ -47,7 +47,7 @@
 								@elseif (array_key_exists($attribute, $casts))
 									@switch($casts[$attribute])
 										@case('boolean')
-											<span data-bs-toggle="tooltip" title="{{ $entity->$attribute ? __('Yes') : __('No') }}">{{ $entity->$attribute ? __('Y') : __('N') }}</span>
+											<span aria-label="{{ $entity->$attribute ? __('Yes') : __('No') }}" class="{{ $entity->$attribute ? 'text-success' : 'text-danger' }}" data-bs-toggle="tooltip" role="img" title="{{ $entity->$attribute ? __('Yes') : __('No') }}"><x-icon name="{{ $entity->$attribute ? 'check' : 'x' }}" /></span>
 										@break
 
 										@case('datetime')
@@ -76,6 +76,12 @@
                                     @endif
 								@elseif (gettype($entity->$attribute) == 'object' and class_exists(get_class($entity->$attribute)))
 									<x-clickable-model :model="$entity->$attribute" />
+                                @elseif (str_ends_with($attribute, '_url'))
+                                    @if ($entity->$attribute)
+                                        <a href="{{ $entity->$attribute }}" rel="noopener" target="_blank"><x-icon name="external-link" /> {{ __('Open') }}</a>
+                                    @else
+                                        -
+                                    @endif
                                 @elseif (str_contains($attribute, 'color'))
                                     @php
                                         $colorClass = color_name_to_css_class($entity->$attribute);
@@ -107,13 +113,13 @@
                             }
                         @endphp
                         @if ($entity->deleted_at != null)
-                            <form method="POST" action="{{ route($restore_route_name, $entity) }}" onsubmit="return confirm('{{ __('Are you sure you want to unarchive this record?') }}');">
+                            <form method="POST" action="{{ route($restore_route_name, $entity) }}" data-confirm="{{ __('Are you sure you want to unarchive this record?') }}">
                                 @csrf
                                 @method('PATCH')
                                 <button type="submit" @class(array_merge(['btn-outline-success'], $classes))>{{ __('Unarchive') }}</button>
                             </form>
                         @else
-                            <form method="POST" action="{{ route($destroy_route_name, $entity) }}" onsubmit="return confirm('{{ __('Are you sure you want to archive this record?') }}');">
+                            <form method="POST" action="{{ route($destroy_route_name, $entity) }}" data-confirm="{{ __('Are you sure you want to archive this record?') }}">
                                 @csrf
                                 @method('DELETE')
                                 <button type="submit" @class(array_merge(['btn-outline-danger'], $classes))>{{ __('Archive') }}</button>

@@ -21,3 +21,15 @@ updates:
     groups:
       dependencies:
         patterns: ["*"]
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+    cooldown:
+      default-days: 7
+    commit-message:
+      prefix: "ci"
+      include: "scope"
+    groups:
+      dependencies:
+        patterns: ["*"]

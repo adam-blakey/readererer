@@ -3,14 +3,17 @@
 namespace App\Http\Controllers;
 
 use App\Enums\AttendanceStatus;
+use App\Mail\AttendanceChangedMail;
 use App\Models\Attendance;
 use App\Models\Ensemble;
 use App\Models\InstrumentFamily;
 use App\Models\Term;
 use App\Models\TermDate;
 use App\Models\User;
+use App\Services\EmailDispatcher;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Log;
 
 class AttendanceController extends Controller
 {
@@ -26,20 +29,28 @@ class AttendanceController extends Controller
 
     public function poll(Ensemble $ensemble, Term $term, Request $request)
     {
-        $this->authorize('view', $ensemble);
+        $this->abortIfHidden($term);
 
         $term_dates = $term->term_dates
             ->load('concert_ensembles')
             ->filter(fn (TermDate $term_date) => $term_date->appliesToEnsemble($ensemble))
             ->values()
-            ->load(['setup_group.van_drivers', 'van_driver']);
+            ->load(['setup_group.van_drivers', 'van_driver', 'location', 'term.location']);
 
         $members = $ensemble->users()
             ->wherePivotNotNull('instrument_family_id')
             ->with(['setup_group', 'attendances' => fn ($query) => $query->whereIn('term_date_id', $term_dates->pluck('id'))])
             ->get();
 
+        $ended = $term_dates->isNotEmpty() && $term_dates->every(fn (TermDate $term_date) => $term_date->end_datetime->isPast());
+
+        if (config('app.readererer_hide_past_dates')) {
+            $term_dates = $term_dates->reject(fn (TermDate $term_date) => $term_date->end_datetime->isPast())->values();
+        }
+
         return view('attendances.poll', [
+            'ended' => $ended,
+            'next_term' => $ended ? $this->nextTerm($term, $request->user()) : null,
             'members' => $members,
             'term' => $term,
             'term_dates' => $term_dates,
@@ -50,11 +61,39 @@ class AttendanceController extends Controller
             'page_name' => $ensemble->name.': '.$term->name,
             'ensemble' => $ensemble,
             'sortby' => $request->query('sortby') ?? 'first_name',
+            'sortdir' => $request->query('sortdir') === 'desc' ? 'desc' : 'asc',
         ]);
+    }
+
+    /** The upcoming term that starts soonest, for a poll whose dates have all passed. */
+    private function nextTerm(Term $term, User $user): ?Term
+    {
+        return Term::whereKeyNot($term->id)
+            ->whereHas('term_dates', fn ($query) => $query->where('end_datetime', '>=', now()))
+            ->visibleTo($user)
+            ->with('term_dates')
+            ->get()
+            ->sortBy('earliest_date')
+            ->first();
+    }
+
+    /** The poll of a hidden term is only for moderators and above. */
+    private function abortIfHidden(Term $term): void
+    {
+        abort_if($term->hidden && Auth::user()->cannot('viewAny', Term::class), 404);
+    }
+
+    public function poll_view(Request $request)
+    {
+        $request->user()->putSetting('poll_own_view', $request->boolean('own'));
+
+        return redirect()->back();
     }
 
     public function history(Ensemble $ensemble, Term $term, User $user)
     {
+        $this->abortIfHidden($term);
+
         $attendances = Attendance::with(['term_date', 'edit_user' => fn ($query) => $query->withTrashed()])
             ->where('user_id', $user->id)
             ->where('ensemble_id', $ensemble->id)
@@ -69,33 +108,90 @@ class AttendanceController extends Controller
         ]);
     }
 
-    public function poll_store(Ensemble $ensemble, Term $term, Request $request)
+    public function poll_store(Ensemble $ensemble, Term $term, Request $request, EmailDispatcher $dispatcher)
     {
-        $this->authorize('view', $ensemble);
+        $this->abortIfHidden($term);
 
-        $member_ids = $ensemble->users()->wherePivotNotNull('instrument_family_id')->pluck('users.id');
-        $term_date_ids = $term->term_dates->load('concert_ensembles')->filter(fn (TermDate $term_date) => $term_date->appliesToEnsemble($ensemble))->pluck('id');
+        $members = $ensemble->users()->wherePivotNotNull('instrument_family_id')->get()->keyBy('id');
+        $term_dates = $term->term_dates->load('concert_ensembles')->filter(fn (TermDate $term_date) => $term_date->appliesToEnsemble($ensemble))->keyBy('id');
+        $changes = [];
+        $replies = 0;
+        $locked = 0;
+
+        if (config('app.readererer_depping')) {
+            $request->validate(collect($request->keys())
+                ->filter(fn (string $key) => preg_match('/^status-t\d+m\d+$/', $key) && $request->input($key) == AttendanceStatus::Depping->value)
+                ->mapWithKeys(fn (string $key) => ['dep-'.substr($key, strlen('status-')) => ['required', 'string', 'max:255']])
+                ->all(), ['required' => __('Enter the name of each dep.')]);
+        }
 
         foreach ($request->except('_token') as $key => $value) {
             $status = is_numeric($value) ? AttendanceStatus::tryFrom((int) $value) : null;
 
             if ($status === null
+                || ($status === AttendanceStatus::Depping && ! config('app.readererer_depping'))
                 || ! preg_match('/^status-t(\d+)m(\d+)$/', $key, $ids)
-                || ! $term_date_ids->contains((int) $ids[1])
-                || ! $member_ids->contains((int) $ids[2])) {
+                || ! $term_dates->has((int) $ids[1])
+                || ! $members->has((int) $ids[2])) {
                 continue;
             }
 
+            if ($term_dates[(int) $ids[1]]->isLockedFor($request->user())) {
+                $locked++;
+
+                continue;
+            }
+
+            $term_date = $term_dates[(int) $ids[1]];
+            $member = $members[(int) $ids[2]];
+            $dep_name = $status === AttendanceStatus::Depping ? $request->input("dep-t{$ids[1]}m{$ids[2]}") : null;
+
+            if ($this->sendsFollowUps($term_date)) {
+                $previous = (Attendance::where([
+                    'user_id' => $member->id,
+                    'term_date_id' => $term_date->id,
+                    'ensemble_id' => $ensemble->id,
+                ])->latest()->latest('id')->value('status') ?? AttendanceStatus::Unknown)->effective();
+
+                if ($previous !== $status->effective()) {
+                    $changes[$term_date->id][] = ['name' => $member->name, 'from' => $previous->label(), 'to' => $status->label()];
+                }
+            }
+
             Attendance::create([
-                'user_id' => (int) $ids[2],
-                'term_date_id' => (int) $ids[1],
+                'user_id' => $member->id,
+                'term_date_id' => $term_date->id,
                 'ensemble_id' => $ensemble->id,
                 'status' => $status,
+                'dep_name' => $dep_name,
                 'edit_user_id' => Auth::id(),
                 'edit_ip' => $request->ip(),
             ]);
+            $replies++;
+        }
+
+        Log::info('Poll replies saved', ['ensemble_id' => $ensemble->id, 'term_id' => $term->id, 'replies' => $replies]);
+
+        if ($locked) {
+            Log::warning('Poll replies ignored because their dates are locked', ['ensemble_id' => $ensemble->id, 'term_id' => $term->id, 'replies' => $locked]);
+        }
+
+        foreach ($changes as $term_date_id => $term_date_changes) {
+            $term_date = $term_dates[$term_date_id];
+            $recipients = $term_date->attendanceListRecipients();
+
+            if ($recipients->isNotEmpty()) {
+                $dispatcher->send($term_date, $recipients, fn () => new AttendanceChangedMail($term_date, $ensemble, $term_date_changes));
+            }
         }
 
         return redirect()->route('attendance.poll.show', ['ensemble' => $ensemble, 'term' => $term]);
+    }
+
+    private function sendsFollowUps(TermDate $term_date): bool
+    {
+        return config('app.readererer_after_reminders') === 'follow_up'
+            && $term_date->isPastReminderTime()
+            && $term_date->start_datetime->isFuture();
     }
 }

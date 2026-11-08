@@ -1,8 +1,12 @@
 <?php
 
 use App\Enums\UserRole;
-use App\Models\Setting;
+use App\Models\User;
+use App\Settings\GeneralSettings;
 use Illuminate\Http\UploadedFile;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Storage;
 
 beforeEach(function () {
@@ -17,13 +21,19 @@ function settings_payload(array $overrides = []): array
         'assume_attending' => '1',
         'allow_change_to_unknown' => '0',
         'repeating_headings' => '1',
+        'depping' => '1',
+        'hide_past_dates' => '1',
+        'reminder_hours' => '48',
+        'reminder_minutes' => '30',
+        'concert_reminder_hours' => '72',
+        'after_reminders' => 'lock',
         'terminology' => ['rehearsal' => 'practice', 'rehearsals' => 'practices', 'concert' => ''],
     ], $overrides);
 }
 
 function reload_settings(): void
 {
-    Setting::applyToConfig();
+    GeneralSettings::applyToConfig();
     app('translator')->setLoaded([]);
 }
 
@@ -41,6 +51,11 @@ test('an admin can save the settings and they override the config', function () 
         ->and(config('app.readererer_assume_attending'))->toBeTrue()
         ->and(config('app.readererer_allow_change_to_unknown'))->toBeFalse()
         ->and(config('app.readererer_repeating_headings'))->toBeTrue()
+        ->and(config('app.readererer_depping'))->toBeTrue()
+        ->and(config('app.readererer_hide_past_dates'))->toBeTrue()
+        ->and(config('app.readererer_reminder_minutes'))->toBe(48 * 60 + 30)
+        ->and(config('app.readererer_concert_reminder_minutes'))->toBe(72 * 60)
+        ->and(config('app.readererer_after_reminders'))->toBe('lock')
         ->and(config('app.readererer_terminology'))->toBe(['rehearsal' => 'practice', 'rehearsals' => 'practices']);
 });
 
@@ -53,11 +68,13 @@ test('saved settings show on the settings page', function () {
     $this->actingAs($admin)->get(route('settings.edit'))
         ->assertOk()
         ->assertSee('value="Riverside Band"', false)
+        ->assertSee('name="reminder_hours" type="number" value="48"', false)
+        ->assertSee('name="reminder_minutes" type="number" value="30"', false)
         ->assertSee('value="practices"', false);
 });
 
 test('the wording setting renames words in translated text', function () {
-    Setting::put('terminology', ['rehearsal' => 'practice', 'rehearsals' => 'practices', 'member' => 'player', 'concert' => 'gig']);
+    app(GeneralSettings::class)->fill(['terminology' => ['rehearsal' => 'practice', 'rehearsals' => 'practices', 'member' => 'player', 'concert' => 'gig']])->save();
     reload_settings();
 
     expect(__('Next rehearsal'))->toBe('Next practice')
@@ -71,20 +88,20 @@ test('an admin can upload, replace and remove the logo', function () {
 
     $this->actingAs($admin)->put(route('settings.update'), settings_payload(['logo' => UploadedFile::fake()->image('first.png')]))
         ->assertSessionHasNoErrors();
-    $first = Setting::where('key', 'logo')->value('value');
+    $first = app(GeneralSettings::class)->logo;
     Storage::disk('public')->assertExists($first);
 
     reload_settings();
     expect(logo_url())->toEndWith('/storage/'.$first);
 
     $this->actingAs($admin)->put(route('settings.update'), settings_payload(['logo' => UploadedFile::fake()->image('second.png')]));
-    $second = Setting::where('key', 'logo')->value('value');
+    $second = app(GeneralSettings::class)->logo;
     Storage::disk('public')->assertMissing($first);
     Storage::disk('public')->assertExists($second);
 
     $this->actingAs($admin)->put(route('settings.update'), settings_payload(['remove_logo' => '1']));
     Storage::disk('public')->assertMissing($second);
-    expect(Setting::where('key', 'logo')->exists())->toBeFalse();
+    expect(app(GeneralSettings::class)->logo)->toBeNull();
 });
 
 test('settings reject unknown words and invalid values', function () {
@@ -93,10 +110,11 @@ test('settings reject unknown words and invalid values', function () {
             'name' => '',
             'image_max_kilobytes' => 0,
             'terminology' => ['piece' => 'tune'],
+            'primary_color' => 'magenta',
         ]))
-        ->assertSessionHasErrors(['name', 'image_max_kilobytes', 'terminology']);
+        ->assertSessionHasErrors(['name', 'image_max_kilobytes', 'terminology', 'primary_color']);
 
-    expect(Setting::count())->toBe(0);
+    expect(DB::table('settings')->where('payload', '!=', 'null')->count())->toBe(0);
 });
 
 test('moderators and admins see the settings link', function () {
@@ -130,4 +148,180 @@ test('moderators see the settings read-only', function () {
 test('deploys link public/storage to the public disk', function () {
     expect(file_get_contents(base_path('.cpanel.yml')))->toContain('ln -sfn ../storage/app/public public/storage')
         ->and(file_get_contents(base_path('.github/actions/deploy-ssh/action.yml')))->toContain('ln -sfn ../storage/app/public public/storage');
+});
+
+test('every member detail is shown until the setting is saved', function () {
+    expect(make_user()->getVisible())->toContain('phone_number', 'emergency_contact_name', 'is_over_18');
+});
+
+test('unticked member details are left out of the member pages and keep their saved values', function () {
+    $admin = make_user(UserRole::Admin);
+    $member = make_user(UserRole::Member, ['phone_number' => '01234 567890', 'date_of_birth' => '1990-01-01']);
+
+    $this->actingAs($admin)
+        ->put(route('settings.update'), settings_payload(['shown_user_fields' => ['address', 'emergency_contact', 'has_photo_permission', 'is_gift_aiding_subs']]))
+        ->assertSessionHasNoErrors();
+    reload_settings();
+
+    expect($member->getVisible())->toContain('address_line1')->not->toContain('phone_number', 'is_over_18');
+
+    $this->actingAs($admin)->get(route('users.show', $member))
+        ->assertOk()
+        ->assertDontSee('01234 567890')
+        ->assertDontSee(__('Over 18'))
+        ->assertSee(__('Address'))
+        ->assertDontSee(__('No additional info available'));
+
+    foreach ([route('users.create'), route('users.edit', $member)] as $url) {
+        $this->actingAs($admin)->get($url)
+            ->assertOk()
+            ->assertDontSee('name="phone_number"', false)
+            ->assertDontSee('name="date_of_birth"', false)
+            ->assertSee('name="address_line1"', false);
+    }
+
+    $this->actingAs($admin)->patch(route('users.update', $member), [
+        'first_name' => $member->first_name,
+        'last_name' => $member->last_name,
+        'email' => $member->email,
+        'role' => $member->role->value,
+    ])->assertSessionHasNoErrors();
+
+    expect($member->fresh()->phone_number)->toBe('01234 567890');
+});
+
+test('unticking every member detail hides them all', function () {
+    $admin = make_user(UserRole::Admin);
+    $this->actingAs($admin)->put(route('settings.update'), settings_payload())->assertSessionHasNoErrors();
+    reload_settings();
+
+    expect(User::shownFields())->toBe([]);
+
+    $member = make_user();
+    $this->actingAs($member)->get(route('users.show', $member))
+        ->assertOk()
+        ->assertSee(__('No additional info available'));
+});
+
+test('only known member details can be shown', function () {
+    $this->actingAs(make_user(UserRole::Admin))
+        ->put(route('settings.update'), settings_payload(['shown_user_fields' => ['password']]))
+        ->assertSessionHasErrors('shown_user_fields.0');
+});
+
+test('the email logging switch is saved to the config', function () {
+    $this->actingAs(make_user(UserRole::Admin))
+        ->put(route('settings.update'), settings_payload(['log_emails' => '1']))
+        ->assertSessionHasNoErrors();
+
+    reload_settings();
+
+    expect(config('app.readererer_log_emails'))->toBeTrue();
+});
+
+test('the analytics switch is saved to the config', function () {
+    $this->actingAs(make_user(UserRole::Admin))
+        ->put(route('settings.update'), settings_payload(['analytics' => '1']))
+        ->assertSessionHasNoErrors();
+
+    reload_settings();
+
+    expect(config('app.readererer_analytics'))->toBeTrue();
+});
+
+test('saving the settings logs which settings changed but not their values', function () {
+    Log::spy();
+
+    $this->actingAs(make_user(UserRole::Admin))
+        ->put(route('settings.update'), settings_payload(['google_client_id' => 'secret-client-id']))
+        ->assertSessionHasNoErrors();
+
+    Log::shouldHaveReceived('info')->with('Site settings saved', Mockery::on(
+        fn (array $context) => in_array('google_client_id', $context['changed'], true) && ! str_contains(json_encode($context), 'secret-client-id')
+    ))->once();
+});
+
+test('the featured colour themes every page and the maintenance illustration', function () {
+    $admin = make_user(UserRole::Admin);
+    $this->actingAs($admin)
+        ->put(route('settings.update'), settings_payload(['primary_color' => 'red']))
+        ->assertSessionHasNoErrors();
+
+    reload_settings();
+
+    expect(config('app.readererer_primary_color'))->toBe('red');
+    $this->actingAs($admin)->get(route('settings.edit'))
+        ->assertSee('data-bs-theme-primary="red"', false)
+        ->assertSee('name="primary_color" type="radio" value="red" checked', false);
+
+    Route::get('/test-unavailable', fn () => abort(503));
+    $this->get('/test-unavailable')
+        ->assertStatus(503)
+        ->assertSee('data-bs-theme-primary="red"', false)
+        ->assertSee('var(--tblr-primary', false);
+});
+
+test('the Google login settings are saved, with the client secret encrypted', function () {
+    $admin = make_user(UserRole::Admin);
+    $google = [
+        'google_login' => '1',
+        'google_client_id' => 'client-id',
+        'google_client_secret' => 'client-secret',
+        'google_register_domain' => 'Example.org',
+        'google_register_role' => (string) UserRole::Moderator->value,
+    ];
+
+    $this->actingAs($admin)->put(route('settings.update'), settings_payload($google))->assertSessionHasNoErrors();
+
+    $stored = DB::table('settings')->where('name', 'google_client_secret')->value('payload');
+    reload_settings();
+
+    expect($stored)->not->toContain('client-secret')
+        ->and(config('app.readererer_google_login'))->toBeTrue()
+        ->and(config('services.google.client_id'))->toBe('client-id')
+        ->and(config('services.google.client_secret'))->toBe('client-secret')
+        ->and(config('app.readererer_google_register_domain'))->toBe('example.org')
+        ->and(config('app.readererer_google_register_role'))->toBe(UserRole::Moderator->value);
+
+    $this->actingAs($admin)->get(route('settings.edit'))->assertDontSee('client-secret');
+
+    $this->actingAs($admin)
+        ->put(route('settings.update'), settings_payload(['google_client_secret' => ''] + $google))
+        ->assertSessionHasNoErrors();
+    reload_settings();
+
+    expect(config('services.google.client_secret'))->toBe('client-secret');
+});
+
+test('Google login needs a client ID and secret, and registration needs both a domain and a role', function () {
+    $this->actingAs(make_user(UserRole::Admin))
+        ->put(route('settings.update'), settings_payload(['google_login' => '1', 'google_register_domain' => 'example.org']))
+        ->assertSessionHasErrors(['google_client_id', 'google_client_secret', 'google_register_role']);
+
+    $this->actingAs(make_user(UserRole::Admin))
+        ->put(route('settings.update'), settings_payload(['google_register_domain' => '@example.org', 'google_register_role' => (string) UserRole::Ensemble->value]))
+        ->assertSessionHasErrors(['google_register_domain', 'google_register_role']);
+});
+
+test('the Google login section links to the Google Cloud console pages for OAuth clients', function () {
+    $this->actingAs(make_user(UserRole::Admin))->get(route('settings.edit'))
+        ->assertSee('href="https://console.cloud.google.com/auth/clients/create"', false)
+        ->assertSee('href="https://console.cloud.google.com/auth/clients"', false)
+        ->assertSee('<code>'.route('google.callback').'</code>', false);
+});
+
+test('an admin can upload and remove the favicon', function () {
+    $admin = make_user(UserRole::Admin);
+
+    $this->actingAs($admin)->put(route('settings.update'), settings_payload(['favicon' => UploadedFile::fake()->image('icon.png')]))
+        ->assertSessionHasNoErrors();
+    $path = app(GeneralSettings::class)->favicon;
+    Storage::disk('public')->assertExists($path);
+
+    reload_settings();
+    expect(favicon_url())->toEndWith('/storage/'.$path);
+
+    $this->actingAs($admin)->put(route('settings.update'), settings_payload(['remove_favicon' => '1']));
+    Storage::disk('public')->assertMissing($path);
+    expect(app(GeneralSettings::class)->favicon)->toBeNull();
 });

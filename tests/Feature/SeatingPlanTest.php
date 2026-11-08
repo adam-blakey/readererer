@@ -22,7 +22,6 @@ test('the seating plan page requires permission to update the ensemble', functio
 });
 
 test('the seating plan groups members by seat row', function () {
-    // The view labels seat rows with letters, from range('A', ...) up to the highest row.
     $ensemble = Ensemble::factory()->create();
     $seated = make_user(UserRole::Member);
     $unseated = make_user(UserRole::Member);
@@ -118,6 +117,41 @@ test('updating the seating plan stores seat rows and columns on the pivot', func
     expect($pivot->seat_row)->toEqual('A');
     expect($pivot->seat_column)->toEqual(2);
 });
+
+test('the seating plan lists every row past Z, plus one empty row', function () {
+    $ensemble = Ensemble::factory()->create();
+    $back = make_user(UserRole::Member);
+    $oddRow = make_user(UserRole::Member);
+    join_ensemble($back, $ensemble, null, 'AB', 1);
+    join_ensemble($oddRow, $ensemble, null, '3', 1);
+
+    $response = $this->actingAs(make_user(UserRole::Admin))
+        ->get(route('ensembles.seating-plan.show', $ensemble));
+
+    $response->assertOk();
+    $grouped = $response->viewData('grouped_users');
+    expect($grouped->keys()->all())->toHaveCount(29)
+        ->and($grouped->keys()->slice(-4)->values()->all())->toBe(['Z', 'AA', 'AB', 'AC'])
+        ->and($grouped->get('AB')->pluck('id')->all())->toBe([$back->id])
+        ->and($response->viewData('unassigned_users')->flatten(1)->pluck('id')->all())->toBe([$oddRow->id]);
+});
+
+test('a seating plan with a malformed row or seat is refused', function (mixed $plan) {
+    $ensemble = Ensemble::factory()->create();
+    $member = make_user(UserRole::Member);
+    join_ensemble($member, $ensemble, null, 'A', 1);
+
+    $this->actingAs(make_user(UserRole::Admin))
+        ->put(route('ensembles.seating-plan.update', $ensemble), ['seating_plan' => $plan])
+        ->assertSessionHasErrors();
+
+    expect($ensemble->users()->first()->pivot->seat_row)->toBe('A');
+})->with([
+    'missing' => null,
+    'not json' => '{',
+    'lower-case row' => fn () => json_encode(['b' => [['id' => 1, 'column' => 1]]]),
+    'column not a number' => fn () => json_encode(['B' => [['id' => 1, 'column' => 'x']]]),
+]);
 
 test('updating the seating plan is forbidden without permission to update the ensemble', function () {
     $ensemble = Ensemble::factory()->create();
@@ -226,4 +260,23 @@ test('the seating plan pdf view groups members by row and marks who is not atten
     expect($html)->toContain('Row A')->toContain('Row B');
     expect($html)->toMatch('/<s [^>]*>\s*'.$backRow->name.'\s*<\/s>/');
     expect($html)->not->toMatch('/<s [^>]*>\s*'.$frontRow->name.'\s*<\/s>/');
+});
+
+test('the seating plan pdf shows rows past Z and leaves out members with no seat', function () {
+    $ensemble = Ensemble::factory()->create();
+    $termDate = make_term_date();
+    $back = make_user(UserRole::Member, ['first_name' => 'Bea', 'last_name' => 'Back']);
+    $unseated = make_user(UserRole::Member, ['first_name' => 'Una', 'last_name' => 'Seated']);
+    join_ensemble($back, $ensemble, null, 'AA', 1);
+    join_ensemble($unseated, $ensemble);
+
+    $html = view('mail.seating-plan-pdf', [
+        'ensemble' => $ensemble,
+        'termDate' => $termDate,
+        'members' => $ensemble->users()->with('attendances')->get(),
+        'instrumentFamilies' => InstrumentFamily::all()->keyBy('id'),
+    ])->render();
+
+    expect($html)->toContain('Row AA')->toContain($back->name)
+        ->not->toContain('Row A<')->not->toContain($unseated->name);
 });

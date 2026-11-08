@@ -6,6 +6,7 @@ use Illuminate\Database\Eloquent\Attributes\Scope;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Carbon;
@@ -24,6 +25,7 @@ class Term extends Model
         'number_of_concerts',
         'earliest_date',
         'latest_date',
+        'hidden',
         'created_at',
         'updated_at',
     ];
@@ -46,6 +48,8 @@ class Term extends Model
         'name',
         'slug',
         'term_dates',
+        'location_id',
+        'hidden',
     ];
 
     public function casts(): array
@@ -55,12 +59,19 @@ class Term extends Model
             'updated_at' => 'datetime',
             'earliest_date' => 'datetime',
             'latest_date' => 'datetime',
+            'hidden' => 'boolean',
         ];
     }
 
     public function term_dates(): HasMany
     {
-        return $this->hasMany(TermDate::class)->orderBy('start_datetime');
+        return $this->hasMany(TermDate::class)->orderBy('start_datetime')->chaperone();
+    }
+
+    /** The default location for dates that do not set their own. */
+    public function location(): BelongsTo
+    {
+        return $this->belongsTo(Location::class)->withTrashed();
     }
 
     #[Scope]
@@ -69,6 +80,15 @@ class Term extends Model
         $query->where(fn (Builder $query) => $query
             ->whereDoesntHave('term_dates')
             ->orWhereHas('term_dates', fn (Builder $query) => $query->where('end_datetime', '>=', now())));
+    }
+
+    /** Hidden terms are only listed for moderators and above. */
+    #[Scope]
+    protected function visibleTo(Builder $query, ?User $user): void
+    {
+        if (! $user?->can('viewAny', Term::class)) {
+            $query->where('hidden', false);
+        }
     }
 
     public function getNumberOfRehearsalsAttribute(): int

@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Enums\AttendanceStatus;
 use App\Enums\RegisterStatus;
+use App\Models\Attendance;
 use App\Models\Ensemble;
 use App\Models\InstrumentFamily;
 use App\Models\RegisterEntry;
@@ -19,9 +20,7 @@ class AttendanceRegisterController extends Controller
 {
     public function index(Request $request)
     {
-        $this->authorize('viewAny', RegisterEntry::class);
-
-        $term_dates = TermDate::with(['term', 'concert_ensembles', 'register_entries'])
+        $term_dates = TermDate::with(['term', 'concert_ensembles', 'register_entries', 'email_logs.recipients', 'setup_group', 'van_driver'])
             ->orderByDesc('start_datetime')
             ->paginate(15);
 
@@ -33,26 +32,25 @@ class AttendanceRegisterController extends Controller
         return view('attendances.registers', [
             'term_dates' => $term_dates,
             'ensembles' => $ensembles,
-            'page_name' => __('Attendance registers'),
+            'page_name' => __('Upcoming rehearsals'),
         ]);
     }
 
     public function show(Ensemble $ensemble, TermDate $termDate, Request $request)
     {
-        $this->authorize('viewAny', RegisterEntry::class);
-        $this->authorize('view', $ensemble);
-
         abort_unless($termDate->appliesToEnsemble($ensemble), 404);
 
         $sortby = $request->query('sortby') ?? 'first_name';
         $members = $this->sorted_members($ensemble, $sortby);
+        $polled = $this->polled_attendances($ensemble, $termDate);
 
         return view('attendances.register', [
             'ensemble' => $ensemble,
             'term_date' => $termDate,
             'members' => $members,
             'entries' => $this->entries($ensemble, $termDate),
-            'polled_statuses' => $this->polled_statuses($ensemble, $termDate),
+            'polled_statuses' => $polled->map(fn (?Attendance $attendance) => $attendance?->status ?? AttendanceStatus::Unknown),
+            'polled_dep_names' => $polled->map(fn (?Attendance $attendance) => $attendance?->dep_name)->filter(),
             'instrument_families' => $this->instrument_families($ensemble),
             'sortby' => $sortby,
             'page_name' => $ensemble->name.': '.$termDate->date_label,
@@ -61,9 +59,6 @@ class AttendanceRegisterController extends Controller
 
     public function store(Ensemble $ensemble, TermDate $termDate, Request $request)
     {
-        $this->authorize('create', RegisterEntry::class);
-        $this->authorize('view', $ensemble);
-
         abort_unless($termDate->appliesToEnsemble($ensemble), 404);
 
         $validated = $request->validate([
@@ -157,12 +152,12 @@ class AttendanceRegisterController extends Controller
             ->keyBy('user_id');
     }
 
-    private function polled_statuses(Ensemble $ensemble, TermDate $termDate): Collection
+    private function polled_attendances(Ensemble $ensemble, TermDate $termDate): Collection
     {
         return $this->members($ensemble)
             ->load(['attendances' => fn ($query) => $query->where('term_date_id', $termDate->id)])
             ->mapWithKeys(fn (User $member) => [
-                $member->id => $member->latestAttendanceFor($termDate, $ensemble)?->status ?? AttendanceStatus::Unknown,
+                $member->id => $member->latestAttendanceFor($termDate, $ensemble),
             ]);
     }
 }

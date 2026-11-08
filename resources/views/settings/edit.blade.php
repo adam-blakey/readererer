@@ -1,7 +1,9 @@
-@props(['page_name', 'has_uploaded_logo'])
+@props(['page_name', 'has_uploaded_logo', 'has_uploaded_favicon', 'has_google_client_secret'])
 
 @php
-	use App\Models\Setting;
+	use App\Enums\Color;
+	use App\Enums\UserRole;
+	use App\Settings\GeneralSettings;
 
 	$terminology = config('app.readererer_terminology');
 	$switch_groups = [
@@ -9,20 +11,43 @@
 			'assume_attending' => [__('Assume members are attending'), __('Members who have not replied to a poll count as attending.')],
 			'allow_change_to_unknown' => [__('Allow changing a reply back to unknown'), __('Lets members clear their poll reply once they have given one.')],
 			'repeating_headings' => [__('Repeat headings in polls'), __('Groups the poll by section, repeating the date headings above each group.')],
+			'depping' => [__('Allow sending a dep'), __('Adds a fourth poll reply for members sending someone in their place, with the name of who is coming. A dep counts as attending.')],
+			'hide_past_dates' => [__('Hide past dates in polls'), __('Leaves dates that have finished out of the poll.')],
 		],
 		__('Features') => [
 			'setup_groups' => [__('Use setup groups'), __('Shows setup groups, their badges and setup reminders. Turning this off hides them but keeps their data.')],
 			'van_drivers' => [__('Use van drivers'), __('Shows van drivers and van driver reminders. Turning this off hides them but keeps their data.')],
 			'single_ensemble' => [__('Single ensemble'), __('For a site with one ensemble: new users join it when they are created. Needs a site with at most one ensemble, and stops more being added.')],
 		],
+		__('Email') => [
+			'log_emails' => [__('Log emails instead of sending them'), __('Writes emails to storage/logs/emails.log rather than sending them. Use this on test sites so members are not emailed.')],
+		],
+		__('Analytics') => [
+			'analytics' => [__('Send analytics to Laravel Nightwatch'), __('Sends page timings, errors and logs to Laravel Nightwatch so the Readererer developers can find problems. Members appear only as an ID, and email and IP addresses are removed. Also needs the site\'s Nightwatch token.')],
+		],
 	];
+	$user_fields = [
+		'phone_number' => __('Phone number'),
+		'address' => __('Address'),
+		'emergency_contact' => __('Emergency contact details'),
+		'date_of_birth' => __('Date of birth'),
+		'has_photo_permission' => __('Photograph permission'),
+		'is_gift_aiding_subs' => __('Gift aid subs'),
+	];
+	$shown_user_fields = old('shown_user_fields', config('app.readererer_shown_user_fields'));
 	$sections = array_filter([
 		['ensembles.index', 'music', __('Ensembles')],
 		['instrumentfamilys.index', 'guitar-pick', __('Instrument families')],
 		['terms.index', 'calendar-month', __('Terms')],
+		['locations.index', 'map-pin', __('Locations')],
 		config('app.readererer_setup_groups') ? ['setupgroups.index', 'users', __('Setup groups')] : null,
 	]);
 	$can_edit = Gate::allows('edit.settings');
+	$after_reminders = [
+		'nothing' => __('Nothing'),
+		'follow_up' => __('Email the admins about each change'),
+		'lock' => __('Lock the poll for members'),
+	];
 @endphp
 
 <x-layout>
@@ -40,7 +65,7 @@
 			@method('PUT')
 
 			<fieldset class="card-body" @disabled(! $can_edit)>
-				<x-forms.error-summary :fields="['name', 'logo', 'remove_logo', 'image_max_kilobytes', 'assume_attending', 'allow_change_to_unknown', 'repeating_headings', 'setup_groups', 'van_drivers', 'single_ensemble', 'terminology', 'terminology.*']" />
+				<x-forms.error-summary :fields="['name', 'logo', 'remove_logo', 'favicon', 'remove_favicon', 'primary_color', 'image_max_kilobytes', 'assume_attending', 'allow_change_to_unknown', 'repeating_headings', 'hide_past_dates', 'depping', 'setup_groups', 'van_drivers', 'single_ensemble', 'reminder_hours', 'reminder_minutes', 'concert_reminder_hours', 'concert_reminder_minutes', 'after_reminders', 'log_emails', 'analytics', 'terminology', 'terminology.*', 'shown_user_fields', 'shown_user_fields.*', 'google_login', 'google_client_id', 'google_client_secret', 'google_register_domain', 'google_register_role']" />
 				@if (session('status'))
 					<div class="alert alert-success" role="alert">{{ session('status') }}</div>
 				@endif
@@ -72,6 +97,38 @@
 							@endif
 						</div>
 						<div class="mb-3">
+							<label class="form-label" for="favicon">{{ __('Favicon') }}</label>
+							<img alt="" class="mb-2 d-block" src="{{ favicon_url() }}" style="max-height: 2rem">
+							<input accept="image/jpeg,image/png,image/webp,image/gif" class="form-control @error('favicon') is-invalid @enderror" id="favicon" name="favicon" type="file">
+							<div class="form-hint">{{ __('Shown in browser tabs. A square PNG works best.') }}</div>
+							@error('favicon')
+								<x-forms.input-error :messages="$message" />
+							@enderror
+							@if ($has_uploaded_favicon)
+								<label class="mt-2 form-check">
+									<input class="form-check-input" name="remove_favicon" type="checkbox" value="1" @checked(old('remove_favicon'))>
+									<span class="form-check-label">{{ __('Remove the uploaded favicon') }}</span>
+								</label>
+							@endif
+						</div>
+						<div class="mb-3">
+							<div class="form-label" id="primary_color_label">{{ __('Featured colour') }}</div>
+							<div aria-labelledby="primary_color_label" class="row g-2" role="radiogroup">
+								@foreach (Color::cases() as $color)
+									<div class="col-auto">
+										<label class="form-colorinput" title="{{ $color->label() }}">
+											<input aria-label="{{ $color->label() }}" class="form-colorinput-input" name="primary_color" type="radio" value="{{ $color->value }}" @checked(old('primary_color', config('app.readererer_primary_color')) === $color->value)>
+											<span class="form-colorinput-color bg-{{ $color->cssClass() }}"></span>
+										</label>
+									</div>
+								@endforeach
+							</div>
+							<div class="form-hint">{{ __('Used for buttons, links and illustrations.') }}</div>
+							@error('primary_color')
+								<x-forms.input-error :messages="$message" />
+							@enderror
+						</div>
+						<div class="mb-3">
 							<label class="form-label required" for="image_max_kilobytes">{{ __('Largest image upload (KB)') }}</label>
 							<input class="form-control @error('image_max_kilobytes') is-invalid @enderror" id="image_max_kilobytes" max="10240" min="1" name="image_max_kilobytes" required type="number" value="{{ old('image_max_kilobytes', config('app.readererer_image_max_kilobytes')) }}">
 							@error('image_max_kilobytes')
@@ -95,6 +152,47 @@
 								</div>
 							@endforeach
 						@endforeach
+
+						<h2 class="mt-4 mb-3">{{ __('Reminders') }}</h2>
+						@foreach (['reminder' => [__('Time before a date to send reminders'), __('Sends the attendance list to the ensemble admins, and the setup and van driver reminders, this long before each date. Leave empty to send them only by hand.')], 'concert_reminder' => [__('Time before a concert to send reminders'), __('Concerts use this instead when it is set. Leave empty to use the same time as rehearsals.')]] as $key => [$label, $hint])
+							@php($minutes = (int) config('app.readererer_'.$key.'_minutes'))
+							<div class="mb-3">
+								<label class="form-label" for="{{ $key }}_hours">{{ $label }}</label>
+								<div class="input-group">
+									<input class="form-control @error($key.'_hours') is-invalid @enderror" id="{{ $key }}_hours" max="720" min="0" name="{{ $key }}_hours" type="number" value="{{ old($key.'_hours', intdiv($minutes, 60) ?: '') }}">
+									<span class="input-group-text">{{ __('hours') }}</span>
+									<input aria-label="{{ __('Minutes') }}" class="form-control @error($key.'_minutes') is-invalid @enderror" max="59" min="0" name="{{ $key }}_minutes" type="number" value="{{ old($key.'_minutes', $minutes % 60 ?: '') }}">
+									<span class="input-group-text">{{ __('minutes') }}</span>
+								</div>
+								<div class="form-hint">{{ $hint }}</div>
+								@foreach (['_hours', '_minutes'] as $suffix)
+									@error($key.$suffix)
+										<x-forms.input-error :messages="$message" />
+									@enderror
+								@endforeach
+							</div>
+						@endforeach
+						<div class="mb-3">
+							<label class="form-label required" for="after_reminders">{{ __('After reminders are sent') }}</label>
+							<select class="form-select @error('after_reminders') is-invalid @enderror" id="after_reminders" name="after_reminders" required>
+								@foreach ($after_reminders as $value => $label)
+									<option value="{{ $value }}" @selected(old('after_reminders', config('app.readererer_after_reminders')) === $value)>{{ $label }}</option>
+								@endforeach
+							</select>
+							<div class="form-hint">{{ __('What happens when a reply changes after the reminder time. Moderators and admins can always change replies.') }}</div>
+							@error('after_reminders')
+								<x-forms.input-error :messages="$message" />
+							@enderror
+						</div>
+
+						<h2 class="mt-4 mb-1">{{ __('Member details') }}</h2>
+						<p class="text-secondary">{{ __('Ticked details are shown on member pages and forms. Unticking one hides it but keeps the details already saved.') }}</p>
+						@foreach ($user_fields as $key => $label)
+							<label class="form-check">
+								<input class="form-check-input" name="shown_user_fields[]" type="checkbox" value="{{ $key }}" @checked(in_array($key, $shown_user_fields))>
+								<span class="form-check-label">{{ $label }}</span>
+							</label>
+						@endforeach
 					</div>
 					<div class="col-xl-6">
 						<h2 class="mb-1">{{ __('Wording') }}</h2>
@@ -109,7 +207,7 @@
 									</tr>
 								</thead>
 								<tbody>
-									@foreach (Setting::TERMS as $singular => $plural)
+									@foreach (GeneralSettings::TERMS as $singular => $plural)
 										<tr>
 											<td>{{ $singular }} / {{ $plural }}</td>
 											@foreach ([$singular, $plural] as $word)
@@ -125,12 +223,68 @@
 								</tbody>
 							</table>
 						</div>
+
+						<h2 class="mt-4 mb-1">{{ __('Login with Google') }}</h2>
+						<p class="text-secondary">{!! __('Lets members log in with the Google account that has their email address. :create of type Web application in the Google Cloud console and add :url as an authorised redirect URI. To change a client you already have, open it from the :clients.', [
+							'create' => '<a href="https://console.cloud.google.com/auth/clients/create" rel="noopener" target="_blank">'.e(__('Create an OAuth client')).'</a>',
+							'url' => '<code>'.e(route('google.callback')).'</code>',
+							'clients' => '<a href="https://console.cloud.google.com/auth/clients" rel="noopener" target="_blank">'.e(__('Clients page')).'</a>',
+						]) !!}</p>
+						<div class="mb-3">
+							<input name="google_login" type="hidden" value="0">
+							<label class="form-check form-switch">
+								<input @class(['form-check-input', 'is-invalid' => $errors->has('google_login')]) name="google_login" type="checkbox" value="1" @checked(old('google_login', config('app.readererer_google_login')))>
+								<span class="form-check-label">{{ __('Allow login with Google') }}</span>
+							</label>
+						</div>
+						<div class="mb-3">
+							<label class="form-label" for="google_client_id">{{ __('Client ID') }}</label>
+							<input class="form-control @error('google_client_id') is-invalid @enderror" id="google_client_id" maxlength="255" name="google_client_id" type="text" value="{{ old('google_client_id', config('services.google.client_id')) }}">
+							@error('google_client_id')
+								<x-forms.input-error :messages="$message" />
+							@enderror
+						</div>
+						<div class="mb-3">
+							<label class="form-label" for="google_client_secret">{{ __('Client secret') }}</label>
+							<input autocomplete="off" class="form-control @error('google_client_secret') is-invalid @enderror" id="google_client_secret" maxlength="255" name="google_client_secret" type="password">
+							<div class="form-hint">{{ $has_google_client_secret ? __('A secret is saved. Leave this empty to keep it.') : __('Stored encrypted.') }}</div>
+							@error('google_client_secret')
+								<x-forms.input-error :messages="$message" />
+							@enderror
+						</div>
+						<div class="mb-3">
+							<label class="form-label" for="google_register_domain">{{ __('Register new users from this domain') }}</label>
+							<div class="input-group">
+								<span class="input-group-text">@</span>
+								<input class="form-control @error('google_register_domain') is-invalid @enderror" id="google_register_domain" maxlength="255" name="google_register_domain" placeholder="example.org" type="text" value="{{ old('google_register_domain', config('app.readererer_google_register_domain')) }}">
+							</div>
+							<div class="form-hint">{{ __('Someone logging in with a Google account on this domain who has no account yet gets one with the role below. Leave empty to only let existing users log in.') }}</div>
+							@error('google_register_domain')
+								<x-forms.input-error :messages="$message" />
+							@enderror
+						</div>
+						<div class="mb-3">
+							<label class="form-label" for="google_register_role">{{ __('Role for new users') }}</label>
+							<select class="form-select @error('google_register_role') is-invalid @enderror" id="google_register_role" name="google_register_role">
+								<option value="">{{ __('None') }}</option>
+								@foreach (UserRole::cases() as $role)
+									@continue($role === UserRole::Ensemble)
+									<option value="{{ $role->value }}" @selected((string) old('google_register_role', config('app.readererer_google_register_role')) === (string) $role->value)>{{ $role->label() }}</option>
+								@endforeach
+							</select>
+							@error('google_register_role')
+								<x-forms.input-error :messages="$message" />
+							@enderror
+						</div>
 					</div>
 				</div>
 			</fieldset>
 			@if ($can_edit)
 				<div class="card-footer d-flex justify-content-between">
-					<a class="btn" href="{{ route('settings.import') }}">{{ __('Import from Pollererer') }}</a>
+					<div class="btn-list">
+						<a class="btn" href="{{ route('settings.import') }}">{{ __('Import from Pollererer') }}</a>
+						<a class="btn" href="{{ route('settings.monitoring') }}">{{ __('Monitoring') }}</a>
+					</div>
 					<button class="btn btn-primary" type="submit">{{ __('Save settings') }}</button>
 				</div>
 			@endif

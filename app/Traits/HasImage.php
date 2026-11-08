@@ -2,8 +2,10 @@
 
 namespace App\Traits;
 
+use App\Http\Middleware\AddSecurityHeaders;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\Vite;
 use Illuminate\Support\Str;
 
 // `image` holds either an external URL or the path of an upload on the public disk.
@@ -25,9 +27,13 @@ trait HasImage
         return filled($image) && ! Str::isUrl($image);
     }
 
-    public function getImageUrlAttribute(): ?string
+    public function getImageUrlAttribute(): string
     {
-        return static::isStoredImage($this->image) ? Storage::disk('public')->url($this->image) : $this->image;
+        if (blank($this->image)) {
+            return Vite::asset('resources/images/placeholders/'.$this->getTable().'.svg');
+        }
+
+        return static::isStoredImage($this->image) ? Storage::disk('public')->url($this->image) : AddSecurityHeaders::allowImage($this->image);
     }
 
     public function applyImageInput(?UploadedFile $file, bool $remove = false): void

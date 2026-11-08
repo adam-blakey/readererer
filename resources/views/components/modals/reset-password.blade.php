@@ -10,7 +10,9 @@
             <div class="modal-body">
                 <x-forms.error-summary :fields="['password', 'password_confirmation']" />
                 <h5>{{ __('Send a password reset email') }}</h5>
-                @if (filled($user->email))
+                @if ($user->role === App\Enums\UserRole::Ensemble)
+                    <p class="text-secondary">{{ __('Shared ensemble logins cannot reset their password by email.') }}</p>
+                @elseif (filled($user->email))
                     <form method="POST" action="{{ route('users.password-reset-link', $user) }}">
                         @csrf
                         <p class="text-secondary">{{ __('Emails :email a link to choose a new password.', ['email' => $user->email]) }}</p>
@@ -57,7 +59,7 @@
 
 @if ($errors->hasAny(['reset_link', 'password', 'password_confirmation']))
     @push('scripts')
-        <script>
+        <script nonce="{{ Vite::cspNonce() }}">
             window.addEventListener('load', () => document.querySelector('[data-bs-target="#modal-reset-password"]')?.click());
         </script>
     @endpush

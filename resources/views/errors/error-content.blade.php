@@ -3,7 +3,13 @@
 		<x-card-row>
 			<div class="col-md-12">
 				<div class="empty">
-					<div class="empty-header">@yield('error_code')</div>
+					@hasSection('illustration')
+						<div class="empty-img">
+							@include('errors.illustrations.' . app()->view->getSections()['illustration'])
+						</div>
+					@else
+						<div class="empty-header">@yield('error_code')</div>
+					@endif
 					<p class="empty-title">@yield('error_title')</p>
 					<p class="empty-subtitle text-secondary">
 						@yield('subtitle')

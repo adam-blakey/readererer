@@ -143,7 +143,7 @@ test('guests are redirected to login when sending notifications', function () {
         ->assertRedirect('/login');
 });
 
-test('the term show page lists sent emails in the history', function () {
+test('the upcoming rehearsals page lists sent emails in the history', function () {
     $termDate = make_notification_term_date();
     $log = EmailLog::create([
         'term_date_id' => $termDate->id,
@@ -154,21 +154,21 @@ test('the term show page lists sent emails in the history', function () {
     $log->recipients()->create(['name' => 'Jane', 'email' => 'jane@example.com', 'status' => EmailStatus::Sent]);
 
     $this->actingAs(make_user(UserRole::Admin))
-        ->get(route('terms.show', $termDate->term))
+        ->get(route('attendance.register.index'))
         ->assertOk()
         ->assertSee('Attendance list — a rehearsal')
         ->assertSee('Resend attendance list now')
         ->assertDontSee('Send attendance list now');
 });
 
-test('the term show page says send until that type of email has been sent, and ignores failed ones', function () {
+test('the registers page says send until that type of email has been sent, and ignores failed ones', function () {
     config(['app.readererer_setup_groups' => true, 'app.readererer_van_drivers' => true]);
     $setupGroup = SetupGroup::factory()->create();
     $setupGroup->van_drivers()->attach(make_user(UserRole::Member)->id);
     $termDate = make_notification_term_date(['setup_group_id' => $setupGroup->id]);
     $admin = make_user(UserRole::Admin);
 
-    $this->actingAs($admin)->get(route('terms.show', $termDate->term))
+    $this->actingAs($admin)->get(route('attendance.register.index'))
         ->assertSee('Send attendance list now')
         ->assertSee('Send setup reminder')
         ->assertSee('Send van driver reminder');
@@ -176,7 +176,7 @@ test('the term show page says send until that type of email has been sent, and i
     EmailLog::create(['term_date_id' => $termDate->id, 'mailable_class' => SetupReminderMail::class, 'subject' => 's', 'status' => EmailStatus::Failed]);
     EmailLog::create(['term_date_id' => $termDate->id, 'mailable_class' => VanDriverReminderMail::class, 'subject' => 'v', 'status' => EmailStatus::Sent]);
 
-    $this->get(route('terms.show', $termDate->term))
+    $this->get(route('attendance.register.index'))
         ->assertSee('Send attendance list now')
         ->assertSee('Send setup reminder')
         ->assertDontSee('Send van driver reminder')
@@ -194,6 +194,18 @@ test('the attendance list email renders', function () {
 
     expect($html)->toContain('Attendance list');
     expect($html)->toContain($member->name);
+});
+
+test('the attendance list leaves out members with no instrument family, as the poll does', function () {
+    $ensemble = Ensemble::factory()->create();
+    $member = make_user(UserRole::Member);
+    $settingUp = make_user(UserRole::Member);
+    join_ensemble($member, $ensemble);
+    $settingUp->ensembles()->attach($ensemble->id);
+
+    $html = (new AttendanceListMail(make_notification_term_date([], $ensemble)))->render();
+
+    expect($html)->toContain($member->name)->not->toContain($settingUp->name);
 });
 
 test('the setup reminder email renders', function () {
@@ -400,7 +412,7 @@ test('ordinary members cannot view the notifications overview', function () {
 
 test('guests are redirected to login from the notifications overview', function () {
     $this->get(route('notifications.index'))
-        ->assertRedirect('/login');
+        ->assertRedirectContains('/login?redirect=');
 });
 
 test('the van driver reminder email renders', function () {
@@ -480,4 +492,26 @@ test('a roster change alert names the previous setup group', function () {
     $termDate->update(['setup_group_id' => $newGroup->id]);
 
     Mail::assertSent(RosterChangedMail::class, fn ($mail) => in_array('The setup group is now New group (was Old group).', $mail->changes, true));
+});
+
+test('with email logging on, emails are written to the email log file instead of sent', function () {
+    Mail::fake();
+    config(['app.readererer_log_emails' => true]);
+    $path = storage_path('logs/emails.log');
+    @unlink($path);
+
+    $driver = make_user(UserRole::Member);
+    $termDate = make_notification_term_date(['van_driver_id' => $driver->id]);
+
+    $this->actingAs(make_user(UserRole::Admin))
+        ->post(route('term-dates.send-van-driver-reminder', $termDate))
+        ->assertRedirect();
+
+    Mail::assertNothingSent();
+    expect(file_get_contents($path))
+        ->toContain('To: '.$driver->name.' <'.$driver->email.'>')
+        ->toContain(VanDriverReminderMail::class);
+    expect(EmailLog::where('term_date_id', $termDate->id)->first()->status)->toBe(EmailStatus::Sent);
+
+    @unlink($path);
 });

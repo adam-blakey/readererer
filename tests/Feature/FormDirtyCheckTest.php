@@ -65,3 +65,9 @@ test('the attendance poll and register forms opt into the change check', functio
         ->assertOk()
         ->assertSee('data-dirty-check', false);
 });
+
+test('pages warn about unsaved changes only for signed-in users', function () {
+    $this->get(route('login'))->assertOk()->assertDontSee('data-warn-unsaved', false);
+
+    $this->actingAs(make_user(UserRole::Member))->get(route('dashboard'))->assertOk()->assertSee('data-warn-unsaved', false);
+});

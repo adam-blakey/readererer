@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Enums\EmailLinkType;
 use App\Enums\UserRole;
 use App\Http\Requests\EraseUserRequest;
 use App\Http\Requests\StoreUserRequest;
@@ -17,6 +18,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Password;
 use Illuminate\Support\Str;
 use Illuminate\Validation\Rules\Password as PasswordRule;
@@ -33,17 +35,22 @@ class UserController extends Controller
     public function index()
     {
         $query = User::query();
-        if (request('with_trashed')) {
-            $query = $query->withTrashed();
-        } else {
-            $query = $query->whereNull('deleted_at');
+        $query->when(request('with_trashed'), fn ($query) => $query->withTrashed());
+        $ensemble_options = Ensemble::orderBy('name')->pluck('name', 'id')->all() + ['none' => __('No ensemble')];
+        $chosen = array_intersect(array_keys($ensemble_options), array_map('strval', Arr::wrap(request('ensembles'))));
+        if (count($chosen) > 0 && count($chosen) < count($ensemble_options)) {
+            $ensemble_ids = array_diff($chosen, ['none']);
+            $query = $query->where(fn ($query) => $query
+                ->when($ensemble_ids, fn ($query) => $query->whereHas('ensembles', fn ($query) => $query->whereKey($ensemble_ids)))
+                ->when(in_array('none', $chosen), fn ($query) => $query->orWhereDoesntHave('ensembles')));
         }
-        $users = $query->autosort()->paginate(10)->appends(request()->only('with_trashed'));
+        $users = $query->with(['ensembles', 'setup_group'])->autosort()->paginate(10)->appends(request()->only('with_trashed', 'ensembles'));
 
         return view('auto-entities.index', [
             'entities' => $users,
             'page_name' => __('Users'),
             'page_subname' => __('Users overview'),
+            'ensemble_filter' => $ensemble_options,
             'create_entity' => [
                 'route' => 'users.create',
                 'name' => __('user'),
@@ -53,7 +60,7 @@ class UserController extends Controller
 
     public function create(): View
     {
-        $fields = get_create_fields(new User);
+        $fields = Arr::except(get_create_fields(new User), User::hiddenFields());
         $fields['first_name']['width'] = 6;
         $fields['last_name']['width'] = 6;
         unset($fields['password']);
@@ -131,15 +138,21 @@ class UserController extends Controller
     public function update(UpdateUserRequest $request, User $user): RedirectResponse
     {
         $attributes = $request->validated();
+        $role = $user->role;
+        $changes_setup_group = array_key_exists('setup_group', $attributes);
         $setup_group_id = Arr::pull($attributes, 'setup_group');
 
         $user->applyImageInput($request->file('image'), $request->boolean('remove_image'));
         $user->update(Arr::except($attributes, ['image', 'remove_image']));
-        if (config('app.readererer_setup_groups')) {
+        if (config('app.readererer_setup_groups') && $changes_setup_group) {
             $user->setup_group()->associate($setup_group_id ? SetupGroup::find($setup_group_id) : null);
         }
 
         $user->save();
+
+        if ($user->role !== $role) {
+            Log::notice('User role changed', ['user_id' => $user->id, 'from' => $role->name, 'to' => $user->role->name]);
+        }
 
         return to_route('users.show', $user);
     }
@@ -164,15 +177,15 @@ class UserController extends Controller
     public function destroy(User $user)
     {
         $user->delete();
+        Log::notice('User deleted', ['user_id' => $user->id]);
 
         return redirect()->back()->with('status', __('Record deleted.'));
     }
 
-    public function restore(int $userId)
+    public function restore(User $user)
     {
-        $user = User::withTrashed()->findOrFail($userId);
-        $this->authorize('restore', $user);
         $user->restore();
+        Log::notice('User restored', ['user_id' => $user->id]);
 
         return redirect()->back()->with('status', __('User restored.'));
     }
@@ -229,15 +242,16 @@ class UserController extends Controller
             }
         });
 
+        Log::notice('User personal data erased', ['user_id' => $user->id]);
+
         return to_route('users.index')->with('status', __('Personal data erased.'));
     }
 
     public function sendPasswordResetLink(User $user): RedirectResponse
     {
-        $this->authorize('resetPassword', $user);
         abort_if(blank($user->email), 422);
 
-        $status = Password::sendResetLink(['email' => $user->email]);
+        $status = EmailLinkType::ResetPassword->send($user->email);
 
         return $status === Password::RESET_LINK_SENT
             ? back()->with('status', __('A password reset email has been sent to :email.', ['email' => $user->email]))
@@ -246,8 +260,6 @@ class UserController extends Controller
 
     public function setPassword(Request $request, User $user): RedirectResponse
     {
-        $this->authorize('resetPassword', $user);
-
         $validated = $request->validate([
             'password' => ['required', 'confirmed', PasswordRule::defaults()],
         ]);
@@ -263,8 +275,6 @@ class UserController extends Controller
 
     public function attachEnsemble(Request $request, User $user): RedirectResponse
     {
-        $this->authorize('update', $user);
-
         $validated = $request->validate([
             'ensemble_id' => 'required|exists:ensembles,id',
             'instrument_family_id' => 'required|exists:instrument_families,id',
@@ -290,8 +300,6 @@ class UserController extends Controller
 
     public function detachEnsemble(User $user, Ensemble $ensemble): RedirectResponse
     {
-        $this->authorize('update', $user);
-
         $pivot = UserEnsemble::where('user_id', $user->id)
             ->where('ensemble_id', $ensemble->id)
             ->firstOrFail();

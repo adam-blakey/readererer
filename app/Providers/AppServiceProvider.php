@@ -2,19 +2,32 @@
 
 namespace App\Providers;
 
+use App\Contracts\EmailSender;
 use App\Enums\UserRole;
-use App\Models\Setting;
+use App\Logging\NightwatchRedaction;
 use App\Models\User;
+use App\Services\EmailSenders\LogEmailSender;
+use App\Services\EmailSenders\SmtpEmailSender;
+use App\Settings\GeneralSettings;
 use App\Translation\TerminologyLoader;
 use Barryvdh\Debugbar\Facades\Debugbar;
-use Illuminate\Auth\Notifications\ResetPassword;
+use Illuminate\Auth\Events\Failed;
+use Illuminate\Auth\Events\Lockout;
+use Illuminate\Auth\Events\Login;
+use Illuminate\Auth\Events\PasswordReset;
 use Illuminate\Contracts\Translation\Loader;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Foundation\AliasLoader;
-use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Pagination\Paginator;
+use Illuminate\Support\Facades\Context;
+use Illuminate\Support\Facades\Event;
 use Illuminate\Support\Facades\Gate;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\URL;
 use Illuminate\Support\ServiceProvider;
+use Laravel\Nightwatch\Core as Nightwatch;
+use Laravel\Pennant\Feature;
+use Laravel\Pulse\Facades\Pulse;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -25,32 +38,45 @@ class AppServiceProvider extends ServiceProvider
 
         $this->app->register(FakerServiceProvider::class);
 
+        $this->app->bind(EmailSender::class, fn () => config('app.readererer_log_emails') ? new LogEmailSender : new SmtpEmailSender);
+
+        // The monitoring page replaces Pulse's own dashboard, whose inline scripts the Content Security Policy blocks.
+        Pulse::ignoreRoutes();
+
         $this->app->extend('translation.loader', fn (Loader $loader) => new TerminologyLoader($loader));
     }
 
     public function boot(): void
     {
-        Setting::applyToConfig();
+        GeneralSettings::applyToConfig();
+
+        $nightwatch = $this->app->make(Nightwatch::class);
+
+        if (! config('app.readererer_analytics')) {
+            // Nightwatch reads its config before the settings are applied, so the opt-out samples nothing instead.
+            $nightwatch->config['sampling'] = array_fill_keys(array_keys($nightwatch->config['sampling']), 0.0);
+        }
+
+        $nightwatch->user(NightwatchRedaction::user(...));
+        $nightwatch->redactRequests(NightwatchRedaction::request(...));
+        $nightwatch->redactOutgoingRequests(NightwatchRedaction::outgoingRequest(...));
+        $nightwatch->redactCommands(NightwatchRedaction::command(...));
+        $nightwatch->redactExceptions(NightwatchRedaction::exception(...));
+
+        Event::listen(Login::class, fn (Login $event) => Log::info('User logged in', ['user_id' => $event->user->getAuthIdentifier(), 'remember' => $event->remember]));
+        Event::listen(Failed::class, fn (Failed $event) => Log::warning('Login failed', ['user_id' => $event->user?->getAuthIdentifier()]));
+        Event::listen(Lockout::class, fn () => Log::warning('Login locked out after too many attempts'));
+        Event::listen(PasswordReset::class, fn (PasswordReset $event) => Log::info('Password reset', ['user_id' => $event->user->getAuthIdentifier()]));
+
+        Feature::discover();
+
+        if (str_starts_with((string) config('app.url'), 'https://')) {
+            URL::forceScheme('https');
+        }
+
+        Context::add('site', parse_url((string) config('app.url'), PHP_URL_HOST));
 
         Paginator::defaultView('pagination::default');
-
-        ResetPassword::toMailUsing(function (User $user, string $token) {
-            $url = url(route('password.reset', [
-                'token' => $token,
-                'email' => $user->getEmailForPasswordReset(),
-            ], false));
-
-            return (new MailMessage)
-                ->subject(config('app.name').': '.__('Reset Password Request'))
-                ->greeting(__('Hello!'))
-                ->line(__('You recently requested to reset a password for your :app account. Use the button below to reset it. This message will expire in :count minutes.', [
-                    'app' => config('app.name'),
-                    'count' => config('auth.passwords.'.config('auth.defaults.passwords').'.expire'),
-                ]))
-                ->action(__('Reset password'), $url)
-                ->line(__('If you did not request a password reset, then please ignore this message.'))
-                ->salutation(__('Regards,')."\r\n\r\n".__(':app Team', ['app' => config('app.name')]));
-        });
 
         Gate::define('view.dashboard', function (User $user) {
             return true;

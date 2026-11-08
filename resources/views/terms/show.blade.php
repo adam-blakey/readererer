@@ -1,4 +1,4 @@
-@props(['term', 'ensembles', 'nextRehearsal' => null, 'nextConcert' => null])
+@props(['term', 'nextRehearsal' => null, 'nextConcert' => null])
 
 <x-layout>
     <div class="container">
@@ -13,6 +13,7 @@
                 <div class="list-inline list-inline-dots text-secondary mt-1 mb-0">
                     <span class="list-inline-item"><x-icon name="calendar" />{{ $term->formattedTermDateRange }}</span>
                     <span class="list-inline-item"><x-icon name="link" />{{ $term->slug }}</span>
+                    <span class="list-inline-item"><x-icon name="map-pin" />{{ __('Default location') }}: <x-location-link :location="$term->location" /></span>
                     <span class="list-inline-item">{{ __('Created :time', ['time' => $term->created_at?->diffForHumans()]) }}</span>
                     <span class="list-inline-item">{{ __('Updated :time', ['time' => $term->updated_at?->diffForHumans()]) }}</span>
                 </div>
@@ -40,7 +41,7 @@
 						<div class="card-header">
 							<h2 class="mb-0 card-heading">{{ __('All dates') }}</h2>
 						</div>
-						<x-term-dates-table :term_dates="$term->term_dates" :ensembles="$ensembles" />
+						<x-term-dates-table :term_dates="$term->term_dates" />
 					</div>
 				</div>
 			</div>

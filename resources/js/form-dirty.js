@@ -1,7 +1,11 @@
 // Disables the submit buttons of forms marked data-dirty-check until their values
-// change; a button can opt out with data-dirty-ignore.
+// change; a button can opt out with data-dirty-ignore. When the page's <html> has
+// data-warn-unsaved, leaving it with any changed POST form asks for confirmation.
 
 const FORM_SELECTOR = 'form[data-dirty-check]';
+
+// These submit themselves as soon as they change, so they never hold unsaved input.
+const AUTO_SUBMIT_SELECTOR = '[data-submit-on-change], [data-submit-on-close]';
 
 const IGNORED_FIELDS = ['_token', '_method'];
 
@@ -69,6 +73,21 @@ function setDisabled(button, disabled) {
     }
 }
 
+const dirtyChecks = new Map();
+
+function track(form) {
+    if (!dirtyChecks.has(form)) {
+        const baseline = signature(form);
+
+        // A form re-rendered after failed validation holds unsaved input, so it starts dirty.
+        const startsDirty = form.querySelector('.is-invalid, .invalid-feedback') !== null;
+
+        dirtyChecks.set(form, () => startsDirty || signature(form) !== baseline);
+    }
+
+    return dirtyChecks.get(form);
+}
+
 export function watchForm(form) {
     if (form.hasAttribute('data-dirty-watching')) {
         return;
@@ -76,13 +95,10 @@ export function watchForm(form) {
 
     form.setAttribute('data-dirty-watching', '');
 
-    const baseline = signature(form);
-
-    // A form re-rendered after failed validation holds unsaved input, so it starts dirty.
-    const startsDirty = form.querySelector('.is-invalid, .invalid-feedback') !== null;
+    const isDirty = track(form);
 
     function refresh() {
-        const dirty = startsDirty || signature(form) !== baseline;
+        const dirty = isDirty();
 
         submitButtons(form).forEach((button) => setDisabled(button, !dirty));
     }
@@ -105,7 +121,39 @@ export function watchForm(form) {
 
 export function watchDirtyForms(root = document) {
     root.querySelectorAll(FORM_SELECTOR).forEach(watchForm);
+
+    root.querySelectorAll('form').forEach((form) => {
+        if (form.method === 'post' && !form.querySelector(AUTO_SUBMIT_SELECTOR)) {
+            track(form);
+        }
+    });
 }
+
+let submittedForm = null;
+
+// On the window, so it runs after document listeners that may cancel the submission.
+window.addEventListener('submit', (event) => {
+    submittedForm = event.defaultPrevented ? null : event.target;
+});
+
+window.addEventListener('pageshow', () => {
+    submittedForm = null;
+});
+
+window.addEventListener('beforeunload', (event) => {
+    if (!document.documentElement.hasAttribute('data-warn-unsaved')) {
+        return;
+    }
+
+    for (const [form, isDirty] of dirtyChecks) {
+        if (form !== submittedForm && form.isConnected && isDirty()) {
+            event.preventDefault();
+            event.returnValue = '';
+
+            return;
+        }
+    }
+});
 
 if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', () => watchDirtyForms());

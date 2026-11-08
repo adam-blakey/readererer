@@ -19,7 +19,7 @@
 					<div class="card card-md">
 						<div class="card-body">
 							<h2 class="mb-4 text-center h2">{{ __('Login to your account') }}</h2>
-							<form action="{{ route('login') }}" method="POST">
+							<form action="{{ route('login', request()->only('redirect', 'parameters')) }}" method="POST">
 								@csrf
 
 								<div class="mb-3">
@@ -37,10 +37,10 @@
 									<div class="input-group input-group-flat">
 										<input autocomplete="current-password" class="form-control" id="password" name="password" placeholder="{{ __('Your password') }}" required tabindex="3" type="password">
 										<span class="input-group-text">
-											<a aria-label="{{ __('Show password') }}" class="cursor-pointer link-secondary" data-bs-original-title="{{ __('Show password') }}" data-bs-toggle="tooltip" id="toggle-password-show" onclick="togglePasswordVisibility('password', 'toggle-password-show', 'toggle-password-hide')">
+											<a aria-label="{{ __('Show password') }}" class="cursor-pointer link-secondary" data-bs-original-title="{{ __('Show password') }}" data-bs-toggle="tooltip" id="toggle-password-show">
 												<x-icon name="eye" />
 											</a>
-											<a aria-label="{{ __('Hide password') }}" class="hidden cursor-pointer link-secondary" data-bs-original-title="{{ __('Hide password') }}" data-bs-toggle="tooltip" id="toggle-password-hide" onclick="togglePasswordVisibility('password', 'toggle-password-show', 'toggle-password-hide')">
+											<a aria-label="{{ __('Hide password') }}" class="hidden cursor-pointer link-secondary" data-bs-original-title="{{ __('Hide password') }}" data-bs-toggle="tooltip" id="toggle-password-hide">
 												<x-icon name="eye-closed" />
 											</a>
 										</span>
@@ -63,14 +63,16 @@
 						</div>
 						<div class="hr-text">{{ __('or') }}</div>
 						<div class="card-body">
-							<div class="row">
-								<div class="col">
-									<a class="btn w-100" href="#" tabindex="6">
-										<x-icon name="google" />
-										{{ __('Login with Google') }}
-									</a>
-								</div>
-							</div>
+							@if (google_login_enabled())
+								<a class="mb-2 btn w-100" href="{{ route('google.redirect') }}" tabindex="6">
+									<x-icon name="brand-google" />
+									{{ __('Login with Google') }}
+								</a>
+							@endif
+							<x-a class="btn w-100" :route="'login-link.request'" tabindex="6">
+								<x-icon name="mail" />
+								{{ __('Email me a login link') }}
+							</x-a>
 						</div>
 					</div>
 					<div class="mt-3 text-center text-secondary">

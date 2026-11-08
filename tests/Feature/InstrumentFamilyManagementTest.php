@@ -5,7 +5,7 @@ use App\Enums\UserRole;
 use App\Models\InstrumentFamily;
 
 test('the instrument family index requires the moderator role', function () {
-    $this->get(route('instrumentfamilys.index'))->assertRedirect('/login');
+    $this->get(route('instrumentfamilys.index'))->assertRedirectContains('/login?redirect=');
     $this->actingAs(make_user(UserRole::Member))->get(route('instrumentfamilys.index'))->assertForbidden();
     $this->actingAs(make_user(UserRole::Moderator))->get(route('instrumentfamilys.index'))->assertOk();
     $this->actingAs(make_user(UserRole::Admin))->get(route('instrumentfamilys.index'))->assertOk();

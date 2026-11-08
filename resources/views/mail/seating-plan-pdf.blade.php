@@ -7,12 +7,8 @@
     ]);
     $rowGroupedMembers = $members->groupBy('pivot.seat_row');
 
-    $minRow = $rowGroupedMembers->keys()->min();
-    $maxRow = $rowGroupedMembers->keys()->max();
-    $numberOfRows = (gettype($minRow) == "string" && gettype($maxRow) == "string")
-        ? ord(strtoupper($maxRow)) - ord(strtoupper($minRow))
-        : $maxRow - $minRow;
-    $numberOfRows++;
+    $rows = collect(seat_rows($rowGroupedMembers->keys()))->skipUntil(fn ($row) => $rowGroupedMembers->has($row));
+    $numberOfRows = max(1, $rows->count());
 @endphp
 <html>
 <head>
@@ -46,7 +42,7 @@
 </p>
 
 <section style="display: flex; flex-wrap: wrap; justify-content: space-between;">
-    @for($row = $minRow; $row <= $maxRow; $row++)
+    @foreach($rows as $row)
         @php
             $members = $rowGroupedMembers[$row] ?? [];
 
@@ -59,7 +55,8 @@
                     <th style="padding: 0.15em 0.4em; border: 2px solid black;">{{ $totals['attending'] }}</th>
                 </tr>
                 @foreach($members as $member)
-                    @php($attendance_value = $member->latestAttendanceFor($termDate, $ensemble)?->status ?? App\Enums\AttendanceStatus::Unknown)
+                    @php($attendance = $member->latestAttendanceFor($termDate, $ensemble))
+                    @php($attendance_value = $attendance?->status ?? App\Enums\AttendanceStatus::Unknown)
                     <tr>
                         <td style="padding: 0.15em 0.4em; border: 2px solid black; border-left: 6px solid {{ color_name_to_hex($instrumentFamilies->get($member->pivot->instrument_family_id)?->color) ?? '#000000' }};">
                             @switch($attendance_value)
@@ -76,6 +73,9 @@
                                 @case(App\Enums\AttendanceStatus::NotAttending)
                                     <s style="color: #9CA3AF; text-decoration: line-through;">{{ $member->name }}</s>
                                     @break
+                                @case(App\Enums\AttendanceStatus::Depping)
+                                    <span>{{ $attendance->dep_name ? __(':dep (dep for :name)', ['dep' => $attendance->dep_name, 'name' => $member->name]) : __(':name (sending a dep)', ['name' => $member->name]) }}</span>
+                                    @break
                             @endswitch
                         </td>
                         <td style="padding: 0.15em 0.4em; border: 2px solid black;"></td>
@@ -83,7 +83,7 @@
                 @endforeach
         </table>
         </div>
-    @endfor
+    @endforeach
 </section>
 </body>
 </html>

@@ -1,4 +1,4 @@
-@props(['ensemble', 'term_date', 'members', 'entries', 'polled_statuses', 'instrument_families', 'sortby'])
+@props(['ensemble', 'term_date', 'members', 'entries', 'polled_statuses', 'polled_dep_names', 'instrument_families', 'sortby'])
 
 @use('App\Enums\AttendanceStatus')
 @use('App\Enums\RegisterStatus')
@@ -20,6 +20,7 @@
 	$register_status_from_poll = [
 	    AttendanceStatus::Attending->value => RegisterStatus::Present,
 	    AttendanceStatus::NotAttending->value => RegisterStatus::Absent,
+	    AttendanceStatus::Depping->value => RegisterStatus::Absent,
 	];
 @endphp
 
@@ -29,7 +30,7 @@
 		<div class="list-inline list-inline-dots mb-0 text-secondary d-flex flex-wrap align-items-center">
 			<span class="list-inline-item">
 				@if ($term_date->is_concert)
-					<span class="badge bg-green text-green-fg">{{ __('Concert') }}</span>
+					<span class="badge bg-primary text-primary-fg">{{ __('Concert') }}</span>
 				@else
 					<span class="badge bg-gray text-muted">{{ __('Rehearsal') }}</span>
 				@endif
@@ -65,15 +66,15 @@
 		</div>
 		<div class="col-auto d-print-none">
 			<div class="btn-list">
-				<button class="btn btn-sm" type="button" onclick="fillRegisterFromPoll()">
+				<button class="btn btn-sm" type="button" data-register-fill>
 					<x-icon name="clipboard-check" />
 					{{ __('Fill from poll') }}
 				</button>
-				<button class="btn btn-sm" type="button" onclick="setWholeRegister({{ RegisterStatus::Present->value }})">
+				<button class="btn btn-sm" type="button" data-register-set="{{ RegisterStatus::Present->value }}">
 					<x-icon name="users-group" />
 					{{ __('All present') }}
 				</button>
-				<button class="btn btn-sm" type="button" onclick="setWholeRegister({{ RegisterStatus::Unmarked->value }})">
+				<button class="btn btn-sm" type="button" data-register-set="{{ RegisterStatus::Unmarked->value }}">
 					<x-icon name="eraser" />
 					{{ __('Clear') }}
 				</button>
@@ -115,6 +116,9 @@
 								@case (AttendanceStatus::NotAttending)
 									<span class="badge bg-red-lt">{{ __('Not attending') }}</span>
 									@break
+								@case (AttendanceStatus::Depping)
+									<span class="badge bg-lime-lt">{{ $polled_dep_names->get($member->id) ? __('Sending a dep: :name', ['name' => $polled_dep_names->get($member->id)]) : __('Sending a dep') }}</span>
+									@break
 								@default
 									<span class="badge bg-secondary-lt">{{ __('No answer') }}</span>
 							@endswitch
@@ -137,7 +141,7 @@
 							</div>
 						</td>
 						<td>
-							<input class="form-control form-control-sm" maxlength="255" name="notes[{{ $member->id }}]" placeholder="{{ __('Optional note') }}" type="text" value="{{ $entry?->notes }}" />
+							<input class="form-control form-control-sm w-100 min-w-16" maxlength="255" name="notes[{{ $member->id }}]" placeholder="{{ __('Optional note') }}" type="text" value="{{ $entry?->notes }}" />
 						</td>
 					</tr>
 				@empty

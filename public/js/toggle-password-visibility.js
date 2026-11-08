@@ -27,3 +27,9 @@ function togglePasswordVisibility(inputId, showId, hideId) {
         hideButton.classList.add('hidden');
     }
 }
+
+document.addEventListener('click', (event) => {
+    if (event.target.closest('#toggle-password-show, #toggle-password-hide')) {
+        togglePasswordVisibility('password', 'toggle-password-show', 'toggle-password-hide');
+    }
+});

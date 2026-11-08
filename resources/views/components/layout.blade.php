@@ -1,7 +1,7 @@
 @props(['show_page_header' => true, 'show_nav_menu' => true])
 
 <!doctype html>
-<html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
+<html @auth data-warn-unsaved @endauth data-bs-theme-primary="{{ config('app.readererer_primary_color') }}" lang="{{ str_replace('_', '-', app()->getLocale()) }}">
 
 <head>
 	<meta charset="utf-8" />
@@ -9,7 +9,7 @@
 	<meta content="ie=edge" http-equiv="X-UA-Compatible" />
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>{{ Breadcrumbs::exists() ? Breadcrumbs::current()?->title ?? config('app.name') : config('app.name') }}</title>
-	<link href="{{ Vite::asset('resources/images/favicon.png') }}" rel="shortcut icon">
+	<link href="{{ favicon_url() }}" rel="shortcut icon">
 	@vite(['resources/js/app.js', 'resources/css/app.css'])
 	@stack('scripts')
 </head>

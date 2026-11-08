@@ -6,12 +6,12 @@ use App\Enums\UserRole;
 use App\Models\Attendance;
 use App\Models\Ensemble;
 use App\Models\InstrumentFamily;
-use App\Models\Setting;
 use App\Models\SetupGroup;
 use App\Models\Term;
 use App\Models\TermDate;
 use App\Models\User;
 use App\Services\PollererImporter;
+use App\Settings\GeneralSettings;
 use Illuminate\Http\Client\Factory;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Auth;
@@ -240,7 +240,7 @@ test('null settings keep the site defaults', function () {
         $export['settings']['repeat_headings'] = null;
     });
 
-    expect(Setting::whereIn('key', ['assume_attending', 'repeating_headings'])->exists())->toBeFalse();
+    expect(app(GeneralSettings::class)->toCollection()->only('assume_attending', 'repeating_headings')->all())->toBe(['assume_attending' => null, 'repeating_headings' => null]);
 });
 
 test('the preview leaves out the export date when it has none', function () {
@@ -291,7 +291,7 @@ test('attendance keeps every reply with its time, editor and address', function 
 test('settings map onto the settings page and unknown ones are listed', function () {
     $report = import_pollererer();
 
-    expect(Setting::pluck('value', 'key')->except('logo')->all())->toEqual([
+    expect(array_filter(app(GeneralSettings::class)->toCollection()->except('logo')->all(), fn ($value) => $value !== null))->toEqual([
         'name' => 'North Band',
         'assume_attending' => true,
         'repeating_headings' => false,
@@ -304,7 +304,7 @@ test('images are downloaded to the public disk', function () {
     import_pollererer();
 
     $image = Ensemble::where('slug', 'concert-band')->value('image');
-    $logo = Setting::where('key', 'logo')->value('value');
+    $logo = app(GeneralSettings::class)->logo;
 
     Storage::disk('public')->assertExists($image);
     Storage::disk('public')->assertExists($logo);
@@ -349,7 +349,7 @@ test('a failed image download keeps the address and warns', function () {
     $report = import_pollererer();
 
     expect(Ensemble::where('slug', 'concert-band')->value('image'))->toBe('https://example.com/band.png')
-        ->and(Setting::where('key', 'logo')->exists())->toBeFalse()
+        ->and(app(GeneralSettings::class)->logo)->toBeNull()
         ->and($report['warnings'])->toContain('The image for Concert Band could not be downloaded from https://example.com/band.png, so it links to that address instead.');
 });
 
@@ -374,7 +374,7 @@ test('previewing counts everything but saves and downloads nothing', function ()
         ->and(TermDate::withTrashed()->count())->toBe(0)
         ->and(Attendance::count())->toBe(0)
         ->and(User::count())->toBe(1)
-        ->and(Setting::count())->toBe(0)
+        ->and(DB::table('settings')->where('payload', '!=', 'null')->count())->toBe(0)
         ->and(DB::table('user_ensemble')->count())->toBe(0);
     Http::assertNothingSent();
 
@@ -406,7 +406,7 @@ test('confirming imports the previewed file and deletes it', function () {
 });
 
 test('the import page is for admins only', function () {
-    $this->get(route('settings.import'))->assertRedirect('/login');
+    $this->get(route('settings.import'))->assertRedirectContains('/login?redirect=');
 
     foreach ([UserRole::Guest, UserRole::Ensemble, UserRole::Member, UserRole::Moderator] as $role) {
         $user = make_user($role);

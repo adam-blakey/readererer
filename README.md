@@ -1,5 +1,8 @@
 <p align="center">
-  <img src="docs/images/readererer-logo.svg" alt="Readererer" width="440">
+  <picture>
+    <source media="(prefers-color-scheme: dark)" srcset="docs/images/readererer-logo-dark.svg">
+    <img src="docs/images/readererer-logo.svg" alt="Readererer" width="440">
+  </picture>
 </p>
 
 <p align="center">
@@ -7,11 +10,11 @@
 </p>
 
 <p align="center">
-  <img alt="Laravel 13" src="https://img.shields.io/badge/Laravel-13-FF2D20?logo=laravel&logoColor=white">
-  <img alt="PHP 8.5+" src="https://img.shields.io/badge/PHP-8.5%2B-777BB4?logo=php&logoColor=white">
-  <img alt="Tabler UI" src="https://img.shields.io/badge/UI-Tabler-0054A6">
-  <img alt="SQLite" src="https://img.shields.io/badge/DB-SQLite-003B57?logo=sqlite&logoColor=white">
-  <img alt="Tests: Pest" src="https://img.shields.io/badge/Tests-Pest-6C5CE7">
+  <a href="https://laravel.com"><img alt="Laravel 13" src="https://img.shields.io/badge/Laravel-13-FF2D20?logo=laravel&logoColor=white"></a>
+  <a href="https://www.php.net"><img alt="PHP 8.5+" src="https://img.shields.io/badge/PHP-8.5%2B-777BB4?logo=php&logoColor=white"></a>
+  <a href="https://tabler.io"><img alt="Tabler UI" src="https://img.shields.io/badge/UI-Tabler-0054A6"></a>
+  <a href="https://www.sqlite.org"><img alt="SQLite" src="https://img.shields.io/badge/DB-SQLite-003B57?logo=sqlite&logoColor=white"></a>
+  <a href="https://pestphp.com"><img alt="Tests: Pest" src="https://img.shields.io/badge/Tests-Pest-6C5CE7"></a>
 </p>
 
 <p align="center">
@@ -55,7 +58,9 @@ history, and totals use the latest reply for each member.
   attending, not-attending and unknown totals per date. The register records actual
   attendance on the day (present, absent or late) for each member, date and ensemble.
   Poll behaviour is set by the config keys `readererer_assume_attending`,
-  `readererer_allow_change_to_unknown` and `readererer_repeating_headings`.
+  `readererer_allow_change_to_unknown`, `readererer_repeating_headings` and
+  `readererer_depping`, which adds a fourth reply for a member sending a dep, with
+  the dep's name.
 - **Settings**: admins can change the site name, logo, poll options, image upload
   limit and the words used for rehearsals, concerts, ensembles, terms, members, setup
   groups and van drivers. Saved settings override the `.env` values, which stay as the

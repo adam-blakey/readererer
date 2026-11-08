@@ -21,7 +21,7 @@
                             @endif
                             @if ($entity->deleted_at != null)
                                 @if ($restore_route)
-                                    <form method="POST" action="{{ route($restore_route, $entity) }}" onsubmit="return confirm('{{ __('Are you sure you want to unarchive this record?') }}');">
+                                    <form method="POST" action="{{ route($restore_route, $entity) }}" data-confirm="{{ __('Are you sure you want to unarchive this record?') }}">
                                         @csrf
                                         @method('PATCH')
                                         <button type="submit" class="btn btn-success">{{ __('Unarchive') }}</button>
@@ -29,7 +29,7 @@
                                 @endif
                             @else
                                 @if ($destroy_route)
-                                    <form method="POST" action="{{ route($destroy_route, $entity) }}" onsubmit="return confirm('{{ __('Are you sure you want to archive this record?') }}');">
+                                    <form method="POST" action="{{ route($destroy_route, $entity) }}" data-confirm="{{ __('Are you sure you want to archive this record?') }}">
                                         @csrf
                                         @method('DELETE')
                                         <button type="submit" class="btn btn-danger">{{ __('Archive') }}</button>
@@ -42,7 +42,7 @@
                     <div class="card-body">
                         @foreach($attributes as $attribute)
                             @php
-                                $clean_attribute = clean_attribute_name($attribute);
+                                $clean_attribute = column_label($entity, $attribute);
                                 $icon_name = $entity->getIconForAttribute($attribute) ?? 'pencil';
                             @endphp
                             <div class="mb-2">
@@ -60,6 +60,12 @@
                                             @endif
                                             {{ $loop->last ? '' : ',' }}
                                         @endforeach
+                                    @endif
+                                @elseif (str_ends_with($attribute, '_url'))
+                                    @if ($entity->$attribute)
+                                        <a href="{{ $entity->$attribute }}" rel="noopener" target="_blank"><x-icon name="external-link" /> {{ __('Open') }}</a>
+                                    @else
+                                        -
                                     @endif
                                 @elseif (str_contains($attribute, 'color'))
                                     @php
@@ -85,5 +91,8 @@
                 </x-card>
             </div>
         </x-card-row>
+        @isset($below)
+            @include($below)
+        @endisset
     </div>
 </x-layout>

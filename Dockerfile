@@ -51,7 +51,10 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 RUN echo 'ServerName localhost' > /etc/apache2/conf-available/servername.conf \
     && a2enconf servername
 
-RUN a2enmod rewrite \
+RUN sed -ri -e 's/^ServerTokens .*/ServerTokens Prod/' -e 's/^ServerSignature .*/ServerSignature Off/' \
+        /etc/apache2/conf-available/security.conf
+
+RUN a2enmod rewrite headers \
     && { \
         echo '<VirtualHost *:80>'; \
         echo '    DocumentRoot /var/www/html/public'; \

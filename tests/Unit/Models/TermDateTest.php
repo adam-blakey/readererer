@@ -1,6 +1,7 @@
 <?php
 
 use App\Models\Ensemble;
+use App\Models\Location;
 use App\Models\SetupGroup;
 use App\Models\Term;
 use App\Models\TermDate;
@@ -44,6 +45,49 @@ test('schedule label spells out both ends of a multi-day date', function () {
     $termDate = term_date_at('2026-01-05 19:00:00', '2026-01-06 21:30:00');
 
     expect($termDate->schedule_label)->toBe('Mon, 5 Jan 2026, 19:00 – Tue, 6 Jan 2026, 21:30');
+});
+
+test('labels show TBC in place of the time when it is not confirmed', function () {
+    $termDate = term_date_at('2026-01-05 19:00:00', '2026-01-05 21:30:00', ['time_tbc' => true]);
+
+    expect($termDate->name)->toBe('Monday, 5th January 2026, time TBC')
+        ->and($termDate->time_label)->toBe('TBC')
+        ->and($termDate->schedule_label)->toBe('Mon, 5 Jan 2026, TBC');
+
+    $multiDay = term_date_at('2026-01-05 19:00:00', '2026-01-06 21:30:00', ['time_tbc' => true]);
+
+    expect($multiDay->name)->toBe('Monday, 5th January 2026 – Tuesday, 6th January 2026, time TBC')
+        ->and($multiDay->schedule_label)->toBe('Mon, 5 Jan 2026 – Tue, 6 Jan 2026, TBC');
+});
+
+test('location label is the location name, or TBC without one', function () {
+    $termDate = term_date_at('2026-01-05 19:00:00', '2026-01-05 21:30:00');
+
+    expect($termDate->location_label)->toBe('TBC');
+
+    $termDate->update(['location_id' => Location::factory()->create(['name' => 'Town Hall'])->id]);
+
+    expect($termDate->fresh()->location_label)->toBe('Town Hall');
+});
+
+test('a date without a location inherits the term\'s default', function () {
+    $termDate = term_date_at('2026-01-05 19:00:00', '2026-01-05 21:30:00');
+    $termDate->term->update(['location_id' => Location::factory()->create(['name' => 'Term Hall'])->id]);
+
+    expect($termDate->fresh()->location_label)->toBe('Term Hall');
+
+    $termDate->update(['location_id' => Location::factory()->create(['name' => 'Concert Hall'])->id]);
+
+    expect($termDate->fresh()->location_label)->toBe('Concert Hall');
+});
+
+test('a date whose time is TBC is saved at midnight, so reminders count from the start of the day', function () {
+    config(['app.readererer_reminder_minutes' => 24 * 60]);
+    $termDate = term_date_at('2026-01-05 19:00:00', '2026-01-06 21:30:00', ['time_tbc' => true]);
+
+    expect($termDate->start_datetime->format('Y-m-d H:i'))->toBe('2026-01-05 00:00')
+        ->and($termDate->end_datetime->format('Y-m-d H:i'))->toBe('2026-01-06 00:00')
+        ->and($termDate->remindersDueAt()->format('Y-m-d H:i'))->toBe('2026-01-04 00:00');
 });
 
 test('relative label names today, tomorrow and yesterday', function () {

@@ -3,10 +3,12 @@
 use App\Enums\AttendanceStatus;
 use App\Enums\Color;
 use App\Enums\RegisterStatus;
+use App\Http\Middleware\AddSecurityHeaders;
 use App\Models\Ensemble;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Http\Request;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Schema;
@@ -18,7 +20,19 @@ function logo_url(): string
 {
     $logo = config('app.readererer_logo');
 
-    return filled($logo) ? asset($logo) : Vite::asset('resources/images/readererer-long-logo.svg');
+    return filled($logo) ? AddSecurityHeaders::allowImage(asset($logo)) : Vite::asset('resources/images/readererer-long-logo.svg');
+}
+
+function favicon_url(): string
+{
+    $favicon = config('app.readererer_favicon');
+
+    return filled($favicon) ? AddSecurityHeaders::allowImage(asset($favicon)) : Vite::asset('resources/images/favicon.png');
+}
+
+function google_login_enabled(): bool
+{
+    return config('app.readererer_google_login') && filled(config('services.google.client_id')) && filled(config('services.google.client_secret'));
 }
 
 /** The site's only ensemble while single-ensemble mode is on, else null. */
@@ -102,6 +116,7 @@ function member_status_totals($members, $term_date, ?Ensemble $ensemble = null):
 
         switch ($attendance_value) {
             case AttendanceStatus::Attending:
+            case AttendanceStatus::Depping:
                 $number_attending++;
                 break;
             case AttendanceStatus::NotAttending:
@@ -124,6 +139,29 @@ function member_status_totals($members, $term_date, ?Ensemble $ensemble = null):
             'unknown' => $number_unknown,
         ];
     }
+}
+
+function is_seat_row(mixed $row): bool
+{
+    return is_string($row) && preg_match('/^[A-Z]{1,10}$/', $row) === 1;
+}
+
+/** Seat row names from A up to the last valid one in `$rows`, in seating order, where Z is followed by AA. */
+function seat_rows(iterable $rows): array
+{
+    $last = collect($rows)->filter(is_seat_row(...))->sortBy(fn ($row) => [strlen($row), $row])->last();
+
+    if ($last === null) {
+        return [];
+    }
+
+    $names = ['A'];
+
+    while (end($names) !== $last) {
+        $names[] = str_increment(end($names));
+    }
+
+    return $names;
 }
 
 /** Count register entries by status key; members of `$expected_members` with no entry count as unmarked. */
@@ -193,8 +231,8 @@ function get_create_fields(object $dummy): array
             $select_multiple = $isBelongsToMany;
             $default_option = null;
             $icon = call_or_default($dummy, 'getIconForAttribute', $name, 'pencil');
-            $options = $relatedClass::orderBy('name')
-                ->get();
+            // Sorted in PHP because `name` can be an accessor (User), not a column.
+            $options = $relatedClass::all()->sortBy('name', SORT_NATURAL | SORT_FLAG_CASE)->values();
         } else {
             $column = $columns->firstWhere('name', $fillable_entry) ?? null;
             if (! $column) {
@@ -362,4 +400,27 @@ function unhandled_error_messages(?ViewErrorBag $errors, array $rendered): array
         ->reject(fn ($messages, $key) => Str::is($rendered, $key))
         ->flatten()
         ->all();
+}
+
+function login_url(Request $request): string
+{
+    $route = $request->route();
+
+    if (! $request->isMethod('GET') || ! $route?->getName()) {
+        return route('login');
+    }
+
+    return route('login', [
+        'redirect' => $route->getName(),
+        'parameters' => array_merge($request->query(), $route->originalParameters()),
+    ]);
+}
+
+/**
+ * Masks email addresses, and drops the SQL and bindings that Laravel adds to query exception messages,
+ * so text can leave the site without members' details.
+ */
+function redact_personal_data(string $text): string
+{
+    return preg_replace(['/ \(Connection: .*\)$/s', '/[\w.+-]+@[\w-]+(?:\.[\w-]+)+/'], ['', '[email]'], $text);
 }

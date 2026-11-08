@@ -17,12 +17,10 @@ class UpdateUserRequest extends FormRequest
     /** @return array<string, ValidationRule|array<mixed>|string> */
     public function rules(): array
     {
-        return [
+        $rules = [
             'first_name' => ['required', 'string', 'max:255'],
             'last_name' => ['required', 'string', 'max:255'],
             'email' => ['required', 'email', 'max:255', Rule::unique('users', 'email')->ignore($this->route('user'))],
-            'role' => ['required', Rule::enum(UserRole::class)->only(UserRole::assignableBy($this->user()))],
-            'setup_group' => ['nullable', 'exists:setup_groups,id'],
             'phone_number' => ['nullable', 'string', 'max:255'],
             'address_line1' => ['nullable', 'string', 'max:255'],
             'address_line2' => ['nullable', 'string', 'max:255'],
@@ -41,5 +39,14 @@ class UpdateUserRequest extends FormRequest
             'image' => ['nullable', 'image', 'mimes:jpeg,png,webp,gif', 'max:'.config('app.readererer_image_max_kilobytes')],
             'remove_image' => ['sometimes', 'boolean'],
         ];
+
+        if ($this->user()->can('manage', $this->route('user'))) {
+            if ($this->user()->isNot($this->route('user'))) {
+                $rules['role'] = ['required', Rule::enum(UserRole::class)->only(UserRole::assignableBy($this->user()))];
+            }
+            $rules['setup_group'] = ['nullable', 'exists:setup_groups,id'];
+        }
+
+        return $rules;
     }
 }

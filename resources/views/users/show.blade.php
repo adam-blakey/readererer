@@ -1,5 +1,7 @@
 @props(['user', 'instrument_families'])
 
+@php($shown = config('app.readererer_shown_user_fields'))
+
 <x-layout>
     <div class="container">
         <div class="row align-items-center">
@@ -12,6 +14,18 @@
             </div>
             <div class="col-auto ms-auto">
                 <div class="btn-list">
+                    @if ($user->trashed())
+                        @can('restore', $user)
+                            <form method="POST" action="{{ route('users.restore', $user) }}" data-confirm="{{ __('Are you sure you want to unarchive this record?') }}">
+                                @csrf
+                                @method('PATCH')
+                                <button type="submit" class="btn btn-outline-success">
+                                    <x-icon name="restore" />
+                                    {{ __('Unarchive') }}
+                                </button>
+                            </form>
+                        @endcan
+                    @else
                     <x-a aria-label="{{ __('Edit') }}" class="btn" :route="'users.edit'" :user="$user">
                         <x-icon name="pencil" />
                         {{ __('Edit') }}
@@ -22,6 +36,7 @@
                             {{ __('Reset password') }}
                         </a>
                     @endcan
+                    @endif
                     @can('erase', $user)
                         <a href="#" class="btn btn-outline-danger" data-bs-toggle="modal" data-bs-target="#modal-erase-user">
                             <x-icon name="trash" />
@@ -31,6 +46,9 @@
                 </div>
             </div>
         </div>
+        @if ($user->trashed())
+            <div class="mt-3 alert alert-warning" role="alert">{{ __('This user is archived. Unarchive them to let them log in again, or erase their personal data permanently.') }}</div>
+        @endif
         @if (session('status'))
             <div class="mt-3 alert alert-success" role="alert">{{ session('status') }}</div>
         @endif
@@ -76,31 +94,41 @@
 										{{ __('Email') }}:
 										<strong>{{ $user->email }}</strong>
 									</div>
-									<div class="mb-2">
-										<x-icon name="phone" />
-										{{ __('Phone number') }}:
-										<strong>{{ $user->phone_number }}</strong>
-									</div>
-									<div class="mb-2">
-										<x-icon name="pin" />
-										{{ __('Address') }}:
-										<strong>{{ $user->full_address }}</strong>
-									</div>
-									<div class="mb-2">
-										<x-icon name="building-hospital" />
-										{{ __('Emergency contact details') }}:
-										<strong>{{ $user->emergency_contact_details }}</strong>
-									</div>
-									<div class="mb-2">
-										<x-icon name="cake" />
-										{{ __('Date of birth') }}:
-										<strong>{{ $user->date_of_birth?->format('j F Y') }}</strong>
-									</div>
-									<div class="mb-2">
-										<x-icon name="glass" />
-										{{ __('Over 18') }}:
-										<strong>{{ $user->is_over_18 ? __('Yes') : __('No') }}</strong>
-									</div>
+									@if (in_array('phone_number', $shown))
+										<div class="mb-2">
+											<x-icon name="phone" />
+											{{ __('Phone number') }}:
+											<strong>{{ $user->phone_number }}</strong>
+										</div>
+									@endif
+									@if (in_array('address', $shown))
+										<div class="mb-2">
+											<x-icon name="pin" />
+											{{ __('Address') }}:
+											<strong>{{ $user->full_address }}</strong>
+										</div>
+									@endif
+									@if (in_array('emergency_contact', $shown))
+										<div class="mb-2">
+											<x-icon name="building-hospital" />
+											{{ __('Emergency contact details') }}:
+											<strong>{{ $user->emergency_contact_details }}</strong>
+										</div>
+									@endif
+									@if (in_array('date_of_birth', $shown))
+										<div class="mb-2">
+											<x-icon name="cake" />
+											{{ __('Date of birth') }}:
+											<strong>{{ $user->date_of_birth?->format('j F Y') }}</strong>
+										</div>
+									@endif
+									@if (in_array('date_of_birth', $shown))
+										<div class="mb-2">
+											<x-icon name="glass" />
+											{{ __('Over 18') }}:
+											<strong>{{ $user->is_over_18 ? __('Yes') : __('No') }}</strong>
+										</div>
+									@endif
 								</div>
 							</div>
 						</div>
@@ -134,16 +162,23 @@
 									</div>
 									@endif
 									@endif
-									<div class="mb-2">
-										<x-icon name="camera" />
-										{{ __('Photograph permission') }}:
-										<strong>{{ $user->has_photo_permission ? __('Yes') : __('No') }}</strong>
-									</div>
-									<div class="mb-2">
-										<x-icon name="gift" />
-										{{ __('Gift aid subs') }}:
-										<strong>{{ $user->is_gift_aiding_subs ? __('Yes') : __('No') }}</strong>
-									</div>
+									@if (in_array('has_photo_permission', $shown))
+										<div class="mb-2">
+											<x-icon name="camera" />
+											{{ __('Photograph permission') }}:
+											<strong>{{ $user->has_photo_permission ? __('Yes') : __('No') }}</strong>
+										</div>
+									@endif
+									@if (in_array('is_gift_aiding_subs', $shown))
+										<div class="mb-2">
+											<x-icon name="gift" />
+											{{ __('Gift aid subs') }}:
+											<strong>{{ $user->is_gift_aiding_subs ? __('Yes') : __('No') }}</strong>
+										</div>
+									@endif
+									@unless (config('app.readererer_setup_groups') || in_array('has_photo_permission', $shown) || in_array('is_gift_aiding_subs', $shown))
+										<p class="text-secondary mb-0">{{ __('No additional info available') }}</p>
+									@endunless
 								</div>
 							</div>
 						</div>
@@ -152,9 +187,9 @@
 			</div>
 		</div>
 	</div>
-    @can('resetPassword', $user)
+    @if (! $user->trashed() && Gate::allows('resetPassword', $user))
         <x-modals.reset-password :user="$user" />
-    @endcan
+    @endif
     @can('erase', $user)
         <x-modals.erase-user :user="$user" />
     @endcan

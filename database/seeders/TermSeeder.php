@@ -3,6 +3,7 @@
 namespace Database\Seeders;
 
 use App\Models\Ensemble;
+use App\Models\Location;
 use App\Models\Setlist;
 use App\Models\SetupGroup;
 use App\Models\Term;
@@ -25,8 +26,12 @@ class TermSeeder extends Seeder
         $setlist = Setlist::all()->random(1)->first();
 
         $term = Term::factory(3)->create();
+        $rehearsalVenue = Location::firstWhere('name', 'Redland Parish Church Hall');
+        $concertVenues = Location::whereNot('id', $rehearsalVenue?->id)->get();
 
-        $term->each(function ($term) use ($setlist) {
+        $term->each(function ($term) use ($setlist, $rehearsalVenue, $concertVenues) {
+            $term->update(['location_id' => $rehearsalVenue?->id]);
+
             [$season, $year] = explode(' ', $term->name);
 
             switch ($season) {
@@ -68,7 +73,10 @@ class TermSeeder extends Seeder
                 $i++;
             }
 
-            Ensemble::all()->each(function ($ensemble) use ($term, $year, $month_start, $month_end, $setlist) {
+            // The term's last rehearsal is still being arranged.
+            $term->term_dates()->reorder('start_datetime', 'desc')->first()?->update(['time_tbc' => true]);
+
+            Ensemble::all()->each(function ($ensemble) use ($term, $year, $month_start, $month_end, $setlist, $concertVenues) {
                 $concert_date = Carbon::parse($this->faker->dateTimeBetween(Carbon::createFromDate($year, $month_start, 1), Carbon::createFromDate($year, $month_end, 28)));
                 $concert_date->hour(19);
                 $concert_date->minute(30);
@@ -78,6 +86,7 @@ class TermSeeder extends Seeder
                     'start_datetime' => $concert_date,
                     'end_datetime' => $concert_date->copy()->addHours(2),
                     'setlist_id' => $setlist->id,
+                    'location_id' => $concertVenues->isEmpty() ? null : $concertVenues->random()->id,
                 ])->concert_ensembles()->attach($ensemble);
             });
         });

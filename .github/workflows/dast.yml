@@ -1,12 +1,10 @@
 name: "DAST"
 
 on:
-  push:
-    branches: [ "main" ]
-  pull_request:
-    branches: [ "main" ]
+  workflow_call:
+  workflow_dispatch:
   schedule:
-    - cron: '28 2 * * 2'
+    - cron: '0 4 * * 6'
 
 permissions:
   contents: read
@@ -17,7 +15,7 @@ jobs:
     runs-on: ubuntu-24.04
     steps:
     - name: Checkout repository
-      uses: actions/checkout@v7
+      uses: actions/checkout@v7.0.1
 
     - name: Build the app image
       run: docker build -t readererer .
@@ -35,13 +33,15 @@ jobs:
       uses: zaproxy/action-baseline@v0.15.0
       with:
         target: http://localhost:8080
+        rules_file_name: .zap/rules.tsv
         allow_issue_writing: false
 
     - name: Report logged-out findings in the job summary
       if: always() && hashFiles('report_md.md') != ''
       run: |
         echo "# Logged out" >> "$GITHUB_STEP_SUMMARY"
-        cat report_md.md >> "$GITHUB_STEP_SUMMARY"
+        sed '/^## Alert Detail/,$d' report_md.md >> "$GITHUB_STEP_SUMMARY"
+        echo "Alert details are in the \`zap_scan\` artifact." >> "$GITHUB_STEP_SUMMARY"
         rm report_md.md
 
     - name: Log in as an admin
@@ -76,6 +76,7 @@ jobs:
         ZAP_AUTH_HEADER_SITE: localhost:8080
       with:
         target: http://localhost:8080/dashboard
+        rules_file_name: .zap/rules.tsv
         cmd_options: -z "-config spider.postform=false"
         allow_issue_writing: false
         artifact_name: zap_scan_admin
@@ -84,7 +85,8 @@ jobs:
       if: always() && hashFiles('report_md.md') != ''
       run: |
         echo "# Logged in as an admin" >> "$GITHUB_STEP_SUMMARY"
-        cat report_md.md >> "$GITHUB_STEP_SUMMARY"
+        sed '/^## Alert Detail/,$d' report_md.md >> "$GITHUB_STEP_SUMMARY"
+        echo "Alert details are in the \`zap_scan_admin\` artifact." >> "$GITHUB_STEP_SUMMARY"
 
     - name: Show app logs
       if: failure()

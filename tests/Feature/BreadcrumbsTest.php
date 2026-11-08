@@ -1,7 +1,6 @@
 <?php
 
 use App\Enums\UserRole;
-use App\Models\Composer;
 use App\Models\Ensemble;
 use App\Models\Term;
 use Diglactic\Breadcrumbs\Breadcrumbs;
@@ -10,6 +9,8 @@ use Illuminate\Support\Facades\Route;
 test('every named GET page has a breadcrumb trail', function () {
     $without_breadcrumbs = [
         'login',
+        'google.redirect',
+        'google.callback',
         'password.request',
         'password.reset',
         'password.confirm',
@@ -38,12 +39,12 @@ test('an index page is a child of home', function () {
 });
 
 test('a record sits under its index, and its edit form under the record', function () {
-    $composer = Composer::factory()->create(['first_name' => 'Sergei', 'last_name' => 'Rachmaninoff']);
+    $ensemble = Ensemble::factory()->create(['name' => 'Concert Band']);
 
-    expect(Breadcrumbs::generate('composers.show', $composer)->pluck('title')->all())
-        ->toBe(['Home', 'Composers', 'Sergei Rachmaninoff'])
-        ->and(Breadcrumbs::generate('composers.edit', $composer)->pluck('title')->all())
-        ->toBe(['Home', 'Composers', 'Sergei Rachmaninoff', 'Edit']);
+    expect(Breadcrumbs::generate('ensembles.show', $ensemble)->pluck('title')->all())
+        ->toBe(['Home', 'Ensembles', 'Concert Band'])
+        ->and(Breadcrumbs::generate('ensembles.edit', $ensemble)->pluck('title')->all())
+        ->toBe(['Home', 'Ensembles', 'Concert Band', 'Edit']);
 
 });
 
@@ -65,7 +66,7 @@ test('a poll and a register hang off their own index', function () {
     expect(Breadcrumbs::generate('attendance.poll.show', $ensemble, $term)->pluck('title')->all())
         ->toBe(['Home', 'Attendance updates', 'Concert Band: Autumn 2026'])
         ->and(Breadcrumbs::generate('attendance.register.show', $ensemble, $term_date)->pluck('title')->all())
-        ->toBe(['Home', 'Attendance registers', 'Concert Band: '.$term_date->date_label]);
+        ->toBe(['Home', 'Upcoming rehearsals', 'Concert Band: '.$term_date->date_label]);
 
 });
 

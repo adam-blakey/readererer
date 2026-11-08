@@ -5,11 +5,9 @@ namespace App\Http\Controllers;
 use App\Mail\AttendanceListMail;
 use App\Mail\SetupReminderMail;
 use App\Mail\VanDriverReminderMail;
-use App\Models\Ensemble;
 use App\Models\TermDate;
 use App\Services\EmailDispatcher;
 use Illuminate\Http\RedirectResponse;
-use Illuminate\Support\Collection;
 
 class TermDateNotificationController extends Controller
 {
@@ -18,9 +16,7 @@ class TermDateNotificationController extends Controller
     /** Email the attendance list to the concert ensemble's admins, or every ensemble's admins for a rehearsal. */
     public function sendAttendanceList(TermDate $termDate): RedirectResponse
     {
-        $this->authorize('sendNotifications', $termDate);
-
-        $recipients = $this->attendanceListRecipients($termDate);
+        $recipients = $termDate->attendanceListRecipients();
 
         if ($recipients->isEmpty()) {
             return back()->with('status', __('There are no ensemble admins with an email address to send the attendance list to.'));
@@ -34,7 +30,6 @@ class TermDateNotificationController extends Controller
     /** Email a setup reminder to the members and van drivers of the date's setup group. */
     public function sendSetupReminder(TermDate $termDate): RedirectResponse
     {
-        $this->authorize('sendNotifications', $termDate);
         abort_unless(config('app.readererer_setup_groups'), 404);
 
         $setupGroup = $termDate->setup_group;
@@ -43,11 +38,7 @@ class TermDateNotificationController extends Controller
             return back()->with('status', __('This date has no setup group, so there is nobody to remind.'));
         }
 
-        $recipients = $setupGroup->members
-            ->merge($setupGroup->van_drivers)
-            ->filter(fn ($member) => filled($member->email))
-            ->unique('id')
-            ->values();
+        $recipients = $termDate->setupReminderRecipients();
 
         if ($recipients->isEmpty()) {
             return back()->with('status', __('The setup group has no members or van drivers with an email address.'));
@@ -61,7 +52,6 @@ class TermDateNotificationController extends Controller
     /** Email the date's van driver: the one assigned, or inferred from the setup group's rotation. */
     public function sendVanDriverReminder(TermDate $termDate): RedirectResponse
     {
-        $this->authorize('sendNotifications', $termDate);
         abort_unless(config('app.readererer_van_drivers'), 404);
 
         $driver = $termDate->inferred_van_driver;
@@ -77,19 +67,5 @@ class TermDateNotificationController extends Controller
         $this->dispatcher->send($termDate, collect([$driver]), fn () => new VanDriverReminderMail($termDate, $driver));
 
         return back()->with('status', __('Van driver reminder sent to :name.', ['name' => $driver->name]));
-    }
-
-    private function attendanceListRecipients(TermDate $termDate): Collection
-    {
-        if ($termDate->is_concert) {
-            $admins = $termDate->concert_ensembles->load('admins')->flatMap->admins;
-        } else {
-            $admins = Ensemble::with('admins')->get()->flatMap->admins;
-        }
-
-        return $admins
-            ->filter(fn ($admin) => filled($admin->email))
-            ->unique('id')
-            ->values();
     }
 }

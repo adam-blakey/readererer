@@ -41,6 +41,15 @@ test('a belongs-to-many relation becomes an optional multi-select class field', 
     expect($fields['van_drivers']['options'])->toHaveCount(2);
 });
 
+test('user options are sorted by full name, which is not a column', function () {
+    User::factory()->create(['first_name' => 'zoe', 'last_name' => 'Adams']);
+    User::factory()->create(['first_name' => 'Amy', 'last_name' => 'Young']);
+
+    $fields = get_create_fields(new Ensemble);
+
+    expect($fields['admins']['options']->pluck('name')->all())->toBe(['Amy Young', 'zoe Adams']);
+});
+
 test('a belongs-to relation follows its foreign key column for optionality', function () {
     SetupGroup::factory()->create();
 

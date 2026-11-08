@@ -62,13 +62,21 @@
 										<div class="invalid-feedback">{{ $message }}</div>
 									@enderror
 								</div>
+								@can('manage', $user)
 								<div class="mb-3">
 									<label class="form-label required">{{ __('Role') }}</label>
+									@if (auth()->user()->is($user))
+										<select class="form-select" disabled>
+											<option selected>{{ $user->role->label() }}</option>
+										</select>
+										<small class="form-hint">{{ __('You cannot change your own role.') }}</small>
+									@else
 									<select name="role" class="form-select @error('role') is-invalid @enderror" required>
 										@foreach ($roles as $role)
 											<option value="{{ $role->value }}" {{ (int) old('role', $user->role->value) === $role->value ? 'selected' : '' }}>{{ $role->label() }}</option>
 										@endforeach
 									</select>
+									@endif
 									@error('role')
 										<div class="invalid-feedback">{{ $message }}</div>
 									@enderror
@@ -87,10 +95,10 @@
 									@enderror
 								</div>
 								@endif
+								@endcan
 
-								<hr />
 								@php
-									$textFields = [
+									$textFields = Arr::except([
 										'phone_number' => ['Phone number', 'tel'],
 										'date_of_birth' => ['Date of birth', 'date'],
 										'address_line1' => ['Address line 1', 'text'],
@@ -104,8 +112,12 @@
 										'emergency_contact_address_line2' => ['Emergency contact address line 2', 'text'],
 										'emergency_contact_address_city' => ['Emergency contact city', 'text'],
 										'emergency_contact_address_post_code' => ['Emergency contact post code', 'text'],
-									];
+									], App\Models\User::hiddenFields());
+									$checkboxFields = Arr::except(['has_photo_permission' => 'Photograph permission', 'is_gift_aiding_subs' => 'Gift aid subs'], App\Models\User::hiddenFields());
 								@endphp
+								@if ($textFields || $checkboxFields)
+								<hr />
+								@endif
 								@foreach ($textFields as $name => [$label, $type])
 									<div class="mb-3">
 										<label class="form-label">{{ __($label) }}</label>
@@ -115,7 +127,7 @@
 										@enderror
 									</div>
 								@endforeach
-								@foreach (['has_photo_permission' => 'Photograph permission', 'is_gift_aiding_subs' => 'Gift aid subs'] as $name => $label)
+								@foreach ($checkboxFields as $name => $label)
 									<div class="mb-3">
 										<input type="hidden" name="{{ $name }}" value="0">
 										<label class="form-check">
@@ -140,11 +152,13 @@
 					<div class="mb-3 card">
 						<div class="card-header">
 							<h2 class="mb-0 card-heading">{{ __('Ensembles (:count)', ['count' => $user->ensembles->count()]) }}</h2>
+							@can('manage', $user)
 							<div class="card-actions">
 								<a href="#" class="btn btn-primary btn-3" data-bs-toggle="modal" data-bs-target="#modal-add-ensemble-user">
 									{{ __('Add to ensemble') }}
 								</a>
 							</div>
+							@endcan
 						</div>
 						<div class="card-body">
 							@forelse ($user->ensembles as $ensemble)
@@ -159,13 +173,15 @@
 										<div><x-a :route="'ensembles.show'" :ensemble="$ensemble">{{ $ensemble->name }}</x-a></div>
 										<div class="mt-1 small text-muted">{{ $instrument }}{{ $seat }}</div>
 									</div>
+									@can('manage', $user)
 									<div class="ms-auto align-self-center">
-										<form method="POST" action="{{ route('users.ensembles.destroy', ['user' => $user, 'ensemble' => $ensemble]) }}" onsubmit="return confirm('{{ __('Remove this user from :name?', ['name' => $ensemble->name]) }}');">
+										<form method="POST" action="{{ route('users.ensembles.destroy', ['user' => $user, 'ensemble' => $ensemble]) }}" data-confirm="{{ __('Remove this user from :name?', ['name' => $ensemble->name]) }}">
 											@csrf
 											@method('DELETE')
 											<button type="submit" class="btn btn-outline-danger btn-sm">{{ __('Remove') }}</button>
 										</form>
 									</div>
+									@endcan
 								</div>
 							@empty
 								<p class="text-muted mb-0">{{ __('This user is not a member of any ensembles.') }}</p>
@@ -178,4 +194,6 @@
 	</div>
 </x-layout>
 
+@can('manage', $user)
 <x-modals.add-ensemble-user :user="$user" :ensembles="$ensembles" :instrument-families="$allInstrumentFamilies" />
+@endcan

@@ -10,14 +10,6 @@
                 <h1 class="my-0 font-bold">{{ $piece->name }}</h1>
                 <span class="badge bg-blue text-blue-fg">{{ __('Wow') }}</span>
             </div>
-            <div class="col-auto ms-auto">
-                <div class="btn-list">
-                    <a aria-label="{{ __('Edit') }}" class="btn" href="{{ route('pieces.edit', ['piece' => $piece]) }}">
-                        <x-icon name="pencil" />
-                        {{ __('Edit') }}
-                    </a>
-                </div>
-            </div>
         </div>
     </div>
 

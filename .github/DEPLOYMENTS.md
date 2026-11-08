@@ -57,7 +57,10 @@ requests show no skipped release jobs.
      `proc_open`, which Composer scripts need), checks the site's `.env` has a
      valid `APP_KEY` (as above), then `npm ci` and `npm run build`.
      Only then does it put the app in maintenance mode (skipped on a site's
-     first deploy, whose folder has no `vendor` for `artisan` to load yet). It rsyncs the app's
+     first deploy, whose folder has no `vendor` for `artisan` to load yet),
+     after first rsyncing `vendor` and `bootstrap` into the site's folder:
+     the pull has already put the new code there, and `artisan down` boots
+     it, so it needs the new packages and no stale `bootstrap/cache`. It rsyncs the app's
      folders (`app`, `bootstrap`, `config`, `database`, `lang`, `resources`,
      `routes`, `vendor`, `public/build`, `public/js`) into the site's folder
      with deletion, which also clears
@@ -94,16 +97,17 @@ requests show no skipped release jobs.
    deployment failed but does not roll it back: on `main` it stops the
    environments after it, and for a production site it holds back the GitHub
    release.
-3. **Production releases** run as three jobs on `main`:
+3. **Production releases** run as four jobs on `main`:
    - **`release_tag`** runs in the `release` environment, whose wait timer
      batches merges. It cancels the run if a newer `main` run is in
      progress, then works out the next version from the Conventional Commits
      since the last tag and pushes that tag, so that the servers'
      `git describe` names the release.
-   - **`deploy_prod`** deploys every production site at once (a matrix over
-     `prod`, `nsw-beta` and `blackwood-beta`); one site failing does not stop the others.
+   - **`deploy_prod`** deploys `prod`.
+   - **`deploy_beta`** deploys `nsw-beta` and `blackwood-beta` (a matrix; one
+     failing does not stop the other) once `prod` has deployed.
    - **`release`** publishes a GitHub release for the tag with generated
-     notes once every site has deployed. If a site fails, the tag exists
+     notes once qa and every site have deployed. If a site fails, the tag exists
      without a release until its job is re-run.
 4. **`docs`** runs after every environment has deployed. It rsyncs `site/`
    (following the logo symlink into `resources/images/`) to
@@ -142,12 +146,12 @@ match exactly), with:
   ends cancel themselves). Optionally add Required reviewers. It gates every
   production site, so the wait timer formerly on `prod` moves here.
 - **`prod`**, **`nsw-beta`**, **`blackwood-beta`** — Deployment branches: `main` only, and no wait
-  timer (they deploy as soon as `release_tag` finishes).
+  timer (`prod` deploys as soon as `release_tag` finishes, the others once `prod` has).
 - **`docs`** — Deployment branches: `main` only.
 
 To add another production site, create its environment with the variables
 below, set it up in cPanel as in "cPanel Git deployment, once per production
-site", and add its name to the `deploy_prod` matrix in `main.yml`.
+site", and add its name to the `deploy_beta` matrix in `main.yml`.
 
 ### Variables and secret
 
@@ -280,7 +284,37 @@ document root `domains/readererer.blakey.family/public` before step 6.
    `php -r "echo 'base64:'.base64_encode(random_bytes(32)).PHP_EOL;"` and paste
    the output. Keep prod's existing key. Then re-run the deploy.
 
-No cron jobs are needed: the app has no scheduled tasks or queued jobs.
+5. **Cron.** Automatic reminder emails (the reminder time on the settings
+   page) need Laravel's scheduler. In **Cron Jobs** add one that runs every
+   minute:
+   `cd ~/domains/<domain> && php artisan schedule:run > /dev/null 2>&1`.
+   Without it reminders can still be sent by hand from the term page. There
+   are no queued jobs. The scheduler also runs `health:check` every five
+   minutes, which requests the site's own `/health` and shows the result on
+   **Settings → Monitoring**; that page warns when no check has run for 15
+   minutes, which usually means this cron job has stopped. For a site behind
+   Cloudflare Access, set `CF_ACCESS_CLIENT_ID` and `CF_ACCESS_CLIENT_SECRET`
+   in `.env` so the check is let through.
+6. **Logs.** `LOG_STACK=daily` writes JSON lines to
+   `storage/logs/laravel-<date>.log`, kept for `LOG_DAILY_DAYS` (14) days.
+   Add channels to `LOG_STACK`, separated by commas, to send logs elsewhere
+   too:
+   - `slack`: set `LOG_SLACK_WEBHOOK_URL` to a Slack incoming webhook. Entries
+     at `LOG_SLACK_LEVEL` (`error`) and above are posted, including failed
+     health checks.
+   - `nightwatch`: sends entries at `NIGHTWATCH_LOG_LEVEL` (`info`) and
+     above to [Laravel Nightwatch](https://nightwatch.laravel.com), which also
+     records requests, exceptions, queries, mail and scheduled tasks. Set
+     `NIGHTWATCH_TOKEN` to the application's token; Nightwatch stays off
+     without it. The app sends to a Nightwatch agent at `NIGHTWATCH_INGEST_URI`
+     (`127.0.0.1:2407`; give each site on the same account its own port, as
+     the agent listens on the same address), which must keep running beside
+     the site. There is no
+     supervisor on cPanel, so add a cron job that runs every minute and starts
+     the agent when it is not already running:
+     `cd ~/domains/<domain> && flock -n ~/nightwatch-<domain>.lock php artisan nightwatch:agent --silent > /dev/null 2>&1`.
+     If the host stops long-running processes, the agent is down for up to a
+     minute at a time and entries sent meanwhile are lost.
 
 ### Rules (Settings → Rules → Rulesets → `main`)
 

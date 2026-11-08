@@ -273,6 +273,20 @@ test('the user edit page renders when the user has no setup group or ensembles',
         ->assertSee('not a member of any ensembles');
 });
 
+test('the user edit page has one divider when no additional fields are shown', function (array $shown, int $dividers) {
+    config(['app.readererer_shown_user_fields' => $shown]);
+
+    $html = $this->actingAs(make_user(UserRole::Admin))
+        ->get(route('users.edit', make_user(UserRole::Member)))
+        ->assertOk()
+        ->getContent();
+
+    expect(substr_count($html, '<hr />'))->toBe($dividers);
+})->with([
+    'no additional fields' => [[], 1],
+    'all additional fields' => [array_keys(User::OPTIONAL_FIELDS), 2],
+]);
+
 test('the user edit page offers an empty setup group option', function () {
     $setupGroup = SetupGroup::factory()->create();
     $user = make_user(UserRole::Member, ['setup_group_id' => $setupGroup->id]);
@@ -375,7 +389,7 @@ test('ensemble logins and members cannot manage users', function (UserRole $role
 
     $this->actingAs($actor)->get(route('users.index'))->assertForbidden();
     $this->actingAs($actor)->post(route('users.store'), $payload)->assertForbidden();
-    $this->actingAs($actor)->patch(route('users.update', $actor), $payload)->assertForbidden();
+    $this->actingAs($actor)->patch(route('users.update', $target), $payload)->assertForbidden();
     $this->actingAs($actor)->delete(route('users.destroy', $target))->assertForbidden();
     $this->actingAs($actor)->delete(route('users.ensembles.destroy', [$target, $ensemble]))->assertForbidden();
 
@@ -383,6 +397,49 @@ test('ensemble logins and members cannot manage users', function (UserRole $role
     expect($target->fresh()->trashed())->toBeFalse();
     expect($target->fresh()->ensembles)->toHaveCount(1);
 })->with([UserRole::Ensemble, UserRole::Member]);
+
+test('members can view and edit their own details but not their role, setup group or ensembles', function () {
+    $member = make_user(UserRole::Member);
+    $other = make_user(UserRole::Member);
+    $group = SetupGroup::factory()->create();
+    $ensemble = Ensemble::factory()->create();
+    join_ensemble($member, $ensemble);
+    config(['app.readererer_setup_groups' => true]);
+
+    $this->actingAs($member)->get(route('users.show', $member))->assertOk()->assertSee(__('My profile'));
+    $this->actingAs($member)->get(route('users.edit', $member))
+        ->assertOk()
+        ->assertDontSee('name="role"', false)
+        ->assertDontSee('name="setup_group"', false)
+        ->assertDontSee(__('Add to ensemble'));
+    $this->actingAs($member)->get(route('users.show', $other))->assertForbidden();
+    $this->actingAs($member)->get(route('users.edit', $other))->assertForbidden();
+
+    $this->actingAs($member)->patch(route('users.update', $member), [
+        'first_name' => 'New',
+        'last_name' => 'Name',
+        'email' => 'new@example.com',
+        'role' => UserRole::Admin->value,
+        'setup_group' => $group->id,
+    ])->assertRedirect(route('users.show', $member));
+
+    $member->refresh();
+    expect($member->first_name)->toBe('New')
+        ->and($member->email)->toBe('new@example.com')
+        ->and($member->role)->toBe(UserRole::Member)
+        ->and($member->setup_group_id)->toBeNull();
+
+    $this->actingAs($member)->delete(route('users.ensembles.destroy', [$member, $ensemble]))->assertForbidden();
+    $this->actingAs($member)->post(route('users.ensembles.store', $member), ['ensemble_id' => $ensemble->id])->assertForbidden();
+    expect($member->fresh()->ensembles)->toHaveCount(1);
+});
+
+test('ensemble logins cannot view or edit their own details', function () {
+    $login = make_user(UserRole::Ensemble);
+
+    $this->actingAs($login)->get(route('users.show', $login))->assertForbidden();
+    $this->actingAs($login)->get(route('users.edit', $login))->assertForbidden();
+});
 
 test('moderators cannot grant a role above their own or edit an admin', function () {
     $moderator = make_user(UserRole::Moderator);
@@ -401,6 +458,22 @@ test('moderators cannot grant a role above their own or edit an admin', function
     expect($member->fresh()->role)->toBe(UserRole::Member);
     expect($admin->fresh()->role)->toBe(UserRole::Admin);
 });
+
+test('users cannot change their own role', function (UserRole $role) {
+    $actor = make_user($role);
+
+    $this->actingAs($actor)->get(route('users.edit', $actor))
+        ->assertOk()
+        ->assertDontSee('name="role"', false)
+        ->assertSee('You cannot change your own role.');
+
+    $this->actingAs($actor)
+        ->patch(route('users.update', $actor), ['first_name' => 'A', 'last_name' => 'B', 'email' => 'a@example.com', 'role' => UserRole::Member->value])
+        ->assertRedirect(route('users.show', $actor));
+
+    expect($actor->fresh()->role)->toBe($role)
+        ->and($actor->fresh()->first_name)->toBe('A');
+})->with([UserRole::Admin, UserRole::Moderator]);
 
 test('creating a user retries with a fresh username if the generated one is taken meanwhile', function () {
     $raced = false;
@@ -468,4 +541,37 @@ test('the user edit form saves contact details, date of birth and permissions', 
     expect($user->date_of_birth->toDateString())->toBe('1990-03-04');
     expect($user->has_photo_permission)->toBeTrue();
     expect($user->is_gift_aiding_subs)->toBeFalse();
+});
+
+test('the users index lists ensembles and filters by ensemble', function () {
+    $strings = Ensemble::factory()->create(['name' => 'String Orchestra']);
+    $winds = Ensemble::factory()->create(['name' => 'Wind Band']);
+    User::factory()->create(['first_name' => 'Violet'])->ensembles()->attach($strings);
+    User::factory()->create(['first_name' => 'Oboe'])->ensembles()->attach($winds);
+    User::factory()->create(['first_name' => 'Loner']);
+    $admin = make_user(UserRole::Admin);
+    $admin->ensembles()->attach($strings);
+    $this->actingAs($admin);
+
+    $this->get(route('users.index'))
+        ->assertOk()
+        ->assertSee(__('All ensembles'))
+        ->assertSee(__('Select all'))
+        ->assertSee(__('No ensemble'))
+        ->assertSee(['Violet', 'Oboe', 'Loner']);
+
+    $this->get(route('users.index', ['ensembles' => [$strings->id]]))
+        ->assertSee('Violet')->assertDontSee('Oboe')->assertDontSee('Loner');
+
+    $this->get(route('users.index', ['ensembles' => ['none']]))
+        ->assertSee('Loner')->assertDontSee('Violet')->assertDontSee('Oboe');
+
+    $this->get(route('users.index', ['ensembles' => [$winds->id, 'none']]))
+        ->assertSee(['Oboe', 'Loner'])->assertDontSee('Violet');
+
+    $this->get(route('users.index', ['ensembles' => [$strings->id, $winds->id, 'none']]))
+        ->assertSee(['Violet', 'Oboe', 'Loner']);
+
+    $this->get(route('users.index', ['ensembles' => ['junk']]))
+        ->assertSee(['Violet', 'Oboe', 'Loner']);
 });

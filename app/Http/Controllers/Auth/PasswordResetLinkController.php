@@ -2,9 +2,11 @@
 
 namespace App\Http\Controllers\Auth;
 
+use App\Enums\EmailLinkType;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Password;
 use Illuminate\Validation\ValidationException;
 use Illuminate\View\View;
@@ -25,9 +27,11 @@ class PasswordResetLinkController extends Controller
             'email' => ['required', 'email'],
         ]);
 
-        $status = Password::sendResetLink(
-            $request->only('email')
-        );
+        $status = EmailLinkType::ResetPassword->send($request->email);
+
+        if ($status !== Password::RESET_LINK_SENT) {
+            Log::warning('Password reset link not sent', ['status' => $status]);
+        }
 
         return $status == Password::RESET_LINK_SENT
                     ? back()->with('status', __($status))

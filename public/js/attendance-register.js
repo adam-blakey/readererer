@@ -31,3 +31,17 @@ function fillRegisterFromPoll() {
         }
     });
 }
+
+document.addEventListener('click', (event) => {
+    const button = event.target.closest('[data-register-fill], [data-register-set]');
+
+    if (button == null) {
+        return;
+    }
+
+    if (button.hasAttribute('data-register-fill')) {
+        fillRegisterFromPoll();
+    } else {
+        setWholeRegister(button.dataset.registerSet);
+    }
+});

@@ -19,6 +19,8 @@ class UpdateTermRequest extends FormRequest
         return [
             'name' => 'required|string|max:255',
             'slug' => ['required', 'string', 'max:255', Rule::unique('terms', 'slug')->ignore($this->term)],
+            'location_id' => 'nullable|integer|exists:locations,id',
+            'hidden' => 'sometimes|boolean',
 
             'term_dates' => 'array',
             'term_dates.*.id' => 'nullable|integer',
@@ -28,6 +30,8 @@ class UpdateTermRequest extends FormRequest
             'term_dates.*.ensemble_ids.*' => 'integer|exists:ensembles,id',
             'term_dates.*.setup_group_id' => 'nullable|integer|exists:setup_groups,id',
             'term_dates.*.van_driver_id' => 'nullable|integer|exists:users,id',
+            'term_dates.*.time_tbc' => 'sometimes|boolean',
+            'term_dates.*.location_id' => 'nullable|integer|exists:locations,id',
         ];
     }
 }

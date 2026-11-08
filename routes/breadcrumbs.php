@@ -21,6 +21,14 @@ Breadcrumbs::for('login', function (BreadcrumbTrail $trail) {
     $trail->push(__('Login'), route('login'));
 });
 
+Breadcrumbs::for('login-link.request', function (BreadcrumbTrail $trail) {
+    $trail->push(__('Email me a login link'), route('login-link.request'));
+});
+
+Breadcrumbs::for('login-link.show', function (BreadcrumbTrail $trail, string $token) {
+    $trail->push(__('Login'), route('login-link.show', $token));
+});
+
 Breadcrumbs::for('password.request', function (BreadcrumbTrail $trail) {
     $trail->push(__('Forgot password'), route('password.request'));
 });
@@ -47,6 +55,21 @@ Breadcrumbs::for('notifications.index', function (BreadcrumbTrail $trail) {
 Breadcrumbs::for('settings.edit', function (BreadcrumbTrail $trail) {
     $trail->parent('home');
     $trail->push(__('Settings'), route('settings.edit'));
+});
+
+Breadcrumbs::for('settings.monitoring', function (BreadcrumbTrail $trail) {
+    $trail->parent('settings.edit');
+    $trail->push(__('Monitoring'), route('settings.monitoring'));
+});
+
+Breadcrumbs::for('settings.monitoring.logs', function (BreadcrumbTrail $trail) {
+    $trail->parent('settings.monitoring');
+    $trail->push(__('Application log'), route('settings.monitoring.logs'));
+});
+
+Breadcrumbs::for('feature-flags.edit', function (BreadcrumbTrail $trail) {
+    $trail->parent('home');
+    $trail->push(__('Feature flags'), route('feature-flags.edit'));
 });
 
 Breadcrumbs::for('settings.import', function (BreadcrumbTrail $trail) {
@@ -79,6 +102,7 @@ $auto_entity = function (string $route_prefix, string $index_label, string $crea
 $auto_entity('composers', 'Composers', 'New composer');
 $auto_entity('ensembles', 'Ensembles', 'New ensemble');
 $auto_entity('instrumentfamilys', 'Instrument families', 'New instrument family');
+$auto_entity('locations', 'Locations', 'New location');
 $auto_entity('pieces', 'Pieces', 'New piece');
 $auto_entity('setlists', 'Setlists', 'New setlist');
 $auto_entity('setupgroups', 'Setup groups', 'New setup group');
@@ -112,7 +136,7 @@ Breadcrumbs::for('attendance.poll.history', function (BreadcrumbTrail $trail, En
 
 Breadcrumbs::for('attendance.register.index', function (BreadcrumbTrail $trail) {
     $trail->parent('home');
-    $trail->push(__('Attendance registers'), route('attendance.register.index'));
+    $trail->push(__('Upcoming rehearsals'), route('attendance.register.index'));
 });
 
 Breadcrumbs::for('attendance.register.show', function (BreadcrumbTrail $trail, Ensemble $ensemble, TermDate $term_date) {

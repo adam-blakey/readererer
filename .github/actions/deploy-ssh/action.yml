@@ -22,9 +22,6 @@ inputs:
 runs:
   using: composite
   steps:
-    - uses: actions/download-artifact@v8
-      with:
-        name: build
     - shell: bash
       run: |
         test -n '${{ inputs.domain }}'

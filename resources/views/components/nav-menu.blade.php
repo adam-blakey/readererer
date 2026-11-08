@@ -1,7 +1,7 @@
 @php
 	$nav_items = [
 	    [
-	        'title' => __('Attendance register'),
+	        'title' => __('Upcoming rehearsals'),
 	        'icon' => 'list-check',
 	        'route' => 'attendance.register.index',
 	        'auth' => Auth::user()?->can('viewAny', App\Models\RegisterEntry::class),
@@ -17,6 +17,12 @@
 	        'icon' => 'settings',
 	        'route' => 'settings.edit',
 	        'auth' => Auth::user()?->can('view.settings'),
+	    ],
+	    [
+	        'title' => __('Feature flags'),
+	        'icon' => 'flag',
+	        'route' => 'feature-flags.edit',
+	        'auth' => Auth::user()?->can('edit.settings'),
 	    ],
 	];
 
@@ -55,10 +61,13 @@
 						<x-name-and-role :user="Auth::user()" />
 					</a>
 					<div class="dropdown-menu dropdown-menu-end dropdown-menu-arrow">
+                        @can('view', Auth::user())
+                            <x-a class="dropdown-item" :route="'users.show'" :user="Auth::user()">{{ __('My profile') }}</x-a>
+                        @endcan
                         <x-a class="dropdown-item" :route="'password.edit'">{{ __('Change password') }}</x-a>
 						<form action="{{ route('logout') }}" method="POST">
 							@csrf
-							<a class="dropdown-item" href="{{ route('logout') }}" onclick="event.preventDefault(); this.closest('form').submit();">{{ __('Logout') }}</a>
+							<button class="dropdown-item" type="submit">{{ __('Logout') }}</button>
 						</form>
 					</div>
 				@endauth

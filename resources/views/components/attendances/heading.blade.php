@@ -1,4 +1,4 @@
-@props(['term_dates', 'show_year' => false, 'ensemble' => null])
+@props(['term_dates', 'show_year' => false, 'ensemble' => null, 'location_symbols' => collect()])
 
 <tr>
 	<th>{{ __('Members') }}</th>
@@ -12,6 +12,8 @@
 			    $heading_tooltip .= ' (' . $term_date->concert_ensemble_names . ')';
 			}
 
+			$heading_tooltip .= ' — ' . __('Location: :location', ['location' => $term_date->location_label]);
+
 			if (config('app.readererer_setup_groups') && $term_date->setup_group != null) {
 			    $heading_tooltip .= ' — ' . __(':name sets up', ['name' => $term_date->setup_group->label]);
 			}
@@ -23,13 +25,22 @@
 				{{ $term_date->start_datetime->format('Y') }}<br />
 			@endif
 			{{ $term_date->start_datetime->format('D') }}<br />
-			{{ $term_date->start_datetime->format('G:i') }}<br />
-			{{ $term_date->end_datetime->format('G:i') }}<br />
+			{{-- Two lines either way, so the setup group badges below stay in line. --}}
+			@if ($term_date->time_tbc)
+				{{ __('Time') }}<br />
+				{{ __('TBC') }}<br />
+			@else
+				{{ $term_date->start_datetime->format('G:i') }}<br />
+				{{ $term_date->end_datetime->format('G:i') }}<br />
+			@endif
             @if (config('app.readererer_setup_groups') && $term_date->setup_group != null)
                 <div class="mt-2">
                     <x-setup-group-badge :setup_group="$term_date->setup_group" :tooltip="false" />
                 </div>
             @endif
+			@if ($symbol = $location_symbols[$term_date->inferred_location?->id] ?? null)
+				<div class="mt-1"><strong>{{ $symbol }}</strong></div>
+			@endif
 		</th>
 	@endforeach
 </tr>

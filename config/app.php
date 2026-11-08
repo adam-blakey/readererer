@@ -1,5 +1,7 @@
 <?php
 
+use App\Models\User;
+
 return [
 
     /*
@@ -138,11 +140,26 @@ return [
     'readererer_assume_attending' => env('READERERER_ASSUME_ATTENDING', false),
     'readererer_allow_change_to_unknown' => env('READERERER_ALLOW_CHANGE_TO_UNKNOWN', false),
     'readererer_repeating_headings' => env('READERERER_REPEATING_HEADINGS', false),
+    'readererer_depping' => env('READERERER_DEPPING', false),
+    'readererer_hide_past_dates' => env('READERERER_HIDE_PAST_DATES', false),
     'readererer_image_max_kilobytes' => env('READERERER_IMAGE_MAX_KILOBYTES', 2048),
     'readererer_logo' => env('READERERER_LOGO'),
+    'readererer_primary_color' => env('READERERER_PRIMARY_COLOR', 'green'),
+    'readererer_favicon' => env('READERERER_FAVICON'),
     'readererer_terminology' => [],
+    'readererer_shown_user_fields' => array_keys(User::OPTIONAL_FIELDS),
     'readererer_setup_groups' => env('READERERER_SETUP_GROUPS', true),
     'readererer_van_drivers' => env('READERERER_VAN_DRIVERS', true),
     'readererer_single_ensemble' => env('READERERER_SINGLE_ENSEMBLE', false),
+    'readererer_log_emails' => env('READERERER_LOG_EMAILS', false),
+    'readererer_analytics' => env('READERERER_ANALYTICS', false),
+    'readererer_reminder_minutes' => env('READERERER_REMINDER_MINUTES'),
+    'readererer_concert_reminder_minutes' => env('READERERER_CONCERT_REMINDER_MINUTES'),
+    'readererer_after_reminders' => env('READERERER_AFTER_REMINDERS', 'nothing'),
+    'readererer_google_login' => env('READERERER_GOOGLE_LOGIN', false),
+    'readererer_google_register_domain' => env('READERERER_GOOGLE_REGISTER_DOMAIN'),
+    'readererer_google_register_role' => env('READERERER_GOOGLE_REGISTER_ROLE'),
+
+    'readererer_feature_flags' => [],
 
 ];

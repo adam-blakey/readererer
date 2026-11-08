@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use App\Enums\EmailStatus;
+use App\Enums\UserRole;
 use App\Observers\TermDateObserver;
 use Illuminate\Database\Eloquent\Attributes\ObservedBy;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -11,6 +12,8 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Support\Carbon;
+use Illuminate\Support\Collection;
 
 #[ObservedBy(TermDateObserver::class)]
 class TermDate extends Model
@@ -23,7 +26,20 @@ class TermDate extends Model
         'end_datetime',
         'setup_group_id',
         'van_driver_id',
+        'time_tbc',
+        'location_id',
     ];
+
+    /** A date whose time is to be confirmed starts and ends at midnight, so its reminders go out relative to the start of the day. */
+    protected static function booted(): void
+    {
+        static::saving(function (TermDate $termDate) {
+            if ($termDate->time_tbc) {
+                $termDate->start_datetime = $termDate->start_datetime->copy()->startOfDay();
+                $termDate->end_datetime = $termDate->end_datetime->copy()->startOfDay();
+            }
+        });
+    }
 
     public function term(): BelongsTo
     {
@@ -33,6 +49,11 @@ class TermDate extends Model
     public function setup_group(): BelongsTo
     {
         return $this->belongsTo(SetupGroup::class);
+    }
+
+    public function location(): BelongsTo
+    {
+        return $this->belongsTo(Location::class)->withTrashed();
     }
 
     public function van_driver(): BelongsTo
@@ -99,16 +120,73 @@ class TermDate extends Model
         return ! $this->is_concert || $this->concert_ensembles->contains($ensemble);
     }
 
+    /** When the automatic reminders go out, or null when they are turned off. Concerts can have their own lead time. */
+    public function remindersDueAt(): ?Carbon
+    {
+        $minutes = (int) (($this->is_concert ? config('app.readererer_concert_reminder_minutes') : null) ?: config('app.readererer_reminder_minutes'));
+
+        return $minutes > 0 ? $this->start_datetime->copy()->subMinutes($minutes) : null;
+    }
+
+    public function isPastReminderTime(): bool
+    {
+        return $this->remindersDueAt()?->isPast() ?? false;
+    }
+
+    /** Polls lock for everyone below moderator once the date has started, or once reminders are due when the site is set to lock them. */
+    public function isLockedFor(User $user): bool
+    {
+        return $user->role->value < UserRole::Moderator->value
+            && ($this->start_datetime->isPast() || $this->isLockedByReminders());
+    }
+
+    public function isLockedByReminders(): bool
+    {
+        return config('app.readererer_after_reminders') === 'lock' && $this->isPastReminderTime();
+    }
+
+    /** The concert ensembles' admins, or every ensemble's admins for a rehearsal. */
+    public function attendanceListRecipients(): Collection
+    {
+        $ensembles = $this->is_concert ? $this->concert_ensembles : Ensemble::all();
+
+        return $ensembles->load('admins')->flatMap->admins
+            ->filter(fn (User $admin) => filled($admin->email))
+            ->unique('id')
+            ->values();
+    }
+
+    /** The members and van drivers of the date's setup group. */
+    public function setupReminderRecipients(): Collection
+    {
+        if ($this->setup_group === null) {
+            return collect();
+        }
+
+        return $this->setup_group->members
+            ->merge($this->setup_group->van_drivers)
+            ->filter(fn (User $member) => filled($member->email))
+            ->unique('id')
+            ->values();
+    }
+
     protected function casts(): array
     {
         return [
             'start_datetime' => 'datetime',
             'end_datetime' => 'datetime',
+            'time_tbc' => 'boolean',
         ];
     }
 
     public function getNameAttribute(): string
     {
+        if ($this->time_tbc) {
+            return $this->start_datetime->isSameDay($this->end_datetime)
+                ? $this->start_datetime->format('l, jS F Y').', '.__('time TBC')
+                : $this->start_datetime->format('l, jS F Y').' – '.$this->end_datetime->format('l, jS F Y').', '.__('time TBC');
+        }
+
         if ($this->start_datetime->isSameDay($this->end_datetime)) {
             return $this->start_datetime->format('l, jS F Y').', '.$this->start_datetime->format('H:i').'–'.$this->end_datetime->format('H:i');
         }
@@ -129,17 +207,32 @@ class TermDate extends Model
     /** The time for its own table column. */
     public function getTimeLabelAttribute(): string
     {
+        if ($this->time_tbc) {
+            return __('TBC');
+        }
+
         return $this->start_datetime->format('H:i').'–'.$this->end_datetime->format('H:i');
     }
 
     /** Date and time on one line, e.g. "Wed, 12 Aug 2026, 19:30–21:30"; multi-day dates spell out both ends. */
     public function getScheduleLabelAttribute(): string
     {
-        if ($this->start_datetime->isSameDay($this->end_datetime)) {
+        if ($this->time_tbc || $this->start_datetime->isSameDay($this->end_datetime)) {
             return $this->date_label.', '.$this->time_label;
         }
 
         return $this->start_datetime->format('D, j M Y, H:i').' – '.$this->end_datetime->format('D, j M Y, H:i');
+    }
+
+    /** The date's own location, else the term's default. */
+    public function getInferredLocationAttribute(): ?Location
+    {
+        return $this->location ?? $this->term?->location;
+    }
+
+    public function getLocationLabelAttribute(): string
+    {
+        return $this->inferred_location?->name ?? __('TBC');
     }
 
     /** How far off the date is, in words: "Today", "In 3 days", "2 months ago". */
