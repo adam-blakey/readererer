@@ -18,6 +18,12 @@
 	        'route' => 'settings.edit',
 	        'auth' => Auth::user()?->can('view.settings'),
 	    ],
+	    [
+	        'title' => __('Feature flags'),
+	        'icon' => 'flag',
+	        'route' => 'feature-flags.edit',
+	        'auth' => Auth::user()?->can('edit.settings'),
+	    ],
 	];
 
 	$number_of_accessible_nav_items = 0;
