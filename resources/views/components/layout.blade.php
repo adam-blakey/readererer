@@ -1,7 +1,7 @@
 @props(['show_page_header' => true, 'show_nav_menu' => true])
 
 <!doctype html>
-<html data-bs-theme-primary="{{ config('app.readererer_primary_color') }}" lang="{{ str_replace('_', '-', app()->getLocale()) }}">
+<html @auth @feature(\App\Features\UnsavedChangesWarning::class) data-warn-unsaved @endfeature @endauth data-bs-theme-primary="{{ config('app.readererer_primary_color') }}" lang="{{ str_replace('_', '-', app()->getLocale()) }}">
 
 <head>
 	<meta charset="utf-8" />
