@@ -19,14 +19,14 @@ class SendReminders extends Command
 
     public function handle(EmailDispatcher $dispatcher): int
     {
-        $hours = max((int) config('app.readererer_reminder_hours'), (int) config('app.readererer_concert_reminder_hours'));
+        $minutes = max((int) config('app.readererer_reminder_minutes'), (int) config('app.readererer_concert_reminder_minutes'));
 
-        if ($hours <= 0) {
+        if ($minutes <= 0) {
             return self::SUCCESS;
         }
 
         $termDates = TermDate::with('email_logs.recipients')
-            ->whereBetween('start_datetime', [now(), now()->addHours($hours)])
+            ->whereBetween('start_datetime', [now(), now()->addMinutes($minutes)])
             ->get()
             ->filter->isPastReminderTime();
 

@@ -36,7 +36,7 @@ function post_poll(Ensemble $ensemble, TermDate $termDate, $member, AttendanceSt
 
 beforeEach(function () {
     Mail::fake();
-    config(['app.readererer_reminder_hours' => 24]);
+    config(['app.readererer_reminder_minutes' => 24 * 60]);
 });
 
 test('reminders go out once for dates within the reminder time', function () {
@@ -74,7 +74,7 @@ test('an attendance list sent by hand before the reminder time does not stop the
 });
 
 test('no reminders are sent when the reminder time is turned off', function () {
-    config(['app.readererer_reminder_hours' => 0]);
+    config(['app.readererer_reminder_minutes' => 0]);
     Ensemble::factory()->create()->admins()->attach(make_user(UserRole::Member)->id);
     make_term_date_in(1);
 
@@ -138,7 +138,7 @@ test('the attendance changed email renders', function () {
 });
 
 test('concerts can have their own reminder time', function () {
-    config(['app.readererer_concert_reminder_hours' => 72]);
+    config(['app.readererer_concert_reminder_minutes' => 72 * 60]);
     $ensemble = Ensemble::factory()->create();
     $ensemble->admins()->attach(make_user(UserRole::Member)->id);
     $concert = make_term_date_in(48);
