@@ -11,7 +11,7 @@ return new class extends Migration
         'name', 'logo', 'favicon', 'primary_color', 'assume_attending', 'allow_change_to_unknown', 'repeating_headings',
         'image_max_kilobytes', 'terminology', 'shown_user_fields', 'setup_groups', 'van_drivers', 'single_ensemble',
         'log_emails', 'reminder_hours', 'after_reminders', 'google_login', 'google_client_id', 'google_client_secret',
-        'google_register_domain', 'google_register_role',
+        'google_register_domain', 'google_register_role', 'feature_flags',
     ];
 
     public function up(): void

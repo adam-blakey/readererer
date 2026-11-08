@@ -35,6 +35,7 @@ class GeneralSettings extends Settings
         'google_client_secret' => ['services.google.client_secret'],
         'google_register_domain' => ['app.readererer_google_register_domain'],
         'google_register_role' => ['app.readererer_google_register_role'],
+        'feature_flags' => ['app.readererer_feature_flags'],
     ];
 
     public const AFTER_REMINDERS = ['nothing', 'follow_up', 'lock'];
@@ -90,6 +91,8 @@ class GeneralSettings extends Settings
     public ?string $google_register_domain;
 
     public ?int $google_register_role;
+
+    public ?array $feature_flags;
 
     public static function group(): string
     {

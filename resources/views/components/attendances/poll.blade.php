@@ -46,7 +46,7 @@
 @if ($show_registers or $self)
 	<div class="card-header d-print-none">
 		<h2 class="mb-0 card-title">{{ $ensemble->name }}: {{ $term->name }}</h2>
-		<div class="ms-auto btn-list">
+		<div class="ms-auto btn-list align-items-center">
 			@if ($self)
 				<form action="{{ route('attendance.poll.view') }}" method="POST">
 					@csrf

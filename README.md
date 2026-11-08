@@ -10,11 +10,11 @@
 </p>
 
 <p align="center">
-  <img alt="Laravel 13" src="https://img.shields.io/badge/Laravel-13-FF2D20?logo=laravel&logoColor=white">
-  <img alt="PHP 8.5+" src="https://img.shields.io/badge/PHP-8.5%2B-777BB4?logo=php&logoColor=white">
-  <img alt="Tabler UI" src="https://img.shields.io/badge/UI-Tabler-0054A6">
-  <img alt="SQLite" src="https://img.shields.io/badge/DB-SQLite-003B57?logo=sqlite&logoColor=white">
-  <img alt="Tests: Pest" src="https://img.shields.io/badge/Tests-Pest-6C5CE7">
+  <a href="https://laravel.com"><img alt="Laravel 13" src="https://img.shields.io/badge/Laravel-13-FF2D20?logo=laravel&logoColor=white"></a>
+  <a href="https://www.php.net"><img alt="PHP 8.5+" src="https://img.shields.io/badge/PHP-8.5%2B-777BB4?logo=php&logoColor=white"></a>
+  <a href="https://tabler.io"><img alt="Tabler UI" src="https://img.shields.io/badge/UI-Tabler-0054A6"></a>
+  <a href="https://www.sqlite.org"><img alt="SQLite" src="https://img.shields.io/badge/DB-SQLite-003B57?logo=sqlite&logoColor=white"></a>
+  <a href="https://pestphp.com"><img alt="Tests: Pest" src="https://img.shields.io/badge/Tests-Pest-6C5CE7"></a>
 </p>
 
 <p align="center">
