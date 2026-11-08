@@ -100,6 +100,11 @@
 <div class="table-responsive">
 	<form action="{{ route('attendance.poll.store', ['ensemble' => $ensemble, 'term' => $term]) }}" method="POST" data-dirty-check>
 		@csrf
+		@if ($errors->any())
+			<div class="card-body">
+				<x-forms.error-summary />
+			</div>
+		@endif
 		@if ($own_view)
 		<table class="table table-vcenter card-table text-nowrap">
 			<thead>

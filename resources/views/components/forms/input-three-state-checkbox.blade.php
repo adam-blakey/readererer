@@ -16,6 +16,6 @@
     @endif
 </button>
 @if ($depping)
-	<input class="form-control form-control-sm position-absolute top-100 start-50 translate-middle-x z-3 shadow-sm dep-name" aria-label="{{ __('Name of your dep') }}" maxlength="255" name="{{ $dep_input_id }}" placeholder="{{ __('Dep\'s name') }}" type="text" value="{{ $is_depping ? $dep_name : '' }}" @disabled($locked)>
+	<input class="form-control form-control-sm position-absolute top-100 start-50 translate-middle-x z-3 shadow-sm dep-name" aria-label="{{ __('Name of your dep') }}" maxlength="255" name="{{ $dep_input_id }}" pattern=".*\S.*" placeholder="{{ __('Dep\'s name') }}" title="{{ __('Enter the name of your dep.') }}" type="text" value="{{ $is_depping ? $dep_name : '' }}" @disabled($locked) @required($is_depping)>
 @endif
 </span>

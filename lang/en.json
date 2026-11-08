@@ -633,5 +633,7 @@
     "From release": "From release",
     "Turns on once this release is deployed. This site is on :version.": "Turns on once this release is deployed. This site is on :version.",
     "There are no feature flags yet.": "There are no feature flags yet.",
-    "Save feature flags": "Save feature flags"
+    "Save feature flags": "Save feature flags",
+    "Enter the name of each dep.": "Enter the name of each dep.",
+    "Enter the name of your dep.": "Enter the name of your dep."
 }

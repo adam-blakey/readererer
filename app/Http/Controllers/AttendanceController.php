@@ -82,6 +82,13 @@ class AttendanceController extends Controller
         $term_dates = $term->term_dates->load('concert_ensembles')->filter(fn (TermDate $term_date) => $term_date->appliesToEnsemble($ensemble))->keyBy('id');
         $changes = [];
 
+        if (config('app.readererer_depping')) {
+            $request->validate(collect($request->keys())
+                ->filter(fn (string $key) => preg_match('/^status-t\d+m\d+$/', $key) && $request->input($key) == AttendanceStatus::Depping->value)
+                ->mapWithKeys(fn (string $key) => ['dep-'.substr($key, strlen('status-')) => ['required', 'string', 'max:255']])
+                ->all(), ['required' => __('Enter the name of each dep.')]);
+        }
+
         foreach ($request->except('_token') as $key => $value) {
             $status = is_numeric($value) ? AttendanceStatus::tryFrom((int) $value) : null;
 
@@ -96,8 +103,7 @@ class AttendanceController extends Controller
 
             $term_date = $term_dates[(int) $ids[1]];
             $member = $members[(int) $ids[2]];
-            $dep_name = $request->input("dep-t{$ids[1]}m{$ids[2]}");
-            $dep_name = $status === AttendanceStatus::Depping && is_string($dep_name) ? mb_substr($dep_name, 0, 255) : null;
+            $dep_name = $status === AttendanceStatus::Depping ? $request->input("dep-t{$ids[1]}m{$ids[2]}") : null;
 
             if ($this->sendsFollowUps($term_date)) {
                 $previous = (Attendance::where([

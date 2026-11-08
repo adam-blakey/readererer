@@ -453,3 +453,29 @@ test('with depping off, a dep reply is ignored and earlier deps show as attendin
         ->assertDontSee('dep-name', false)
         ->assertSee('data-original-value="1"', false);
 });
+
+test('a dep reply needs the dep\'s name, and nothing is saved without it', function (?string $name) {
+    config(['app.readererer_depping' => true]);
+
+    $ensemble = Ensemble::factory()->create();
+    $term = Term::factory()->create();
+    $termDate = TermDate::forceCreate([
+        'term_id' => $term->id,
+        'start_datetime' => now()->addWeek(),
+        'end_datetime' => now()->addWeek()->addHours(2),
+    ]);
+    $member = make_user(UserRole::Member);
+    join_ensemble($member, $ensemble);
+    $poll = route('attendance.poll.show', ['ensemble' => $ensemble->slug, 'term' => $term->slug]);
+
+    $this->actingAs($member)->from($poll)->post(route('attendance.poll.store', ['ensemble' => $ensemble->slug, 'term' => $term->slug]), array_filter([
+        "status-t{$termDate->id}m{$member->id}" => AttendanceStatus::Depping->value,
+        "dep-t{$termDate->id}m{$member->id}" => $name,
+    ], fn ($value) => $value !== null))
+        ->assertRedirect($poll)
+        ->assertSessionHasErrors(["dep-t{$termDate->id}m{$member->id}" => 'Enter the name of each dep.']);
+
+    expect(Attendance::count())->toBe(0);
+
+    $this->get($poll)->assertSee('Enter the name of each dep.');
+})->with(['missing' => [null], 'blank' => ['   ']]);
