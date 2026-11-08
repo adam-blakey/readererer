@@ -97,9 +97,8 @@
 								@endif
 								@endcan
 
-								<hr />
 								@php
-									$textFields = [
+									$textFields = Arr::except([
 										'phone_number' => ['Phone number', 'tel'],
 										'date_of_birth' => ['Date of birth', 'date'],
 										'address_line1' => ['Address line 1', 'text'],
@@ -113,9 +112,13 @@
 										'emergency_contact_address_line2' => ['Emergency contact address line 2', 'text'],
 										'emergency_contact_address_city' => ['Emergency contact city', 'text'],
 										'emergency_contact_address_post_code' => ['Emergency contact post code', 'text'],
-									];
+									], App\Models\User::hiddenFields());
+									$checkboxFields = Arr::except(['has_photo_permission' => 'Photograph permission', 'is_gift_aiding_subs' => 'Gift aid subs'], App\Models\User::hiddenFields());
 								@endphp
-								@foreach (Arr::except($textFields, App\Models\User::hiddenFields()) as $name => [$label, $type])
+								@if ($textFields || $checkboxFields)
+								<hr />
+								@endif
+								@foreach ($textFields as $name => [$label, $type])
 									<div class="mb-3">
 										<label class="form-label">{{ __($label) }}</label>
 										<input class="form-control @error($name) is-invalid @enderror" name="{{ $name }}" type="{{ $type }}" value="{{ old($name, $name === 'date_of_birth' ? $user->date_of_birth?->format('Y-m-d') : $user->{$name}) }}">
@@ -124,7 +127,7 @@
 										@enderror
 									</div>
 								@endforeach
-								@foreach (Arr::except(['has_photo_permission' => 'Photograph permission', 'is_gift_aiding_subs' => 'Gift aid subs'], App\Models\User::hiddenFields()) as $name => $label)
+								@foreach ($checkboxFields as $name => $label)
 									<div class="mb-3">
 										<input type="hidden" name="{{ $name }}" value="0">
 										<label class="form-check">

@@ -273,6 +273,20 @@ test('the user edit page renders when the user has no setup group or ensembles',
         ->assertSee('not a member of any ensembles');
 });
 
+test('the user edit page has one divider when no additional fields are shown', function (array $shown, int $dividers) {
+    config(['app.readererer_shown_user_fields' => $shown]);
+
+    $html = $this->actingAs(make_user(UserRole::Admin))
+        ->get(route('users.edit', make_user(UserRole::Member)))
+        ->assertOk()
+        ->getContent();
+
+    expect(substr_count($html, '<hr />'))->toBe($dividers);
+})->with([
+    'no additional fields' => [[], 1],
+    'all additional fields' => [array_keys(User::OPTIONAL_FIELDS), 2],
+]);
+
 test('the user edit page offers an empty setup group option', function () {
     $setupGroup = SetupGroup::factory()->create();
     $user = make_user(UserRole::Member, ['setup_group_id' => $setupGroup->id]);
