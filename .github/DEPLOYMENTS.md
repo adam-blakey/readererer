@@ -302,13 +302,19 @@ document root `domains/readererer.blakey.family/public` before step 6.
    - `slack`: set `LOG_SLACK_WEBHOOK_URL` to a Slack incoming webhook. Entries
      at `LOG_SLACK_LEVEL` (`error`) and above are posted, including failed
      health checks.
-   - `http`: posts each request's entries as one JSON array to `LOG_HTTP_URL`
-     with `LOG_HTTP_TOKEN` as a bearer token, after the response is sent.
-     For Better Stack, use the source's ingesting host
-     (`https://<host>`) and source token. For Axiom, use
-     `https://api.axiom.co/v1/datasets/<dataset>/ingest?timestamp-field=dt`
-     and an API token with ingest access. If the service cannot be reached
-     the entries are dropped and the failure goes to PHP's error log.
+   - `nightwatch`: sends entries at `NIGHTWATCH_LOG_LEVEL` (`info`) and
+     above to [Laravel Nightwatch](https://nightwatch.laravel.com), which also
+     records requests, exceptions, queries, mail and scheduled tasks. Set
+     `NIGHTWATCH_TOKEN` to the application's token; Nightwatch stays off
+     without it. The app sends to a Nightwatch agent at `NIGHTWATCH_INGEST_URI`
+     (`127.0.0.1:2407`; give each site on the same account its own port, as
+     the agent listens on the same address), which must keep running beside
+     the site. There is no
+     supervisor on cPanel, so add a cron job that runs every minute and starts
+     the agent when it is not already running:
+     `cd ~/domains/<domain> && flock -n ~/nightwatch-<domain>.lock php artisan nightwatch:agent --silent > /dev/null 2>&1`.
+     If the host stops long-running processes, the agent is down for up to a
+     minute at a time and entries sent meanwhile are lost.
 
 ### Rules (Settings → Rules → Rulesets → `main`)
 
