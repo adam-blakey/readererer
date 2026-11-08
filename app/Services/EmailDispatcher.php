@@ -42,7 +42,7 @@ class EmailDispatcher
             'recipient_count' => $recipients->count(),
         ]);
 
-        $failures = 0;
+        $anyFailed = false;
 
         foreach ($recipients as $recipient) {
             $status = EmailStatus::Sent;
@@ -53,7 +53,7 @@ class EmailDispatcher
             } catch (Throwable $exception) {
                 $status = EmailStatus::Failed;
                 $error = $exception->getMessage();
-                $failures++;
+                $anyFailed = true;
 
                 Log::warning('Failed to send notification email to a recipient.', [
                     'email_log_id' => $log->id,
@@ -72,9 +72,7 @@ class EmailDispatcher
             ]);
         }
 
-        $log->update(['status' => $failures ? EmailStatus::Failed : EmailStatus::Sent]);
-
-        record_analytics('email', ['email.type' => class_basename($sample), 'email.recipients' => $recipients->count(), 'email.failures' => $failures], $failures > 0);
+        $log->update(['status' => $anyFailed ? EmailStatus::Failed : EmailStatus::Sent]);
 
         Log::info('Finished sending notification email.', [
             'email_log_id' => $log->id,

@@ -10,19 +10,15 @@ use App\Services\EmailSenders\SmtpEmailSender;
 use App\Settings\GeneralSettings;
 use App\Translation\TerminologyLoader;
 use Barryvdh\Debugbar\Facades\Debugbar;
-use Illuminate\Auth\Events\Failed;
-use Illuminate\Auth\Events\Lockout;
-use Illuminate\Auth\Events\Login;
-use Illuminate\Auth\Events\PasswordReset;
 use Illuminate\Contracts\Translation\Loader;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Foundation\AliasLoader;
 use Illuminate\Pagination\Paginator;
 use Illuminate\Support\Facades\Context;
-use Illuminate\Support\Facades\Event;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\URL;
 use Illuminate\Support\ServiceProvider;
+use Laravel\Nightwatch\Core as Nightwatch;
 use Laravel\Pennant\Feature;
 use Laravel\Pulse\Facades\Pulse;
 
@@ -47,6 +43,12 @@ class AppServiceProvider extends ServiceProvider
     {
         GeneralSettings::applyToConfig();
 
+        if (! config('app.readererer_analytics')) {
+            // Nightwatch reads its config before the settings are applied, so the opt-out samples nothing instead.
+            $nightwatch = $this->app->make(Nightwatch::class);
+            $nightwatch->config['sampling'] = array_fill_keys(array_keys($nightwatch->config['sampling']), 0.0);
+        }
+
         Feature::discover();
 
         if (str_starts_with((string) config('app.url'), 'https://')) {
@@ -56,11 +58,6 @@ class AppServiceProvider extends ServiceProvider
         Context::add('site', parse_url((string) config('app.url'), PHP_URL_HOST));
 
         Paginator::defaultView('pagination::default');
-
-        Event::listen(Login::class, fn () => record_analytics('login', ['http.route' => analytics_route()]));
-        Event::listen(Failed::class, fn () => record_analytics('login', ['http.route' => analytics_route()], true));
-        Event::listen(Lockout::class, fn () => record_analytics('login.lockout', [], true));
-        Event::listen(PasswordReset::class, fn () => record_analytics('password.reset'));
 
         Gate::define('view.dashboard', function (User $user) {
             return true;

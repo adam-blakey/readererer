@@ -11,7 +11,6 @@ use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Http\Request;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Collection;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Facades\Vite;
 use Illuminate\Support\Str;
@@ -415,37 +414,4 @@ function login_url(Request $request): string
         'redirect' => $route->getName(),
         'parameters' => array_merge($request->query(), $route->originalParameters()),
     ]);
-}
-
-/**
- * The route's name or pattern, never the URL, which can hold IDs, tokens and query strings.
- */
-function analytics_route(?Request $request = null): ?string
-{
-    $route = ($request ?? request())->route();
-
-    return $route?->getName() ?? $route?->uri();
-}
-
-/**
- * Queue an anonymous analytics event for `analytics:send`, if the site has opted in.
- * Attributes must never identify a person: no names, emails, IPs, URLs or free text.
- *
- * @param  array<string, string|int|null>  $attributes
- */
-function record_analytics(string $name, array $attributes = [], bool $failed = false): void
-{
-    if (! config('app.readererer_analytics')) {
-        return;
-    }
-
-    try {
-        DB::table('analytics_events')->insert([
-            'name' => $name,
-            'attributes' => json_encode(['outcome' => $failed ? 'failure' : 'success'] + array_filter($attributes, fn ($value) => $value !== null)),
-            'created_at' => now(),
-        ]);
-    } catch (Throwable) {
-        // Analytics must never break what is being measured.
-    }
 }

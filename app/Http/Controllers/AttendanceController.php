@@ -114,7 +114,6 @@ class AttendanceController extends Controller
         $members = $ensemble->users()->wherePivotNotNull('instrument_family_id')->get()->keyBy('id');
         $term_dates = $term->term_dates->load('concert_ensembles')->filter(fn (TermDate $term_date) => $term_date->appliesToEnsemble($ensemble))->keyBy('id');
         $changes = [];
-        $replies = 0;
 
         if (config('app.readererer_depping')) {
             $request->validate(collect($request->keys())
@@ -160,10 +159,7 @@ class AttendanceController extends Controller
                 'edit_user_id' => Auth::id(),
                 'edit_ip' => $request->ip(),
             ]);
-            $replies++;
         }
-
-        record_analytics('attendance.poll', ['replies' => $replies]);
 
         foreach ($changes as $term_date_id => $term_date_changes) {
             $term_date = $term_dates[$term_date_id];
