@@ -18,6 +18,7 @@ class CheckHealth extends Command
     {
         $url = route('health');
         $started = hrtime(true);
+        $httpStatus = null;
 
         try {
             $response = Http::timeout(10)
@@ -27,7 +28,8 @@ class CheckHealth extends Command
                     'CF-Access-Client-Secret' => config('services.cloudflare_access.client_secret'),
                 ]))
                 ->get($url);
-            $error = $response->status() === 200 ? null : 'HTTP '.$response->status();
+            $httpStatus = $response->status();
+            $error = $httpStatus < 400 ? null : 'HTTP '.$httpStatus;
         } catch (Throwable $e) {
             $error = $e->getMessage();
         }
@@ -36,17 +38,20 @@ class CheckHealth extends Command
         $status = $error === null ? 'up' : 'down';
 
         Pulse::record('health_check', $status, $duration)->count()->avg();
-        Pulse::set('health_check', 'latest', json_encode(['status' => $status, 'duration' => $duration, 'error' => $error]));
+        Pulse::set('health_check', 'latest', json_encode(['status' => $status, 'duration' => $duration, 'error' => $error, 'http_status' => $httpStatus]));
+
+        $context = ['url' => $url, 'status' => $status, 'http_status' => $httpStatus, 'duration_ms' => $duration];
 
         if ($error !== null) {
-            Pulse::set('health_check_failure', (string) now()->getTimestamp(), json_encode(['duration' => $duration, 'error' => $error]));
-            Log::error('Health check failed', ['url' => $url, 'error' => $error, 'duration_ms' => $duration]);
+            Pulse::set('health_check_failure', (string) now()->getTimestamp(), json_encode(['duration' => $duration, 'error' => $error, 'http_status' => $httpStatus]));
+            Log::error('Health check failed', $context + ['error' => $error]);
             $this->error("{$url} is down: {$error}");
 
             return self::FAILURE;
         }
 
-        $this->info("{$url} is up ({$duration} ms)");
+        Log::info('Health check passed', $context);
+        $this->info("{$url} is up (HTTP {$httpStatus}, {$duration} ms)");
 
         return self::SUCCESS;
     }

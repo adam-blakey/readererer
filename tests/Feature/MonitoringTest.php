@@ -77,7 +77,19 @@ test('the health check command records the site as up', function () {
     Pulse::ingest();
 
     expect(json_decode(Pulse::values('health_check', ['latest'])->first()->value, true))
-        ->toMatchArray(['status' => 'up', 'error' => null]);
+        ->toMatchArray(['status' => 'up', 'error' => null, 'http_status' => 200]);
+});
+
+test('the health check command accepts any status below 400 and logs it', function () {
+    Http::fake([route('health') => Http::response('', 302)]);
+    Log::spy();
+
+    $this->artisan('health:check')->assertSuccessful();
+    Pulse::ingest();
+
+    Log::shouldHaveReceived('info')->once()->withArgs(fn ($message, $context) => $context['http_status'] === 302);
+    expect(json_decode(Pulse::values('health_check', ['latest'])->first()->value, true))
+        ->toMatchArray(['status' => 'up', 'http_status' => 302]);
 });
 
 test('the health check command logs a failure', function () {
@@ -88,9 +100,9 @@ test('the health check command logs a failure', function () {
     Pulse::ingest();
 
     expect(Pulse::values('health_check_failure'))->toHaveCount(1);
-    Log::shouldHaveReceived('error')->once()->withArgs(fn ($message, $context) => $context['error'] === 'HTTP 503');
+    Log::shouldHaveReceived('error')->once()->withArgs(fn ($message, $context) => $context['error'] === 'HTTP 503' && $context['http_status'] === 503);
     expect(json_decode(Pulse::values('health_check', ['latest'])->first()->value, true))
-        ->toMatchArray(['status' => 'down', 'error' => 'HTTP 503']);
+        ->toMatchArray(['status' => 'down', 'error' => 'HTTP 503', 'http_status' => 503]);
 });
 
 test('the health check command sends the Cloudflare Access service token', function () {
