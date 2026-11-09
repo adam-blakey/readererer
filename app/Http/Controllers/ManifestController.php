@@ -2,12 +2,16 @@
 
 namespace App\Http\Controllers;
 
+use App\Features\InstallableApp;
 use Illuminate\Http\JsonResponse;
+use Laravel\Pennant\Feature;
 
 class ManifestController extends Controller
 {
     public function __invoke(): JsonResponse
     {
+        abort_unless(Feature::active(InstallableApp::class), 404);
+
         return response()->json([
             'name' => config('app.name'),
             'start_url' => route('dashboard', [], false),
