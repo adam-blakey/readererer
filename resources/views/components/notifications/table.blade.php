@@ -53,6 +53,19 @@
 							@empty
 								<span class="text-muted">{{ __('Nobody') }}</span>
 							@endforelse
+							@feature(\App\Features\ResendFailedNotifications::class)
+								@can('send.notifications')
+									@if ($log->recipients->contains('status', \App\Enums\EmailStatus::Failed) && $log->resendableMailable())
+										<form method="POST" action="{{ route('notifications.resend', $log) }}" class="mt-2">
+											@csrf
+											<button type="submit" class="btn btn-sm bg-info text-info-fg">
+												<x-icon name="send" />
+												{{ __('Resend to failed recipients') }}
+											</button>
+										</form>
+									@endif
+								@endcan
+							@endfeature
 						</td>
 					</tr>
 				@endforeach

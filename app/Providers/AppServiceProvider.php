@@ -94,6 +94,10 @@ class AppServiceProvider extends ServiceProvider
             return $user->role->value >= UserRole::Moderator->value;
         });
 
+        Gate::define('send.notifications', function (User $user) {
+            return $user->role === UserRole::Admin;
+        });
+
         Model::preventSilentlyDiscardingAttributes(config('app.env') == 'local');
     }
 }

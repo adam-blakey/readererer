@@ -78,6 +78,9 @@ Route::middleware('auth')->group(function () {
     Route::get('/notifications', [NotificationController::class, 'index'])
         ->name('notifications.index')
         ->can('view.notifications');
+    Route::post('/notifications/{emailLog}/resend', [NotificationController::class, 'resend'])
+        ->name('notifications.resend')
+        ->can('send.notifications');
 
     Route::get('/settings', [SettingController::class, 'edit'])->name('settings.edit')->can('view.settings');
     Route::put('/settings', [SettingController::class, 'update'])->name('settings.update')->can('edit.settings');
