@@ -84,8 +84,8 @@
 						<div class="mb-3">
 							<label class="form-label" for="logo">{{ __('Logo') }}</label>
 							<img alt="" class="mb-2 d-block" src="{{ logo_url() }}" style="max-height: 3rem">
-							<input accept="image/jpeg,image/png,image/webp,image/gif" class="form-control @error('logo') is-invalid @enderror" id="logo" name="logo" type="file">
-							<div class="form-hint">{{ __('JPEG, PNG, WebP or GIF, up to :size MB.', ['size' => round(config('app.readererer_image_max_kilobytes') / 1024, 1)]) }}</div>
+							<input accept="image/jpeg,image/png,image/webp" class="form-control @error('logo') is-invalid @enderror" id="logo" name="logo" type="file">
+							<div class="form-hint">{{ __('JPEG, PNG or WebP, up to :size MB.', ['size' => round(config('app.readererer_image_max_kilobytes') / 1024, 1)]) }}</div>
 							@error('logo')
 								<x-forms.input-error :messages="$message" />
 							@enderror
@@ -99,7 +99,7 @@
 						<div class="mb-3">
 							<label class="form-label" for="favicon">{{ __('Favicon') }}</label>
 							<img alt="" class="mb-2 d-block" src="{{ favicon_url() }}" style="max-height: 2rem">
-							<input accept="image/jpeg,image/png,image/webp,image/gif" class="form-control @error('favicon') is-invalid @enderror" id="favicon" name="favicon" type="file">
+							<input accept="image/jpeg,image/png,image/webp" class="form-control @error('favicon') is-invalid @enderror" id="favicon" name="favicon" type="file">
 							<div class="form-hint">{{ __('Shown in browser tabs. A square PNG works best.') }}</div>
 							@error('favicon')
 								<x-forms.input-error :messages="$message" />

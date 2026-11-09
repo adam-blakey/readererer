@@ -192,3 +192,22 @@ test('the edit forms render the image upload field', function () {
         ->assertSee('name="image"', false)
         ->assertSee('enctype="multipart/form-data"', false);
 });
+
+test('GIF uploads are rejected and other image types are accepted', function (string $file, bool $accepted) {
+    $ensemble = Ensemble::factory()->create(['name' => 'Strings', 'slug' => 'strings', 'image' => null]);
+
+    $response = $this->actingAs(make_user(UserRole::Admin))
+        ->put(route('ensembles.update', $ensemble), [
+            'name' => 'Strings',
+            'slug' => 'strings',
+            'image' => UploadedFile::fake()->image($file),
+        ]);
+
+    $accepted ? $response->assertSessionHasNoErrors() : $response->assertSessionHasErrors('image');
+    expect($ensemble->fresh()->image === null)->toBe(! $accepted);
+})->with([
+    'gif' => ['band.gif', false],
+    'jpeg' => ['band.jpg', true],
+    'png' => ['band.png', true],
+    'webp' => ['band.webp', true],
+]);

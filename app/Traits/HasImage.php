@@ -47,7 +47,6 @@ trait HasImage
         }
     }
 
-    // shortcut: GIFs are stored as uploaded to keep animation; a queued job could shrink them later.
     private function storeScaled(UploadedFile $file): ?string
     {
         $max_side = 1600;
