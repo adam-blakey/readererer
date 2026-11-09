@@ -27,7 +27,7 @@
             </thead>
             <tbody>
                 @foreach ($dates as $td)
-                    <tr>
+                    <tr id="term-date-{{ $td->id }}">
                         <td>
                             @if ($td->start_datetime->isPast())
                                 <strike>{{ $td->date_label }}</strike>

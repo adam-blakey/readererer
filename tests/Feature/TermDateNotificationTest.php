@@ -515,3 +515,19 @@ test('with email logging on, emails are written to the email log file instead of
 
     @unlink($path);
 });
+
+test('the date concerned links to that date within its term', function () {
+    $termDate = make_notification_term_date();
+    EmailLog::create([
+        'term_date_id' => $termDate->id,
+        'mailable_class' => VanDriverReminderMail::class,
+        'subject' => 'Van driver reminder',
+        'status' => EmailStatus::Sent,
+    ]);
+
+    $this->actingAs(make_user(UserRole::Moderator))
+        ->get(route('notifications.index'))
+        ->assertSee(route('terms.show', $termDate->term).'#term-date-'.$termDate->id, false);
+
+    $this->get(route('terms.show', $termDate->term))->assertSee('id="term-date-'.$termDate->id.'"', false);
+});
