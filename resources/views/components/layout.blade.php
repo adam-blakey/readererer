@@ -10,6 +10,13 @@
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>{{ Breadcrumbs::exists() ? Breadcrumbs::current()?->title ?? config('app.name') : config('app.name') }}</title>
 	<link href="{{ favicon_url() }}" rel="shortcut icon">
+	@feature(\App\Features\ThemeSwitch::class)
+		<script nonce="{{ Vite::cspNonce() }}">
+			try {
+				document.documentElement.setAttribute('data-bs-theme', localStorage.getItem('theme') || (matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'));
+			} catch (e) {}
+		</script>
+	@endfeature
 	@vite(['resources/js/app.js', 'resources/css/app.css'])
 	@stack('scripts')
 </head>
