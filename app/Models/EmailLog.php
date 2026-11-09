@@ -11,6 +11,7 @@ use App\Mail\VanDriverReminderMail;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Mail\Mailable;
 
 class EmailLog extends Model
 {
@@ -42,6 +43,26 @@ class EmailLog extends Model
         return isset(self::TYPE_LABELS[$this->mailable_class])
             ? __(self::TYPE_LABELS[$this->mailable_class])
             : class_basename($this->mailable_class);
+    }
+
+    /** Recipients whose copy failed, who a resend should reach. */
+    public function failedRecipients(): HasMany
+    {
+        return $this->recipients()->where('status', EmailStatus::Failed);
+    }
+
+    /** A fresh mailable of this type, or null for types that cannot be rebuilt from the date alone. */
+    public function resendableMailable(): ?Mailable
+    {
+        $termDate = $this->termDate;
+
+        return match (true) {
+            $termDate === null => null,
+            $this->mailable_class === AttendanceListMail::class => new AttendanceListMail($termDate),
+            $this->mailable_class === SetupReminderMail::class && $termDate->setup_group !== null => new SetupReminderMail($termDate, $termDate->setup_group),
+            $this->mailable_class === VanDriverReminderMail::class && $termDate->inferred_van_driver !== null => new VanDriverReminderMail($termDate, $termDate->inferred_van_driver),
+            default => null,
+        };
     }
 
     public function recipients(): HasMany
