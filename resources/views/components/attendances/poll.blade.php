@@ -59,9 +59,9 @@
 	]);
 @endphp
 
-<div class="card-header flex-wrap gap-2 d-print-none">
+<div class="card-header flex-wrap row-gap-1 d-print-none">
 	<h2 class="mb-0 card-title">{{ $ensemble->name }}: {{ $term->name }}</h2>
-	<div class="ms-auto btn-list align-items-center">
+	<div class="ms-auto btn-list gap-1 align-items-center">
 		@unless ($own_view)
 			<div aria-label="{{ __('Sort members by') }}" class="btn-group flex-wrap" role="group">
 				@foreach ($sort_options as $option => $label)
