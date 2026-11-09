@@ -11,7 +11,12 @@ const IGNORED_FIELDS = ['_token', '_method'];
 
 // Files can't be serialised, so identify them by what a change would alter.
 function fieldValue(value) {
-    return value instanceof File ? `${value.name}:${value.size}:${value.lastModified}` : value;
+    if (!(value instanceof File)) {
+        return value;
+    }
+
+    // An empty file input submits a nameless File whose lastModified is the time it was read.
+    return value.name === '' ? '' : `${value.name}:${value.size}:${value.lastModified}`;
 }
 
 function entries(form) {
