@@ -43,6 +43,11 @@ php artisan test
 php artisan boost:update    # refresh .claude/skills; guidelines are off in boost.json so this file stays the only project instructions
 ```
 
+```bash
+# Load test: ramps concurrent users against a running site until errors or p95 latency pass a limit (never production)
+php tests/Performance/find-max-load.php --url=http://127.0.0.1:8000
+```
+
 Tests run with `APP_ENV=testing` (see `phpunit.xml`); the SQLite-in-memory env lines are currently commented out, so tests hit the configured DB connection.
 
 Browser tests (`tests/Browser`) use `pestphp/pest-plugin-browser` to check that elements are on the page and clickable in a real browser (`visit('/login')->type(...)->click(...)`). Unlike the other suites they load the real Vite assets, so they need `npm run build` and `npx playwright install` first.
