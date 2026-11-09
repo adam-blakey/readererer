@@ -19,6 +19,7 @@ test('every named GET page has a breadcrumb trail', function () {
         'ensembles.seating-plan.download',
         'health',
         'attendance.poll.legacy',
+        'manifest',
     ];
 
     $missing = collect(Route::getRoutes())

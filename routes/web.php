@@ -10,6 +10,7 @@ use App\Http\Controllers\HealthCheckController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\InstrumentFamilyController;
 use App\Http\Controllers\LocationController;
+use App\Http\Controllers\ManifestController;
 use App\Http\Controllers\MonitoringController;
 use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\PieceController;
@@ -29,6 +30,9 @@ use Illuminate\Support\Facades\Route;
 
 Route::get('/health', HealthCheckController::class)
     ->name('health');
+
+Route::get('/manifest.webmanifest', ManifestController::class)
+    ->name('manifest');
 
 Route::get('/', HomeController::class)
     ->name('home');
