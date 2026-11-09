@@ -12,6 +12,7 @@ use App\Http\Controllers\InstrumentFamilyController;
 use App\Http\Controllers\LocationController;
 use App\Http\Controllers\MonitoringController;
 use App\Http\Controllers\NotificationController;
+use App\Http\Controllers\ManifestController;
 use App\Http\Controllers\PieceController;
 use App\Http\Controllers\PollererImportController;
 use App\Http\Controllers\SeatingPlanController;
@@ -21,12 +22,18 @@ use App\Http\Controllers\SetupGroupController;
 use App\Http\Controllers\TermController;
 use App\Http\Controllers\TermDateNotificationController;
 use App\Http\Controllers\UserController;
+use App\Features\InstallableApp;
 use App\Models\Attendance;
 use App\Models\RegisterEntry;
 use Illuminate\Support\Facades\Route;
+use Laravel\Pennant\Middleware\EnsureFeaturesAreActive;
 
 Route::get('/health', HealthCheckController::class)
     ->name('health');
+
+Route::get('/manifest.webmanifest', ManifestController::class)
+    ->middleware(EnsureFeaturesAreActive::using(InstallableApp::class))
+    ->name('manifest');
 
 Route::get('/', HomeController::class)
     ->name('home');

@@ -53,6 +53,8 @@ class AddSecurityHeaders
                 "style-src 'self' 'unsafe-inline' https://rsms.me",
                 "font-src 'self' data: https://rsms.me",
                 implode(' ', ["img-src 'self' data:", ...array_diff(array_unique(self::$imageOrigins), [$request->getSchemeAndHttpHost()])]),
+                "manifest-src 'self'",
+                "worker-src 'self'",
                 "object-src 'none'",
                 "base-uri 'self'",
                 "form-action 'self'",

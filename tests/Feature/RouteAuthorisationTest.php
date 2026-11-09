@@ -6,7 +6,7 @@ use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Str;
 
 const ROUTES_WITHOUT_ABILITIES = [
-    'home', 'health', 'up', 'logout', 'boost.*',
+    'home', 'health', 'manifest', 'up', 'logout', 'boost.*',
     'login', 'login-link.*', 'google.*',
     'password.*', 'confirm-password', 'verification.*',
     'attendance.poll.view',
