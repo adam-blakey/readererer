@@ -22,7 +22,9 @@ use App\Http\Controllers\TermController;
 use App\Http\Controllers\TermDateNotificationController;
 use App\Http\Controllers\UserController;
 use App\Models\Attendance;
+use App\Models\Ensemble;
 use App\Models\RegisterEntry;
+use App\Models\Term;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/health', HealthCheckController::class)
@@ -135,3 +137,8 @@ Route::middleware('auth')->group(function () {
 });
 
 require __DIR__.'/auth.php';
+
+Route::get('/{ensemble:slug}/{term:slug}', fn (Ensemble $ensemble, Term $term) => redirect()->route('attendance.poll.show', [$ensemble, $term], 301))
+    ->withoutScopedBindings()
+    ->name('attendance.poll.legacy')
+    ->can('view', 'ensemble');
