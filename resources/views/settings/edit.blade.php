@@ -246,7 +246,7 @@
 						</div>
 						<div class="mb-3">
 							<label class="form-label" for="google_client_secret">{{ __('Client secret') }}</label>
-							<input autocomplete="off" class="form-control @error('google_client_secret') is-invalid @enderror" id="google_client_secret" maxlength="255" name="google_client_secret" type="password">
+							<input autocomplete="new-password" class="form-control @error('google_client_secret') is-invalid @enderror" id="google_client_secret" maxlength="255" name="google_client_secret" type="password">
 							<div class="form-hint">{{ $has_google_client_secret ? __('A secret is saved. Leave this empty to keep it.') : __('Stored encrypted.') }}</div>
 							@error('google_client_secret')
 								<x-forms.input-error :messages="$message" />
