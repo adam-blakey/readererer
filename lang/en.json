@@ -736,6 +736,8 @@
     "Analytics": "Analytics",
     "Send analytics to Laravel Nightwatch": "Send analytics to Laravel Nightwatch",
     "Sends page timings, errors and logs to Laravel Nightwatch so the Readererer developers can find problems. Members appear only as an ID, and email and IP addresses are removed. Also needs the site's Nightwatch token.": "Sends page timings, errors and logs to Laravel Nightwatch so the Readererer developers can find problems. Members appear only as an ID, and email and IP addresses are removed. Also needs the site's Nightwatch token.",
+    "Notifications in the menu": "Notifications in the menu",
+    "Adds a link to the notifications page in the main menu.": "Adds a link to the notifications page in the main menu.",
     "Resend failed notifications": "Resend failed notifications",
     "Adds a button to the notifications page that resends an email to the recipients it failed to reach.": "Adds a button to the notifications page that resends an email to the recipients it failed to reach.",
     "Resend to failed recipients": "Resend to failed recipients",
