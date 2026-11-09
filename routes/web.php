@@ -22,7 +22,9 @@ use App\Http\Controllers\TermController;
 use App\Http\Controllers\TermDateNotificationController;
 use App\Http\Controllers\UserController;
 use App\Models\Attendance;
+use App\Models\Ensemble;
 use App\Models\RegisterEntry;
+use App\Models\Term;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/health', HealthCheckController::class)
@@ -76,6 +78,9 @@ Route::middleware('auth')->group(function () {
     Route::get('/notifications', [NotificationController::class, 'index'])
         ->name('notifications.index')
         ->can('view.notifications');
+    Route::post('/notifications/{emailLog}/resend', [NotificationController::class, 'resend'])
+        ->name('notifications.resend')
+        ->can('send.notifications');
 
     Route::get('/settings', [SettingController::class, 'edit'])->name('settings.edit')->can('view.settings');
     Route::put('/settings', [SettingController::class, 'update'])->name('settings.update')->can('edit.settings');
@@ -135,3 +140,8 @@ Route::middleware('auth')->group(function () {
 });
 
 require __DIR__.'/auth.php';
+
+Route::get('/{ensemble:slug}/{term:slug}', fn (Ensemble $ensemble, Term $term) => redirect()->route('attendance.poll.show', [$ensemble, $term], 301))
+    ->withoutScopedBindings()
+    ->name('attendance.poll.legacy')
+    ->can('view', 'ensemble');

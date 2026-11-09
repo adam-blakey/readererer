@@ -49,6 +49,16 @@
 				</x-a>
 			</h1>
 		<div class="flex-row navbar-nav order-md-last">
+			@feature(\App\Features\ThemeSwitch::class)
+				<div class="nav-item d-flex">
+					<button aria-label="{{ __('Switch between light and dark mode') }}" class="px-0 nav-link hide-theme-dark" data-bs-placement="bottom" data-bs-toggle="tooltip" data-theme-toggle title="{{ __('Dark mode') }}" type="button">
+						<x-icon name="moon" />
+					</button>
+					<button aria-label="{{ __('Switch between light and dark mode') }}" class="px-0 nav-link hide-theme-light" data-bs-placement="bottom" data-bs-toggle="tooltip" data-theme-toggle title="{{ __('Light mode') }}" type="button">
+						<x-icon name="sun" />
+					</button>
+				</div>
+			@endfeature
 			<div class="nav-item dropdown">
 				@guest
 					<a class="px-0 nav-link" data-bs-placement="bottom" data-bs-toggle="tooltip" href="{{ route('login') }}" title="{{ __('Login') }}">
