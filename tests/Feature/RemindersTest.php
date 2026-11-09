@@ -9,6 +9,7 @@ use App\Mail\SetupReminderMail;
 use App\Mail\VanDriverReminderMail;
 use App\Models\Attendance;
 use App\Models\Ensemble;
+use App\Models\InstrumentFamily;
 use App\Models\SetupGroup;
 use App\Models\Term;
 use App\Models\TermDate;
@@ -183,4 +184,33 @@ test('a reminder that failed for every recipient is sent again on the next run',
     $this->artisan('reminders:send')->assertSuccessful();
 
     Mail::assertSent(AttendanceListMail::class, 1);
+});
+
+function render_attendance_list(TermDate $termDate): string
+{
+    return (new AttendanceListMail($termDate))->render();
+}
+
+test('the attendance list shows members with no reply as attending when attending is assumed', function () {
+    $ensemble = Ensemble::factory()->create();
+    $silent = make_user(UserRole::Member, ['first_name' => 'Silent', 'last_name' => 'Sam']);
+    $replied = make_user(UserRole::Member, ['first_name' => 'Absent', 'last_name' => 'Abby']);
+    $family = InstrumentFamily::factory()->create();
+    $ensemble->users()->attach([$silent->id => ['instrument_family_id' => $family->id], $replied->id => ['instrument_family_id' => $family->id]]);
+    $termDate = make_term_date_in(12);
+    Attendance::factory()->create(['user_id' => $replied->id, 'term_date_id' => $termDate->id, 'ensemble_id' => $ensemble->id, 'status' => AttendanceStatus::NotAttending]);
+
+    config(['app.readererer_assume_attending' => true]);
+    $html = render_attendance_list($termDate);
+
+    expect($html)->toMatch('/Silent Sam<\/td>\s*<td[^>]*>\s*Attending/')
+        ->toMatch('/Absent Abby<\/td>\s*<td[^>]*>\s*Not attending/')
+        ->not->toContain('No response yet')
+        ->not->toContain('Not yet responded');
+
+    config(['app.readererer_assume_attending' => false]);
+    $html = render_attendance_list($termDate);
+
+    expect($html)->toMatch('/Silent Sam<\/td>\s*<td[^>]*>\s*No response yet/')
+        ->toContain('Not yet responded');
 });
