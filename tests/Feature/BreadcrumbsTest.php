@@ -18,7 +18,7 @@ test('every named GET page has a breadcrumb trail', function () {
         'verification.verify',
         'ensembles.seating-plan.download',
         'health',
-        'attendance.poll.legacy',  
+        'attendance.poll.legacy',
         'manifest',
     ];
 
