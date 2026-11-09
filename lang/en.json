@@ -672,6 +672,11 @@
     "Part and seat on the dashboard": "Part and seat on the dashboard",
     "Shows each member's part and seat position under their ensembles on the dashboard.": "Shows each member's part and seat position under their ensembles on the dashboard.",
     "No part": "No part",
+    "Light and dark mode switch": "Light and dark mode switch",
+    "Adds a light and dark mode switch to the header. Each browser remembers its choice and follows the device setting until then.": "Adds a light and dark mode switch to the header. Each browser remembers its choice and follows the device setting until then.",
+    "Switch between light and dark mode": "Switch between light and dark mode",
+    "Dark mode": "Dark mode",
+    "Light mode": "Light mode",
     "No seat": "No seat",
     "Row :row, seat :seat": "Row :row, seat :seat",
     "Feature flags": "Feature flags",
@@ -728,5 +733,10 @@
     "Who is coming instead?": "Who is coming instead?",
     "Analytics": "Analytics",
     "Send analytics to Laravel Nightwatch": "Send analytics to Laravel Nightwatch",
-    "Sends page timings, errors and logs to Laravel Nightwatch so the Readererer developers can find problems. Members appear only as an ID, and email and IP addresses are removed. Also needs the site's Nightwatch token.": "Sends page timings, errors and logs to Laravel Nightwatch so the Readererer developers can find problems. Members appear only as an ID, and email and IP addresses are removed. Also needs the site's Nightwatch token."
+    "Sends page timings, errors and logs to Laravel Nightwatch so the Readererer developers can find problems. Members appear only as an ID, and email and IP addresses are removed. Also needs the site's Nightwatch token.": "Sends page timings, errors and logs to Laravel Nightwatch so the Readererer developers can find problems. Members appear only as an ID, and email and IP addresses are removed. Also needs the site's Nightwatch token.",
+    "Resend failed notifications": "Resend failed notifications",
+    "Adds a button to the notifications page that resends an email to the recipients it failed to reach.": "Adds a button to the notifications page that resends an email to the recipients it failed to reach.",
+    "Resend to failed recipients": "Resend to failed recipients",
+    "This notification cannot be resent.": "This notification cannot be resent.",
+    "Notification resent to :count recipient.|Notification resent to :count recipients.": "Notification resent to :count recipient.|Notification resent to :count recipients."
 }

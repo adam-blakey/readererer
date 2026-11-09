@@ -29,7 +29,7 @@
                             @endfor
                         @endfor
                         <span class="position-absolute text-red" style="left: 50%; top: 50%; transform: translate(-50%, -100%) scale(1.75); transform-origin: bottom center"><x-icon name="map-pin" /></span>
-                        <a class="position-absolute bottom-0 end-0 bg-white bg-opacity-75 px-1 small" href="https://www.openstreetmap.org/copyright" rel="noopener" target="_blank">© {{ __('OpenStreetMap contributors') }}</a>
+                        <a class="position-absolute bottom-0 end-0 bg-body bg-opacity-75 px-1 small" href="https://www.openstreetmap.org/copyright" rel="noopener" target="_blank">© {{ __('OpenStreetMap contributors') }}</a>
                     </div>
                 @else
                     <div class="card-body text-secondary">{{ __('No coordinates yet. Add an address to look them up, or enter them yourself.') }}</div>

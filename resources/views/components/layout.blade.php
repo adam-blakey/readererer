@@ -15,6 +15,14 @@
 		<meta content="{{ color_name_to_hex(config('app.readererer_primary_color')) }}" name="theme-color">
 		<script nonce="{{ Vite::cspNonce() }}">
 			if ('serviceWorker' in navigator) navigator.serviceWorker.register('/sw.js');
+    </script>
+	@endfeature
+
+	@feature(\App\Features\ThemeSwitch::class)
+		<script nonce="{{ Vite::cspNonce() }}">
+			try {
+				document.documentElement.setAttribute('data-bs-theme', localStorage.getItem('theme') || (matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'));
+			} catch (e) {}
 		</script>
 	@endfeature
 	@vite(['resources/js/app.js', 'resources/css/app.css'])

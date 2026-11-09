@@ -14,7 +14,7 @@ function fieldValue(value) {
     return value instanceof File ? `${value.name}:${value.size}:${value.lastModified}` : value;
 }
 
-function signature(form) {
+function entries(form) {
     const entries = [];
 
     for (const [name, value] of new FormData(form)) {
@@ -23,7 +23,21 @@ function signature(form) {
         }
     }
 
-    return JSON.stringify(entries);
+    return entries;
+}
+
+function signature(form) {
+    return JSON.stringify(entries(form));
+}
+
+function changedFields(form, baseline) {
+    const before = baseline.map(([name, value]) => `${name}=${value}`);
+    const after = entries(form).map(([name, value]) => `${name}=${value}`);
+
+    return [
+        ...before.filter((entry) => !after.includes(entry)).map((entry) => `- ${entry}`),
+        ...after.filter((entry) => !before.includes(entry)).map((entry) => `+ ${entry}`),
+    ];
 }
 
 function isSubmitButton(element) {
@@ -77,12 +91,16 @@ const dirtyChecks = new Map();
 
 function track(form) {
     if (!dirtyChecks.has(form)) {
-        const baseline = signature(form);
+        const baseline = entries(form);
+        const baselineSignature = JSON.stringify(baseline);
 
         // A form re-rendered after failed validation holds unsaved input, so it starts dirty.
         const startsDirty = form.querySelector('.is-invalid, .invalid-feedback') !== null;
 
-        dirtyChecks.set(form, () => startsDirty || signature(form) !== baseline);
+        const isDirty = () => startsDirty || signature(form) !== baselineSignature;
+        isDirty.describe = () => (startsDirty ? ['re-rendered with validation errors'] : changedFields(form, baseline));
+
+        dirtyChecks.set(form, isDirty);
     }
 
     return dirtyChecks.get(form);
@@ -147,6 +165,7 @@ window.addEventListener('beforeunload', (event) => {
 
     for (const [form, isDirty] of dirtyChecks) {
         if (form !== submittedForm && form.isConnected && isDirty()) {
+            console.warn('Unsaved changes prompt for form', form, isDirty.describe());
             event.preventDefault();
             event.returnValue = '';
 

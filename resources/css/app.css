@@ -98,7 +98,7 @@
 }
 
 .table thead th {
-    background: #f2f3f4;
+    background: var(--tblr-bg-surface-secondary);
 }
 
 .drop-highlight {
