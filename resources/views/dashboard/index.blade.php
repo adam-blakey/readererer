@@ -1,4 +1,4 @@
-@props(['page_name', 'ensembles' => collect(), 'setupGroup' => null, 'nextRehearsal' => null, 'nextConcerts' => collect(), 'nextSetup' => null, 'nextVanDrive' => null, 'drivesTheVan' => false, 'attendanceUpdates' => null, 'notifications' => null])
+@props(['page_name', 'ensembles' => collect(), 'instrumentFamilies' => null, 'setupGroup' => null, 'nextRehearsal' => null, 'nextConcerts' => collect(), 'nextSetup' => null, 'nextVanDrive' => null, 'drivesTheVan' => false, 'attendanceUpdates' => null, 'notifications' => null])
 
 <x-layout>
 	<div class="container-xl">
@@ -30,6 +30,10 @@
 											<div class="card-body p-3">
 												<span class="avatar avatar-xl mb-2" style="background-image: url({{ $ensemble->image_url }})"></span>
 												<div class="fw-medium">{{ $ensemble->name }}</div>
+												@if($instrumentFamilies !== null)
+													<div class="text-muted small">{{ $instrumentFamilies[$ensemble->pivot->instrument_family_id]->name ?? __('No part') }}</div>
+													<div class="text-muted small">{{ $ensemble->pivot->seat_row !== null && $ensemble->pivot->seat_column !== null ? __('Row :row, seat :seat', ['row' => $ensemble->pivot->seat_row, 'seat' => $ensemble->pivot->seat_column]) : __('No seat') }}</div>
+												@endif
 											</div>
 										</x-a>
 									</div>

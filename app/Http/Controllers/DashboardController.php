@@ -3,12 +3,15 @@
 namespace App\Http\Controllers;
 
 use App\Enums\UserRole;
+use App\Features\DashboardPartAndSeat;
 use App\Models\Attendance;
 use App\Models\EmailLog;
+use App\Models\InstrumentFamily;
 use App\Models\TermDate;
 use App\Traits\ShowEnsemble;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Auth;
+use Laravel\Pennant\Feature;
 
 class DashboardController extends Controller
 {
@@ -30,12 +33,15 @@ class DashboardController extends Controller
         $attendanceUpdates = $user->can('viewAny', Attendance::class)
             ? Attendance::latestUpdates()->limit(5)->get()
             : null;
+        $instrumentFamilies = Feature::active(DashboardPartAndSeat::class)
+            ? InstrumentFamily::whereIn('id', $ensembles->pluck('pivot.instrument_family_id')->filter())->get()->keyBy('id')
+            : null;
         $notifications = $user->can('view.notifications')
             ? EmailLog::with(['recipients', 'termDate'])->latest()->limit(5)->get()
             : null;
 
         if ($ensembles->isEmpty()) {
-            return view('dashboard.index', compact('page_name', 'ensembles', 'attendanceUpdates', 'notifications'));
+            return view('dashboard.index', compact('page_name', 'ensembles', 'instrumentFamilies', 'attendanceUpdates', 'notifications'));
         }
 
         $setupGroup = config('app.readererer_setup_groups') ? $user->setup_group : null;
@@ -73,6 +79,7 @@ class DashboardController extends Controller
         return view('dashboard.index', compact(
             'page_name',
             'ensembles',
+            'instrumentFamilies',
             'setupGroup',
             'nextRehearsal',
             'nextConcerts',
