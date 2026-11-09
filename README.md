@@ -151,10 +151,10 @@ php artisan test --testsuite=Unit,Feature,Browser
 
 Browser tests in `tests/Browser` run in a real browser through
 [Pest's browser plugin](https://pestphp.com/docs/browser-testing). They require
-Playwright's browsers and the built assets:
+the built assets (the suite installs Playwright's Chromium itself, so a Playwright
+update no longer raises `PlaywrightOutdatedException`):
 
 ```bash
-npx playwright install
 npm run build
 ```
 

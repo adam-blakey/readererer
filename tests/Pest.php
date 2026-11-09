@@ -9,6 +9,7 @@ use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\MessageBag;
 use Illuminate\Support\ViewErrorBag;
+use Symfony\Component\Process\Process;
 use Tests\TestCase;
 
 uses(
@@ -17,10 +18,18 @@ uses(
 )->in('Feature', 'Unit');
 
 // Browser tests drive a real browser, so they need the built assets (`npm run build`).
+// Each Playwright release needs its own browser build, so install it first (a no-op when present).
 uses(
     TestCase::class,
     RefreshDatabase::class,
-)->beforeEach(function () {
+)->beforeAll(function () {
+    static $installed = false;
+
+    if (! $installed) {
+        Process::fromShellCommandline('npx playwright install chromium', dirname(__DIR__))->setTimeout(600)->run();
+        $installed = true;
+    }
+})->beforeEach(function () {
     $this->withVite();
 })->in('Browser');
 
