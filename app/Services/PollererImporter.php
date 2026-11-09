@@ -56,7 +56,7 @@ class PollererImporter
 
     private const BOOLEAN_SETTINGS = ['assume_attending' => 'assume_attending', 'repeat_headings' => 'repeating_headings'];
 
-    private const IMAGE_EXTENSIONS = ['image/jpeg' => 'jpg', 'image/png' => 'png', 'image/webp' => 'webp', 'image/gif' => 'gif'];
+    private const IMAGE_EXTENSIONS = ['image/jpeg' => 'jpg', 'image/png' => 'png', 'image/webp' => 'webp'];
 
     private array $counts;
 

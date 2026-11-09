@@ -142,7 +142,7 @@ return [
     'readererer_repeating_headings' => env('READERERER_REPEATING_HEADINGS', false),
     'readererer_depping' => env('READERERER_DEPPING', false),
     'readererer_hide_past_dates' => env('READERERER_HIDE_PAST_DATES', false),
-    'readererer_image_max_kilobytes' => env('READERERER_IMAGE_MAX_KILOBYTES', 2048),
+    'readererer_image_max_kilobytes' => env('READERERER_IMAGE_MAX_KILOBYTES', 10240),
     'readererer_logo' => env('READERERER_LOGO'),
     'readererer_primary_color' => env('READERERER_PRIMARY_COLOR', 'green'),
     'readererer_favicon' => env('READERERER_FAVICON'),

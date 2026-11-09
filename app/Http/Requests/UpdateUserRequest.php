@@ -36,7 +36,7 @@ class UpdateUserRequest extends FormRequest
             'date_of_birth' => ['nullable', 'date', 'before:tomorrow'],
             'has_photo_permission' => ['sometimes', 'boolean'],
             'is_gift_aiding_subs' => ['sometimes', 'boolean'],
-            'image' => ['nullable', 'image', 'mimes:jpeg,png,webp,gif', 'max:'.config('app.readererer_image_max_kilobytes')],
+            'image' => ['nullable', 'image', 'mimes:jpeg,png,webp', 'max:'.config('app.readererer_image_max_kilobytes')],
             'remove_image' => ['sometimes', 'boolean'],
         ];
 
