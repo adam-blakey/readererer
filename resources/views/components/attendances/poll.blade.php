@@ -59,11 +59,11 @@
 	]);
 @endphp
 
-<div class="card-header d-print-none">
+<div class="card-header flex-wrap gap-2 d-print-none">
 	<h2 class="mb-0 card-title">{{ $ensemble->name }}: {{ $term->name }}</h2>
 	<div class="ms-auto btn-list align-items-center">
 		@unless ($own_view)
-			<div aria-label="{{ __('Sort members by') }}" class="btn-group" role="group">
+			<div aria-label="{{ __('Sort members by') }}" class="btn-group flex-wrap" role="group">
 				@foreach ($sort_options as $option => $label)
 					<x-a class="btn btn-sm {{ $sortby === $option ? 'active' : '' }}" href="{{ route('attendance.poll.show', ['ensemble' => $ensemble, 'term' => $term, 'sortby' => $option, 'sortdir' => $sortdir]) }}">{{ $label }}</x-a>
 				@endforeach

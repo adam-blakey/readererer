@@ -5,8 +5,8 @@
 		<x-card-row>
 			<div class="col-md-12">
 				<x-card>
-                    <div class="d-flex align-items-center">
-                        <form method="GET" action="{{ url()->current() }}" class="d-flex align-items-center gap-2">
+                    <div class="d-flex flex-wrap align-items-center">
+                        <form method="GET" action="{{ url()->current() }}" class="d-flex flex-wrap align-items-center gap-2">
                             <label class="form-check m-4 pb-0">
                                 <input class="form-check-input" type="checkbox" id="withTrashed" name="with_trashed" value="1" {{ request('with_trashed') ? 'checked' : '' }} data-submit-on-change>
                                 <span class="form-check-label">{{ __('Show archived') }}</span>
@@ -23,7 +23,7 @@
                                 </div>
                             @endif
                         </form>
-                        <div class="card-actions ms-auto me-4">
+                        <div class="card-actions ms-auto m-4">
                             @if ($create_entity)
                                 <x-a :route="$create_entity['route']" class="btn btn-primary">
                                     {{ __('Add :name', ['name' => $create_entity['name']]) }}
