@@ -669,6 +669,8 @@
     "The seating plan has a row that is not named with capital letters.": "The seating plan has a row that is not named with capital letters.",
     "Part and seat on the dashboard": "Part and seat on the dashboard",
     "Shows each member's part and seat position under their ensembles on the dashboard.": "Shows each member's part and seat position under their ensembles on the dashboard.",
+    "Shrink large images": "Shrink large images",
+    "Scales uploaded images down in the browser before upload and again on the server when they are saved.": "Scales uploaded images down in the browser before upload and again on the server when they are saved.",
     "No part": "No part",
     "No seat": "No seat",
     "Row :row, seat :seat": "Row :row, seat :seat",

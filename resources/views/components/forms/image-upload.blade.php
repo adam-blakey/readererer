@@ -9,7 +9,7 @@
 	<div class="d-flex gap-3 align-items-center">
 		<span class="rounded avatar avatar-lg" style="background-image: url({{ $model->image_url }})"></span>
 		<div class="flex-fill">
-			<input accept="image/jpeg,image/png,image/webp,image/gif" class="form-control @error('image') is-invalid @enderror" id="image" name="image" type="file">
+			<input @feature(\App\Features\ImageScaling::class) data-scale-image @endfeature accept="image/jpeg,image/png,image/webp,image/gif" class="form-control @error('image') is-invalid @enderror" id="image" name="image" type="file">
 			@error('image')
 				<x-forms.input-error :messages="$message" />
 			@enderror
