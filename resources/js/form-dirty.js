@@ -100,7 +100,8 @@ function track(form) {
         const baselineSignature = JSON.stringify(baseline);
 
         // A form re-rendered after failed validation holds unsaved input, so it starts dirty.
-        const startsDirty = form.querySelector('.is-invalid, .invalid-feedback') !== null;
+        // Empty .invalid-feedback elements are placeholders (e.g. the add-location modal's), not errors.
+        const startsDirty = form.querySelector('.is-invalid, .invalid-feedback:not(:empty)') !== null;
 
         const isDirty = () => startsDirty || signature(form) !== baselineSignature;
         isDirty.describe = () => (startsDirty ? ['re-rendered with validation errors'] : changedFields(form, baseline));
