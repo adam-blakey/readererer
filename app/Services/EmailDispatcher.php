@@ -4,12 +4,18 @@ namespace App\Services;
 
 use App\Contracts\EmailSender;
 use App\Enums\EmailStatus;
+use App\Features\ViewEmailOnline;
 use App\Models\EmailLog;
+use App\Models\EmailRecipient;
 use App\Models\TermDate;
 use App\Models\User;
 use Illuminate\Mail\Mailable;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\View;
+use Illuminate\Support\Str;
+use Laravel\Pennant\Feature;
 use Throwable;
 
 class EmailDispatcher
@@ -47,10 +53,19 @@ class EmailDispatcher
         foreach ($recipients as $recipient) {
             $status = EmailStatus::Sent;
             $error = null;
+            $viewUuid = Feature::for($recipient)->active(ViewEmailOnline::class) ? (string) Str::uuid() : null;
 
             try {
+                $snapshot = $viewUuid ? $mailableFactory()->render() : null;
+
+                View::share('viewOnlineUrl', $viewUuid ? route('emails.show', $viewUuid) : null);
                 $this->sender->send($recipient, $mailableFactory());
+
+                if ($viewUuid && ! Storage::disk('local')->put(EmailRecipient::snapshotPath($viewUuid), $snapshot)) {
+                    $viewUuid = null;
+                }
             } catch (Throwable $exception) {
+                $viewUuid = null;
                 $status = EmailStatus::Failed;
                 $error = $exception->getMessage();
                 $anyFailed = true;
@@ -61,6 +76,8 @@ class EmailDispatcher
                     'user_id' => $recipient->id,
                     'error' => $error,
                 ]);
+            } finally {
+                View::share('viewOnlineUrl', null);
             }
 
             $log->recipients()->create([
@@ -69,6 +86,7 @@ class EmailDispatcher
                 'email' => $recipient->email,
                 'status' => $status,
                 'error_message' => $error,
+                'view_uuid' => $viewUuid,
             ]);
         }
 

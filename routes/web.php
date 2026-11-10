@@ -4,6 +4,7 @@ use App\Http\Controllers\AttendanceController;
 use App\Http\Controllers\AttendanceRegisterController;
 use App\Http\Controllers\ComposerController;
 use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\EmailSnapshotController;
 use App\Http\Controllers\EnsembleController;
 use App\Http\Controllers\FeatureFlagController;
 use App\Http\Controllers\HealthCheckController;
@@ -30,6 +31,11 @@ use Illuminate\Support\Facades\Route;
 
 Route::get('/health', HealthCheckController::class)
     ->name('health');
+
+Route::get('/emails/{emailRecipient:view_uuid}', EmailSnapshotController::class)
+    ->whereUuid('emailRecipient')
+    ->middleware('throttle:60,1')
+    ->name('emails.show');
 
 Route::get('/manifest.webmanifest', ManifestController::class)
     ->name('manifest');

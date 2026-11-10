@@ -46,7 +46,7 @@ class AddSecurityHeaders
         ]);
 
         // The Vite dev server and Laravel's debug error page load scripts the policy would block.
-        if (! Vite::isRunningHot() && ! (config('app.debug') && ($response->exception ?? null))) {
+        if (! $response->headers->has('Content-Security-Policy') && ! Vite::isRunningHot() && ! (config('app.debug') && ($response->exception ?? null))) {
             $response->headers->set('Content-Security-Policy', implode('; ', [
                 "default-src 'self'",
                 "script-src 'self' 'nonce-{$nonce}'",

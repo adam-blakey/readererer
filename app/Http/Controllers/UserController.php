@@ -7,6 +7,7 @@ use App\Enums\UserRole;
 use App\Http\Requests\EraseUserRequest;
 use App\Http\Requests\StoreUserRequest;
 use App\Http\Requests\UpdateUserRequest;
+use App\Models\EmailRecipient;
 use App\Models\Ensemble;
 use App\Models\InstrumentFamily;
 use App\Models\SetupGroup;
@@ -20,6 +21,7 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Password;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use Illuminate\Validation\Rules\Password as PasswordRule;
 use Illuminate\View\View;
@@ -192,6 +194,8 @@ class UserController extends Controller
 
     public function erase(EraseUserRequest $request, User $user): RedirectResponse
     {
+        $name = $user->name;
+
         DB::transaction(function () use ($user) {
             $email = $user->email;
 
@@ -241,6 +245,11 @@ class UserController extends Controller
                 $user->delete();
             }
         });
+
+        $mentioned = collect(Storage::disk('local')->files('emails'))
+            ->filter(fn (string $path) => Str::contains((string) Storage::disk('local')->get($path), [$name, e($name)]))
+            ->map(fn (string $path) => basename($path, '.html'));
+        EmailRecipient::deleteSnapshots(EmailRecipient::where(fn ($query) => $query->where('user_id', $user->id)->orWhereIn('view_uuid', $mentioned)));
 
         Log::notice('User personal data erased', ['user_id' => $user->id]);
 
