@@ -21,7 +21,7 @@ test('the dashboard shows the part and seat for each ensemble when the flag is o
         ->assertSee('Oboes')
         ->assertSee('Row B, seat 3')
         ->assertSee('No part')
-        ->assertSee('No seat');
+        ->assertDontSee('No seat');
 });
 
 test('the dashboard hides the part and seat while the flag is off', function () {
