@@ -104,7 +104,7 @@ class SetupGroupController extends Controller
         return view('auto-entities.show', [
             'entity' => $setupGroup,
             'page_name' => __('Setup groups'),
-            'page_subname' => __('Setup group :name', ['name' => $setupGroup->name]),
+            'page_subname' => $setupGroup->label,
             'edit_route' => 'setupgroups.edit',
             'destroy_route' => 'setupgroups.destroy',
             'restore_route' => 'setupgroups.restore',
