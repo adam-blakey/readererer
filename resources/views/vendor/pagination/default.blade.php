@@ -4,7 +4,7 @@
 			<x-card-body class="align-right">
 				<nav aria-label="{{ __('Pagination Navigation') }}" role="navigation">
 					@if ($paginator->hasPages())
-						<ul class="pagination">
+						<ul class="pagination flex-wrap">
 							{{-- Previous Page Link --}}
 							@if ($paginator->onFirstPage())
 								<li aria-disabled="true" class="page-item disabled">
@@ -79,7 +79,7 @@
 							@endif
 						</ul>
 					@else
-						<ul class="pagination">
+						<ul class="pagination flex-wrap">
 							<li aria-disabled="true" class="page-item disabled">
 								<span aria-disabled="true" class="page-link" tabindex="-1">
 									<!-- Download SVG icon from http://tabler-icons.io/i/chevron-left -->

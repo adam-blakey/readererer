@@ -19,7 +19,7 @@
 <x-layout>
 	<div class="container-xl">
 		<div class="card">
-			<div class="card-header">
+			<div class="card-header flex-wrap gap-2">
 				<div>
 					<h3 class="card-title">{{ __('Application log') }}</h3>
 					@if ($file)
@@ -27,7 +27,7 @@
 					@endif
 				</div>
 				<div class="card-actions">
-					<div aria-label="{{ __('Log level') }}" class="btn-group" role="group">
+					<div aria-label="{{ __('Log level') }}" class="btn-group flex-wrap" role="group">
 						@foreach ($filters as $key => $label)
 							<a @class(['btn', 'active' => $level === ($key ?: null)]) href="{{ route('settings.monitoring.logs', array_filter(['level' => $key])) }}">{{ $label }}</a>
 						@endforeach

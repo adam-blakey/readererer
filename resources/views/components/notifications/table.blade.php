@@ -8,7 +8,7 @@
 			<thead>
 				<tr>
 					<th>{{ __('Sent') }}</th>
-					<th>{{ __('Type') }}</th>
+					<th class="w-1">{{ __('Type') }}</th>
 					<th>{{ __('Subject') }}</th>
 					<th>{{ __('Date concerned') }}</th>
 					<th>{{ __('Status') }}</th>
@@ -20,7 +20,7 @@
 					<tr>
 						<td class="text-nowrap" title="{{ $log->created_at }}">{{ $log->created_at->diffForHumans() }}</td>
 						<td>
-							<span class="badge bg-azure text-azure-fg">{{ $log->type_label }}</span>
+							<span class="badge bg-azure text-azure-fg text-wrap text-start">{{ $log->type_label }}</span>
 						</td>
 						<td>{{ $log->subject }}</td>
 						<td>
