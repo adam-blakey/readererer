@@ -749,7 +749,7 @@
     "Social links": "Social links",
     "Shown as icons at the bottom of every email. Leave a box empty to leave that icon out.": "Shown as icons at the bottom of every email. Leave a box empty to leave that icon out.",
     "View emails online": "View emails online",
-    "Keeps a copy of each notification email for 90 days and adds a \"View online\" link to it that opens the copy in a browser. Login and password reset emails are never kept.": "Keeps a copy of each notification email for 90 days and adds a \"View online\" link to it that opens the copy in a browser. Login and password reset emails are never kept."
+    "Keeps a copy of each notification email for 90 days and adds a \"View online\" link to it that opens the copy in a browser. Login and password reset emails are never kept.": "Keeps a copy of each notification email for 90 days and adds a \"View online\" link to it that opens the copy in a browser. Login and password reset emails are never kept.",
     ":count attending": ":count attending",
     ":count not attending": ":count not attending",
     ":count unknown": ":count unknown",
