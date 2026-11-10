@@ -16,7 +16,7 @@
 | :----- | :----- |
 @foreach($members as $member)
 @php($attendance = $member->latestAttendanceFor($termDate))
-| {{ $member->name }} | {{ $attendance?->status_text ?? __('No response yet') }} |
+| {{ $member->name }} | {{ $attendance?->status_text ?? (config('app.readererer_assume_attending') ? \App\Enums\AttendanceStatus::Unknown->effective()->label() : __('No response yet')) }} |
 @endforeach
 </x-mail::table>
 @endif

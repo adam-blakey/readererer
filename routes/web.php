@@ -21,6 +21,7 @@ use App\Http\Controllers\SetlistController;
 use App\Http\Controllers\SettingController;
 use App\Http\Controllers\SetupGroupController;
 use App\Http\Controllers\TermController;
+use App\Http\Controllers\TermDateController;
 use App\Http\Controllers\TermDateNotificationController;
 use App\Http\Controllers\UserController;
 use App\Models\Attendance;
@@ -136,6 +137,7 @@ Route::middleware('auth')->group(function () {
     Route::patch('/terms/{term}/restore', [TermController::class, 'restore'])->name('terms.restore')->withTrashed()->can('restore', 'term');
     Route::resource('terms', TermController::class);
 
+    Route::get('/term-dates/{termDate}', [TermDateController::class, 'show'])->name('term-dates.show')->can('view', 'termDate');
     Route::post('/term-dates/{termDate}/send-attendance-list', [TermDateNotificationController::class, 'sendAttendanceList'])->name('term-dates.send-attendance-list')->can('sendNotifications', 'termDate');
     Route::post('/term-dates/{termDate}/send-setup-reminder', [TermDateNotificationController::class, 'sendSetupReminder'])->name('term-dates.send-setup-reminder')->can('sendNotifications', 'termDate');
     Route::post('/term-dates/{termDate}/send-van-driver-reminder', [TermDateNotificationController::class, 'sendVanDriverReminder'])->name('term-dates.send-van-driver-reminder')->can('sendNotifications', 'termDate');

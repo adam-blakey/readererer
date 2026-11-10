@@ -27,13 +27,15 @@
             </thead>
             <tbody>
                 @foreach ($dates as $td)
-                    <tr>
+                    <tr id="term-date-{{ $td->id }}">
                         <td>
-                            @if ($td->start_datetime->isPast())
-                                <strike>{{ $td->date_label }}</strike>
-                            @else
-                                {{ $td->date_label }}
-                            @endif
+                            <x-term-date-link :term_date="$td">
+                                @if ($td->start_datetime->isPast())
+                                    <strike>{{ $td->date_label }}</strike>
+                                @else
+                                    {{ $td->date_label }}
+                                @endif
+                            </x-term-date-link>
                         </td>
                         <td class="text-nowrap">{{ $td->time_label }}</td>
                         <td><x-location-link :location="$td->inferred_location" /></td>

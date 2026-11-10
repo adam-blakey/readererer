@@ -736,6 +736,8 @@
     "Analytics": "Analytics",
     "Send analytics to Laravel Nightwatch": "Send analytics to Laravel Nightwatch",
     "Sends page timings, errors and logs to Laravel Nightwatch so the Readererer developers can find problems. Members appear only as an ID, and email and IP addresses are removed. Also needs the site's Nightwatch token.": "Sends page timings, errors and logs to Laravel Nightwatch so the Readererer developers can find problems. Members appear only as an ID, and email and IP addresses are removed. Also needs the site's Nightwatch token.",
+    "Notifications in the menu": "Notifications in the menu",
+    "Adds a link to the notifications page in the main menu.": "Adds a link to the notifications page in the main menu.",
     "Resend failed notifications": "Resend failed notifications",
     "Adds a button to the notifications page that resends an email to the recipients it failed to reach.": "Adds a button to the notifications page that resends an email to the recipients it failed to reach.",
     "Resend to failed recipients": "Resend to failed recipients",
@@ -748,4 +750,19 @@
     "Shown as icons at the bottom of every email. Leave a box empty to leave that icon out.": "Shown as icons at the bottom of every email. Leave a box empty to leave that icon out.",
     "View emails online": "View emails online",
     "Keeps a copy of each notification email for 90 days and adds a \"View online\" link to it that opens the copy in a browser. Login and password reset emails are never kept.": "Keeps a copy of each notification email for 90 days and adds a \"View online\" link to it that opens the copy in a browser. Login and password reset emails are never kept."
+    ":count attending": ":count attending",
+    ":count not attending": ":count not attending",
+    ":count unknown": ":count unknown",
+    "Adds a page for each rehearsal or concert showing who is attending, the setup group, the van driver, seating plans and the emails sent, linked from the term, notification and rehearsal lists.": "Adds a page for each rehearsal or concert showing who is attending, the setup group, the van driver, seating plans and the emails sent, linked from the term, notification and rehearsal lists.",
+    "Attendance last updated :time": "Attendance last updated :time",
+    "by :name": "by :name",
+    "Emails sent": "Emails sent",
+    "Last updated": "Last updated",
+    "No attendance replies yet": "No attendance replies yet",
+    "No ensemble rehearses or performs on this date.": "No ensemble rehearses or performs on this date.",
+    "Poll locked": "Poll locked",
+    "Reminders :time": "Reminders :time",
+    "Send emails": "Send emails",
+    "Term date overview page": "Term date overview page",
+    "This ensemble has no members.": "This ensemble has no members."
 }
