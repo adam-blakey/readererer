@@ -72,6 +72,8 @@ Users can also log in with Google (`GoogleLoginController`, `google.redirect`/`g
 
 Members can also log in with an emailed link (`LoginLinkController`, `login-link.*` routes), and opening it shows a button that logs in so email link scanners cannot use it up. Password reset links and login links are both an `EmailLinkType` (`ResetPassword`, `LoginLink`), sent by `$type->send($email)` as the `EmailLink` notification: the type decides who may get one, the page it links to and the email's wording, and the token comes from the password broker, so every type is single-use, expires and is throttled alike. Shared `Ensemble` logins can neither request nor use either type of link (`EmailLinkType::credentials()` leaves them out, and `NewPasswordController` resets through it too), nor log in with Google; an admin sets their password instead.
 
+Behind the `ConfirmPasswordForSensitiveChanges` feature flag, the `ConfirmPasswordForSensitiveChanges` middleware runs Laravel's `password.confirm` check (`auth.password_timeout`, three hours) on the settings, feature flags and Pollererer import routes, `users.erase`, and `users.edit`/`users.update` when the user may `manage` the target. Protect the GET page as well as the write route, because a refused write redirects back and loses the form.
+
 A user with `must_change_password` set (new users, from the web form or `user:create`) is held on the change password page (`password.edit`) by the `EnsurePasswordIsChanged` middleware, appended to the whole `web` group because many routes rely only on `->can()`. Changing or resetting the password clears it.
 
 ### Soft deletes everywhere
