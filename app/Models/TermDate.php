@@ -2,7 +2,6 @@
 
 namespace App\Models;
 
-use App\Enums\EmailStatus;
 use App\Enums\UserRole;
 use App\Observers\TermDateObserver;
 use Illuminate\Database\Eloquent\Attributes\ObservedBy;
@@ -103,10 +102,12 @@ class TermDate extends Model
         return $this->hasMany(EmailLog::class)->latest();
     }
 
-    public function hasSent(string $mailableClass): bool
+    public function timesSent(string $mailableClass): int
     {
         return $this->email_logs
-            ->contains(fn (EmailLog $log) => $log->mailable_class === $mailableClass && $log->status !== EmailStatus::Failed);
+            ->where('mailable_class', $mailableClass)
+            ->filter->wasDelivered()
+            ->count();
     }
 
     public function register_entries(): HasMany

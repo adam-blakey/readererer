@@ -2,11 +2,9 @@
 
 namespace App\Console\Commands;
 
-use App\Enums\EmailStatus;
 use App\Mail\AttendanceListMail;
 use App\Mail\SetupReminderMail;
 use App\Mail\VanDriverReminderMail;
-use App\Models\EmailLog;
 use App\Models\TermDate;
 use App\Services\EmailDispatcher;
 use Illuminate\Console\Command;
@@ -33,7 +31,7 @@ class SendReminders extends Command
         foreach ($termDates as $termDate) {
             $sent = $termDate->email_logs
                 ->where('created_at', '>=', $termDate->remindersDueAt())
-                ->filter(fn (EmailLog $log) => $log->recipients->contains('status', EmailStatus::Sent))
+                ->filter->wasDelivered()
                 ->pluck('mailable_class');
 
             if (! $sent->contains(AttendanceListMail::class) && ($recipients = $termDate->attendanceListRecipients())->isNotEmpty()) {

@@ -110,30 +110,12 @@
 					<td>
 						<div class="btn-list">
 							@can('sendNotifications', $term_date)
-								<form method="POST" action="{{ route('term-dates.send-attendance-list', $term_date) }}">
-									@csrf
-									<button type="submit" class="btn btn-sm bg-info text-info-fg">
-										<x-icon name="list-check" />
-										{{ $term_date->hasSent(\App\Mail\AttendanceListMail::class) ? __('Resend attendance list now') : __('Send attendance list now') }}
-									</button>
-								</form>
+								<x-notifications.send-button :term-date="$term_date" :mailable="\App\Mail\AttendanceListMail::class" route="term-dates.send-attendance-list" icon="list-check" />
 								@if ($show_setup_groups && $term_date->setup_group)
-									<form method="POST" action="{{ route('term-dates.send-setup-reminder', $term_date) }}">
-										@csrf
-										<button type="submit" class="btn btn-sm bg-info-lt text-info-lt-fg">
-											<x-icon name="bell-ringing" />
-											{{ $term_date->hasSent(\App\Mail\SetupReminderMail::class) ? __('Resend setup reminder') : __('Send setup reminder') }}
-										</button>
-									</form>
+									<x-notifications.send-button :term-date="$term_date" :mailable="\App\Mail\SetupReminderMail::class" route="term-dates.send-setup-reminder" icon="bell-ringing" class="bg-info-lt text-info-lt-fg" />
 								@endif
 								@if ($show_van_drivers && $term_date->inferred_van_driver)
-									<form method="POST" action="{{ route('term-dates.send-van-driver-reminder', $term_date) }}">
-										@csrf
-										<button type="submit" class="btn btn-sm bg-info text-info-fg">
-											<x-icon name="truck" />
-											{{ $term_date->hasSent(\App\Mail\VanDriverReminderMail::class) ? __('Resend van driver reminder') : __('Send van driver reminder') }}
-										</button>
-									</form>
+									<x-notifications.send-button :term-date="$term_date" :mailable="\App\Mail\VanDriverReminderMail::class" route="term-dates.send-van-driver-reminder" icon="truck" />
 								@endif
 							@endcan
 							@foreach ($seating_plan_ensembles as $ensemble)

@@ -50,7 +50,8 @@ test('the overview shows attendance, the setup group, the van driver, seating pl
     $termDate->forceFill(['setup_group_id' => $setupGroup->id, 'van_driver_id' => $driver->id])->save();
 
     Attendance::create(['user_id' => $attending->id, 'term_date_id' => $termDate->id, 'ensemble_id' => $ensemble->id, 'status' => AttendanceStatus::Attending, 'edit_user_id' => $attending->id, 'edit_ip' => '127.0.0.1']);
-    EmailLog::create(['term_date_id' => $termDate->id, 'mailable_class' => AttendanceListMail::class, 'subject' => 'Attendance list subject', 'status' => EmailStatus::Sent]);
+    EmailLog::create(['term_date_id' => $termDate->id, 'mailable_class' => AttendanceListMail::class, 'subject' => 'Attendance list subject', 'status' => EmailStatus::Sent])
+        ->recipients()->create(['name' => 'Ada Attends', 'email' => 'ada@example.com', 'status' => EmailStatus::Sent]);
 
     $this->actingAs(make_user(UserRole::Admin))->get(route('term-dates.show', $termDate))
         ->assertOk()
@@ -64,7 +65,7 @@ test('the overview shows attendance, the setup group, the van driver, seating pl
         ->assertSee('Vera Van')
         ->assertSee(route('ensembles.seating-plan.download', ['ensemble' => $ensemble, 'termDate' => $termDate]))
         ->assertSee('Attendance list subject')
-        ->assertSee(__('Resend attendance list now'));
+        ->assertSee(__('Resend attendance list (:count previous)', ['count' => 1]));
 });
 
 test('the term page links each date to its overview', function () {
