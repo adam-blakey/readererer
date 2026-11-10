@@ -36,7 +36,7 @@ class NotificationController extends Controller
             return back()->with('status', __('This notification cannot be resent.'));
         }
 
-        $dispatcher->send($emailLog->termDate, $recipients, fn () => $emailLog->resendableMailable());
+        $dispatcher->send($emailLog->termDate, $recipients, fn (?User $recipient = null) => $emailLog->resendableMailable($recipient));
 
         return back()->with('status', trans_choice('Notification resent to :count recipient.|Notification resent to :count recipients.', $recipients->count()));
     }

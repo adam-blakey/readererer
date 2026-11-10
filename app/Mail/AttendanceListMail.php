@@ -2,8 +2,10 @@
 
 namespace App\Mail;
 
+use App\Features\AttendanceListSections;
 use App\Models\Ensemble;
 use App\Models\TermDate;
+use App\Models\User;
 use Illuminate\Bus\Queueable;
 use Illuminate\Mail\Attachment;
 use Illuminate\Mail\Mailable;
@@ -11,12 +13,13 @@ use Illuminate\Mail\Mailables\Content;
 use Illuminate\Mail\Mailables\Envelope;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Support\Collection;
+use Laravel\Pennant\Feature;
 
 class AttendanceListMail extends Mailable
 {
     use Queueable, SerializesModels;
 
-    public function __construct(public TermDate $termDate) {}
+    public function __construct(public TermDate $termDate, public ?User $recipient = null) {}
 
     public function envelope(): Envelope
     {
@@ -28,10 +31,11 @@ class AttendanceListMail extends Mailable
     public function content(): Content
     {
         return new Content(
-            markdown: 'emails.attendance-list',
+            markdown: Feature::for($this->recipient)->active(AttendanceListSections::class) ? 'emails.attendance-list-sections' : 'emails.attendance-list',
             with: [
                 'termDate' => $this->termDate,
                 'members' => $this->members(),
+                'sentAt' => now(),
             ],
         );
     }

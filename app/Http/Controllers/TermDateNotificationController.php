@@ -6,6 +6,7 @@ use App\Mail\AttendanceListMail;
 use App\Mail\SetupReminderMail;
 use App\Mail\VanDriverReminderMail;
 use App\Models\TermDate;
+use App\Models\User;
 use App\Services\EmailDispatcher;
 use Illuminate\Http\RedirectResponse;
 
@@ -22,7 +23,7 @@ class TermDateNotificationController extends Controller
             return back()->with('status', __('There are no ensemble admins with an email address to send the attendance list to.'));
         }
 
-        $this->dispatcher->send($termDate, $recipients, fn () => new AttendanceListMail($termDate));
+        $this->dispatcher->send($termDate, $recipients, fn (?User $recipient = null) => new AttendanceListMail($termDate, $recipient));
 
         return back()->with('status', trans_choice('Attendance list sent to :count recipient.|Attendance list sent to :count recipients.', $recipients->count()));
     }

@@ -58,13 +58,13 @@ class EmailLog extends Model
     }
 
     /** A fresh mailable of this type, or null for types that cannot be rebuilt from the date alone. */
-    public function resendableMailable(): ?Mailable
+    public function resendableMailable(?User $recipient = null): ?Mailable
     {
         $termDate = $this->termDate;
 
         return match (true) {
             $termDate === null => null,
-            $this->mailable_class === AttendanceListMail::class => new AttendanceListMail($termDate),
+            $this->mailable_class === AttendanceListMail::class => new AttendanceListMail($termDate, $recipient),
             $this->mailable_class === SetupReminderMail::class && $termDate->setup_group !== null => new SetupReminderMail($termDate, $termDate->setup_group),
             $this->mailable_class === VanDriverReminderMail::class && $termDate->inferred_van_driver !== null => new VanDriverReminderMail($termDate, $termDate->inferred_van_driver),
             default => null,

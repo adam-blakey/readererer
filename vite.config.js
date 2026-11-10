@@ -14,10 +14,13 @@ export default defineConfig({
                 'resources/images/readererer-square-logo.svg',
                 'resources/images/placeholders/ensembles.svg',
                 'resources/images/placeholders/users.svg',
+                'resources/images/tabler/icons-gray-question-mark.png',
                 'resources/images/tabler/icons-gray-social-facebook-square.png',
                 'resources/images/tabler/icons-gray-social-instagram.png',
                 'resources/images/tabler/icons-gray-social-twitter.png',
-                'resources/images/tabler/icons-gray-social-youtube.png'
+                'resources/images/tabler/icons-gray-social-youtube.png',
+                'resources/images/tabler/icons-green-check.png',
+                'resources/images/tabler/icons-red-x.png'
             ],
             refresh: true,
         }),
