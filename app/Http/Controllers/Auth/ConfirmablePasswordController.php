@@ -13,7 +13,7 @@ class ConfirmablePasswordController extends Controller
 {
     public function show(): View
     {
-        return view('auth.confirm-password');
+        return view('auth.confirm-password', ['page_name' => __('Confirm password')]);
     }
 
     public function store(Request $request): RedirectResponse
