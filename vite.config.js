@@ -15,9 +15,7 @@ export default defineConfig({
                 'resources/images/placeholders/ensembles.svg',
                 'resources/images/placeholders/users.svg',
                 'resources/images/tabler/icons-gray-social-facebook-square.png',
-                'resources/images/tabler/icons-gray-social-github.png',
                 'resources/images/tabler/icons-gray-social-instagram.png',
-                'resources/images/tabler/icons-gray-social-pinterest.png',
                 'resources/images/tabler/icons-gray-social-twitter.png',
                 'resources/images/tabler/icons-gray-social-youtube.png'
             ],

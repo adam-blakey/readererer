@@ -161,5 +161,6 @@ return [
     'readererer_google_register_role' => env('READERERER_GOOGLE_REGISTER_ROLE'),
 
     'readererer_feature_flags' => [],
+    'readererer_social_links' => [],
 
 ];

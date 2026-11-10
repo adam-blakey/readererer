@@ -30,6 +30,7 @@ class SettingController extends Controller
         $settings->after_reminders = $request->validated('after_reminders');
         $settings->terminology = array_filter($request->validated('terminology', []), 'filled') ?: null;
         $settings->shown_user_fields = $request->validated('shown_user_fields', []);
+        $settings->social_links = array_filter($request->validated('social_links', []), 'filled') ?: null;
 
         $settings->google_client_id = $request->validated('google_client_id');
         $settings->google_register_domain = strtolower((string) $request->validated('google_register_domain')) ?: null;

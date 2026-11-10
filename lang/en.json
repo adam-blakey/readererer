@@ -740,5 +740,10 @@
     "Adds a button to the notifications page that resends an email to the recipients it failed to reach.": "Adds a button to the notifications page that resends an email to the recipients it failed to reach.",
     "Resend to failed recipients": "Resend to failed recipients",
     "This notification cannot be resent.": "This notification cannot be resent.",
-    "Notification resent to :count recipient.|Notification resent to :count recipients.": "Notification resent to :count recipient.|Notification resent to :count recipients."
+    "Notification resent to :count recipient.|Notification resent to :count recipients.": "Notification resent to :count recipient.|Notification resent to :count recipients.",
+    "View online": "View online",
+    "If you have any questions, feel free to message us at :email.": "If you have any questions, feel free to message us at :email.",
+    "You are receiving this email because you have an account with :app.": "You are receiving this email because you have an account with :app.",
+    "Social links": "Social links",
+    "Shown as icons at the bottom of every email. Leave a box empty to leave that icon out.": "Shown as icons at the bottom of every email. Leave a box empty to leave that icon out."
 }

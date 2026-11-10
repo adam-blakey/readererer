@@ -40,9 +40,17 @@ class GeneralSettings extends Settings
         'google_register_domain' => ['app.readererer_google_register_domain'],
         'google_register_role' => ['app.readererer_google_register_role'],
         'feature_flags' => ['app.readererer_feature_flags'],
+        'social_links' => ['app.readererer_social_links'],
     ];
 
     public const AFTER_REMINDERS = ['nothing', 'follow_up', 'lock'];
+
+    public const SOCIAL_NETWORKS = [
+        'facebook' => ['Facebook', 'facebook-square'],
+        'instagram' => ['Instagram', 'instagram'],
+        'youtube' => ['YouTube', 'youtube'],
+        'x' => ['X', 'twitter'],
+    ];
 
     public const TERMS = [
         'rehearsal' => 'rehearsals',
@@ -105,6 +113,8 @@ class GeneralSettings extends Settings
     public ?int $google_register_role;
 
     public ?array $feature_flags;
+
+    public ?array $social_links;
 
     public static function group(): string
     {
