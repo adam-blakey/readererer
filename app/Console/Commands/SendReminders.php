@@ -6,6 +6,7 @@ use App\Mail\AttendanceListMail;
 use App\Mail\SetupReminderMail;
 use App\Mail\VanDriverReminderMail;
 use App\Models\TermDate;
+use App\Models\User;
 use App\Services\EmailDispatcher;
 use Illuminate\Console\Command;
 
@@ -35,7 +36,7 @@ class SendReminders extends Command
                 ->pluck('mailable_class');
 
             if (! $sent->contains(AttendanceListMail::class) && ($recipients = $termDate->attendanceListRecipients())->isNotEmpty()) {
-                $dispatcher->send($termDate, $recipients, fn () => new AttendanceListMail($termDate));
+                $dispatcher->send($termDate, $recipients, fn (?User $recipient = null) => new AttendanceListMail($termDate, $recipient));
             }
 
             if (config('app.readererer_setup_groups') && ! $sent->contains(SetupReminderMail::class)

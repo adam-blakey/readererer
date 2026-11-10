@@ -27,7 +27,7 @@ class EmailDispatcher
      * factory builds one mailable per recipient so addresses don't accumulate.
      *
      * @param  Collection<int, User>  $recipients
-     * @param  callable(): Mailable  $mailableFactory
+     * @param  callable(?User): Mailable  $mailableFactory  given the recipient, or null for the sample that names the log
      */
     public function send(?TermDate $termDate, Collection $recipients, callable $mailableFactory): EmailLog
     {
@@ -56,10 +56,10 @@ class EmailDispatcher
             $viewUuid = Feature::for($recipient)->active(ViewEmailOnline::class) ? (string) Str::uuid() : null;
 
             try {
-                $snapshot = $viewUuid ? $mailableFactory()->render() : null;
+                $snapshot = $viewUuid ? $mailableFactory($recipient)->render() : null;
 
                 View::share('viewOnlineUrl', $viewUuid ? route('emails.show', $viewUuid) : null);
-                $this->sender->send($recipient, $mailableFactory());
+                $this->sender->send($recipient, $mailableFactory($recipient));
 
                 if ($viewUuid && ! Storage::disk('local')->put(EmailRecipient::snapshotPath($viewUuid), $snapshot)) {
                     $viewUuid = null;
