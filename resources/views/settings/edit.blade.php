@@ -6,6 +6,7 @@
 	use App\Settings\GeneralSettings;
 
 	$terminology = config('app.readererer_terminology');
+	$social_links = config('app.readererer_social_links') ?? [];
 	$switch_groups = [
 		__('Attendance polls') => [
 			'assume_attending' => [__('Assume members are attending'), __('Members who have not replied to a poll count as attending.')],
@@ -65,7 +66,7 @@
 			@method('PUT')
 
 			<fieldset class="card-body" @disabled(! $can_edit)>
-				<x-forms.error-summary :fields="['name', 'logo', 'remove_logo', 'favicon', 'remove_favicon', 'primary_color', 'image_max_kilobytes', 'assume_attending', 'allow_change_to_unknown', 'repeating_headings', 'hide_past_dates', 'depping', 'setup_groups', 'van_drivers', 'single_ensemble', 'reminder_hours', 'reminder_minutes', 'concert_reminder_hours', 'concert_reminder_minutes', 'after_reminders', 'log_emails', 'analytics', 'terminology', 'terminology.*', 'shown_user_fields', 'shown_user_fields.*', 'google_login', 'google_client_id', 'google_client_secret', 'google_register_domain', 'google_register_role']" />
+				<x-forms.error-summary :fields="['name', 'logo', 'remove_logo', 'favicon', 'remove_favicon', 'primary_color', 'image_max_kilobytes', 'assume_attending', 'allow_change_to_unknown', 'repeating_headings', 'hide_past_dates', 'depping', 'setup_groups', 'van_drivers', 'single_ensemble', 'reminder_hours', 'reminder_minutes', 'concert_reminder_hours', 'concert_reminder_minutes', 'after_reminders', 'log_emails', 'analytics', 'terminology', 'terminology.*', 'social_links', 'social_links.*', 'shown_user_fields', 'shown_user_fields.*', 'google_login', 'google_client_id', 'google_client_secret', 'google_register_domain', 'google_register_role']" />
 				@if (session('status'))
 					<div class="alert alert-success" role="alert">{{ session('status') }}</div>
 				@endif
@@ -223,6 +224,18 @@
 								</tbody>
 							</table>
 						</div>
+
+						<h2 class="mt-4 mb-1">{{ __('Social links') }}</h2>
+						<p class="text-secondary">{{ __('Shown as icons at the bottom of every email. Leave a box empty to leave that icon out.') }}</p>
+						@foreach (GeneralSettings::SOCIAL_NETWORKS as $network => [$label])
+							<div class="mb-3">
+								<label class="form-label" for="social_links_{{ $network }}">{{ $label }}</label>
+								<input class="form-control @error('social_links.'.$network) is-invalid @enderror" id="social_links_{{ $network }}" maxlength="255" name="social_links[{{ $network }}]" placeholder="https://" type="url" value="{{ old('social_links.'.$network, $social_links[$network] ?? '') }}">
+								@error('social_links.'.$network)
+									<x-forms.input-error :messages="$message" />
+								@enderror
+							</div>
+						@endforeach
 
 						<h2 class="mt-4 mb-1">{{ __('Login with Google') }}</h2>
 						<p class="text-secondary">{!! __('Lets members log in with the Google account that has their email address. :create of type Web application in the Google Cloud console and add :url as an authorised redirect URI. To change a client you already have, open it from the :clients.', [

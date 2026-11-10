@@ -271,7 +271,6 @@
 																<tr>
 																		<td align="center" valign="top" width="640">
 												<![endif]-->
-					<span class="preheader" style="font-size: 0; padding: 0; display: none; max-height: 0; mso-hide: all; line-height: 0; color: transparent; height: 0; max-width: 0; opacity: 0; overflow: hidden; visibility: hidden; width: 0;">This is preheader text. Some clients will show this text as a preview.</span>
 					<table cellpadding="0" cellspacing="0" class="wrap" style="font-family: Open Sans, -apple-system, BlinkMacSystemFont, Roboto, Helvetica Neue, Helvetica, Arial, sans-serif; border-collapse: collapse; width: 100%; max-width: 640px; text-align: left;">
 						<tr>
 							<td class="p-sm" style="font-family: Open Sans, -apple-system, BlinkMacSystemFont, Roboto, Helvetica Neue, Helvetica, Arial, sans-serif; padding: 8px;">

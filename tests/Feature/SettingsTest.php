@@ -325,3 +325,42 @@ test('an admin can upload and remove the favicon', function () {
     Storage::disk('public')->assertMissing($path);
     expect(app(GeneralSettings::class)->favicon)->toBeNull();
 });
+
+test('an admin saves social links, and empty ones are dropped', function () {
+    $this->actingAs(make_user(UserRole::Admin))
+        ->put(route('settings.update'), settings_payload(['social_links' => ['facebook' => 'https://facebook.com/riverside', 'x' => '']]))
+        ->assertSessionHasNoErrors();
+
+    reload_settings();
+
+    expect(config('app.readererer_social_links'))->toBe(['facebook' => 'https://facebook.com/riverside'])
+        ->and(app(GeneralSettings::class)->social_links)->toBe(['facebook' => 'https://facebook.com/riverside']);
+
+    $this->actingAs(make_user(UserRole::Admin))->get(route('settings.edit'))
+        ->assertOk()
+        ->assertSee('name="social_links[facebook]" placeholder="https://" type="url" value="https://facebook.com/riverside"', false)
+        ->assertSee('name="social_links[instagram]"', false);
+});
+
+test('social links must be https web addresses for a known network', function (array $links, string $error) {
+    $this->actingAs(make_user(UserRole::Admin))
+        ->put(route('settings.update'), settings_payload(['social_links' => $links]))
+        ->assertSessionHasErrors($error);
+})->with([
+    'plain http' => [['facebook' => 'http://facebook.com/riverside'], 'social_links.facebook'],
+    'javascript' => [['instagram' => 'javascript:alert(1)'], 'social_links.instagram'],
+    'not a url' => [['youtube' => 'riverside band'], 'social_links.youtube'],
+    'unknown network' => [['myspace' => 'https://myspace.com/riverside'], 'social_links'],
+]);
+
+test('saving social links logs the setting name but not the addresses', function () {
+    Log::spy();
+
+    $this->actingAs(make_user(UserRole::Admin))
+        ->put(route('settings.update'), settings_payload(['social_links' => ['x' => 'https://x.com/riverside']]))
+        ->assertSessionHasNoErrors();
+
+    Log::shouldHaveReceived('info')->with('Site settings saved', Mockery::on(
+        fn (array $context) => in_array('social_links', $context['changed'], true) && ! str_contains(json_encode($context), 'riverside')
+    ))->once();
+});

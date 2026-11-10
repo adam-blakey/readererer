@@ -9,9 +9,14 @@ use App\Models\SetupGroup;
 use App\Models\Term;
 use App\Models\TermDate;
 use App\Models\User;
+use Illuminate\Support\Str;
 
 test('the home page is public', function () {
     $this->get('/')->assertOk();
+});
+
+test('the view online page is public, so guests get a 404 for an unknown email rather than a login page', function () {
+    $this->get(route('emails.show', (string) Str::uuid()))->assertNotFound();
 });
 
 test('the dashboard sends guests to log in', function () {
