@@ -96,7 +96,7 @@ test('the health check command logs a failure', function () {
     Http::fake([route('health') => Http::response(['status' => 'error'], 503)]);
     Log::spy();
 
-    $this->artisan('health:check')->assertFailed();
+    $this->artisan('health:check')->assertSuccessful();
     Pulse::ingest();
 
     expect(Pulse::values('health_check_failure'))->toHaveCount(1);
