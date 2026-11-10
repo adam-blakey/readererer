@@ -24,6 +24,7 @@ use App\Http\Controllers\TermController;
 use App\Http\Controllers\TermDateController;
 use App\Http\Controllers\TermDateNotificationController;
 use App\Http\Controllers\UserController;
+use App\Http\Middleware\ConfirmPasswordForSensitiveChanges;
 use App\Models\Attendance;
 use App\Models\Ensemble;
 use App\Models\RegisterEntry;
@@ -93,16 +94,16 @@ Route::middleware('auth')->group(function () {
         ->name('notifications.resend')
         ->can('send.notifications');
 
-    Route::get('/settings', [SettingController::class, 'edit'])->name('settings.edit')->can('view.settings');
-    Route::put('/settings', [SettingController::class, 'update'])->name('settings.update')->can('edit.settings');
+    Route::get('/settings', [SettingController::class, 'edit'])->name('settings.edit')->can('view.settings')->middleware(ConfirmPasswordForSensitiveChanges::class);
+    Route::put('/settings', [SettingController::class, 'update'])->name('settings.update')->can('edit.settings')->middleware(ConfirmPasswordForSensitiveChanges::class);
     Route::get('/settings/monitoring', [MonitoringController::class, 'index'])->name('settings.monitoring')->can('edit.settings');
     Route::get('/settings/monitoring/logs', [MonitoringController::class, 'logs'])->name('settings.monitoring.logs')->can('edit.settings');
-    Route::get('/settings/import', [PollererImportController::class, 'create'])->name('settings.import')->can('edit.settings');
-    Route::post('/settings/import/preview', [PollererImportController::class, 'preview'])->name('settings.import.preview')->can('edit.settings');
-    Route::post('/settings/import', [PollererImportController::class, 'store'])->name('settings.import.store')->can('edit.settings');
+    Route::get('/settings/import', [PollererImportController::class, 'create'])->name('settings.import')->can('edit.settings')->middleware(ConfirmPasswordForSensitiveChanges::class);
+    Route::post('/settings/import/preview', [PollererImportController::class, 'preview'])->name('settings.import.preview')->can('edit.settings')->middleware(ConfirmPasswordForSensitiveChanges::class);
+    Route::post('/settings/import', [PollererImportController::class, 'store'])->name('settings.import.store')->can('edit.settings')->middleware(ConfirmPasswordForSensitiveChanges::class);
 
-    Route::get('/feature-flags', [FeatureFlagController::class, 'edit'])->name('feature-flags.edit')->can('edit.settings');
-    Route::put('/feature-flags', [FeatureFlagController::class, 'update'])->name('feature-flags.update')->can('edit.settings');
+    Route::get('/feature-flags', [FeatureFlagController::class, 'edit'])->name('feature-flags.edit')->can('edit.settings')->middleware(ConfirmPasswordForSensitiveChanges::class);
+    Route::put('/feature-flags', [FeatureFlagController::class, 'update'])->name('feature-flags.update')->can('edit.settings')->middleware(ConfirmPasswordForSensitiveChanges::class);
 
     Route::patch('/composers/{composer}/restore', [ComposerController::class, 'restore'])->name('composers.restore')->withTrashed()->can('restore', 'composer');
     Route::resource('composers', ComposerController::class)->only(['index', 'destroy']);
@@ -143,8 +144,9 @@ Route::middleware('auth')->group(function () {
     Route::post('/term-dates/{termDate}/send-van-driver-reminder', [TermDateNotificationController::class, 'sendVanDriverReminder'])->name('term-dates.send-van-driver-reminder')->can('sendNotifications', 'termDate');
 
     Route::patch('/users/{user}/restore', [UserController::class, 'restore'])->name('users.restore')->withTrashed()->can('restore', 'user');
-    Route::resource('users', UserController::class)->withTrashed(['show']);
-    Route::delete('/users/{user}/erase', [UserController::class, 'erase'])->name('users.erase')->withTrashed()->can('erase', 'user');
+    Route::resource('users', UserController::class)->withTrashed(['show'])
+        ->middlewareFor(['edit', 'update'], ConfirmPasswordForSensitiveChanges::class.':manage');
+    Route::delete('/users/{user}/erase', [UserController::class, 'erase'])->name('users.erase')->withTrashed()->can('erase', 'user')->middleware(ConfirmPasswordForSensitiveChanges::class);
     Route::post('/users/{user}/password-reset-link', [UserController::class, 'sendPasswordResetLink'])->name('users.password-reset-link')->can('resetPassword', 'user');
     Route::put('/users/{user}/password', [UserController::class, 'setPassword'])->name('users.password')->can('resetPassword', 'user');
     Route::post('/users/{user}/ensembles', [UserController::class, 'attachEnsemble'])->name('users.ensembles.store')->can('manage', 'user');

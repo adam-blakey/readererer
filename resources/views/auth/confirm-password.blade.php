@@ -12,7 +12,12 @@
 				<x-forms.error-summary :fields="['password']" />
 
 				<div class="mb-3">
-					<label class="form-label" for="password">{{ __('Password') }}</label>
+					<label class="form-label" for="password">
+						{{ __('Password') }}
+						<span class="form-label-description">
+							<x-a :route="'password.request'">{{ __('I forgot password') }}</x-a>
+						</span>
+					</label>
 					<input autocomplete="current-password" autofocus class="form-control" id="password" name="password" required type="password">
 					<x-forms.input-error :messages="$errors->get('password')" />
 				</div>
