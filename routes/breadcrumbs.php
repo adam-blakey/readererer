@@ -143,3 +143,8 @@ Breadcrumbs::for('attendance.register.show', function (BreadcrumbTrail $trail, E
     $trail->parent('attendance.register.index');
     $trail->push($ensemble->name.': '.$term_date->date_label, route('attendance.register.show', [$ensemble, $term_date]));
 });
+
+Breadcrumbs::for('term-dates.show', function (BreadcrumbTrail $trail, TermDate $term_date) {
+    $trail->parent('terms.show', $term_date->term);
+    $trail->push($term_date->schedule_label, route('term-dates.show', $term_date));
+});
