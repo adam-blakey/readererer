@@ -13,7 +13,7 @@
             $name_the_ensemble = $linked_ensembles->count() > 1;
             $can_take_registers = Gate::allows('viewAny', App\Models\RegisterEntry::class);
         @endphp
-        <div>{{ $term_date->schedule_label }}</div>
+        <div><x-term-date-link :$term_date>{{ $term_date->schedule_label }}</x-term-date-link></div>
         <div><x-icon name="map-pin" /> <x-location-link :location="$term_date->inferred_location" /></div>
         <div class="mt-1 small text-muted">{{ $term_date->relative_label }}</div>
         @if ($linked_ensembles->isNotEmpty())

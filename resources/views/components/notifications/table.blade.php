@@ -24,7 +24,9 @@
 						</td>
 						<td>{{ $log->subject }}</td>
 						<td>
-							@if ($log->termDate?->term && auth()->user()?->can('view', $log->termDate->term))
+							@if ($log->termDate && Laravel\Pennant\Feature::active(App\Features\TermDateOverview::class) && Gate::allows('view', $log->termDate))
+								<a href="{{ route('term-dates.show', $log->termDate) }}">{{ $log->termDate->name }}</a>
+							@elseif ($log->termDate?->term && auth()->user()?->can('view', $log->termDate->term))
 								<x-a href="{{ route('terms.show', $log->termDate->term) }}#term-date-{{ $log->termDate->id }}">{{ $log->termDate->name }}</x-a>
 							@elseif ($log->termDate)
 								{{ $log->termDate->name }}

@@ -29,7 +29,7 @@
 					$applicable_ensembles = $ensembles->filter(fn ($ensemble) => $term_date->appliesToEnsemble($ensemble));
 				@endphp
 				<tr>
-					<td>{{ $term_date->date_label }}</td>
+					<td><x-term-date-link :$term_date>{{ $term_date->date_label }}</x-term-date-link></td>
 					<td class="text-nowrap">{{ $term_date->time_label }}</td>
 					<td>
 						@if ($term_date->is_concert)

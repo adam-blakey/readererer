@@ -13,6 +13,12 @@
 	        'auth' => Auth::user()?->can('viewAny', App\Models\User::class),
 	    ],
 	    [
+	        'title' => __('Notifications'),
+	        'icon' => 'bell',
+	        'route' => 'notifications.index',
+	        'auth' => Auth::user()?->can('view.notifications') && Laravel\Pennant\Feature::active(App\Features\NotificationsMenuItem::class),
+	    ],
+	    [
 	        'title' => __('Settings'),
 	        'icon' => 'settings',
 	        'route' => 'settings.edit',

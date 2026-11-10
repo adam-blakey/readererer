@@ -2,6 +2,7 @@
 
 use App\Enums\EmailStatus;
 use App\Enums\UserRole;
+use App\Features\TermDateOverview;
 use App\Mail\AttendanceListMail;
 use App\Mail\RosterChangedMail;
 use App\Mail\SetupReminderMail;
@@ -12,6 +13,7 @@ use App\Models\SetupGroup;
 use App\Models\Term;
 use App\Models\TermDate;
 use Illuminate\Support\Facades\Mail;
+use Laravel\Pennant\Feature;
 
 function make_notification_term_date(array $attributes = [], Ensemble ...$concertEnsembles): TermDate
 {
@@ -530,4 +532,21 @@ test('the date concerned links to that date within its term', function () {
         ->assertSee(route('terms.show', $termDate->term).'#term-date-'.$termDate->id, false);
 
     $this->get(route('terms.show', $termDate->term))->assertSee('id="term-date-'.$termDate->id.'"', false);
+});
+
+test('the date concerned links to the term date overview when that page is on', function () {
+    config(['app.readererer_feature_flags' => [TermDateOverview::class => ['enabled' => true]]]);
+    Feature::flushCache();
+
+    $termDate = make_notification_term_date();
+    EmailLog::create([
+        'term_date_id' => $termDate->id,
+        'mailable_class' => VanDriverReminderMail::class,
+        'subject' => 'Van driver reminder',
+        'status' => EmailStatus::Sent,
+    ]);
+
+    $this->actingAs(make_user(UserRole::Moderator))
+        ->get(route('notifications.index'))
+        ->assertSee(route('term-dates.show', $termDate), false);
 });
