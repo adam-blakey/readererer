@@ -45,6 +45,12 @@ class EmailLog extends Model
             : class_basename($this->mailable_class);
     }
 
+    /** Whether the email reached anyone: the one rule for "already sent", so a partly failed send counts and a pending one does not. */
+    public function wasDelivered(): bool
+    {
+        return $this->recipients->contains('status', EmailStatus::Sent);
+    }
+
     /** Recipients whose copy failed, who a resend should reach. */
     public function failedRecipients(): HasMany
     {
