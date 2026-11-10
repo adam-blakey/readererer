@@ -24,7 +24,7 @@
 	];
 @endphp
 
-<div class="card-header d-print-none">
+<div class="card-header flex-column flex-md-row align-items-start align-items-md-center gap-2 d-print-none">
 	<div>
 		<h2 class="mb-1 card-title">{{ $term_date->name }}</h2>
 		<div class="list-inline list-inline-dots mb-0 text-secondary d-flex flex-wrap align-items-center">
@@ -42,7 +42,7 @@
 			@endif
 		</div>
 	</div>
-	<div class="ms-auto btn-list">
+	<div class="ms-md-auto btn-list">
 		<x-a class="btn btn-sm" href="{{ route('attendance.poll.show', ['ensemble' => $ensemble, 'term' => $term_date->term]) }}">
 			<x-icon name="square-check" />
 			{{ __('Poll') }}
@@ -64,7 +64,7 @@
 				@endforeach
 			</div>
 		</div>
-		<div class="col-auto d-print-none">
+		<div class="col-12 col-md-auto d-print-none">
 			<div class="btn-list">
 				<button class="btn btn-sm" type="button" data-register-fill>
 					<x-icon name="clipboard-check" />

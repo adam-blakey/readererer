@@ -63,14 +63,14 @@
 	<h2 class="mb-0 card-title">{{ $ensemble->name }}: {{ $term->name }}</h2>
 	<div class="ms-auto btn-list gap-1 align-items-center">
 		@unless ($own_view)
-			<div aria-label="{{ __('Sort members by') }}" class="btn-group flex-wrap" role="group">
+			<div aria-label="{{ __('Sort members by') }}" class="btn-group flex-wrap col-12 col-sm-auto" role="group">
 				@foreach ($sort_options as $option => $label)
-					<x-a class="btn btn-sm {{ $sortby === $option ? 'active' : '' }}" href="{{ route('attendance.poll.show', ['ensemble' => $ensemble, 'term' => $term, 'sortby' => $option, 'sortdir' => $sortdir]) }}">{{ $label }}</x-a>
+					<x-a class="btn btn-sm {{ $loop->last ? 'col' : 'col-6' }} col-sm-auto {{ $sortby === $option ? 'active' : '' }}" href="{{ route('attendance.poll.show', ['ensemble' => $ensemble, 'term' => $term, 'sortby' => $option, 'sortdir' => $sortdir]) }}">{{ $label }}</x-a>
 				@endforeach
+				<x-a class="btn btn-sm btn-icon col-auto" href="{{ route('attendance.poll.show', ['ensemble' => $ensemble, 'term' => $term, 'sortby' => $sortby, 'sortdir' => $sortdir === 'desc' ? 'asc' : 'desc']) }}" aria-label="{{ $sortdir === 'desc' ? __('Sort ascending') : __('Sort descending') }}" title="{{ $sortdir === 'desc' ? __('Sort ascending') : __('Sort descending') }}">
+					<x-icon :name="$sortdir === 'desc' ? 'sort-descending' : 'sort-ascending'" />
+				</x-a>
 			</div>
-			<x-a class="btn btn-sm btn-icon" href="{{ route('attendance.poll.show', ['ensemble' => $ensemble, 'term' => $term, 'sortby' => $sortby, 'sortdir' => $sortdir === 'desc' ? 'asc' : 'desc']) }}" aria-label="{{ $sortdir === 'desc' ? __('Sort ascending') : __('Sort descending') }}" title="{{ $sortdir === 'desc' ? __('Sort ascending') : __('Sort descending') }}">
-				<x-icon :name="$sortdir === 'desc' ? 'sort-descending' : 'sort-ascending'" />
-			</x-a>
 		@endunless
 			@if ($self)
 				<form action="{{ route('attendance.poll.view') }}" method="POST">
