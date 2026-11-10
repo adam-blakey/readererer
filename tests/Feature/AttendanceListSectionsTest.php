@@ -60,6 +60,7 @@ test('the attendance list splits members into sections with totals, deps and the
         ->toContain('1 member is sending a dep.')
         ->toContain('width="50%"')
         ->toContain('width="25%"')
+        ->toContain('(50%)')
         ->and(section_of($html, 'Attending'))->toContain('Ann Attending')->toMatch('/<s[^>]*>Dan Depper<\/s> <span[^>]*>depped by Sub Stitute<\/span>/')->not->toContain('Nora Nope')
         ->and(section_of($html, 'Not attending'))->toContain('Nora Nope')->toContain('alt="Not attending"')->not->toContain('Sam Silent')
         ->and(section_of($html, 'Not yet responded'))->toContain('Sam Silent')->toContain('alt="Not yet responded"');

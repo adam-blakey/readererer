@@ -42,7 +42,7 @@ $font = 'font-family: Open Sans, -apple-system, BlinkMacSystemFont, Roboto, Helv
 <table cellpadding="0" cellspacing="0" style="{{ $font }} border-collapse: collapse; width: 100%; table-layout: fixed;">
 <tr>
 @foreach($stats as $key => [$label, $colour])
-<td align="left" style="{{ $font }} font-size: 13px; padding: 4px 8px 0 0; text-align: left;" valign="top"><span style="color: {{ $colour }}; font-size: 16px;">&#9632;</span> {{ $label }} <br /><strong style="font-size: 20px;">{{ $totals[$key] }}</strong> <span style="color: #9eb0b7;">{{ $total ? round($totals[$key] / $total * 100).'%' : '' }}</span></td>
+<td align="left" style="{{ $font }} font-size: 13px; padding: 4px 8px 0 0; text-align: left;" valign="top"><span style="color: {{ $colour }}; font-size: 16px;">&#9632;</span> {{ $label }} <br /><strong style="font-size: 20px;">{{ $totals[$key] }}</strong> <span style="color: #9eb0b7;">{{ $total ? '('.round($totals[$key] / $total * 100).'%)' : '' }}</span></td>
 @endforeach
 </tr>
 </table>
