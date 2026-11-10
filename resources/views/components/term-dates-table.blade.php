@@ -27,7 +27,7 @@
             </thead>
             <tbody>
                 @foreach ($dates as $td)
-                    <tr>
+                    <tr id="term-date-{{ $td->id }}">
                         <td>
                             <x-term-date-link :term_date="$td">
                                 @if ($td->start_datetime->isPast())
