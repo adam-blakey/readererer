@@ -3,7 +3,7 @@
 @php
 	$times_sent = $termDate->timesSent($mailable);
 	$label = match ($mailable) {
-		\App\Mail\AttendanceListMail::class => $times_sent ? __('Resend attendance list now (:count previous)', ['count' => $times_sent]) : __('Send attendance list now'),
+		\App\Mail\AttendanceListMail::class => $times_sent ? __('Resend attendance list (:count previous)', ['count' => $times_sent]) : __('Send attendance list'),
 		\App\Mail\SetupReminderMail::class => $times_sent ? __('Resend setup reminder (:count previous)', ['count' => $times_sent]) : __('Send setup reminder'),
 		\App\Mail\VanDriverReminderMail::class => $times_sent ? __('Resend van driver reminder (:count previous)', ['count' => $times_sent]) : __('Send van driver reminder'),
 	};
