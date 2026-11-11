@@ -15,3 +15,11 @@ test('each email link type links to its own page', function (EmailLinkType $type
     'reset password' => [EmailLinkType::ResetPassword, 'password.reset', 'Reset Password Request'],
     'login link' => [EmailLinkType::LoginLink, 'login-link.show', 'Your login link'],
 ]);
+
+test('the email button shows the link type\'s own wording', function () {
+    $user = User::factory()->create();
+
+    $html = (string) (new EmailLink(EmailLinkType::LoginLink, 'a-token'))->toMail($user)->render();
+
+    expect($html)->toContain('>Log in</span>')->not->toContain('Reset password');
+});
