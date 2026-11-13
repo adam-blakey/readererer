@@ -45,7 +45,7 @@ php artisan boost:update    # refresh .claude/skills; guidelines are off in boos
 
 Tests run with `APP_ENV=testing` (see `phpunit.xml`); the SQLite-in-memory env lines are currently commented out, so tests hit the configured DB connection.
 
-Browser tests (`tests/Browser`) use `pestphp/pest-plugin-browser` to check that elements are on the page and clickable in a real browser (`visit('/login')->type(...)->click(...)`). Unlike the other suites they load the real Vite assets, so they need `npm run build` and `npx playwright install` first.
+Browser tests (`tests/Browser`) use `pestphp/pest-plugin-browser` to check that elements are on the page and clickable in a real browser (`visit('/login')->type(...)->click(...)`). Unlike the other suites they load the real Vite assets, so they need `npm run build` first; the suite runs `npx playwright install chromium` itself (`tests/Pest.php`), because a Playwright update otherwise fails with `PlaywrightOutdatedException` until the new browser build is installed.
 
 ## Deployment
 
