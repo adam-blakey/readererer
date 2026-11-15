@@ -134,7 +134,7 @@
 								<a href="{{ route('notifications.index') }}">{{ __('View all') }}</a>
 							</div>
 						</div>
-						<x-notifications.table :logs="$notifications" />
+						<x-notifications.table :logs="$notifications" sortable />
 					</x-card>
 				</div>
 			@endif

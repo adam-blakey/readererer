@@ -5,7 +5,7 @@
 		<x-card-row>
 			<div class="col-md-12">
 				<x-card>
-					<x-notifications.table :$logs />
+					<x-notifications.table :$logs sortable />
 				</x-card>
 			</div>
 		</x-card-row>

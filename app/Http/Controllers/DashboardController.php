@@ -37,7 +37,7 @@ class DashboardController extends Controller
             ? InstrumentFamily::whereIn('id', $ensembles->pluck('pivot.instrument_family_id')->filter())->get()->keyBy('id')
             : null;
         $notifications = $user->can('view.notifications')
-            ? EmailLog::with(['recipients', 'termDate'])->latest()->limit(5)->get()
+            ? EmailLog::with(['recipients', 'termDate'])->newestOrSorted()->limit(5)->get()
             : null;
 
         if ($ensembles->isEmpty()) {

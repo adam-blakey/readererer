@@ -8,13 +8,20 @@ use App\Mail\AttendanceListMail;
 use App\Mail\RosterChangedMail;
 use App\Mail\SetupReminderMail;
 use App\Mail\VanDriverReminderMail;
+use Illuminate\Database\Eloquent\Attributes\Scope;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Mail\Mailable;
+use SDamian\Larasort\AutoSortable;
 
 class EmailLog extends Model
 {
+    use AutoSortable;
+
+    public array $sortables = ['created_at', 'subject', 'status'];
+
     protected $fillable = [
         'term_date_id',
         'mailable_class',
@@ -37,6 +44,16 @@ class EmailLog extends Model
         VanDriverReminderMail::class => 'Van-driver reminder',
         RosterChangedMail::class => 'Setup groups/driver changed',
     ];
+
+    #[Scope]
+    protected function newestOrSorted(Builder $query): void
+    {
+        $query->when(
+            in_array(request()->orderby, $this->sortables),
+            fn (Builder $query) => $query->autosort(),
+            fn (Builder $query) => $query->latest(),
+        );
+    }
 
     public function getTypeLabelAttribute(): string
     {
