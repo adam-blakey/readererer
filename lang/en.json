@@ -732,6 +732,8 @@
     "Van driver reminder": "Van driver reminder",
     "Van driver reminder sent to :name.": "Van driver reminder sent to :name.",
     "Van driver reminder — :name": "Van driver reminder — :name",
+    "Setup group users": "Setup group users",
+    "Shows the users in a setup group on its page and lets them be chosen when creating or editing the setup group.": "Shows the users in a setup group on its page and lets them be chosen when creating or editing the setup group.",
     "Van drivers": "Van drivers",
     "View": "View",
     "View all": "View all",
