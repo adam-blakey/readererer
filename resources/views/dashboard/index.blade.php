@@ -11,7 +11,7 @@
 						</div>
 						<x-card-body>
 							<p>{{ __('You are not currently a member of any ensembles.') }}</p>
-							<p class="text-muted mb-0">{{ __('Your rehearsals, concerts, setup duties and van drives will appear here once an administrator adds you to an ensemble.') }}</p>
+							<p class="text-muted mb-0">{{ config('app.readererer_setup_groups') ? __("Your rehearsals, concerts, and setup groups will appear here once you've been added to an ensemble.") : __("Your rehearsals and concerts will appear here once you've been added to an ensemble.") }}</p>
 						</x-card-body>
 					</x-card>
 				</div>

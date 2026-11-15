@@ -206,6 +206,19 @@ test('a member in no ensemble sees an empty state instead of rehearsals, setup a
     $response->assertViewMissing('nextRehearsal');
 });
 
+test('the empty dashboard only mentions setup groups while that feature is on', function () {
+    $member = make_user(UserRole::Member);
+
+    config(['app.readererer_setup_groups' => true]);
+    $this->actingAs($member)->get('/dashboard')
+        ->assertSee('Your rehearsals, concerts, and setup groups will appear here once you&#039;ve been added to an ensemble.', false);
+
+    config(['app.readererer_setup_groups' => false]);
+    $this->actingAs($member)->get('/dashboard')
+        ->assertSee('Your rehearsals and concerts will appear here once you&#039;ve been added to an ensemble.', false)
+        ->assertDontSee('setup groups will appear');
+});
+
 test('an ensemble login that is not linked to an ensemble is refused rather than erroring', function () {
     $this->actingAs(make_user(UserRole::Ensemble))->get('/dashboard')->assertForbidden();
 });
