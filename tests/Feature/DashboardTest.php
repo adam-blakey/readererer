@@ -1,12 +1,18 @@
 <?php
 
+use App\Enums\AttendanceStatus;
+use App\Enums\EmailStatus;
 use App\Enums\UserRole;
 use App\Features\DashboardPartAndSeat;
+use App\Mail\AttendanceListMail;
+use App\Models\Attendance;
+use App\Models\EmailLog;
 use App\Models\Ensemble;
 use App\Models\InstrumentFamily;
 use App\Models\SetupGroup;
 use App\Models\Term;
 use App\Models\TermDate;
+use App\Models\User;
 use Laravel\Pennant\Feature;
 
 test('the dashboard shows the part and seat for each ensemble when the flag is on', function () {
@@ -200,6 +206,19 @@ test('a member in no ensemble sees an empty state instead of rehearsals, setup a
     $response->assertViewMissing('nextRehearsal');
 });
 
+test('the empty dashboard only mentions setup groups while that feature is on', function () {
+    $member = make_user(UserRole::Member);
+
+    config(['app.readererer_setup_groups' => true]);
+    $this->actingAs($member)->get('/dashboard')
+        ->assertSee('Your rehearsals, concerts, and setup groups will appear here once you&#039;ve been added to an ensemble.', false);
+
+    config(['app.readererer_setup_groups' => false]);
+    $this->actingAs($member)->get('/dashboard')
+        ->assertSee('Your rehearsals and concerts will appear here once you&#039;ve been added to an ensemble.', false)
+        ->assertDontSee('setup groups will appear');
+});
+
 test('an ensemble login that is not linked to an ensemble is refused rather than erroring', function () {
     $this->actingAs(make_user(UserRole::Ensemble))->get('/dashboard')->assertForbidden();
 });
@@ -219,4 +238,41 @@ test('members do not see attendance updates or notifications on the dashboard', 
         ->assertDontSee('href="'.route('notifications.index').'"', false);
     expect($response->viewData('attendanceUpdates'))->toBeNull()
         ->and($response->viewData('notifications'))->toBeNull();
+});
+
+function dashboard_sort_fixtures(): User
+{
+    $admin = make_user(UserRole::Admin);
+    $ensemble = Ensemble::factory()->create();
+    $termDate = make_term_date();
+
+    foreach (['Alpha' => 1, 'Bravo' => 2] as $name => $daysAgo) {
+        $member = make_user(UserRole::Member, ['first_name' => 'Member', 'last_name' => $name]);
+        Attendance::create(['user_id' => $member->id, 'term_date_id' => $termDate->id, 'ensemble_id' => $ensemble->id, 'status' => AttendanceStatus::Attending, 'edit_user_id' => $admin->id, 'edit_ip' => '127.0.0.1'])
+            ->forceFill(['created_at' => now()->subDays($daysAgo), 'updated_at' => now()->subDays($daysAgo)])->saveQuietly();
+        EmailLog::create(['term_date_id' => $termDate->id, 'mailable_class' => AttendanceListMail::class, 'subject' => "Subject {$name}", 'status' => EmailStatus::Sent])
+            ->forceFill(['created_at' => now()->subDays($daysAgo)])->saveQuietly();
+    }
+
+    return $admin;
+}
+
+test('the dashboard tables sort by their own query parameters without disturbing each other', function () {
+    $admin = dashboard_sort_fixtures();
+
+    $this->actingAs($admin)->get('/dashboard')
+        ->assertSeeInOrder(['Member Alpha', 'Member Bravo'])
+        ->assertSeeInOrder(['Subject Alpha', 'Subject Bravo']);
+
+    $this->actingAs($admin)->get('/dashboard?orderby=updated_at&order=asc')
+        ->assertSeeInOrder(['Member Bravo', 'Member Alpha'])
+        ->assertSeeInOrder(['Subject Alpha', 'Subject Bravo']);
+
+    $this->actingAs($admin)->get('/dashboard?orderby=created_at&order=asc')
+        ->assertSeeInOrder(['Member Alpha', 'Member Bravo'])
+        ->assertSeeInOrder(['Subject Bravo', 'Subject Alpha']);
+
+    $this->actingAs($admin)->get('/dashboard?orderby=subject&order=desc')
+        ->assertSeeInOrder(['Member Alpha', 'Member Bravo'])
+        ->assertSeeInOrder(['Subject Bravo', 'Subject Alpha']);
 });

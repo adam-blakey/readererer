@@ -24,6 +24,13 @@
                         <span class="list-inline-item"><span class="badge bg-blue text-blue-fg">{{ __("You're a member!") }}</span></span>
                     @endif
                 </div>
+                @php($membershipDetails = array_filter([
+                    $membership?->instrumentFamily?->name,
+                    filled($membership?->seat_row) && filled($membership?->seat_column) ? __('Row :row, seat :seat', ['row' => $membership->seat_row, 'seat' => $membership->seat_column]) : null,
+                ]))
+                @if ($membershipDetails)
+                    <div class="mt-1 text-muted">{{ implode(' • ', $membershipDetails) }}</div>
+                @endif
             </div>
             @if ($canManage)
                 <div class="col-auto ms-auto">

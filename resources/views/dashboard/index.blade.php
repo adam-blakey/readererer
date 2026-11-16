@@ -1,8 +1,15 @@
-@props(['page_name', 'ensembles' => collect(), 'instrumentFamilies' => null, 'setupGroup' => null, 'nextRehearsal' => null, 'nextConcerts' => collect(), 'nextSetup' => null, 'nextVanDrive' => null, 'drivesTheVan' => false, 'attendanceUpdates' => null, 'notifications' => null])
+@props(['page_name', 'ensembles' => collect(), 'instrumentFamilies' => null, 'setupGroup' => null, 'nextRehearsal' => null, 'nextConcerts' => collect(), 'nextSetup' => null, 'nextVanDrive' => null, 'drivesTheVan' => false, 'attendanceUpdates' => null, 'notifications' => null, 'managementCards' => []])
 
 <x-layout>
 	<div class="container-xl">
 		<x-card-row>
+			@foreach($managementCards as $card)
+				<div class="col-6 col-md-4 col-lg">
+					<a href="{{ route($card['route']) }}" class="d-block text-reset text-decoration-none">
+						<x-stat-card :icon="$card['icon']" :title="$card['title']" :value="$card['count'] ?? __('Manage')" />
+					</a>
+				</div>
+			@endforeach
 			@if($ensembles->isEmpty())
 				<div class="col-12">
 					<x-card>
@@ -11,7 +18,7 @@
 						</div>
 						<x-card-body>
 							<p>{{ __('You are not currently a member of any ensembles.') }}</p>
-							<p class="text-muted mb-0">{{ __('Your rehearsals, concerts, setup duties and van drives will appear here once an administrator adds you to an ensemble.') }}</p>
+							<p class="text-muted mb-0">{{ config('app.readererer_setup_groups') ? __("Your rehearsals, concerts, and setup groups will appear here once you've been added to an ensemble.") : __("Your rehearsals and concerts will appear here once you've been added to an ensemble.") }}</p>
 						</x-card-body>
 					</x-card>
 				</div>
@@ -134,7 +141,7 @@
 								<a href="{{ route('notifications.index') }}">{{ __('View all') }}</a>
 							</div>
 						</div>
-						<x-notifications.table :logs="$notifications" />
+						<x-notifications.table :logs="$notifications" sortable />
 					</x-card>
 				</div>
 			@endif

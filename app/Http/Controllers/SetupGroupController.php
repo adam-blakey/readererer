@@ -2,12 +2,15 @@
 
 namespace App\Http\Controllers;
 
+use App\Features\SetupGroupUsers;
 use App\Http\Requests\StoreSetupGroupRequest;
 use App\Http\Requests\UpdateSetupGroupRequest;
 use App\Models\SetupGroup;
+use App\Models\User;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Arr;
 use Illuminate\View\View;
+use Laravel\Pennant\Feature;
 
 class SetupGroupController extends Controller
 {
@@ -42,6 +45,8 @@ class SetupGroupController extends Controller
             unset($fields['van_drivers']);
         }
 
+        $this->addMembersField($fields, $dummy);
+
         return view('auto-entities.form', [
             'page_name' => __('Setup groups'),
             'page_subname' => __('Create new setup group'),
@@ -56,7 +61,9 @@ class SetupGroupController extends Controller
         $attributes = $request->validated();
 
         $van_drivers = Arr::pull($attributes, 'van_drivers') ?? [];
+        $members = Arr::pull($attributes, 'members') ?? [];
         $setup_group = SetupGroup::create($attributes);
+        $this->syncMembers($setup_group, $members);
 
         $setup_group->van_drivers()->sync($van_drivers);
 
@@ -73,6 +80,8 @@ class SetupGroupController extends Controller
             unset($fields['van_drivers']);
         }
 
+        $this->addMembersField($fields, $setupGroup);
+
         return view('auto-entities.form', [
             'page_name' => __('Setup groups'),
             'page_subname' => __('Update setup group'),
@@ -87,7 +96,9 @@ class SetupGroupController extends Controller
         $attributes = $request->validated();
 
         $van_drivers = Arr::pull($attributes, 'van_drivers') ?? [];
+        $members = Arr::pull($attributes, 'members') ?? [];
         $setupGroup->update($attributes);
+        $this->syncMembers($setupGroup, $members);
 
         if (config('app.readererer_van_drivers')) {
             $setupGroup->van_drivers()->detach();
@@ -123,5 +134,34 @@ class SetupGroupController extends Controller
         $setupGroup->restore();
 
         return redirect()->back()->with('status', __('Restored.'));
+    }
+
+    private function addMembersField(array &$fields, SetupGroup $setupGroup): void
+    {
+        if (! Feature::active(SetupGroupUsers::class)) {
+            return;
+        }
+
+        $fields['members'] = [
+            'label' => __('Members'),
+            'type' => 'class',
+            'required' => false,
+            'icon' => $setupGroup->getIconForAttribute('members'),
+            'value' => $setupGroup->members,
+            'options' => User::all()->sortBy('name', SORT_NATURAL | SORT_FLAG_CASE)->values(),
+            'default_option' => null,
+            'select_multiple' => true,
+            'width' => 12,
+        ];
+    }
+
+    private function syncMembers(SetupGroup $setupGroup, array $members): void
+    {
+        if (! Feature::active(SetupGroupUsers::class)) {
+            return;
+        }
+
+        User::where('setup_group_id', $setupGroup->id)->whereNotIn('id', $members)->update(['setup_group_id' => null]);
+        User::whereIn('id', $members)->update(['setup_group_id' => $setupGroup->id]);
     }
 }

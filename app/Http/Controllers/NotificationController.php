@@ -14,8 +14,9 @@ class NotificationController extends Controller
     public function index()
     {
         $logs = EmailLog::with(['recipients', 'termDate'])
-            ->latest()
-            ->paginate(15);
+            ->newestOrSorted()
+            ->paginate(15)
+            ->withQueryString();
 
         return view('notifications.index', [
             'page_name' => __('Notifications'),

@@ -8,10 +8,13 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use SDamian\Larasort\AutoSortable;
 
 class Attendance extends Model
 {
-    use HasFactory;
+    use AutoSortable, HasFactory;
+
+    public array $sortables = ['updated_at'];
 
     protected $fillable = [
         'user_id',
@@ -52,7 +55,11 @@ class Attendance extends Model
             ->whereRelation('term_date', 'deleted_at', null)
             ->whereRelation('term_date.term', 'deleted_at', null)
             ->whereRelation('ensemble', 'deleted_at', null)
-            ->orderBy('created_at', 'DESC');
+            ->when(
+                in_array(request()->orderby, $this->sortables),
+                fn (Builder $query) => $query->autosort(),
+                fn (Builder $query) => $query->orderBy('created_at', 'DESC'),
+            );
     }
 
     public function casts(): array

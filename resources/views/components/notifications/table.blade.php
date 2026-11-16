@@ -1,4 +1,4 @@
-@props(['logs'])
+@props(['logs', 'sortable' => false])
 
 @if ($logs->isEmpty())
 	<div class="card-body text-muted">{{ __('No notifications have been sent yet.') }}</div>
@@ -7,11 +7,11 @@
 		<table class="table table-vcenter card-table">
 			<thead>
 				<tr>
-					<th>{{ __('Sent') }}</th>
+					<th>@if ($sortable)<x-larasort-link :display_name="__('Sent')" name="created_at" />@else{{ __('Sent') }}@endif</th>
 					<th class="w-1">{{ __('Type') }}</th>
-					<th>{{ __('Subject') }}</th>
+					<th>@if ($sortable)<x-larasort-link :display_name="__('Subject')" name="subject" />@else{{ __('Subject') }}@endif</th>
 					<th>{{ __('Date concerned') }}</th>
-					<th>{{ __('Status') }}</th>
+					<th>@if ($sortable)<x-larasort-link :display_name="__('Status')" name="status" />@else{{ __('Status') }}@endif</th>
 					<th>{{ __('Recipients') }}</th>
 				</tr>
 			</thead>

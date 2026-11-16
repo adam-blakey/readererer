@@ -3,11 +3,16 @@
 namespace App\Http\Controllers;
 
 use App\Enums\UserRole;
+use App\Features\DashboardAdminCards;
 use App\Features\DashboardPartAndSeat;
 use App\Models\Attendance;
 use App\Models\EmailLog;
+use App\Models\Ensemble;
 use App\Models\InstrumentFamily;
+use App\Models\SetupGroup;
+use App\Models\Term;
 use App\Models\TermDate;
+use App\Models\User;
 use App\Traits\ShowEnsemble;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Auth;
@@ -36,12 +41,13 @@ class DashboardController extends Controller
         $instrumentFamilies = Feature::active(DashboardPartAndSeat::class)
             ? InstrumentFamily::whereIn('id', $ensembles->pluck('pivot.instrument_family_id')->filter())->get()->keyBy('id')
             : null;
+        $managementCards = Feature::active(DashboardAdminCards::class) ? $this->managementCards($user) : [];
         $notifications = $user->can('view.notifications')
-            ? EmailLog::with(['recipients', 'termDate'])->latest()->limit(5)->get()
+            ? EmailLog::with(['recipients', 'termDate'])->newestOrSorted()->limit(5)->get()
             : null;
 
         if ($ensembles->isEmpty()) {
-            return view('dashboard.index', compact('page_name', 'ensembles', 'instrumentFamilies', 'attendanceUpdates', 'notifications'));
+            return view('dashboard.index', compact('page_name', 'ensembles', 'instrumentFamilies', 'attendanceUpdates', 'notifications', 'managementCards'));
         }
 
         $setupGroup = config('app.readererer_setup_groups') ? $user->setup_group : null;
@@ -88,6 +94,21 @@ class DashboardController extends Controller
             'drivesTheVan',
             'attendanceUpdates',
             'notifications',
+            'managementCards',
         ));
+    }
+
+    private function managementCards(User $user): array
+    {
+        return collect([
+            ['title' => __('Ensembles'), 'icon' => 'users-group', 'route' => 'ensembles.index', 'model' => Ensemble::class],
+            config('app.readererer_setup_groups') ? ['title' => __('Setup groups'), 'icon' => 'truck', 'route' => 'setupgroups.index', 'model' => SetupGroup::class] : null,
+            ['title' => __('Users'), 'icon' => 'user', 'route' => 'users.index', 'model' => User::class],
+            ['title' => __('Terms'), 'icon' => 'calendar', 'route' => 'terms.index', 'model' => Term::class],
+        ])
+            ->filter(fn (?array $card) => $card && $user->can('viewAny', $card['model']))
+            ->map(fn (array $card) => $card + ['count' => $card['model']::count()])
+            ->when($user->can('view.settings'), fn ($cards) => $cards->push(['title' => __('Settings'), 'icon' => 'settings', 'route' => 'settings.edit', 'count' => null]))
+            ->all();
     }
 }
