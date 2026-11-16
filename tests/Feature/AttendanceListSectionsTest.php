@@ -98,3 +98,27 @@ test('the attendance list layout follows the flag for each recipient', function 
     Mail::assertSent(AttendanceListMail::class, fn ($mail) => $mail->hasTo($admin->email) && $mail->content()->markdown === 'emails.attendance-list-sections');
     Mail::assertSent(AttendanceListMail::class, fn ($mail) => $mail->hasTo($moderator->email) && $mail->content()->markdown === 'emails.attendance-list');
 });
+
+test('the attendance list groups each section by instrument family in name order, leaving out empty families', function () {
+    $ensemble = Ensemble::factory()->create();
+    $termDate = TermDate::factory()->create(['term_id' => Term::factory(), 'start_datetime' => now()->addDay(), 'end_datetime' => now()->addDay()->addHours(2)]);
+    make_instrument_family('Oboe');
+
+    foreach ([['Vic Violin', 'Violin', AttendanceStatus::Attending], ['Cal Cello', 'Cello', AttendanceStatus::Attending], ['Dee Depper', 'Cello', AttendanceStatus::Depping], ['Nat Nope', 'Violin', AttendanceStatus::NotAttending]] as [$name, $family, $status]) {
+        [$first, $last] = explode(' ', $name);
+        $member = make_user(UserRole::Member, ['first_name' => $first, 'last_name' => $last]);
+        join_ensemble($member, $ensemble, make_instrument_family($family));
+        Attendance::factory()->create(['user_id' => $member->id, 'term_date_id' => $termDate->id, 'ensemble_id' => $ensemble->id, 'status' => $status, 'dep_name' => $status === AttendanceStatus::Depping ? 'Sub Stitute' : null]);
+    }
+
+    $html = (string) (new AttendanceListMail($termDate))->render();
+
+    expect(section_of($html, 'Attending'))->toMatch('/>Cello<.*Cal Cello.*Dee Depper.*Sub Stitute.*>Violin<.*Vic Violin/s')->not->toContain('Oboe')
+        ->and(section_of($html, 'Not attending'))->toMatch('/>Violin<.*Nat Nope/s')->not->toContain('>Cello<')
+        ->and($html)->not->toContain('Oboe');
+
+    config(['app.readererer_feature_flags' => []]);
+    Feature::flushCache();
+
+    expect((string) (new AttendanceListMail($termDate))->render())->not->toContain('text-transform: uppercase');
+});

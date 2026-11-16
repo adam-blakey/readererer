@@ -4,6 +4,7 @@ namespace App\Mail;
 
 use App\Features\AttendanceListSections;
 use App\Models\Ensemble;
+use App\Models\InstrumentFamily;
 use App\Models\TermDate;
 use App\Models\User;
 use Illuminate\Bus\Queueable;
@@ -34,7 +35,8 @@ class AttendanceListMail extends Mailable
             markdown: Feature::for($this->recipient)->active(AttendanceListSections::class) ? 'emails.attendance-list-sections' : 'emails.attendance-list',
             with: [
                 'termDate' => $this->termDate,
-                'members' => $this->members(),
+                'members' => $members = $this->members(),
+                'families' => InstrumentFamily::whereIn('id', $members->pluck('pivot.instrument_family_id'))->get()->keyBy('id'),
                 'sentAt' => now(),
             ],
         );
