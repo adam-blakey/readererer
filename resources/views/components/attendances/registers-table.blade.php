@@ -7,6 +7,7 @@
 	$seating_plan_ensembles = $ensembles->filter(fn ($ensemble) => $ensemble->seating_plan_enabled);
 	$show_setup_groups = config('app.readererer_setup_groups');
 	$show_van_drivers = config('app.readererer_van_drivers');
+	$single = config('app.readererer_single_ensemble');
 @endphp
 
 <div class="table-responsive">
@@ -45,7 +46,7 @@
 								@foreach ($applicable_ensembles as $ensemble)
 									<x-a class="btn btn-sm" href="{{ route('attendance.poll.show', ['ensemble' => $ensemble, 'term' => $term_date->term]) }}" data-bs-toggle="tooltip" title="{{ __('View poll') }}">
 										<x-icon name="square-check" />
-										{{ $ensemble->short_label }}
+										{{ $single ? __('Poll') : $ensemble->short_label }}
 									</x-a>
 								@endforeach
 							</div>
@@ -65,7 +66,7 @@
 									@endphp
 									<x-a class="btn btn-sm" href="{{ route('attendance.register.show', ['ensemble' => $ensemble, 'termDate' => $term_date]) }}">
 										<x-icon name="list-check" />
-										{{ $ensemble->short_label }}
+										{{ $single ? __('Register') : $ensemble->short_label }}
 										@if ($entries->isNotEmpty())
 											<span class="ms-1 badge bg-green-lt">{{ __(':count present', ['count' => $present]) }}</span>
 										@else
@@ -121,7 +122,7 @@
 							@foreach ($seating_plan_ensembles as $ensemble)
 								<x-a class="btn btn-sm bg-orange text-orange-fg" href="{{ route('ensembles.seating-plan.download', ['ensemble' => $ensemble, 'termDate' => $term_date]) }}" target="_blank">
 									<x-icon name="armchair" />
-									{{ __('Seating plan: :name', ['name' => $ensemble->short_label]) }}
+									{{ $single ? __('Seating plan') : __('Seating plan: :name', ['name' => $ensemble->short_label]) }}
 								</x-a>
 							@endforeach
 						</div>

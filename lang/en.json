@@ -289,6 +289,7 @@
     "Latest date": "Latest date",
     "Latitude": "Latitude",
     "Leave empty to start straight away.": "Leave empty to start straight away.",
+    "Leave unticked for a rehearsal": "Leave unticked for a rehearsal",
     "Leaves dates that have finished out of the poll.": "Leaves dates that have finished out of the poll.",
     "Leaves hidden ensembles out of attendance lists and reminders, so only the admins and members of shown ensembles get or appear in them, and sends nothing for a concert whose ensembles are all hidden. It applies to the whole site, so leave roles and ensembles empty.": "Leaves hidden ensembles out of attendance lists and reminders, so only the admins and members of shown ensembles get or appear in them, and sends nothing for a concert whose ensembles are all hidden. It applies to the whole site, so leave roles and ensembles empty.",
     "Lets members add the site to their home screen, through a web app manifest and a service worker that never caches pages.": "Lets members add the site to their home screen, through a web app manifest and a service worker that never caches pages.",

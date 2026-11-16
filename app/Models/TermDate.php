@@ -103,9 +103,10 @@ class TermDate extends Model
         return $this->concert_ensembles->where('show', true)->pluck('short_label')->join(', ');
     }
 
+    /** A site with a single ensemble need not say who plays the concert. */
     public function getConcertLabelAttribute(): string
     {
-        $names = $this->concert_ensemble_short_names;
+        $names = config('app.readererer_single_ensemble') ? '' : $this->concert_ensemble_short_names;
 
         return $names === '' ? __('Concert') : __('Concert (:ensembles)', ['ensembles' => $names]);
     }
