@@ -559,3 +559,21 @@ test('the date concerned links to the term date overview', function () {
         ->get(route('notifications.index'))
         ->assertSee(route('term-dates.show', $termDate), false);
 });
+
+test('the send button previews the email in a modal only while the setting is on', function () {
+    $termDate = make_notification_term_date();
+    $admin = make_user(UserRole::Admin);
+    $subject = e(__('Attendance list — :name', ['name' => $termDate->name]));
+
+    $this->actingAs($admin)->get(route('term-dates.show', $termDate))
+        ->assertOk()
+        ->assertDontSee('modal-preview-attendance-list-mail');
+
+    config(['app.readererer_email_previews' => true]);
+
+    $this->actingAs($admin)->get(route('term-dates.show', $termDate))
+        ->assertOk()
+        ->assertSee('data-bs-target="#modal-preview-attendance-list-mail"', false)
+        ->assertSee('<h4 class="modal-title" id="modal-preview-attendance-list-mail-title">'.$subject.'</h4>', false)
+        ->assertSee('<iframe sandbox srcdoc="&lt;!DOCTYPE', false);
+});
