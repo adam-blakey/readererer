@@ -24,7 +24,7 @@
 						</td>
 						<td>{{ $log->subject }}</td>
 						<td>
-							@if ($log->termDate && Laravel\Pennant\Feature::active(App\Features\TermDateOverview::class) && Gate::allows('view', $log->termDate))
+							@if ($log->termDate && Gate::allows('view', $log->termDate))
 								<a href="{{ route('term-dates.show', $log->termDate) }}">{{ $log->termDate->name }}</a>
 							@elseif ($log->termDate?->term && auth()->user()?->can('view', $log->termDate->term))
 								<x-a href="{{ route('terms.show', $log->termDate->term) }}#term-date-{{ $log->termDate->id }}">{{ $log->termDate->name }}</x-a>
@@ -55,19 +55,17 @@
 							@empty
 								<span class="text-muted">{{ __('Nobody') }}</span>
 							@endforelse
-							@feature(\App\Features\ResendFailedNotifications::class)
-								@can('send.notifications')
-									@if ($log->recipients->contains('status', \App\Enums\EmailStatus::Failed) && $log->resendableMailable())
-										<form method="POST" action="{{ route('notifications.resend', $log) }}" class="mt-2">
-											@csrf
-											<button type="submit" class="btn btn-sm bg-info text-info-fg">
-												<x-icon name="send" />
-												{{ __('Resend to failed recipients') }}
-											</button>
-										</form>
-									@endif
-								@endcan
-							@endfeature
+							@can('send.notifications')
+								@if ($log->recipients->contains('status', \App\Enums\EmailStatus::Failed) && $log->resendableMailable())
+									<form method="POST" action="{{ route('notifications.resend', $log) }}" class="mt-2">
+										@csrf
+										<button type="submit" class="btn btn-sm bg-info text-info-fg">
+											<x-icon name="send" />
+											{{ __('Resend to failed recipients') }}
+										</button>
+									</form>
+								@endif
+							@endcan
 						</td>
 					</tr>
 				@endforeach

@@ -1,4 +1,4 @@
-@props(['page_name', 'ensembles' => collect(), 'instrumentFamilies' => null, 'setupGroup' => null, 'nextRehearsal' => null, 'nextConcerts' => collect(), 'nextSetup' => null, 'nextVanDrive' => null, 'drivesTheVan' => false, 'attendanceUpdates' => null, 'notifications' => null, 'managementCards' => []])
+@props(['page_name', 'ensembles' => collect(), 'instrumentFamilies' => collect(), 'setupGroup' => null, 'nextRehearsal' => null, 'nextConcerts' => collect(), 'nextSetup' => null, 'nextVanDrive' => null, 'drivesTheVan' => false, 'attendanceUpdates' => null, 'notifications' => null, 'managementCards' => []])
 
 <x-layout>
 	<div class="container-xl">
@@ -37,11 +37,9 @@
 											<div class="card-body p-3">
 												<span class="avatar avatar-xl mb-2" style="background-image: url({{ $ensemble->image_url }})"></span>
 												<div class="fw-medium">{{ $ensemble->name }}</div>
-												@if($instrumentFamilies !== null)
-													<div class="text-muted small">{{ $instrumentFamilies[$ensemble->pivot->instrument_family_id]->name ?? __('No part') }}</div>
-													@if($ensemble->pivot->seat_row !== null && $ensemble->pivot->seat_column !== null)
-														<div class="text-muted small">{{ __('Row :row, seat :seat', ['row' => $ensemble->pivot->seat_row, 'seat' => $ensemble->pivot->seat_column]) }}</div>
-													@endif
+												<div class="text-muted small">{{ $instrumentFamilies[$ensemble->pivot->instrument_family_id]->name ?? __('No part') }}</div>
+												@if($ensemble->pivot->seat_row !== null && $ensemble->pivot->seat_column !== null)
+													<div class="text-muted small">{{ __('Row :row, seat :seat', ['row' => $ensemble->pivot->seat_row, 'seat' => $ensemble->pivot->seat_column]) }}</div>
 												@endif
 											</div>
 										</x-a>

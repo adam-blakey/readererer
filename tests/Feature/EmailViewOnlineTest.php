@@ -4,8 +4,6 @@ use App\Contracts\EmailSender;
 use App\Enums\EmailLinkType;
 use App\Enums\EmailStatus;
 use App\Enums\UserRole;
-use App\Features\ResendFailedNotifications;
-use App\Features\ViewEmailOnline;
 use App\Mail\RosterChangedMail;
 use App\Mail\VanDriverReminderMail;
 use App\Models\EmailLog;
@@ -21,17 +19,10 @@ use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Notification;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
-use Laravel\Pennant\Feature;
 
 beforeEach(function () {
     Storage::fake('local');
 });
-
-function enable_view_online(array $flags = []): void
-{
-    config(['app.readererer_feature_flags' => [ViewEmailOnline::class => ['enabled' => true], ...$flags]]);
-    Feature::flushCache();
-}
 
 /** Sends through an EmailSender that keeps the HTML it was given, so tests can read the email as sent. */
 function capture_sent_html(): ArrayObject
@@ -57,8 +48,7 @@ function send_roster_email(User ...$recipients): EmailLog
     return app(EmailDispatcher::class)->send($termDate, collect($recipients), fn () => new RosterChangedMail($termDate, ['The van driver changed.']));
 }
 
-test('with the flag on, each recipient gets a view online link to a stored copy of their email', function () {
-    enable_view_online();
+test('each recipient gets a view online link to a stored copy of their email', function () {
     $sent = capture_sent_html();
     $first = make_user();
     $second = make_user();
@@ -84,7 +74,6 @@ test('with the flag on, each recipient gets a view online link to a stored copy 
 });
 
 test('the stored copy is the sent email without its own view online link', function () {
-    enable_view_online();
     $sent = capture_sent_html();
     $member = make_user();
 
@@ -100,7 +89,6 @@ test('the stored copy is the sent email without its own view online link', funct
 });
 
 test('the view online page has a policy that runs no scripts and allows the email images', function () {
-    enable_view_online();
     send_roster_email(make_user());
 
     $policy = $this->get(route('emails.show', EmailRecipient::sole()->view_uuid))->headers->get('Content-Security-Policy');
@@ -111,31 +99,7 @@ test('the view online page has a policy that runs no scripts and allows the emai
         ->not->toContain('script-src');
 });
 
-test('with the flag off, no copy is kept and the email has no view online link', function () {
-    $sent = capture_sent_html();
-    $member = make_user();
-
-    send_roster_email($member);
-
-    expect(EmailRecipient::sole()->view_uuid)->toBeNull()
-        ->and(Storage::disk('local')->allFiles())->toBe([])
-        ->and($sent[$member->id])->not->toContain(__('View online'));
-});
-
-test('the flag follows the recipient, so it can be rolled out to some roles', function () {
-    enable_view_online([ViewEmailOnline::class => ['enabled' => true, 'roles' => [UserRole::Admin->value]]]);
-    capture_sent_html();
-    $admin = make_user(UserRole::Admin);
-    $member = make_user();
-
-    send_roster_email($admin, $member);
-
-    expect(EmailRecipient::where('user_id', $admin->id)->sole()->view_uuid)->not->toBeNull()
-        ->and(EmailRecipient::where('user_id', $member->id)->sole()->view_uuid)->toBeNull();
-});
-
 test('a recipient the email failed to reach gets no stored copy', function () {
-    enable_view_online();
     app()->bind(EmailSender::class, fn () => new class implements EmailSender
     {
         public function send(User $recipient, Mailable $mailable): void
@@ -151,7 +115,6 @@ test('a recipient the email failed to reach gets no stored copy', function () {
 });
 
 test('the log sender writes the view online link into the logged email', function () {
-    enable_view_online();
     app()->bind(EmailSender::class, LogEmailSender::class);
     Log::spy();
     Log::shouldReceive('channel')->with('emails')->andReturnSelf();
@@ -165,7 +128,6 @@ test('the log sender writes the view online link into the logged email', functio
 test('a resent email gets a fresh stored copy', function () {
     Mail::fake();
     config(['app.readererer_van_drivers' => true]);
-    enable_view_online([ResendFailedNotifications::class => ['enabled' => true]]);
     $driver = make_user();
     $termDate = make_term_date();
     $termDate->forceFill(['van_driver_id' => $driver->id])->save();
@@ -188,7 +150,6 @@ test('an unknown or malformed id is not found', function (string $id) {
 ]);
 
 test('a copy whose file has gone is not found', function () {
-    enable_view_online();
     send_roster_email(make_user());
     $uuid = EmailRecipient::sole()->view_uuid;
     Storage::disk('local')->delete('emails/'.$uuid.'.html');
@@ -197,7 +158,6 @@ test('a copy whose file has gone is not found', function () {
 });
 
 test('the view online page is public and rate limited', function () {
-    enable_view_online();
     send_roster_email(make_user());
     $url = route('emails.show', EmailRecipient::sole()->view_uuid);
 
@@ -209,7 +169,6 @@ test('the view online page is public and rate limited', function () {
 });
 
 test('copies older than the retention period are deleted by the schedule', function () {
-    enable_view_online();
     send_roster_email(make_user());
     send_roster_email(make_user());
     [$old, $recent] = EmailRecipient::orderBy('id')->get();
@@ -225,7 +184,6 @@ test('copies older than the retention period are deleted by the schedule', funct
 });
 
 test('erasing a user deletes their copies and every copy that names them', function () {
-    enable_view_online();
     capture_sent_html();
     $user = make_user(UserRole::Member, ['first_name' => 'Ophelia', 'last_name' => "O'Hara"]);
     $other = make_user();
@@ -245,7 +203,6 @@ test('erasing a user deletes their copies and every copy that names them', funct
 });
 
 test('password reset and login link emails have no view online link and are not kept', function (EmailLinkType $type) {
-    enable_view_online();
     $user = make_user();
 
     $html = (string) (new EmailLink($type, 'token'))->toMail($user)->render();
@@ -256,7 +213,6 @@ test('password reset and login link emails have no view online link and are not 
 })->with([EmailLinkType::ResetPassword, EmailLinkType::LoginLink]);
 
 test('sending a login link stores nothing', function () {
-    enable_view_online();
     Notification::fake();
 
     EmailLinkType::LoginLink->send(make_user()->email);

@@ -2,18 +2,14 @@
 
 namespace App\Http\Controllers;
 
-use App\Features\TermDateOverview;
 use App\Models\Attendance;
 use App\Models\Ensemble;
 use App\Models\TermDate;
-use Laravel\Pennant\Feature;
 
 class TermDateController extends Controller
 {
     public function show(TermDate $termDate)
     {
-        abort_unless(Feature::active(TermDateOverview::class), 404);
-
         $termDate->load(['term', 'concert_ensembles', 'setup_group.members', 'setup_group.van_drivers', 'email_logs.recipients']);
 
         $ensembles = Ensemble::shown()->orderBy('name')

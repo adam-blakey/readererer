@@ -14,7 +14,7 @@ use Tests\TestCase;
 uses(
     TestCase::class,
     RefreshDatabase::class,
-)->in('Feature', 'Unit');
+)->beforeEach(fn () => $this->withSession(['auth.password_confirmed_at' => time()]))->in('Feature', 'Unit');
 
 // Browser tests drive a real browser, so they need the built assets (`npm run build`).
 uses(

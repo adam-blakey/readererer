@@ -2,8 +2,6 @@
 
 use App\Enums\EmailLinkType;
 use App\Enums\UserRole;
-use App\Features\AdminPasswordChange;
-use App\Features\ConfirmPasswordForSensitiveChanges;
 use App\Notifications\EmailLink;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
@@ -11,7 +9,6 @@ use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Notification;
 use Illuminate\Support\Facades\Password;
 use Illuminate\Support\Str;
-use Laravel\Pennant\Feature;
 
 test('an admin can email a user a password reset link', function () {
     Notification::fake();
@@ -81,37 +78,19 @@ test('admins cannot reset their own password from the user page', function () {
     $this->actingAs($admin)->put(route('users.password', $admin), ['password' => 'a-new-Password-123', 'password_confirmation' => 'a-new-Password-123'])->assertForbidden();
 });
 
-test('the reset password button only shows to admins', function () {
-    $user = make_user(UserRole::Member);
-
-    $this->actingAs(make_user(UserRole::Admin))->get(route('users.show', $user))->assertSee('modal-reset-password');
-    $this->actingAs(make_user(UserRole::Moderator))->get(route('users.show', $user))->assertDontSee('modal-reset-password');
-});
-
 test('an admin cannot email a shared ensemble login a reset link', function () {
     Notification::fake();
     $shared = make_user(UserRole::Ensemble);
     $admin = make_user(UserRole::Admin);
 
     $this->actingAs($admin)->get(route('users.show', $shared))
-        ->assertSee('Shared ensemble logins cannot reset their password by email.')
         ->assertDontSee(route('users.password-reset-link', $shared));
 
     $this->actingAs($admin)->post(route('users.password-reset-link', $shared))->assertSessionHasErrors('reset_link');
     Notification::assertNothingSent();
 });
 
-function enable_admin_password_change(bool $confirmPassword = false): void
-{
-    config(['app.readererer_feature_flags' => [
-        AdminPasswordChange::class => ['enabled' => true],
-        ConfirmPasswordForSensitiveChanges::class => ['enabled' => $confirmPassword],
-    ]]);
-    Feature::flushCache();
-}
-
 test('who may set a user\'s password or send them a reset link', function (UserRole $actor, UserRole $target, bool $allowed) {
-    enable_admin_password_change();
     Notification::fake();
     $user = make_user($target);
     $actingUser = make_user($actor);
@@ -133,28 +112,16 @@ test('who may set a user\'s password or send them a reset link', function (UserR
 ]);
 
 test('nobody may set their own password from the user page', function (UserRole $role) {
-    enable_admin_password_change();
     $user = make_user($role);
 
     $this->actingAs($user)->get(route('users.password.edit', $user))->assertForbidden();
 })->with([UserRole::Member, UserRole::Moderator, UserRole::Admin]);
 
-test('the set password page is not found while the flag is off', function () {
-    $this->actingAs(make_user(UserRole::Admin))->get(route('users.password.edit', make_user()))->assertNotFound();
-});
-
-test('the user page shows the password buttons only with the flag on', function () {
+test('the user page shows the password buttons to admins only', function () {
     $user = make_user();
     $admin = make_user(UserRole::Admin);
 
     $this->actingAs($admin)->get(route('users.show', $user))
-        ->assertSee('modal-reset-password')
-        ->assertDontSee('href="'.route('users.password.edit', $user).'"', false);
-
-    enable_admin_password_change();
-
-    $this->actingAs($admin)->get(route('users.show', $user))
-        ->assertDontSee('modal-reset-password')
         ->assertSee(route('users.password-reset-link', $user))
         ->assertSee('href="'.route('users.password.edit', $user).'"', false);
     $this->actingAs(make_user(UserRole::Moderator))->get(route('users.show', $user))
@@ -163,7 +130,6 @@ test('the user page shows the password buttons only with the flag on', function 
 });
 
 test('a shared ensemble login gets no reset email button but can have its password set', function () {
-    enable_admin_password_change();
     $shared = make_user(UserRole::Ensemble);
     $admin = make_user(UserRole::Admin);
 
@@ -181,7 +147,6 @@ test('a shared ensemble login gets no reset email button but can have its passwo
 });
 
 test('a user given a password is held on the change password page', function () {
-    enable_admin_password_change();
     $user = make_user();
 
     $this->actingAs(make_user(UserRole::Admin))->get(route('users.password.edit', $user))->assertSee('checked');
@@ -203,6 +168,7 @@ test('setting a password logs the user out everywhere', function () {
     $token = $user->remember_token;
 
     $this->actingAs(make_user(UserRole::Admin))
+        ->withSession(['auth.password_confirmed_at' => time()])
         ->put(route('users.password', $user), ['password' => 'a-new-Password-123', 'password_confirmation' => 'a-new-Password-123']);
 
     expect(DB::table('sessions')->where('user_id', $user->id)->exists())->toBeFalse()
@@ -210,11 +176,11 @@ test('setting a password logs the user out everywhere', function () {
         ->and($user->fresh()->remember_token)->not->toBe($token);
 });
 
-test('setting a user\'s password asks for the password when that flag is on', function () {
-    enable_admin_password_change(confirmPassword: true);
+test('setting a user\'s password asks for the password', function () {
     $user = make_user();
     $password = $user->password;
     $admin = make_user(UserRole::Admin);
+    $this->withSession(['auth.password_confirmed_at' => 0]);
 
     $this->actingAs($admin)->get(route('users.password.edit', $user))->assertRedirect(route('password.confirm'));
     $this->actingAs($admin)

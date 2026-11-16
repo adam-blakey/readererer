@@ -2,12 +2,10 @@
 
 namespace App\Http\Controllers;
 
-use App\Features\ResendFailedNotifications;
 use App\Models\EmailLog;
 use App\Models\User;
 use App\Services\EmailDispatcher;
 use Illuminate\Http\RedirectResponse;
-use Laravel\Pennant\Feature;
 
 class NotificationController extends Controller
 {
@@ -27,8 +25,6 @@ class NotificationController extends Controller
     /** Resend a logged email to the recipients it failed to reach, as a new log. */
     public function resend(EmailLog $emailLog, EmailDispatcher $dispatcher): RedirectResponse
     {
-        abort_unless(Feature::active(ResendFailedNotifications::class), 404);
-
         $recipients = User::whereIn('id', $emailLog->failedRecipients()->pluck('user_id'))
             ->whereNotNull('email')
             ->get();

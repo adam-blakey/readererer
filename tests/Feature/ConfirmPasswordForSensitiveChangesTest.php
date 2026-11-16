@@ -1,31 +1,17 @@
 <?php
 
 use App\Enums\UserRole;
-use App\Features\ConfirmPasswordForSensitiveChanges;
-use Laravel\Pennant\Feature;
 
-function enable_password_confirmation(): void
-{
-    config(['app.readererer_feature_flags' => [ConfirmPasswordForSensitiveChanges::class => ['enabled' => true]]]);
-    Feature::flushCache();
-}
+beforeEach(fn () => $this->withSession(['auth.password_confirmed_at' => 0]));
 
-test('sensitive pages ask for the password when the flag is on', function (string $route) {
-    enable_password_confirmation();
+test('sensitive pages ask for the password', function (string $route) {
 
     $this->actingAs(make_user(UserRole::Admin))
         ->get(route($route))
         ->assertRedirect(route('password.confirm'));
 })->with(['settings.edit', 'settings.import', 'feature-flags.edit']);
 
-test('sensitive pages open without asking when the flag is off', function () {
-    $this->actingAs(make_user(UserRole::Admin))
-        ->get(route('settings.edit'))
-        ->assertOk();
-});
-
 test('sensitive pages open once the password has been confirmed', function () {
-    enable_password_confirmation();
 
     $this->actingAs(make_user(UserRole::Admin))
         ->withSession(['auth.password_confirmed_at' => time()])
@@ -34,7 +20,6 @@ test('sensitive pages open once the password has been confirmed', function () {
 });
 
 test('confirming the password returns to the page that asked for it', function () {
-    enable_password_confirmation();
     $admin = make_user(UserRole::Admin);
 
     $this->actingAs($admin)->get(route('feature-flags.edit'));
@@ -45,7 +30,6 @@ test('confirming the password returns to the page that asked for it', function (
 });
 
 test('editing a user asks a moderator for the password', function () {
-    enable_password_confirmation();
 
     $this->actingAs(make_user(UserRole::Moderator))
         ->get(route('users.edit', make_user()))
@@ -53,7 +37,6 @@ test('editing a user asks a moderator for the password', function () {
 });
 
 test('members editing their own profile are not asked for the password', function () {
-    enable_password_confirmation();
     $member = make_user();
 
     $this->actingAs($member)
@@ -62,7 +45,6 @@ test('members editing their own profile are not asked for the password', functio
 });
 
 test('erasing a user asks for the password', function () {
-    enable_password_confirmation();
     $user = make_user();
 
     $this->actingAs(make_user(UserRole::Admin))

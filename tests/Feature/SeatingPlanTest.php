@@ -3,14 +3,12 @@
 use App\Enums\AttendanceStatus;
 use App\Enums\Color;
 use App\Enums\UserRole;
-use App\Features\SeatingPlanPdfOptions;
 use App\Models\Attendance;
 use App\Models\Ensemble;
 use App\Models\InstrumentFamily;
 use App\Models\Term;
 use App\Models\TermDate;
 use App\Models\User;
-use Laravel\Pennant\Feature;
 
 test('the seating plan page requires permission to update the ensemble', function () {
     $ensemble = Ensemble::factory()->create();
@@ -294,12 +292,6 @@ function render_seating_plan_pdf(Ensemble $ensemble, ?TermDate $termDate): strin
     ])->render();
 }
 
-function enable_seating_plan_pdf_options(): void
-{
-    config(['app.readererer_feature_flags' => [SeatingPlanPdfOptions::class => ['enabled' => true]]]);
-    Feature::flushCache();
-}
-
 function seating_plan_reply(User $user, Ensemble $ensemble, TermDate $termDate, AttendanceStatus $status, ?string $depName = null): void
 {
     Attendance::create([
@@ -321,19 +313,10 @@ test('the seating plan pdf row headers use the primary colour', function () {
     expect(render_seating_plan_pdf($ensemble, make_term_date()))->toContain('background-color: '.Color::Purple->hex());
 });
 
-test('the generic seating plan pdf downloads only with the feature flag', function () {
+test('the generic seating plan pdf downloads', function () {
     $ensemble = Ensemble::factory()->create();
     join_ensemble(make_user(UserRole::Member, ['image' => null]), $ensemble, null, 'A', 1);
     $admin = make_user(UserRole::Admin);
-
-    $this->actingAs($admin)
-        ->get(route('ensembles.seating-plan.show', $ensemble))
-        ->assertDontSee(route('ensembles.seating-plan.download-generic', $ensemble));
-    $this->actingAs($admin)
-        ->get(route('ensembles.seating-plan.download-generic', $ensemble))
-        ->assertStatus(400);
-
-    enable_seating_plan_pdf_options();
 
     $this->actingAs($admin)
         ->get(route('ensembles.seating-plan.show', $ensemble))
@@ -345,7 +328,6 @@ test('the generic seating plan pdf downloads only with the feature flag', functi
 });
 
 test('the generic seating plan pdf is forbidden without permission to view the ensemble', function () {
-    enable_seating_plan_pdf_options();
 
     $this->actingAs(make_user(UserRole::Member))
         ->get(route('ensembles.seating-plan.download-generic', Ensemble::factory()->create()))
@@ -363,14 +345,10 @@ test('the generic seating plan pdf shows no attendance', function () {
         ->not->toContain('<s ')->not->toContain('Not attending')->not->toContain('Attendees');
 });
 
-test('seating plan pdfs shorten surnames when the setting and feature flag are on', function () {
+test('seating plan pdfs shorten surnames when the setting is on', function () {
     config(['app.readererer_abbreviate_surnames' => true]);
     $ensemble = Ensemble::factory()->create();
     join_ensemble(make_user(UserRole::Member, ['first_name' => 'Adam', 'last_name' => 'Blakey']), $ensemble, null, 'A', 1);
-
-    expect(render_seating_plan_pdf($ensemble, null))->toContain('Adam Blakey');
-
-    enable_seating_plan_pdf_options();
 
     expect(render_seating_plan_pdf($ensemble, null))->toContain('Adam B')->not->toContain('Adam Blakey');
 });
@@ -383,15 +361,10 @@ test('the seating plan pdf shows a dep above the member they replace', function 
     join_ensemble($member, $ensemble, null, 'A', 1);
     seating_plan_reply($member, $ensemble, $termDate, AttendanceStatus::Depping, 'Charles Babbage');
 
-    expect(render_seating_plan_pdf($ensemble, $termDate))->toContain('Charles Babbage (dep for Ada Lovelace)');
-
-    enable_seating_plan_pdf_options();
-
     expect(render_seating_plan_pdf($ensemble, $termDate))->toMatch('/<div>Charles Babbage<\/div>\s*<div [^>]*>Dep for Ada Lovelace<\/div>/');
 });
 
 test('the seating plan pdf shows a dep as the member attending while depping is off', function () {
-    enable_seating_plan_pdf_options();
     $ensemble = Ensemble::factory()->create();
     $termDate = make_term_date();
     $member = make_user(UserRole::Member, ['first_name' => 'Ada', 'last_name' => 'Lovelace']);
