@@ -98,9 +98,14 @@ class TermDate extends Model
         return $this->concert_ensembles->where('show', true)->pluck('name')->join(', ');
     }
 
+    public function getConcertEnsembleShortNamesAttribute(): string
+    {
+        return $this->concert_ensembles->where('show', true)->pluck('short_label')->join(', ');
+    }
+
     public function getConcertLabelAttribute(): string
     {
-        $names = $this->concert_ensemble_names;
+        $names = $this->concert_ensemble_short_names;
 
         return $names === '' ? __('Concert') : __('Concert (:ensembles)', ['ensembles' => $names]);
     }

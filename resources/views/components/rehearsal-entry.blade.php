@@ -20,7 +20,7 @@
             <div class="mt-2 btn-list">
                 @foreach ($linked_ensembles as $ensemble)
                     @php
-                        $suffix = $name_the_ensemble ? ': ' . $ensemble->name : '';
+                        $suffix = $name_the_ensemble ? ': ' . $ensemble->short_label : '';
                     @endphp
                     <x-a class="btn btn-sm" href="{{ route('attendance.poll.show', ['ensemble' => $ensemble, 'term' => $term_date->term]) }}">
                         <x-icon name="square-check" />

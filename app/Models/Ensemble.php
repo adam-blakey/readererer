@@ -2,9 +2,12 @@
 
 namespace App\Models;
 
+use App\Attributes\Icon;
 use App\Enums\UserRole;
+use App\Features\EnsembleShortNames;
 use App\Features\HiddenEnsemblesGetNoEmails;
 use App\Traits\HasImage;
+use App\Traits\HasPropertyIcons;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Barryvdh\DomPDF\PDF as SeatingPlanPdf;
 use Illuminate\Database\Eloquent\Attributes\Scope;
@@ -16,16 +19,19 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 use Laravel\Pennant\Feature;
 use SDamian\Larasort\AutoSortable;
 
+#[Icon('abc', for: 'short_name')]
 class Ensemble extends Model
 {
     use AutoSortable;
     use HasFactory;
     use HasImage;
+    use HasPropertyIcons;
     use SoftDeletes;
 
     protected $visible = [
         'image',
         'name',
+        'short_name',
         'slug',
         'show',
         'admins',
@@ -40,6 +46,7 @@ class Ensemble extends Model
 
     public array $sortables = [
         'name',
+        'short_name',
         'slug',
         'show',
         'created_at',
@@ -48,6 +55,7 @@ class Ensemble extends Model
 
     protected $fillable = [
         'name',
+        'short_name',
         'admins',
     ];
 
@@ -63,6 +71,12 @@ class Ensemble extends Model
             'created_at' => 'datetime',
             'updated_at' => 'datetime',
         ];
+    }
+
+    /** The name for tight places such as tables: the short name while that flag is on, falling back to the full name. */
+    public function getShortLabelAttribute(): string
+    {
+        return Feature::active(EnsembleShortNames::class) ? ($this->short_name ?? $this->name) : $this->name;
     }
 
     /** Hidden ensembles are left out of listings; the ensembles list and their own pages still show them. */

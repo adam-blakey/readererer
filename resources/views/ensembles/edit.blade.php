@@ -21,7 +21,7 @@
 
 	<div class="page-body">
 		<div class="container-xl">
-			<x-forms.error-summary :fields="['name', 'admins']" />
+			<x-forms.error-summary :fields="['name', 'short_name', 'admins']" />
 
 			<div class="row g-3">
 				<div class="col-lg-6">
@@ -44,6 +44,14 @@
 											<label class="form-label" for="name">{{ __('Name') }}</label>
 											<input class="form-control @error('name') is-invalid @enderror" id="name" name="name" placeholder="{{ __('Ensemble name') }}" type="text" value="{{ old('name', $ensemble->name) }}">
 											@error('name')
+												<x-forms.input-error :messages="$message" />
+											@enderror
+										</div>
+										<div class="mb-3">
+											<label class="form-label" for="short_name">{{ __('Short name') }}</label>
+											<input class="form-control @error('short_name') is-invalid @enderror" id="short_name" maxlength="20" name="short_name" placeholder="{{ __('An acronym, for example') }}" type="text" value="{{ old('short_name', $ensemble->short_name) }}">
+											<div class="form-hint">{{ __('Used in tight places such as tables. Leave it empty to use the full name.') }}</div>
+											@error('short_name')
 												<x-forms.input-error :messages="$message" />
 											@enderror
 										</div>
