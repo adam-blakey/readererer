@@ -24,6 +24,12 @@
                         <span class="list-inline-item"><span class="badge bg-blue text-blue-fg">{{ __("You're a member!") }}</span></span>
                     @endif
                 </div>
+                @if ($membership?->instrumentFamily)
+                    <div class="mt-1 text-muted">{{ $membership->instrumentFamily->name }}</div>
+                @endif
+                @if (filled($membership?->seat_row) && filled($membership?->seat_column))
+                    <div class="mt-1 text-muted">{{ __('Row :row, seat :seat', ['row' => $membership->seat_row, 'seat' => $membership->seat_column]) }}</div>
+                @endif
             </div>
             @if ($canManage)
                 <div class="col-auto ms-auto">
