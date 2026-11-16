@@ -23,6 +23,8 @@ class StoreSetupGroupRequest extends FormRequest
             'color' => ['required', new Enum(Color::class)],
             'van_drivers' => ['nullable', 'array'],
             'van_drivers.*' => ['exists:users,id'],
+            'members' => ['nullable', 'array'],
+            'members.*' => ['exists:users,id'],
         ];
     }
 }
