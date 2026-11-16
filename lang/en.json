@@ -321,6 +321,8 @@
     "Mailable args": "Mailable args",
     "Mailable class": "Mailable class",
     "Make them choose a new password when they next log in": "Make them choose a new password when they next log in",
+    "Manage": "Manage",
+    "Management cards on the dashboard": "Management cards on the dashboard",
     "Map": "Map",
     "Map of :name": "Map of :name",
     "Marked by user id": "Marked by user id",
@@ -585,6 +587,7 @@
     "Shown in browser tabs. A square PNG works best.": "Shown in browser tabs. A square PNG works best.",
     "Shown in page titles and as the sender of emails.": "Shown in page titles and as the sender of emails.",
     "Shows each ensemble's short name, where it has one, in tables and badges such as the term dates and registers.": "Shows each ensemble's short name, where it has one, in tables and badges such as the term dates and registers.",
+    "Shows a row of cards at the top of the dashboard linking to ensembles, setup groups, users, terms and settings for those who can manage them.": "Shows a row of cards at the top of the dashboard linking to ensembles, setup groups, users, terms and settings for those who can manage them.",
     "Shows each member's part and seat position under their ensembles on the dashboard.": "Shows each member's part and seat position under their ensembles on the dashboard.",
     "Shows setup groups, their badges and setup reminders. Turning this off hides them but keeps their data.": "Shows setup groups, their badges and setup reminders. Turning this off hides them but keeps their data.",
     "Shows van drivers and van driver reminders. Turning this off hides them but keeps their data.": "Shows van drivers and van driver reminders. Turning this off hides them but keeps their data.",
@@ -791,7 +794,8 @@
     "Your next concerts": "Your next concerts",
     "Your password": "Your password",
     "Your password has been changed.": "Your password has been changed.",
-    "Your rehearsals, concerts, setup duties and van drives will appear here once an administrator adds you to an ensemble.": "Your rehearsals, concerts, setup duties and van drives will appear here once an administrator adds you to an ensemble.",
+    "Your rehearsals and concerts will appear here once you've been added to an ensemble.": "Your rehearsals and concerts will appear here once you've been added to an ensemble.",
+    "Your rehearsals, concerts, and setup groups will appear here once you've been added to an ensemble.": "Your rehearsals, concerts, and setup groups will appear here once you've been added to an ensemble.",
     "Your setup group": "Your setup group",
     "Your username": "Your username"
 }
