@@ -203,14 +203,11 @@ test('the attendance list shows members with no reply as attending when attendin
     config(['app.readererer_assume_attending' => true]);
     $html = render_attendance_list($termDate);
 
-    expect($html)->toMatch('/Silent Sam<\/td>\s*<td[^>]*>\s*Attending/')
-        ->toMatch('/Absent Abby<\/td>\s*<td[^>]*>\s*Not attending/')
-        ->not->toContain('No response yet')
+    expect($html)->toMatch('/>Attending \(1\)<\/h2>.*Silent Sam.*>Not attending \(1\)<\/h2>.*Absent Abby/s')
         ->not->toContain('Not yet responded');
 
     config(['app.readererer_assume_attending' => false]);
     $html = render_attendance_list($termDate);
 
-    expect($html)->toMatch('/Silent Sam<\/td>\s*<td[^>]*>\s*No response yet/')
-        ->toContain('Not yet responded');
+    expect($html)->toMatch('/>Not yet responded \(1\)<\/h2>.*Silent Sam/s');
 });

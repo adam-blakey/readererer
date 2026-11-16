@@ -3,8 +3,6 @@
 namespace App\Http\Controllers;
 
 use App\Enums\UserRole;
-use App\Features\DashboardAdminCards;
-use App\Features\DashboardPartAndSeat;
 use App\Models\Attendance;
 use App\Models\EmailLog;
 use App\Models\Ensemble;
@@ -16,7 +14,6 @@ use App\Models\User;
 use App\Traits\ShowEnsemble;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Auth;
-use Laravel\Pennant\Feature;
 
 class DashboardController extends Controller
 {
@@ -38,10 +35,8 @@ class DashboardController extends Controller
         $attendanceUpdates = $user->can('viewAny', Attendance::class)
             ? Attendance::latestUpdates()->limit(5)->get()
             : null;
-        $instrumentFamilies = Feature::active(DashboardPartAndSeat::class)
-            ? InstrumentFamily::whereIn('id', $ensembles->pluck('pivot.instrument_family_id')->filter())->get()->keyBy('id')
-            : null;
-        $managementCards = Feature::active(DashboardAdminCards::class) ? $this->managementCards($user) : [];
+        $instrumentFamilies = InstrumentFamily::whereIn('id', $ensembles->pluck('pivot.instrument_family_id')->filter())->get()->keyBy('id');
+        $managementCards = $this->managementCards($user);
         $notifications = $user->can('view.notifications')
             ? EmailLog::with(['recipients', 'termDate'])->newestOrSorted()->limit(5)->get()
             : null;

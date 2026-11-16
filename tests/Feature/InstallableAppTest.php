@@ -1,21 +1,6 @@
 <?php
 
-use App\Features\InstallableApp;
-use Laravel\Pennant\Feature;
-
-function enable_installable_app(): void
-{
-    config(['app.readererer_feature_flags' => [InstallableApp::class => ['enabled' => true]]]);
-    Feature::flushCache();
-}
-
-test('the manifest is a 404 and the layout links nothing while the flag is off', function () {
-    $this->get('/manifest.webmanifest')->assertNotFound();
-    $this->get('/login')->assertOk()->assertDontSee('rel="manifest"', false)->assertDontSee('serviceWorker', false);
-});
-
-test('the manifest describes the site when the flag is on', function () {
-    enable_installable_app();
+test('the manifest describes the site', function () {
     config(['app.name' => 'Test Orchestra', 'app.readererer_primary_color' => 'blue']);
 
     $this->get('/manifest.webmanifest')
@@ -29,8 +14,7 @@ test('the manifest describes the site when the flag is on', function () {
         ]);
 });
 
-test('the layout links the manifest and registers the worker when the flag is on', function () {
-    enable_installable_app();
+test('the layout links the manifest and registers the worker', function () {
 
     $response = $this->get('/login')->assertOk()
         ->assertSee('rel="manifest"', false)

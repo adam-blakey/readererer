@@ -4,14 +4,12 @@ namespace App\Models;
 
 use App\Attributes\Icon;
 use App\Enums\Color;
-use App\Features\SetupGroupUsers;
 use App\Traits\HasPropertyIcons;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
-use Laravel\Pennant\Feature;
 use SDamian\Larasort\AutoSortable;
 
 #[Icon('arrow-badge-right', for: 'name')]
@@ -63,7 +61,7 @@ class SetupGroup extends Model
     {
         $visible = config('app.readererer_van_drivers') ? $this->visible : array_values(array_diff($this->visible, ['van_drivers']));
 
-        return Feature::active(SetupGroupUsers::class) ? [...$visible, 'members'] : $visible;
+        return [...$visible, 'members'];
     }
 
     public function getLabelAttribute(): string

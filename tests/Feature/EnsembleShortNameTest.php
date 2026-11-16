@@ -1,9 +1,7 @@
 <?php
 
 use App\Enums\UserRole;
-use App\Features\EnsembleShortNames;
 use App\Models\Ensemble;
-use Laravel\Pennant\Feature;
 
 function update_ensemble(Ensemble $ensemble, array $attributes)
 {
@@ -52,16 +50,11 @@ test('a name cannot match another ensemble\'s short name', function () {
     $this->actingAs(make_user(UserRole::Admin))->post(route('ensembles.store'), ['name' => 'SWB'])->assertSessionHasErrors('name');
 });
 
-test('tables use short names only while the flag is on, falling back to the full name', function (bool $flag, string $label) {
-    config(['app.readererer_feature_flags' => [EnsembleShortNames::class => ['enabled' => $flag]]]);
-    Feature::flushCache();
+test('tables use short names, falling back to the full name', function () {
     $termDate = make_term_date(null,
         Ensemble::factory()->create(['name' => 'Symphonic Wind Band', 'short_name' => 'SWB']),
         Ensemble::factory()->create(['name' => 'Brass']),
     );
 
-    $this->actingAs(make_user(UserRole::Admin))->get(route('terms.show', $termDate->term))->assertSee($label);
-})->with([
-    'on' => [true, 'Concert (Brass, SWB)'],
-    'off' => [false, 'Concert (Brass, Symphonic Wind Band)'],
-]);
+    $this->actingAs(make_user(UserRole::Admin))->get(route('terms.show', $termDate->term))->assertSee('Concert (Brass, SWB)');
+});

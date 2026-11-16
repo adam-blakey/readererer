@@ -2,13 +2,11 @@
 
 namespace App\Traits;
 
-use App\Features\ImageScaling;
 use App\Http\Middleware\AddSecurityHeaders;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Vite;
 use Illuminate\Support\Str;
-use Laravel\Pennant\Feature;
 
 // `image` holds either an external URL or the path of an upload on the public disk.
 trait HasImage
@@ -52,7 +50,7 @@ trait HasImage
         $max_side = 1600;
         $type = $file->getMimeType();
 
-        if (! Feature::active(ImageScaling::class) || ! in_array($type, ['image/jpeg', 'image/png', 'image/webp'])) {
+        if (! in_array($type, ['image/jpeg', 'image/png', 'image/webp'])) {
             return null;
         }
 

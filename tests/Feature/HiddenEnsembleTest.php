@@ -2,8 +2,6 @@
 
 use App\Enums\AttendanceStatus;
 use App\Enums\UserRole;
-use App\Features\HiddenEnsemblesGetNoEmails;
-use App\Features\TermDateOverview;
 use App\Mail\AttendanceChangedMail;
 use App\Mail\AttendanceListMail;
 use App\Models\EmailLog;
@@ -11,13 +9,6 @@ use App\Models\Ensemble;
 use App\Models\SetupGroup;
 use App\Models\TermDate;
 use Illuminate\Support\Facades\Mail;
-use Laravel\Pennant\Feature;
-
-function enable_flags(string ...$flags): void
-{
-    config(['app.readererer_feature_flags' => array_fill_keys($flags, ['enabled' => true])]);
-    Feature::flushCache();
-}
 
 function soon_term_date(Ensemble ...$concertEnsembles): TermDate
 {
@@ -44,7 +35,6 @@ test('the dashboard leaves out a hidden ensemble the user belongs to', function 
 });
 
 test('the term date overview leaves out hidden ensembles, even for admins', function () {
-    enable_flags(TermDateOverview::class);
     $shown = Ensemble::factory()->create(['name' => 'Shown Band']);
     $hidden = Ensemble::factory()->hidden()->create(['name' => 'Hidden Band']);
 
@@ -106,7 +96,6 @@ describe('emails', function () {
     });
 
     test('a rehearsal\'s attendance list leaves out hidden ensembles but keeps members who are also in a shown one', function () {
-        enable_flags(HiddenEnsemblesGetNoEmails::class);
         $both = make_user(UserRole::Member, ['first_name' => 'Bea', 'last_name' => 'Both']);
         $hiddenOnly = make_user(UserRole::Member, ['first_name' => 'Hal', 'last_name' => 'Hidden']);
         join_ensemble($both, $this->shown);
@@ -125,7 +114,6 @@ describe('emails', function () {
     });
 
     test('nothing is sent for a concert whose ensembles are all hidden', function () {
-        enable_flags(HiddenEnsemblesGetNoEmails::class);
         $setupGroup = SetupGroup::factory()->create();
         make_user(UserRole::Member, ['setup_group_id' => $setupGroup->id]);
         $termDate = soon_term_date($this->hidden);
@@ -140,7 +128,6 @@ describe('emails', function () {
     });
 
     test('a changed reply in a hidden ensemble\'s poll sends no follow-up', function () {
-        enable_flags(HiddenEnsemblesGetNoEmails::class);
         config(['app.readererer_after_reminders' => 'follow_up']);
         $member = make_user(UserRole::Member);
         join_ensemble($member, $this->hidden);
@@ -152,13 +139,5 @@ describe('emails', function () {
         );
 
         Mail::assertNotSent(AttendanceChangedMail::class);
-    });
-
-    test('hidden ensembles still get emails while the flag is off', function () {
-        soon_term_date($this->hidden);
-
-        $this->artisan('reminders:send')->assertSuccessful();
-
-        Mail::assertSent(AttendanceListMail::class, fn ($mail) => $mail->hasTo($this->hiddenAdmin->email));
     });
 });

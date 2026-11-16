@@ -31,26 +31,19 @@
                         {{ __('Edit') }}
                     </x-a>
                     @can('resetPassword', $user)
-                        @feature(\App\Features\AdminPasswordChange::class)
-                            @if ($user->role !== App\Enums\UserRole::Ensemble && filled($user->email))
-                                <form method="POST" action="{{ route('users.password-reset-link', $user) }}" data-confirm="{{ __('Email :email a link to choose a new password?', ['email' => $user->email]) }}">
-                                    @csrf
-                                    <button type="submit" class="btn">
-                                        <x-icon name="mail" />
-                                        {{ __('Send reset email') }}
-                                    </button>
-                                </form>
-                            @endif
-                            <x-a class="btn" :route="'users.password.edit'" :user="$user">
-                                <x-icon name="key" />
-                                {{ __('Set password') }}
-                            </x-a>
-                        @else
-                            <a href="#" class="btn" data-bs-toggle="modal" data-bs-target="#modal-reset-password">
-                                <x-icon name="key" />
-                                {{ __('Reset password') }}
-                            </a>
-                        @endfeature
+                        @if ($user->role !== App\Enums\UserRole::Ensemble && filled($user->email))
+                            <form method="POST" action="{{ route('users.password-reset-link', $user) }}" data-confirm="{{ __('Email :email a link to choose a new password?', ['email' => $user->email]) }}">
+                                @csrf
+                                <button type="submit" class="btn">
+                                    <x-icon name="mail" />
+                                    {{ __('Send reset email') }}
+                                </button>
+                            </form>
+                        @endif
+                        <x-a class="btn" :route="'users.password.edit'" :user="$user">
+                            <x-icon name="key" />
+                            {{ __('Set password') }}
+                        </x-a>
                     @endcan
                     @endif
                     @can('erase', $user)
@@ -68,11 +61,9 @@
         @if (session('status'))
             <div class="mt-3 alert alert-success" role="alert">{{ session('status') }}</div>
         @endif
-        @feature(\App\Features\AdminPasswordChange::class)
-            @error('reset_link')
-                <div class="mt-3 alert alert-danger" role="alert">{{ $message }}</div>
-            @enderror
-        @endfeature
+        @error('reset_link')
+            <div class="mt-3 alert alert-danger" role="alert">{{ $message }}</div>
+        @enderror
     </div>
 
 	<div class="page-body">
@@ -208,9 +199,6 @@
 			</div>
 		</div>
 	</div>
-    @if (! $user->trashed() && Gate::allows('resetPassword', $user) && Laravel\Pennant\Feature::inactive(App\Features\AdminPasswordChange::class))
-        <x-modals.reset-password :user="$user" />
-    @endif
     @can('erase', $user)
         <x-modals.erase-user :user="$user" />
     @endcan

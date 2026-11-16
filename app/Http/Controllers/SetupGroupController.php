@@ -2,7 +2,6 @@
 
 namespace App\Http\Controllers;
 
-use App\Features\SetupGroupUsers;
 use App\Http\Requests\StoreSetupGroupRequest;
 use App\Http\Requests\UpdateSetupGroupRequest;
 use App\Models\SetupGroup;
@@ -10,7 +9,6 @@ use App\Models\User;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Arr;
 use Illuminate\View\View;
-use Laravel\Pennant\Feature;
 
 class SetupGroupController extends Controller
 {
@@ -138,10 +136,6 @@ class SetupGroupController extends Controller
 
     private function addMembersField(array &$fields, SetupGroup $setupGroup): void
     {
-        if (! Feature::active(SetupGroupUsers::class)) {
-            return;
-        }
-
         $fields['members'] = [
             'label' => __('Members'),
             'type' => 'class',
@@ -157,10 +151,6 @@ class SetupGroupController extends Controller
 
     private function syncMembers(SetupGroup $setupGroup, array $members): void
     {
-        if (! Feature::active(SetupGroupUsers::class)) {
-            return;
-        }
-
         User::where('setup_group_id', $setupGroup->id)->whereNotIn('id', $members)->update(['setup_group_id' => null]);
         User::whereIn('id', $members)->update(['setup_group_id' => $setupGroup->id]);
     }

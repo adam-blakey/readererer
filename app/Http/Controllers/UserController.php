@@ -4,7 +4,6 @@ namespace App\Http\Controllers;
 
 use App\Enums\EmailLinkType;
 use App\Enums\UserRole;
-use App\Features\AdminPasswordChange;
 use App\Http\Requests\EraseUserRequest;
 use App\Http\Requests\StoreUserRequest;
 use App\Http\Requests\UpdateUserRequest;
@@ -26,7 +25,6 @@ use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use Illuminate\Validation\Rules\Password as PasswordRule;
 use Illuminate\View\View;
-use Laravel\Pennant\Feature;
 use Throwable;
 
 class UserController extends Controller
@@ -273,8 +271,6 @@ class UserController extends Controller
 
     public function editPassword(User $user): View
     {
-        abort_unless(Feature::active(AdminPasswordChange::class), 404);
-
         return view('users.password', [
             'user' => $user,
             'page_name' => __('Set password for :name', ['name' => $user->name]),
