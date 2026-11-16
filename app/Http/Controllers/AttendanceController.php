@@ -178,7 +178,7 @@ class AttendanceController extends Controller
 
         foreach ($changes as $term_date_id => $term_date_changes) {
             $term_date = $term_dates[$term_date_id];
-            $recipients = $term_date->attendanceListRecipients();
+            $recipients = $ensemble->admins->filter(fn (User $admin) => filled($admin->email))->values();
 
             if ($recipients->isNotEmpty() && ! $ensemble->getsNoEmails()) {
                 $dispatcher->send($term_date, $recipients, fn () => new AttendanceChangedMail($term_date, $ensemble, $term_date_changes));
