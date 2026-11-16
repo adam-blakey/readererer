@@ -2,7 +2,6 @@
 
 use App\Enums\EmailStatus;
 use App\Enums\UserRole;
-use App\Features\VanDriverRotaEmails;
 use App\Mail\AttendanceListMail;
 use App\Mail\RosterChangedMail;
 use App\Mail\SetupReminderMail;
@@ -14,7 +13,6 @@ use App\Models\SetupGroup;
 use App\Models\Term;
 use App\Models\TermDate;
 use Illuminate\Support\Facades\Mail;
-use Laravel\Pennant\Feature;
 
 function make_notification_term_date(array $attributes = [], Ensemble ...$concertEnsembles): TermDate
 {
@@ -572,15 +570,8 @@ function make_rota_date(SetupGroup $group, int $weeksAhead, array $attributes = 
     ], $attributes));
 }
 
-function turn_on_van_driver_rota_emails(): void
-{
-    config(['app.readererer_feature_flags' => [VanDriverRotaEmails::class => ['enabled' => true]]]);
-    Feature::flushCache();
-}
-
 test('changing a setup group\'s van drivers sends each affected driver one email with their next three dates', function () {
     Mail::fake();
-    turn_on_van_driver_rota_emails();
 
     $group = SetupGroup::factory()->create();
     $oldDriver = make_user(UserRole::Member);
@@ -602,7 +593,6 @@ test('changing a setup group\'s van drivers sends each affected driver one email
 
 test('saving a setup group without changing who drives sends no rota email', function () {
     Mail::fake();
-    turn_on_van_driver_rota_emails();
 
     $group = SetupGroup::factory()->create();
     $driver = make_user(UserRole::Member);
@@ -616,23 +606,8 @@ test('saving a setup group without changing who drives sends no rota email', fun
     Mail::assertNothingSent();
 });
 
-test('no rota email is sent while its feature flag is off', function () {
-    Mail::fake();
-
-    $group = SetupGroup::factory()->create();
-    $driver = make_user(UserRole::Member);
-    make_rota_date($group, 1);
-
-    $this->actingAs(make_user(UserRole::Admin))
-        ->patch(route('setupgroups.update', $group), ['name' => $group->name, 'color' => $group->color->value, 'van_drivers' => [$driver->id]])
-        ->assertSessionHasNoErrors();
-
-    Mail::assertNothingSent();
-});
-
 test('a date with an assigned driver is left out of rota emails', function () {
     Mail::fake();
-    turn_on_van_driver_rota_emails();
 
     $group = SetupGroup::factory()->create();
     $newDriver = make_user(UserRole::Member);

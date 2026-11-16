@@ -2,12 +2,10 @@
 
 namespace App\Services;
 
-use App\Features\VanDriverRotaEmails;
 use App\Mail\VanDriverDatesChangedMail;
 use App\Models\TermDate;
 use App\Models\User;
 use Illuminate\Support\Collection;
-use Laravel\Pennant\Feature;
 
 class VanDriverRota
 {
@@ -35,7 +33,7 @@ class VanDriverRota
             ->unique();
 
         $recipients = User::findMany($driverIds)
-            ->filter(fn (User $driver) => filled($driver->email) && Feature::for($driver)->active(VanDriverRotaEmails::class))
+            ->filter(fn (User $driver) => filled($driver->email))
             ->values();
 
         if ($recipients->isNotEmpty()) {
