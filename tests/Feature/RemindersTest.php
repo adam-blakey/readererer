@@ -108,11 +108,12 @@ test('a locked poll keeps members from changing replies after the reminder time'
     expect(Attendance::where('term_date_id', $soon->id)->exists())->toBeTrue();
 });
 
-test('changes after the reminder time are emailed to the admins when follow-ups are on', function () {
+test('changes after the reminder time are emailed to that ensemble\'s admins when follow-ups are on', function () {
     config(['app.readererer_after_reminders' => 'follow_up']);
     $ensemble = Ensemble::factory()->create();
     $admin = make_user(UserRole::Member);
     $ensemble->admins()->attach($admin->id);
+    Ensemble::factory()->create()->admins()->attach(make_user(UserRole::Member)->id);
     $member = make_user(UserRole::Member, ['first_name' => 'Ada', 'last_name' => 'Lovelace']);
     join_ensemble($member, $ensemble);
     $soon = make_term_date_in(12);
