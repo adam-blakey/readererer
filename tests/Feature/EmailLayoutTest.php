@@ -5,6 +5,7 @@ use App\Mail\AttendanceChangedMail;
 use App\Mail\AttendanceListMail;
 use App\Mail\RosterChangedMail;
 use App\Mail\SetupReminderMail;
+use App\Mail\VanDriverDatesChangedMail;
 use App\Mail\VanDriverReminderMail;
 use App\Models\Ensemble;
 use App\Models\SetupGroup;
@@ -21,6 +22,7 @@ function every_email(): array
         (string) (new RosterChangedMail($termDate, ['The van driver changed.']))->render(),
         (string) (new SetupReminderMail($termDate, SetupGroup::factory()->create()))->render(),
         (string) (new VanDriverReminderMail($termDate, $user))->render(),
+        (string) (new VanDriverDatesChangedMail($user, collect([$termDate])))->render(),
         ...array_map(fn (EmailLinkType $type) => (string) (new EmailLink($type, 'token'))->toMail($user)->render(), EmailLinkType::cases()),
     ];
 }

@@ -632,10 +632,14 @@
     "The seating plan has a row that is not named with capital letters.": "The seating plan has a row that is not named with capital letters.",
     "The setup arrangements for the following date have changed:": "The setup arrangements for the following date have changed:",
     "The setup group has no members or van drivers with an email address.": "The setup group has no members or van drivers with an email address.",
+    "The setup group is now :new (was :old).": "The setup group is now :new (was :old).",
     "The slug may only contain lowercase letters, numbers, hyphens and underscores.": "The slug may only contain lowercase letters, numbers, hyphens and underscores.",
     "The username :username is already taken, so :name was given another.": "The username :username is already taken, so :name was given another.",
     "The van driver for this date is": "The van driver for this date is",
     "The van driver has no email address.": "The van driver has no email address.",
+    "The van driver is now :new (was :old).": "The van driver is now :new (was :old).",
+    "The van driver rota has changed, and you now have no upcoming dates to drive the van.": "The van driver rota has changed, and you now have no upcoming dates to drive the van.",
+    "The van driver rota has changed. You are next down to drive the van for:": "The van driver rota has changed. You are next down to drive the van for:",
     "There are no ensemble admins with an email address to send the attendance list to.": "There are no ensemble admins with an email address to send the attendance list to.",
     "There are no feature flags yet.": "There are no feature flags yet.",
     "There is a problem with this form|There are problems with this form": "There is a problem with this form|There are problems with this form",
@@ -686,6 +690,7 @@
     "Type :name to confirm": "Type :name to confirm",
     "Unarchive": "Unarchive",
     "Unassigned": "Unassigned",
+    "unassigned": "unassigned",
     "Unauthorised": "Unauthorised",
     "Unknown": "Unknown",
     "Unknown ?": "Unknown ?",
@@ -722,6 +727,7 @@
     "Users created": "Users created",
     "Users overview": "Users overview",
     "Van driver": "Van driver",
+    "Van driver dates changed": "Van driver dates changed",
     "Van driver for": "Van driver for",
     "Van driver id": "Van driver id",
     "Van driver override": "Van driver override",
@@ -767,5 +773,6 @@
     "Your rehearsals and concerts will appear here once you've been added to an ensemble.": "Your rehearsals and concerts will appear here once you've been added to an ensemble.",
     "Your rehearsals, concerts, and setup groups will appear here once you've been added to an ensemble.": "Your rehearsals, concerts, and setup groups will appear here once you've been added to an ensemble.",
     "Your setup group": "Your setup group",
-    "Your username": "Your username"
+    "Your username": "Your username",
+    "Your van driving dates have changed": "Your van driving dates have changed"
 }
