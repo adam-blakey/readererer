@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Enums\EmailLinkType;
 use App\Enums\UserRole;
+use App\Features\AdminPasswordChange;
 use App\Http\Requests\EraseUserRequest;
 use App\Http\Requests\StoreUserRequest;
 use App\Http\Requests\UpdateUserRequest;
@@ -25,6 +26,7 @@ use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use Illuminate\Validation\Rules\Password as PasswordRule;
 use Illuminate\View\View;
+use Laravel\Pennant\Feature;
 use Throwable;
 
 class UserController extends Controller
@@ -262,9 +264,21 @@ class UserController extends Controller
 
         $status = EmailLinkType::ResetPassword->send($user->email);
 
+        Log::notice('User password reset link requested', ['user_id' => $user->id, 'status' => $status]);
+
         return $status === Password::RESET_LINK_SENT
             ? back()->with('status', __('A password reset email has been sent to :email.', ['email' => $user->email]))
             : back()->withErrors(['reset_link' => __($status)]);
+    }
+
+    public function editPassword(User $user): View
+    {
+        abort_unless(Feature::active(AdminPasswordChange::class), 404);
+
+        return view('users.password', [
+            'user' => $user,
+            'page_name' => __('Set password for :name', ['name' => $user->name]),
+        ]);
     }
 
     public function setPassword(Request $request, User $user): RedirectResponse
@@ -279,7 +293,14 @@ class UserController extends Controller
             'must_change_password' => $request->boolean('must_change_password'),
         ])->save();
 
-        return back()->with('status', __('The password for :name has been set.', ['name' => $user->name]));
+        // shortcut: only database sessions are ended, switch to the auth.session middleware if another driver is used.
+        if (config('session.driver') === 'database') {
+            DB::connection(config('session.connection'))->table(config('session.table'))->where('user_id', $user->id)->delete();
+        }
+
+        Log::notice('User password set', ['user_id' => $user->id, 'must_change_password' => $user->must_change_password]);
+
+        return to_route('users.show', $user)->with('status', __('The password for :name has been set.', ['name' => $user->name]));
     }
 
     public function attachEnsemble(Request $request, User $user): RedirectResponse

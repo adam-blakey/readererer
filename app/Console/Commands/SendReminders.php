@@ -27,7 +27,8 @@ class SendReminders extends Command
         $termDates = TermDate::with('email_logs.recipients')
             ->whereBetween('start_datetime', [now(), now()->addMinutes($minutes)])
             ->get()
-            ->filter->isPastReminderTime();
+            ->filter->isPastReminderTime()
+            ->reject->sendsNoEmails();
 
         foreach ($termDates as $termDate) {
             $sent = $termDate->email_logs

@@ -103,5 +103,5 @@ test('a poll date heading spells the date out on hover', function () {
     );
 
     $rendered->assertSee('title="Rehearsal: '.e($rehearsal->schedule_label).' — Location: TBC"', false);
-    $rendered->assertSee('title="Concert: '.e($concert->schedule_label).' ('.e($ensemble->name).') — Location: TBC"', false);
+    $rendered->assertSee('title="Concert ('.e($ensemble->name).'): '.e($concert->schedule_label).' — Location: TBC"', false);
 });

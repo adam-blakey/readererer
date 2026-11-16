@@ -53,13 +53,22 @@
                 </select>
             </div>
             <div class="col-md-6 col-xl-3">
-                <label class="form-label">{{ __('Concert ensembles') }}</label>
-                <select class="form-select" name="term_dates[{{ $i }}][ensemble_ids][]" multiple size="3" data-initial="{{ $orig?->concert_ensembles->pluck('id')->join(',') }}">
-                    @foreach ($ensembles as $ens)
-                        <option value="{{ $ens->id }}" @selected($selectedEnsembles->contains($ens->id))>{{ $ens->name }}</option>
-                    @endforeach
-                </select>
-                <small class="form-hint">{{ __('Select none for a rehearsal') }}</small>
+                @if ($single_ensemble)
+                    <label class="form-label">{{ __('Type') }}</label>
+                    <label class="form-check">
+                        <input class="form-check-input" name="term_dates[{{ $i }}][ensemble_ids][]" type="checkbox" value="{{ $single_ensemble->id }}" data-initial="{{ $orig?->is_concert ? '1' : '' }}" @checked($selectedEnsembles->isNotEmpty())>
+                        <span class="form-check-label">{{ __('Concert') }}</span>
+                    </label>
+                    <small class="form-hint">{{ __('Leave unticked for a rehearsal') }}</small>
+                @else
+                    <label class="form-label">{{ __('Concert ensembles') }}</label>
+                    <select class="form-select" name="term_dates[{{ $i }}][ensemble_ids][]" multiple size="3" data-initial="{{ $orig?->concert_ensembles->pluck('id')->join(',') }}">
+                        @foreach ($ensembles as $ens)
+                            <option value="{{ $ens->id }}" @selected($selectedEnsembles->contains($ens->id))>{{ $ens->name }}</option>
+                        @endforeach
+                    </select>
+                    <small class="form-hint">{{ __('Select none for a rehearsal') }}</small>
+                @endif
             </div>
             @if (config('app.readererer_setup_groups'))
                 <div class="col-md-6 col-xl-3">

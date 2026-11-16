@@ -25,12 +25,19 @@ class EmailDispatcher
     /**
      * Send a mailable to each recipient and record it in an EmailLog. The
      * factory builds one mailable per recipient so addresses don't accumulate.
+     * Nothing is sent, and null returned, for a date whose ensembles get no emails.
      *
      * @param  Collection<int, User>  $recipients
      * @param  callable(?User): Mailable  $mailableFactory  given the recipient, or null for the sample that names the log
      */
-    public function send(?TermDate $termDate, Collection $recipients, callable $mailableFactory): EmailLog
+    public function send(?TermDate $termDate, Collection $recipients, callable $mailableFactory): ?EmailLog
     {
+        if ($termDate?->sendsNoEmails()) {
+            Log::info('Notification email not sent because its date is only for hidden ensembles.', ['term_date_id' => $termDate->id]);
+
+            return null;
+        }
+
         $sample = $mailableFactory();
 
         $log = EmailLog::create([

@@ -34,6 +34,9 @@
         }
     }
 
+    // Models passed as route parameters must not be rendered as HTML attributes, which would serialise the whole record.
+    $attributes = $attributes->filter(fn ($value) => ! is_object($value) && ! is_array($value));
+
     $canBuild = true;
     foreach ($paramNames as $p) {
         if (!array_key_exists($p, $inferredParams)) { $canBuild = false; break; }

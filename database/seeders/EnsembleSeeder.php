@@ -7,6 +7,7 @@ use App\Models\Ensemble;
 use App\Models\InstrumentFamily;
 use App\Models\User;
 use Illuminate\Database\Seeder;
+use Illuminate\Support\Str;
 
 class EnsembleSeeder extends Seeder
 {
@@ -15,6 +16,14 @@ class EnsembleSeeder extends Seeder
         $instrument_families = InstrumentFamily::all();
 
         $ensemble = Ensemble::factory(4)->create();
+
+        $ensemble->each(function (Ensemble $ensemble) {
+            $acronym = Str::upper(preg_replace('/\B\w|\W/u', '', $ensemble->name));
+
+            if (! Ensemble::where('short_name', $acronym)->orWhere('name', $acronym)->exists()) {
+                $ensemble->update(['short_name' => $acronym]);
+            }
+        });
 
         $ensemble->each(function ($ensemble) {
             $no_admins = rand(1, 3);

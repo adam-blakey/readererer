@@ -6,11 +6,7 @@
 		@php
 			$highlight = $ensemble ? $term_date->concert_ensembles->contains($ensemble) : $term_date->is_concert;
 
-			$heading_tooltip = ($term_date->is_concert ? __('Concert') : __('Rehearsal')) . ': ' . $term_date->schedule_label;
-
-			if ($term_date->is_concert) {
-			    $heading_tooltip .= ' (' . $term_date->concert_ensemble_names . ')';
-			}
+			$heading_tooltip = ($term_date->is_concert ? $term_date->concert_label : __('Rehearsal')) . ': ' . $term_date->schedule_label;
 
 			$heading_tooltip .= ' — ' . __('Location: :location', ['location' => $term_date->location_label]);
 

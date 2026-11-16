@@ -109,6 +109,11 @@ $auto_entity('setupgroups', 'Setup groups', 'New setup group');
 $auto_entity('terms', 'Terms', 'New term');
 $auto_entity('users', 'Users', 'New user');
 
+Breadcrumbs::for('users.password.edit', function (BreadcrumbTrail $trail, User $user) {
+    $trail->parent('users.show', $user);
+    $trail->push(__('Set password'), route('users.password.edit', $user));
+});
+
 Breadcrumbs::for('ensembles.members.index', function (BreadcrumbTrail $trail, Ensemble $ensemble) {
     $trail->parent('ensembles.show', $ensemble);
     $trail->push(__('Members'), route('ensembles.members.index', $ensemble));
