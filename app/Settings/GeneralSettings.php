@@ -42,6 +42,7 @@ class GeneralSettings extends Settings
         'feature_flags' => ['app.readererer_feature_flags'],
         'social_links' => ['app.readererer_social_links'],
         'abbreviate_surnames' => ['app.readererer_abbreviate_surnames'],
+        'email_previews' => ['app.readererer_email_previews'],
     ];
 
     public const AFTER_REMINDERS = ['nothing', 'follow_up', 'lock'];
@@ -118,6 +119,8 @@ class GeneralSettings extends Settings
     public ?array $social_links;
 
     public ?bool $abbreviate_surnames;
+
+    public ?bool $email_previews;
 
     public static function group(): string
     {
