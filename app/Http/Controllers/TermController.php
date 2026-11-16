@@ -8,6 +8,7 @@ use App\Models\Location;
 use App\Models\SetupGroup;
 use App\Models\Term;
 use App\Models\User;
+use App\Services\VanDriverRota;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Arr;
@@ -62,7 +63,7 @@ class TermController extends Controller
         ]);
     }
 
-    public function store(Request $request): RedirectResponse
+    public function store(Request $request, VanDriverRota $rota): RedirectResponse
     {
         $single = single_ensemble();
         $validated = $request->validate([
@@ -83,12 +84,12 @@ class TermController extends Controller
             'term_dates.*.location_id' => 'nullable|integer|exists:locations,id',
         ]);
 
-        $term = DB::transaction(function () use ($validated) {
+        $term = $rota->notifyingChanges(fn () => DB::transaction(function () use ($validated) {
             $term = Term::create(Arr::only($validated, ['name', 'slug', 'location_id', 'hidden']));
             $this->syncTermDates($term, $validated['term_dates'] ?? []);
 
             return $term;
-        });
+        }));
 
         return redirect()->route('terms.show', $term);
     }
@@ -126,12 +127,12 @@ class TermController extends Controller
         ]);
     }
 
-    public function update(UpdateTermRequest $request, Term $term)
+    public function update(UpdateTermRequest $request, Term $term, VanDriverRota $rota)
     {
-        DB::transaction(function () use ($request, $term) {
+        $rota->notifyingChanges(fn () => DB::transaction(function () use ($request, $term) {
             $this->syncTermDates($term, $request->validated('term_dates', []));
             $term->update($request->safe()->only(['name', 'slug', 'location_id', 'hidden']));
-        });
+        }));
 
         return redirect()->route('terms.show', $term);
     }

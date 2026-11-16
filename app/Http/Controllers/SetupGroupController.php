@@ -7,6 +7,7 @@ use App\Http\Requests\StoreSetupGroupRequest;
 use App\Http\Requests\UpdateSetupGroupRequest;
 use App\Models\SetupGroup;
 use App\Models\User;
+use App\Services\VanDriverRota;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Arr;
 use Illuminate\View\View;
@@ -91,7 +92,7 @@ class SetupGroupController extends Controller
         ]);
     }
 
-    public function update(UpdateSetupGroupRequest $request, SetupGroup $setupGroup): RedirectResponse
+    public function update(UpdateSetupGroupRequest $request, SetupGroup $setupGroup, VanDriverRota $rota): RedirectResponse
     {
         $attributes = $request->validated();
 
@@ -101,10 +102,12 @@ class SetupGroupController extends Controller
         $this->syncMembers($setupGroup, $members);
 
         if (config('app.readererer_van_drivers')) {
-            $setupGroup->van_drivers()->detach();
-            foreach ($van_drivers as $van_driver) {
-                $setupGroup->van_drivers()->attach($van_driver);
-            }
+            $rota->notifyingChanges(function () use ($setupGroup, $van_drivers) {
+                $setupGroup->van_drivers()->detach();
+                foreach ($van_drivers as $van_driver) {
+                    $setupGroup->van_drivers()->attach($van_driver);
+                }
+            });
         }
 
         return to_route('setupgroups.show', $setupGroup);
@@ -122,16 +125,16 @@ class SetupGroupController extends Controller
         ]);
     }
 
-    public function destroy(SetupGroup $setupGroup)
+    public function destroy(SetupGroup $setupGroup, VanDriverRota $rota)
     {
-        $setupGroup->delete();
+        $rota->notifyingChanges(fn () => $setupGroup->delete());
 
         return redirect()->back()->with('status', __('Record deleted.'));
     }
 
-    public function restore(SetupGroup $setupGroup)
+    public function restore(SetupGroup $setupGroup, VanDriverRota $rota)
     {
-        $setupGroup->restore();
+        $rota->notifyingChanges(fn () => $setupGroup->restore());
 
         return redirect()->back()->with('status', __('Restored.'));
     }

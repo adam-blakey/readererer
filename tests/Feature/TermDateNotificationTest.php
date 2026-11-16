@@ -3,9 +3,11 @@
 use App\Enums\EmailStatus;
 use App\Enums\UserRole;
 use App\Features\TermDateOverview;
+use App\Features\VanDriverRotaEmails;
 use App\Mail\AttendanceListMail;
 use App\Mail\RosterChangedMail;
 use App\Mail\SetupReminderMail;
+use App\Mail\VanDriverDatesChangedMail;
 use App\Mail\VanDriverReminderMail;
 use App\Models\EmailLog;
 use App\Models\Ensemble;
@@ -579,4 +581,107 @@ test('the date concerned links to the term date overview when that page is on', 
     $this->actingAs(make_user(UserRole::Moderator))
         ->get(route('notifications.index'))
         ->assertSee(route('term-dates.show', $termDate), false);
+});
+
+function make_rota_date(SetupGroup $group, int $weeksAhead, array $attributes = []): TermDate
+{
+    return make_notification_term_date(array_merge([
+        'start_datetime' => now()->addWeeks($weeksAhead),
+        'end_datetime' => now()->addWeeks($weeksAhead)->addHours(2),
+        'setup_group_id' => $group->id,
+    ], $attributes));
+}
+
+function turn_on_van_driver_rota_emails(): void
+{
+    config(['app.readererer_feature_flags' => [VanDriverRotaEmails::class => ['enabled' => true]]]);
+    Feature::flushCache();
+}
+
+test('changing a setup group\'s van drivers sends each affected driver one email with their next three dates', function () {
+    Mail::fake();
+    turn_on_van_driver_rota_emails();
+
+    $group = SetupGroup::factory()->create();
+    $oldDriver = make_user(UserRole::Member);
+    $newDriver = make_user(UserRole::Member);
+    $group->van_drivers()->attach($oldDriver->id);
+    $dates = collect([1, 2, 3, 4])->map(fn (int $weeks) => make_rota_date($group, $weeks));
+
+    $this->actingAs(make_user(UserRole::Admin))
+        ->patch(route('setupgroups.update', $group), ['name' => $group->name, 'color' => $group->color->value, 'van_drivers' => [$newDriver->id]])
+        ->assertSessionHasNoErrors();
+
+    Mail::assertSent(VanDriverDatesChangedMail::class, 2);
+    Mail::assertSent(VanDriverDatesChangedMail::class, fn ($mail) => $mail->hasTo($newDriver->email)
+        && $mail->termDates->pluck('id')->all() === $dates->take(3)->pluck('id')->all());
+    Mail::assertSent(VanDriverDatesChangedMail::class, fn ($mail) => $mail->hasTo($oldDriver->email) && $mail->termDates->isEmpty());
+
+    expect(EmailLog::where('mailable_class', VanDriverDatesChangedMail::class)->count())->toBe(1);
+});
+
+test('saving a setup group without changing who drives sends no rota email', function () {
+    Mail::fake();
+    turn_on_van_driver_rota_emails();
+
+    $group = SetupGroup::factory()->create();
+    $driver = make_user(UserRole::Member);
+    $group->van_drivers()->attach($driver->id);
+    make_rota_date($group, 1);
+
+    $this->actingAs(make_user(UserRole::Admin))
+        ->patch(route('setupgroups.update', $group), ['name' => 'Renamed', 'color' => $group->color->value, 'van_drivers' => [$driver->id]])
+        ->assertSessionHasNoErrors();
+
+    Mail::assertNothingSent();
+});
+
+test('no rota email is sent while its feature flag is off', function () {
+    Mail::fake();
+
+    $group = SetupGroup::factory()->create();
+    $driver = make_user(UserRole::Member);
+    make_rota_date($group, 1);
+
+    $this->actingAs(make_user(UserRole::Admin))
+        ->patch(route('setupgroups.update', $group), ['name' => $group->name, 'color' => $group->color->value, 'van_drivers' => [$driver->id]])
+        ->assertSessionHasNoErrors();
+
+    Mail::assertNothingSent();
+});
+
+test('a date with an assigned driver is left out of rota emails', function () {
+    Mail::fake();
+    turn_on_van_driver_rota_emails();
+
+    $group = SetupGroup::factory()->create();
+    $newDriver = make_user(UserRole::Member);
+    make_rota_date($group, 1, ['van_driver_id' => make_user(UserRole::Member)->id]);
+
+    $this->actingAs(make_user(UserRole::Admin))
+        ->patch(route('setupgroups.update', $group), ['name' => $group->name, 'color' => $group->color->value, 'van_drivers' => [$newDriver->id]])
+        ->assertSessionHasNoErrors();
+
+    Mail::assertNothingSent();
+});
+
+test('changing the setup group of a date does not alert its assigned driver', function () {
+    Mail::fake();
+
+    $driver = make_user(UserRole::Member);
+    $newGroup = SetupGroup::factory()->create();
+    $member = make_user(UserRole::Member, ['setup_group_id' => $newGroup->id]);
+    $termDate = make_rota_date(SetupGroup::factory()->create(), 1, ['van_driver_id' => $driver->id]);
+
+    $termDate->update(['setup_group_id' => $newGroup->id]);
+
+    Mail::assertSent(RosterChangedMail::class, fn ($mail) => $mail->hasTo($member->email));
+    Mail::assertNotSent(RosterChangedMail::class, fn ($mail) => $mail->hasTo($driver->email));
+});
+
+test('the van driver dates changed email renders', function () {
+    $termDate = make_notification_term_date();
+
+    expect((new VanDriverDatesChangedMail(make_user(), collect([$termDate])))->render())->toContain($termDate->name);
+    expect((new VanDriverDatesChangedMail(make_user(), collect()))->render())->toContain('no upcoming dates');
 });
