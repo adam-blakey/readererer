@@ -50,11 +50,16 @@ $font = 'font-family: Open Sans, -apple-system, BlinkMacSystemFont, Roboto, Helv
 @continue($sections[$key]->isEmpty())
 <h2 style="{{ $font }} font-weight: 300; font-size: 24px; line-height: 130%; border-bottom: 1px solid #f0f0f0; margin: 40px 0 .5em; text-align: left;">{{ $label }} ({{ $sections[$key]->count() }})</h2>
 <table cellpadding="0" cellspacing="0" style="{{ $font }} border-collapse: collapse; width: 100%; margin-bottom: 24px;">
-@foreach($sections[$key] as ['member' => $member, 'attendance' => $attendance, 'status' => $status])
+@foreach($sections[$key]->groupBy(fn ($reply) => $families->get($reply['member']->pivot->instrument_family_id)?->name ?? __('Other'))->sortKeys() as $family => $familyReplies)
+<tr>
+<td colspan="2" style="{{ $font }} color: #9eb0b7; font-size: 12px; font-weight: 600; letter-spacing: .04em; padding: 8px 0; text-transform: uppercase;">{{ $family }}</td>
+</tr>
+@foreach($familyReplies as ['member' => $member, 'attendance' => $attendance, 'status' => $status])
 <tr>
 <td style="{{ $font }} padding: 0 16px 8px 0; width: 18px;" valign="middle"><img alt="{{ $label }}" height="18" src="{{ Vite::asset('resources/images/tabler/'.$icon) }}" style="line-height: 100%; outline: none; text-decoration: none; vertical-align: middle; font-size: 0; border: 0 none; max-width: none;" width="18" /></td>
 <td align="left" style="{{ $font }} padding: 0 0 8px; text-align: left;">@if($status === AttendanceStatus::Depping)<s style="color: #9eb0b7;">{{ $member->name }}</s> <span>{{ $attendance->dep_name ? __('depped by :name', ['name' => $attendance->dep_name]) : __('Sending a dep') }}</span>@else{{ $member->name }}@endif</td>
 </tr>
+@endforeach
 @endforeach
 </table>
 @endforeach
