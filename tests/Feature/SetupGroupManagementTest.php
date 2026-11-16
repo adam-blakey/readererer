@@ -35,6 +35,25 @@ test('a setup group can be created without van drivers', function () {
     expect($setupGroup->van_drivers)->toHaveCount(0);
 });
 
+test('a setup group can have a mailing list email', function () {
+    $this->actingAs(make_user(UserRole::Admin))->post(route('setupgroups.store'), [
+        'name' => 'Group C',
+        'color' => 'red',
+        'mailing_list_email' => 'not an address',
+    ])->assertSessionHasErrors('mailing_list_email');
+
+    $this->post(route('setupgroups.store'), [
+        'name' => 'Group C',
+        'color' => 'red',
+        'mailing_list_email' => 'setup-c@example.org',
+    ])->assertRedirect();
+
+    $setupGroup = SetupGroup::where('name', 'Group C')->first();
+    expect($setupGroup->mailing_list_email)->toBe('setup-c@example.org');
+
+    $this->get(route('setupgroups.edit', $setupGroup))->assertSee('type="email"', false)->assertSee('setup-c@example.org');
+});
+
 test('creating a setup group requires a name and colour', function () {
     $this->actingAs(make_user(UserRole::Admin))
         ->post(route('setupgroups.store'), [])

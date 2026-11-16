@@ -354,7 +354,7 @@ function map_database_type_to_html(string $name, string $db_type, array $casts):
 
     if ($name == 'image') {
         return 'image';
-    } elseif ($name == 'email') {
+    } elseif ($name == 'email' || str_ends_with($name, '_email')) {
         return 'email';
     } elseif ($name == 'password') {
         return 'password';
