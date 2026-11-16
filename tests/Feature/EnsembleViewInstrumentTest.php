@@ -18,8 +18,7 @@ test('a member sees their instrument and seat on the ensemble page', function ()
 
     $this->actingAs($member)->get(route('ensembles.show', $ensemble))
         ->assertOk()
-        ->assertSee('Oboes')
-        ->assertSee('Row B, seat 3');
+        ->assertSee('Oboes • Row B, seat 3');
 });
 
 test('the seat is left out when the member has none', function () {
@@ -30,6 +29,7 @@ test('the seat is left out when the member has none', function () {
     $this->actingAs($member)->get(route('ensembles.show', $ensemble))
         ->assertOk()
         ->assertSee('Oboes')
+        ->assertDontSee('Oboes •')
         ->assertDontSee('Row ');
 });
 
