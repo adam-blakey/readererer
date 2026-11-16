@@ -13,6 +13,6 @@ class ConfirmPasswordForSensitiveChanges extends FeatureFlag
 
     public function description(): string
     {
-        return __('Asks for the password again before the settings, feature flags and Pollererer import pages, editing a user with permission to change their role, and erasing a user. A confirmation lasts three hours.');
+        return __('Asks for the password again before the settings, feature flags and Pollererer import pages, editing a user with permission to change their role, setting another user\'s password, and erasing a user. A confirmation lasts three hours.');
     }
 }

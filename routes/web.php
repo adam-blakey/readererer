@@ -148,7 +148,8 @@ Route::middleware('auth')->group(function () {
         ->middlewareFor(['edit', 'update'], ConfirmPasswordForSensitiveChanges::class.':manage');
     Route::delete('/users/{user}/erase', [UserController::class, 'erase'])->name('users.erase')->withTrashed()->can('erase', 'user')->middleware(ConfirmPasswordForSensitiveChanges::class);
     Route::post('/users/{user}/password-reset-link', [UserController::class, 'sendPasswordResetLink'])->name('users.password-reset-link')->can('resetPassword', 'user');
-    Route::put('/users/{user}/password', [UserController::class, 'setPassword'])->name('users.password')->can('resetPassword', 'user');
+    Route::get('/users/{user}/password', [UserController::class, 'editPassword'])->name('users.password.edit')->can('resetPassword', 'user')->middleware(ConfirmPasswordForSensitiveChanges::class);
+    Route::put('/users/{user}/password', [UserController::class, 'setPassword'])->name('users.password')->can('resetPassword', 'user')->middleware(ConfirmPasswordForSensitiveChanges::class);
     Route::post('/users/{user}/ensembles', [UserController::class, 'attachEnsemble'])->name('users.ensembles.store')->can('manage', 'user');
     Route::delete('/users/{user}/ensembles/{ensemble}', [UserController::class, 'detachEnsemble'])->name('users.ensembles.destroy')->can('manage', 'user');
 });
