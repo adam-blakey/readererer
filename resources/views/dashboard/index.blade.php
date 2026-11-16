@@ -62,7 +62,9 @@
 										<div>
 											<x-rehearsal-entry :ensembles="$ensembles" :term_date="$concert" />
 										</div>
-										<div class="ms-2 small text-muted">{{ $concert->concert_ensemble_names }}</div>
+										@unless (config('app.readererer_single_ensemble'))
+											<div class="ms-2 small text-muted">{{ $concert->concert_ensemble_short_names }}</div>
+										@endunless
 									</div>
 								@endforeach
 							@endif

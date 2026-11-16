@@ -16,6 +16,8 @@ class UpdateTermRequest extends FormRequest
     /** @return array<string, ValidationRule|array<mixed>|string> */
     public function rules(): array
     {
+        $single = single_ensemble();
+
         return [
             'name' => 'required|string|max:255',
             'slug' => ['required', 'string', 'max:255', Rule::unique('terms', 'slug')->ignore($this->term)],
@@ -27,7 +29,7 @@ class UpdateTermRequest extends FormRequest
             'term_dates.*.start_datetime' => 'required|date',
             'term_dates.*.end_datetime' => 'required|date',
             'term_dates.*.ensemble_ids' => 'array',
-            'term_dates.*.ensemble_ids.*' => 'integer|exists:ensembles,id',
+            'term_dates.*.ensemble_ids.*' => ['integer', 'exists:ensembles,id', ...($single ? [Rule::in([$single->id])] : [])],
             'term_dates.*.setup_group_id' => 'nullable|integer|exists:setup_groups,id',
             'term_dates.*.van_driver_id' => 'nullable|integer|exists:users,id',
             'term_dates.*.time_tbc' => 'sometimes|boolean',

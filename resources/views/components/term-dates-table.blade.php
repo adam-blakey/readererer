@@ -41,7 +41,7 @@
                         <td><x-location-link :location="$td->inferred_location" /></td>
                         <td>
                             @if ($td->is_concert)
-                                <span class="badge bg-primary text-primary-fg">{{ __('Concert') }} ({{ $td->concert_ensemble_names }})</span>
+                                <span class="badge bg-primary text-primary-fg">{{ $td->concert_label }}</span>
                             @else
                                 <span class="badge bg-gray text-muted">{{ __('Rehearsal') }}</span>
                             @endif

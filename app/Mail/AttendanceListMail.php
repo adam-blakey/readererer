@@ -43,7 +43,7 @@ class AttendanceListMail extends Mailable
     /** A seating plan for each of the date's ensembles that has one. */
     public function attachments(): array
     {
-        return $this->ensembles()
+        return $this->termDate->notifiedEnsembles()
             ->filter->hasSeatingPlan()
             ->map(fn (Ensemble $ensemble) => Attachment::fromData(
                 fn () => $ensemble->seatingPlanPdf($this->termDate)->output(),
@@ -53,18 +53,13 @@ class AttendanceListMail extends Mailable
             ->all();
     }
 
-    private function ensembles(): Collection
-    {
-        return $this->termDate->is_concert ? $this->termDate->concert_ensembles : Ensemble::all();
-    }
-
     /** Members without an instrument family are still setting up their membership, so are left off, as on the poll. */
     private function members(): Collection
     {
         $users = fn ($query) => $query->wherePivotNotNull('instrument_family_id')
             ->with(['attendances' => fn ($query) => $query->where('term_date_id', $this->termDate->id)]);
 
-        return $this->ensembles()
+        return $this->termDate->notifiedEnsembles()
             ->load(['users' => $users])
             ->flatMap->users
             ->unique('id')

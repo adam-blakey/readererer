@@ -16,7 +16,7 @@ class TermDateController extends Controller
 
         $termDate->load(['term', 'concert_ensembles', 'setup_group.members', 'setup_group.van_drivers', 'email_logs.recipients']);
 
-        $ensembles = Ensemble::orderBy('name')
+        $ensembles = Ensemble::shown()->orderBy('name')
             ->with(['users' => fn ($query) => $query->orderBy('first_name')->orderBy('last_name'), 'users.attendances' => fn ($query) => $query->where('term_date_id', $termDate->id)->with('edit_user')])
             ->get()
             ->filter(fn (Ensemble $ensemble) => $termDate->appliesToEnsemble($ensemble))

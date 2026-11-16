@@ -12,6 +12,7 @@ use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Validation\Rule;
 use Illuminate\View\View;
 
 class TermController extends Controller
@@ -45,7 +46,7 @@ class TermController extends Controller
     public function create(): View
     {
         $term = new Term;
-        $ensembles = Ensemble::orderBy('name')->get();
+        $ensembles = Ensemble::shown()->orderBy('name')->get();
         $setup_groups = SetupGroup::orderBy('name')->get();
         $van_drivers = User::orderBy('first_name')->orderBy('last_name')->get();
 
@@ -63,6 +64,7 @@ class TermController extends Controller
 
     public function store(Request $request): RedirectResponse
     {
+        $single = single_ensemble();
         $validated = $request->validate([
             'name' => 'required|string|max:255',
             'slug' => 'required|string|max:255|unique:terms',
@@ -74,7 +76,7 @@ class TermController extends Controller
             'term_dates.*.start_datetime' => 'required|date',
             'term_dates.*.end_datetime' => 'required|date',
             'term_dates.*.ensemble_ids' => 'array',
-            'term_dates.*.ensemble_ids.*' => 'integer|exists:ensembles,id',
+            'term_dates.*.ensemble_ids.*' => ['integer', 'exists:ensembles,id', ...($single ? [Rule::in([$single->id])] : [])],
             'term_dates.*.setup_group_id' => 'nullable|integer|exists:setup_groups,id',
             'term_dates.*.van_driver_id' => 'nullable|integer|exists:users,id',
             'term_dates.*.time_tbc' => 'sometimes|boolean',
@@ -104,7 +106,11 @@ class TermController extends Controller
     public function edit(Term $term)
     {
         $term->load('term_dates.concert_ensembles');
-        $ensembles = Ensemble::orderBy('name')->get();
+        // A hidden ensemble a date already plays in stays selectable, so saving the form keeps it.
+        $ensembles = Ensemble::shown()
+            ->orWhereIn('id', $term->term_dates->flatMap->concert_ensembles->pluck('id'))
+            ->orderBy('name')
+            ->get();
         $setup_groups = SetupGroup::orderBy('name')->get();
         $van_drivers = User::orderBy('first_name')->orderBy('last_name')->get();
 

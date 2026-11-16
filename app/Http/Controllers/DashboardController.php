@@ -29,7 +29,7 @@ class DashboardController extends Controller
         }
 
         $page_name = __(':app dashboard', ['app' => config('app.name')]);
-        $ensembles = $user->ensembles()->get();
+        $ensembles = $user->ensembles()->shown()->get();
         $attendanceUpdates = $user->can('viewAny', Attendance::class)
             ? Attendance::latestUpdates()->limit(5)->get()
             : null;

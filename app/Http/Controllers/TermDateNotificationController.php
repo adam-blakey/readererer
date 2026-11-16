@@ -17,6 +17,10 @@ class TermDateNotificationController extends Controller
     /** Email the attendance list to the concert ensemble's admins, or every ensemble's admins for a rehearsal. */
     public function sendAttendanceList(TermDate $termDate): RedirectResponse
     {
+        if ($termDate->sendsNoEmails()) {
+            return back()->with('status', __('This date is only for hidden ensembles, so no emails are sent for it.'));
+        }
+
         $recipients = $termDate->attendanceListRecipients();
 
         if ($recipients->isEmpty()) {
@@ -32,6 +36,10 @@ class TermDateNotificationController extends Controller
     public function sendSetupReminder(TermDate $termDate): RedirectResponse
     {
         abort_unless(config('app.readererer_setup_groups'), 404);
+
+        if ($termDate->sendsNoEmails()) {
+            return back()->with('status', __('This date is only for hidden ensembles, so no emails are sent for it.'));
+        }
 
         $setupGroup = $termDate->setup_group;
 
@@ -54,6 +62,10 @@ class TermDateNotificationController extends Controller
     public function sendVanDriverReminder(TermDate $termDate): RedirectResponse
     {
         abort_unless(config('app.readererer_van_drivers'), 404);
+
+        if ($termDate->sendsNoEmails()) {
+            return back()->with('status', __('This date is only for hidden ensembles, so no emails are sent for it.'));
+        }
 
         $driver = $termDate->inferred_van_driver;
 

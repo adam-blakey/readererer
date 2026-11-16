@@ -21,7 +21,7 @@
 
 	<div class="page-body">
 		<div class="container-xl">
-			<x-forms.error-summary :fields="['name', 'admins']" />
+			<x-forms.error-summary :fields="['name', 'short_name', 'admins']" />
 
 			<div class="row g-3">
 				<div class="col-lg-6">
@@ -48,6 +48,14 @@
 											@enderror
 										</div>
 										<div class="mb-3">
+											<label class="form-label" for="short_name">{{ __('Short name') }}</label>
+											<input class="form-control @error('short_name') is-invalid @enderror" id="short_name" maxlength="20" name="short_name" placeholder="{{ __('An acronym, for example') }}" type="text" value="{{ old('short_name', $ensemble->short_name) }}">
+											<div class="form-hint">{{ __('Used in tight places such as tables. Leave it empty to use the full name.') }}</div>
+											@error('short_name')
+												<x-forms.input-error :messages="$message" />
+											@enderror
+										</div>
+										<div class="mb-3">
 											<label class="form-label" for="slug">{{ __('Slug') }}</label>
 											<input class="form-control @error('slug') is-invalid @enderror" id="slug" name="slug" placeholder="ensemble_slug" type="text" value="{{ old('slug', $ensemble->slug) }}" data-initial="{{ $ensemble->slug }}">
 											<div class="form-hint">{{ __('Used in attendance links, so changing it breaks any link already shared.') }}</div>
@@ -67,6 +75,14 @@
 												<span class="form-check-label">{{ __('Seating plan enabled') }}</span>
 											</label>
 											<div class="form-hint">{{ __('When off, this ensemble has no seating plan and members are added without a seat.') }}</div>
+										</div>
+										<div class="mb-3">
+											<input name="show" type="hidden" value="0">
+											<label class="form-check form-switch">
+												<input class="form-check-input" type="checkbox" name="show" value="1" @checked(old('show', $ensemble->show))>
+												<span class="form-check-label">{{ __('Show ensemble') }}</span>
+											</label>
+											<div class="form-hint">{{ __('A hidden ensemble is left out of the home page, dashboards, date pages and the concert choices. Its own pages still work.') }}</div>
 										</div>
 									</div>
 								</div>

@@ -25,7 +25,7 @@
 							<div class="list-inline list-inline-dots mb-0 text-secondary">
 								<span class="list-inline-item">
 									@if ($term_date->is_concert)
-										<span class="badge bg-primary text-primary-fg">{{ __('Concert') }} ({{ $term_date->concert_ensemble_names }})</span>
+										<span class="badge bg-primary text-primary-fg">{{ $term_date->concert_label }}</span>
 									@else
 										<span class="badge bg-gray text-muted">{{ __('Rehearsal') }}</span>
 									@endif

@@ -2,6 +2,7 @@
 
 @php
 	$can_add_location = Gate::allows('create', App\Models\Location::class);
+	$single_ensemble = single_ensemble();
 	$default_location_name = $locations->firstWhere('id', (int) old('location_id', $term->location_id))?->name ?? __('TBC');
 @endphp
 

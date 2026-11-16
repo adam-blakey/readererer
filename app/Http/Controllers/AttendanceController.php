@@ -180,7 +180,7 @@ class AttendanceController extends Controller
             $term_date = $term_dates[$term_date_id];
             $recipients = $term_date->attendanceListRecipients();
 
-            if ($recipients->isNotEmpty()) {
+            if ($recipients->isNotEmpty() && ! $ensemble->getsNoEmails()) {
                 $dispatcher->send($term_date, $recipients, fn () => new AttendanceChangedMail($term_date, $ensemble, $term_date_changes));
             }
         }
