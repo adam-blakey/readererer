@@ -14,7 +14,7 @@ class TermDateObserver implements ShouldHandleEventsAfterCommit
 {
     public function __construct(private EmailDispatcher $dispatcher) {}
 
-    /** Alert everyone in the old and new setup groups, and the old and new drivers, when an upcoming date's roster changes. */
+    /** Alert everyone in the old and new setup groups when an upcoming date's group changes, and the old and new drivers when its driver does. */
     public function updated(TermDate $termDate): void
     {
         $groupChanged = $termDate->wasChanged('setup_group_id');
@@ -36,16 +36,20 @@ class TermDateObserver implements ShouldHandleEventsAfterCommit
         $changes = [];
 
         if ($groupChanged) {
-            $changes[] = 'The setup group is now '.($newGroup?->name ?? 'unassigned')
-                .' (was '.($oldGroup?->name ?? 'unassigned').').';
+            $changes[] = __('The setup group is now :new (was :old).', [
+                'new' => $newGroup?->name ?? __('unassigned'),
+                'old' => $oldGroup?->name ?? __('unassigned'),
+            ]);
         }
 
         if ($driverChanged) {
-            $changes[] = 'The van driver is now '.($newDriver?->name ?? 'unassigned')
-                .' (was '.($oldDriver?->name ?? 'unassigned').').';
+            $changes[] = __('The van driver is now :new (was :old).', [
+                'new' => $newDriver?->name ?? __('unassigned'),
+                'old' => $oldDriver?->name ?? __('unassigned'),
+            ]);
         }
 
-        $recipients = $this->affectedUsers(config('app.readererer_setup_groups') ? [$oldGroup, $newGroup] : [], [$oldDriver, $newDriver]);
+        $recipients = $this->affectedUsers(config('app.readererer_setup_groups') ? [$oldGroup, $newGroup] : [], $driverChanged ? [$oldDriver, $newDriver] : []);
 
         if ($recipients->isEmpty()) {
             return;
