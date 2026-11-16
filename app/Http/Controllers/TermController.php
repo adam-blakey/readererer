@@ -45,7 +45,7 @@ class TermController extends Controller
     public function create(): View
     {
         $term = new Term;
-        $ensembles = Ensemble::orderBy('name')->get();
+        $ensembles = Ensemble::shown()->orderBy('name')->get();
         $setup_groups = SetupGroup::orderBy('name')->get();
         $van_drivers = User::orderBy('first_name')->orderBy('last_name')->get();
 
@@ -104,7 +104,11 @@ class TermController extends Controller
     public function edit(Term $term)
     {
         $term->load('term_dates.concert_ensembles');
-        $ensembles = Ensemble::orderBy('name')->get();
+        // A hidden ensemble a date already plays in stays selectable, so saving the form keeps it.
+        $ensembles = Ensemble::shown()
+            ->orWhereIn('id', $term->term_dates->flatMap->concert_ensembles->pluck('id'))
+            ->orderBy('name')
+            ->get();
         $setup_groups = SetupGroup::orderBy('name')->get();
         $van_drivers = User::orderBy('first_name')->orderBy('last_name')->get();
 

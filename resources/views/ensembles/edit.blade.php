@@ -68,6 +68,14 @@
 											</label>
 											<div class="form-hint">{{ __('When off, this ensemble has no seating plan and members are added without a seat.') }}</div>
 										</div>
+										<div class="mb-3">
+											<input name="show" type="hidden" value="0">
+											<label class="form-check form-switch">
+												<input class="form-check-input" type="checkbox" name="show" value="1" @checked(old('show', $ensemble->show))>
+												<span class="form-check-label">{{ __('Show ensemble') }}</span>
+											</label>
+											<div class="form-hint">{{ __('A hidden ensemble is left out of the home page, dashboards, date pages and the concert choices. Its own pages still work.') }}</div>
+										</div>
 									</div>
 								</div>
 							</form>

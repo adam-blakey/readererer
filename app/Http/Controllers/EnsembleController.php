@@ -79,6 +79,7 @@ class EnsembleController extends Controller
         $ensemble->name = $request->validated('name');
         $ensemble->slug = $request->validated('slug');
         $ensemble->seating_plan_enabled = $request->boolean('seating_plan_enabled');
+        $ensemble->show = $request->boolean('show', $ensemble->show);
         $ensemble->applyImageInput($request->file('image'), $request->boolean('remove_image'));
         $ensemble->save();
         $ensemble->admins()->sync($request->validated('admins') ?? []);

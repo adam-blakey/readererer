@@ -33,7 +33,7 @@
 					<td class="text-nowrap">{{ $term_date->time_label }}</td>
 					<td>
 						@if ($term_date->is_concert)
-							<span class="badge bg-primary text-primary-fg text-wrap text-start">{{ __('Concert') }} ({{ $term_date->concert_ensemble_names }})</span>
+							<span class="badge bg-primary text-primary-fg text-wrap text-start">{{ $term_date->concert_label }}</span>
 						@else
 							<span class="badge bg-gray text-muted">{{ __('Rehearsal') }}</span>
 						@endif

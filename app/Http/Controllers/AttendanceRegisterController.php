@@ -24,7 +24,7 @@ class AttendanceRegisterController extends Controller
             ->orderByDesc('start_datetime')
             ->paginate(15);
 
-        $ensembles = Ensemble::orderBy('name')
+        $ensembles = Ensemble::shown()->orderBy('name')
             ->get()
             ->filter(fn (Ensemble $ensemble) => Gate::allows('view', $ensemble))
             ->values();

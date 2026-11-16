@@ -27,6 +27,7 @@ class UpdateEnsembleRequest extends FormRequest
                 Rule::unique('ensembles', 'slug')->ignore($this->route('ensemble')),
             ],
             'seating_plan_enabled' => ['sometimes', 'boolean'],
+            'show' => ['sometimes', 'boolean'],
             'image' => ['nullable', 'image', 'mimes:jpeg,png,webp', 'max:'.config('app.readererer_image_max_kilobytes')],
             'remove_image' => ['sometimes', 'boolean'],
             'admins' => ['nullable', 'array'],

@@ -18,9 +18,14 @@ class EnsembleFactory extends Factory
             'name' => $this->uniqueName(),
             'slug' => fn (array $attributes) => Str::slug($attributes['name']),
             'image' => $this->faker->imageUrl(),
-            'show' => $this->faker->boolean(),
+            'show' => true,
             'seating_plan_enabled' => $this->faker->boolean(),
         ];
+    }
+
+    public function hidden(): static
+    {
+        return $this->state(['show' => false]);
     }
 
     /**

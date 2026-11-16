@@ -92,9 +92,17 @@ class TermDate extends Model
         return $this->concert_ensembles->isNotEmpty();
     }
 
+    /** The names of the concert's shown ensembles. */
     public function getConcertEnsembleNamesAttribute(): string
     {
-        return $this->concert_ensembles->pluck('name')->join(', ');
+        return $this->concert_ensembles->where('show', true)->pluck('name')->join(', ');
+    }
+
+    public function getConcertLabelAttribute(): string
+    {
+        $names = $this->concert_ensemble_names;
+
+        return $names === '' ? __('Concert') : __('Concert (:ensembles)', ['ensembles' => $names]);
     }
 
     public function email_logs(): HasMany
@@ -146,12 +154,29 @@ class TermDate extends Model
         return config('app.readererer_after_reminders') === 'lock' && $this->isPastReminderTime();
     }
 
+    /** The concert's ensembles, or every ensemble for a rehearsal, less any that get no emails. */
+    public function notifiedEnsembles(): Collection
+    {
+        return $this->applicableEnsembles()->reject->getsNoEmails()->values();
+    }
+
+    /** True when every ensemble the date is for gets no emails, so nothing is sent for it. */
+    public function sendsNoEmails(): bool
+    {
+        $ensembles = $this->applicableEnsembles();
+
+        return $ensembles->isNotEmpty() && $ensembles->every->getsNoEmails();
+    }
+
+    private function applicableEnsembles(): Collection
+    {
+        return $this->is_concert ? $this->concert_ensembles : Ensemble::all();
+    }
+
     /** The concert ensembles' admins, or every ensemble's admins for a rehearsal. */
     public function attendanceListRecipients(): Collection
     {
-        $ensembles = $this->is_concert ? $this->concert_ensembles : Ensemble::all();
-
-        return $ensembles->load('admins')->flatMap->admins
+        return $this->notifiedEnsembles()->load('admins')->flatMap->admins
             ->filter(fn (User $admin) => filled($admin->email))
             ->unique('id')
             ->values();

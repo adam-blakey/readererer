@@ -3,13 +3,17 @@
 namespace App\Models;
 
 use App\Enums\UserRole;
+use App\Features\HiddenEnsemblesGetNoEmails;
 use App\Traits\HasImage;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Barryvdh\DomPDF\PDF as SeatingPlanPdf;
+use Illuminate\Database\Eloquent\Attributes\Scope;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Laravel\Pennant\Feature;
 use SDamian\Larasort\AutoSortable;
 
 class Ensemble extends Model
@@ -47,6 +51,10 @@ class Ensemble extends Model
         'admins',
     ];
 
+    protected $attributes = [
+        'show' => true,
+    ];
+
     public function casts(): array
     {
         return [
@@ -55,6 +63,19 @@ class Ensemble extends Model
             'created_at' => 'datetime',
             'updated_at' => 'datetime',
         ];
+    }
+
+    /** Hidden ensembles are left out of listings; the ensembles list and their own pages still show them. */
+    #[Scope]
+    protected function shown(Builder $query): void
+    {
+        $query->where('ensembles.show', true);
+    }
+
+    /** Hidden ensembles get no emails while that flag is on. */
+    public function getsNoEmails(): bool
+    {
+        return ! $this->show && Feature::for(null)->active(HiddenEnsemblesGetNoEmails::class);
     }
 
     public function admins(): BelongsToMany
