@@ -188,7 +188,7 @@ class TermDate extends Model
             ->values();
     }
 
-    /** The members and van drivers of the date's setup group. */
+    /** The members and van drivers of the date's setup group, and its mailing list. */
     public function setupReminderRecipients(): Collection
     {
         if ($this->setup_group === null) {
@@ -197,8 +197,9 @@ class TermDate extends Model
 
         return $this->setup_group->members
             ->merge($this->setup_group->van_drivers)
-            ->filter(fn (User $member) => filled($member->email))
-            ->unique('id')
+            ->push($this->setup_group->mailingListRecipient())
+            ->filter(fn (?User $member) => filled($member?->email))
+            ->unique(fn (User $member) => strtolower($member->email))
             ->values();
     }
 

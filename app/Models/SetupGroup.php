@@ -4,6 +4,7 @@ namespace App\Models;
 
 use App\Attributes\Icon;
 use App\Enums\Color;
+use App\Enums\UserRole;
 use App\Traits\HasPropertyIcons;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -15,6 +16,7 @@ use SDamian\Larasort\AutoSortable;
 #[Icon('arrow-badge-right', for: 'name')]
 #[Icon('calendar', for: 'week')]
 #[Icon('paint', for: 'color')]
+#[Icon('mail', for: 'mailing_list_email')]
 #[Icon('pencil-bolt', for: 'created_at')]
 #[Icon('pencil-up', for: 'updated_at')]
 class SetupGroup extends Model
@@ -28,6 +30,7 @@ class SetupGroup extends Model
         'name',
         'week',
         'color',
+        'mailing_list_email',
         'van_drivers',
         'created_at',
         'updated_at',
@@ -54,6 +57,7 @@ class SetupGroup extends Model
         'name',
         'week',
         'color',
+        'mailing_list_email',
         'van_drivers',
     ];
 
@@ -69,6 +73,14 @@ class SetupGroup extends Model
         return trim((string) $this->name) !== ''
             ? $this->name
             : __('Setup group :week', ['week' => $this->week]);
+    }
+
+    /** The mailing list as a recipient for the email dispatcher, which sends to users. */
+    public function mailingListRecipient(): ?User
+    {
+        return filled($this->mailing_list_email)
+            ? new User(['first_name' => $this->label, 'last_name' => __('mailing list'), 'email' => $this->mailing_list_email, 'role' => UserRole::Guest])
+            : null;
     }
 
     #[Icon('users')]

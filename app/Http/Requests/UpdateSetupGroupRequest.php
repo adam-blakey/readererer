@@ -21,6 +21,7 @@ class UpdateSetupGroupRequest extends FormRequest
             'name' => ['required', 'string', 'max:255'],
             'week' => ['nullable', 'integer', 'min:0', 'max:10'],
             'color' => ['required', new Enum(Color::class)],
+            'mailing_list_email' => ['nullable', 'email', 'max:255'],
             'van_drivers' => ['nullable', 'array'],
             'van_drivers.*' => ['exists:users,id'],
             'members' => ['nullable', 'array'],

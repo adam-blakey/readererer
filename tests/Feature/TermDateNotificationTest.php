@@ -109,6 +109,30 @@ test('an admin can send a setup reminder to the setup group van drivers', functi
     expect($log->recipients)->toHaveCount(1);
 });
 
+test('a setup reminder also goes to the setup group mailing list', function () {
+    Mail::fake();
+
+    $setupGroup = SetupGroup::factory()->create(['name' => 'Blue group', 'mailing_list_email' => 'Setup@example.org']);
+    $member = make_user(UserRole::Member, ['setup_group_id' => $setupGroup->id, 'email' => 'setup@example.org']);
+    $other = make_user(UserRole::Member, ['setup_group_id' => $setupGroup->id]);
+    $termDate = make_notification_term_date(['setup_group_id' => $setupGroup->id]);
+
+    $this->actingAs(make_user(UserRole::Admin, ['setup_group_id' => null]))
+        ->post(route('term-dates.send-setup-reminder', $termDate));
+
+    Mail::assertSentCount(2);
+    Mail::assertSent(SetupReminderMail::class, fn ($mail) => $mail->hasTo($other->email));
+
+    $member->update(['email' => 'someone@example.org']);
+    $this->post(route('term-dates.send-setup-reminder', $termDate));
+
+    Mail::assertSentCount(5);
+    Mail::assertSent(SetupReminderMail::class, fn ($mail) => $mail->hasTo('Setup@example.org'));
+    expect(EmailLog::latest('id')->first()->recipients->firstWhere('user_id', null))
+        ->name->toBe('Blue group mailing list')
+        ->email->toBe('Setup@example.org');
+});
+
 test('a setup reminder for a date with no setup group is a no-op', function () {
     Mail::fake();
 
