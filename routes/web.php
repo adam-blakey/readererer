@@ -1,5 +1,6 @@
 <?php
 
+use App\Features\SeatingPlanPdfOptions;
 use App\Http\Controllers\AttendanceController;
 use App\Http\Controllers\AttendanceRegisterController;
 use App\Http\Controllers\ComposerController;
@@ -30,6 +31,7 @@ use App\Models\Ensemble;
 use App\Models\RegisterEntry;
 use App\Models\Term;
 use Illuminate\Support\Facades\Route;
+use Laravel\Pennant\Middleware\EnsureFeaturesAreActive;
 
 Route::get('/health', HealthCheckController::class)
     ->name('health');
@@ -85,6 +87,11 @@ Route::get('/ensembles/{ensemble}/seating-plan/{termDate}/download', [SeatingPla
     ->name('ensembles.seating-plan.download')
     ->withoutScopedBindings()
     ->can('view', 'ensemble');
+
+Route::get('/ensembles/{ensemble}/seating-plan/download', [SeatingPlanController::class, 'download'])
+    ->name('ensembles.seating-plan.download-generic')
+    ->can('view', 'ensemble')
+    ->middleware(EnsureFeaturesAreActive::using(SeatingPlanPdfOptions::class));
 
 Route::middleware('auth')->group(function () {
     Route::get('/notifications', [NotificationController::class, 'index'])

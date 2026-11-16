@@ -128,11 +128,11 @@ class Ensemble extends Model
         return $this->users()->wherePivotNotNull('seat_row')->exists();
     }
 
-    public function seatingPlanPdf(TermDate $termDate): SeatingPlanPdf
+    public function seatingPlanPdf(?TermDate $termDate = null): SeatingPlanPdf
     {
         $members = $this->users()
             ->wherePivotNotNull('instrument_family_id')
-            ->with(['attendances' => fn ($query) => $query->where('term_date_id', $termDate->id)])
+            ->when($termDate, fn ($query) => $query->with(['attendances' => fn ($query) => $query->where('term_date_id', $termDate->id)]))
             ->get();
 
         $instrumentFamilies = InstrumentFamily::whereIn('id', $members->pluck('pivot.instrument_family_id'))->orderBy('name')->get()->keyBy('id');
