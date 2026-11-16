@@ -1,8 +1,15 @@
-@props(['page_name', 'ensembles' => collect(), 'instrumentFamilies' => null, 'setupGroup' => null, 'nextRehearsal' => null, 'nextConcerts' => collect(), 'nextSetup' => null, 'nextVanDrive' => null, 'drivesTheVan' => false, 'attendanceUpdates' => null, 'notifications' => null])
+@props(['page_name', 'ensembles' => collect(), 'instrumentFamilies' => null, 'setupGroup' => null, 'nextRehearsal' => null, 'nextConcerts' => collect(), 'nextSetup' => null, 'nextVanDrive' => null, 'drivesTheVan' => false, 'attendanceUpdates' => null, 'notifications' => null, 'managementCards' => []])
 
 <x-layout>
 	<div class="container-xl">
 		<x-card-row>
+			@foreach($managementCards as $card)
+				<div class="col-6 col-md-4 col-lg">
+					<a href="{{ route($card['route']) }}" class="d-block text-reset text-decoration-none">
+						<x-stat-card :icon="$card['icon']" :title="$card['title']" :value="$card['count'] ?? __('Manage')" />
+					</a>
+				</div>
+			@endforeach
 			@if($ensembles->isEmpty())
 				<div class="col-12">
 					<x-card>
