@@ -10,21 +10,17 @@
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>{{ Breadcrumbs::exists() ? Breadcrumbs::current()?->title ?? config('app.name') : config('app.name') }}</title>
 	<link href="{{ favicon_url() }}" rel="shortcut icon">
-	@feature(\App\Features\InstallableApp::class)
-		<link href="{{ route('manifest') }}" rel="manifest">
-		<meta content="{{ color_name_to_hex(config('app.readererer_primary_color')) }}" name="theme-color">
-		<script nonce="{{ Vite::cspNonce() }}">
-			if ('serviceWorker' in navigator) navigator.serviceWorker.register('/sw.js');
-    </script>
-	@endfeature
+	<link href="{{ route('manifest') }}" rel="manifest">
+	<meta content="{{ color_name_to_hex(config('app.readererer_primary_color')) }}" name="theme-color">
+	<script nonce="{{ Vite::cspNonce() }}">
+		if ('serviceWorker' in navigator) navigator.serviceWorker.register('/sw.js');
+	</script>
 
-	@feature(\App\Features\ThemeSwitch::class)
-		<script nonce="{{ Vite::cspNonce() }}">
-			try {
-				document.documentElement.setAttribute('data-bs-theme', localStorage.getItem('theme') || (matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'));
-			} catch (e) {}
-		</script>
-	@endfeature
+	<script nonce="{{ Vite::cspNonce() }}">
+		try {
+			document.documentElement.setAttribute('data-bs-theme', localStorage.getItem('theme') || (matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'));
+		} catch (e) {}
+	</script>
 	@vite(['resources/js/app.js', 'resources/css/app.css'])
 	@stack('scripts')
 </head>

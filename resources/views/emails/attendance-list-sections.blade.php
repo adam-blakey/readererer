@@ -10,7 +10,7 @@ $stats = array_filter([
 	'unknown' => [__('Not yet responded'), '#9aa0ac', 'icons-gray-question-mark.png'],
 ], fn ($key) => isset($totals[$key]), ARRAY_FILTER_USE_KEY);
 $sections = [
-	'attending' => $replies->whereIn('status', [AttendanceStatus::Attending, AttendanceStatus::Depping]),
+	'attending' => $replies->whereIn('status', [AttendanceStatus::Attending, AttendanceStatus::Depping, ...(isset($totals['unknown']) ? [] : [AttendanceStatus::Unknown])]),
 	'not_attending' => $replies->where('status', AttendanceStatus::NotAttending),
 	'unknown' => $replies->where('status', AttendanceStatus::Unknown),
 ];

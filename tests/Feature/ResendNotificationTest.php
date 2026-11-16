@@ -2,13 +2,11 @@
 
 use App\Enums\EmailStatus;
 use App\Enums\UserRole;
-use App\Features\ResendFailedNotifications;
 use App\Mail\VanDriverReminderMail;
 use App\Models\EmailLog;
 use App\Models\Term;
 use App\Models\TermDate;
 use Illuminate\Support\Facades\Mail;
-use Laravel\Pennant\Feature;
 
 function failed_van_driver_log(): EmailLog
 {
@@ -31,25 +29,9 @@ function failed_van_driver_log(): EmailLog
     return $log;
 }
 
-function enable_resend_flag(): void
-{
-    config(['app.readererer_feature_flags' => [ResendFailedNotifications::class => ['enabled' => true]]]);
-    Feature::flushCache();
-}
-
-test('the resend flag is off by default, so resending is a 404 and the button is hidden', function () {
-    config(['app.readererer_van_drivers' => true]);
-    $log = failed_van_driver_log();
-    $admin = make_user(UserRole::Admin);
-
-    $this->actingAs($admin)->post(route('notifications.resend', $log))->assertNotFound();
-    $this->actingAs($admin)->get(route('notifications.index'))->assertDontSee(__('Resend to failed recipients'));
-});
-
 test('an admin resends a failed notification to its failed recipients as a new log', function () {
     Mail::fake();
     config(['app.readererer_van_drivers' => true]);
-    enable_resend_flag();
     $log = failed_van_driver_log();
     $admin = make_user(UserRole::Admin);
 
@@ -64,7 +46,6 @@ test('an admin resends a failed notification to its failed recipients as a new l
 });
 
 test('only admins can resend notifications', function () {
-    enable_resend_flag();
     $log = failed_van_driver_log();
 
     $this->actingAs(make_user(UserRole::Moderator))->post(route('notifications.resend', $log))->assertForbidden();

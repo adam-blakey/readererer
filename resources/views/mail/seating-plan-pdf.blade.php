@@ -1,10 +1,7 @@
 @php
     use App\Enums\AttendanceStatus;
-    use App\Features\SeatingPlanPdfOptions;
-    use Laravel\Pennant\Feature;
 
-    $options = Feature::active(SeatingPlanPdfOptions::class);
-    $abbreviate = $options && config('app.readererer_abbreviate_surnames');
+    $abbreviate = config('app.readererer_abbreviate_surnames');
     $attendanceTotals = $termDate ? member_status_totals($members, $termDate, $ensemble) : [];
     $primaryColor = color_name_to_hex(config('app.readererer_primary_color')) ?? '#066fd1';
 
@@ -90,12 +87,8 @@
                                         <s style="color: #9CA3AF; text-decoration: line-through;">{{ $name }}</s>
                                         @break
                                     @case(AttendanceStatus::Depping)
-                                        @if ($options)
-                                            <div>{{ $attendance->dep_name ?: $name }}</div>
-                                            <div style="font-size: 9px; line-height: 1.2; color: #6b7280;">{{ $attendance->dep_name ? __('Dep for :name', ['name' => $name]) : __('Sending a dep') }}</div>
-                                        @else
-                                            <span>{{ $attendance->dep_name ? __(':dep (dep for :name)', ['dep' => $attendance->dep_name, 'name' => $name]) : __(':name (sending a dep)', ['name' => $name]) }}</span>
-                                        @endif
+                                        <div>{{ $attendance->dep_name ?: $name }}</div>
+                                        <div style="font-size: 9px; line-height: 1.2; color: #6b7280;">{{ $attendance->dep_name ? __('Dep for :name', ['name' => $name]) : __('Sending a dep') }}</div>
                                         @break
                                     @default
                                         <span>{{ $name }}</span>

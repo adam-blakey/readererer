@@ -3,7 +3,6 @@
 use App\Enums\AttendanceStatus;
 use App\Enums\EmailStatus;
 use App\Enums\UserRole;
-use App\Features\DashboardPartAndSeat;
 use App\Mail\AttendanceListMail;
 use App\Models\Attendance;
 use App\Models\EmailLog;
@@ -13,11 +12,8 @@ use App\Models\SetupGroup;
 use App\Models\Term;
 use App\Models\TermDate;
 use App\Models\User;
-use Laravel\Pennant\Feature;
 
-test('the dashboard shows the part and seat for each ensemble when the flag is on', function () {
-    config(['app.readererer_feature_flags' => [DashboardPartAndSeat::class => ['enabled' => true]]]);
-    Feature::flushCache();
+test('the dashboard shows the part and seat for each ensemble', function () {
     $member = make_user(UserRole::Member);
     join_ensemble($member, Ensemble::factory()->create(), InstrumentFamily::factory()->create(['name' => 'Oboes']), 'B', 3);
     join_ensemble_without_instrument($member, Ensemble::factory()->create());
@@ -27,13 +23,6 @@ test('the dashboard shows the part and seat for each ensemble when the flag is o
         ->assertSee('Oboes')
         ->assertSee('Row B, seat 3')
         ->assertSee('No part');
-});
-
-test('the dashboard hides the part and seat while the flag is off', function () {
-    $member = make_user(UserRole::Member);
-    join_ensemble($member, Ensemble::factory()->create(), InstrumentFamily::factory()->create(['name' => 'Oboes']), 'B', 3);
-
-    $this->actingAs($member)->get('/dashboard')->assertOk()->assertDontSee('Oboes')->assertDontSee('Row B, seat 3');
 });
 
 test('members see the dashboard with their ensembles and upcoming dates', function () {

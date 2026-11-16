@@ -2,7 +2,6 @@
 
 namespace App\Mail;
 
-use App\Features\AttendanceListSections;
 use App\Models\Ensemble;
 use App\Models\InstrumentFamily;
 use App\Models\TermDate;
@@ -14,7 +13,6 @@ use Illuminate\Mail\Mailables\Content;
 use Illuminate\Mail\Mailables\Envelope;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Support\Collection;
-use Laravel\Pennant\Feature;
 
 class AttendanceListMail extends Mailable
 {
@@ -32,7 +30,7 @@ class AttendanceListMail extends Mailable
     public function content(): Content
     {
         return new Content(
-            markdown: Feature::for($this->recipient)->active(AttendanceListSections::class) ? 'emails.attendance-list-sections' : 'emails.attendance-list',
+            markdown: 'emails.attendance-list-sections',
             with: [
                 'termDate' => $this->termDate,
                 'members' => $members = $this->members(),

@@ -4,8 +4,6 @@ namespace App\Models;
 
 use App\Attributes\Icon;
 use App\Enums\UserRole;
-use App\Features\EnsembleShortNames;
-use App\Features\HiddenEnsemblesGetNoEmails;
 use App\Traits\HasImage;
 use App\Traits\HasPropertyIcons;
 use Barryvdh\DomPDF\Facade\Pdf;
@@ -16,7 +14,6 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
-use Laravel\Pennant\Feature;
 use SDamian\Larasort\AutoSortable;
 
 #[Icon('abc', for: 'short_name')]
@@ -73,10 +70,10 @@ class Ensemble extends Model
         ];
     }
 
-    /** The name for tight places such as tables: the short name while that flag is on, falling back to the full name. */
+    /** The name for tight places such as tables: the short name, falling back to the full name. */
     public function getShortLabelAttribute(): string
     {
-        return Feature::active(EnsembleShortNames::class) ? ($this->short_name ?? $this->name) : $this->name;
+        return $this->short_name ?? $this->name;
     }
 
     /** Hidden ensembles are left out of listings; the ensembles list and their own pages still show them. */
@@ -86,10 +83,9 @@ class Ensemble extends Model
         $query->where('ensembles.show', true);
     }
 
-    /** Hidden ensembles get no emails while that flag is on. */
     public function getsNoEmails(): bool
     {
-        return ! $this->show && Feature::for(null)->active(HiddenEnsemblesGetNoEmails::class);
+        return ! $this->show;
     }
 
     public function admins(): BelongsToMany

@@ -4,7 +4,6 @@ namespace App\Services;
 
 use App\Contracts\EmailSender;
 use App\Enums\EmailStatus;
-use App\Features\ViewEmailOnline;
 use App\Models\EmailLog;
 use App\Models\EmailRecipient;
 use App\Models\TermDate;
@@ -15,7 +14,6 @@ use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\View;
 use Illuminate\Support\Str;
-use Laravel\Pennant\Feature;
 use Throwable;
 
 class EmailDispatcher
@@ -60,7 +58,7 @@ class EmailDispatcher
         foreach ($recipients as $recipient) {
             $status = EmailStatus::Sent;
             $error = null;
-            $viewUuid = Feature::for($recipient)->active(ViewEmailOnline::class) ? (string) Str::uuid() : null;
+            $viewUuid = (string) Str::uuid();
 
             try {
                 $snapshot = $viewUuid ? $mailableFactory($recipient)->render() : null;

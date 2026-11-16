@@ -3,36 +3,18 @@
 use App\Enums\AttendanceStatus;
 use App\Enums\EmailStatus;
 use App\Enums\UserRole;
-use App\Features\TermDateOverview;
 use App\Mail\AttendanceListMail;
 use App\Models\Attendance;
 use App\Models\EmailLog;
 use App\Models\Ensemble;
 use App\Models\SetupGroup;
-use Laravel\Pennant\Feature;
-
-function enable_term_date_overview(): void
-{
-    config(['app.readererer_feature_flags' => [TermDateOverview::class => ['enabled' => true]]]);
-    Feature::flushCache();
-}
-
-test('the overview is a 404 and unlinked while its flag is off', function () {
-    $termDate = make_term_date();
-    $moderator = make_user(UserRole::Moderator);
-
-    $this->actingAs($moderator)->get(route('term-dates.show', $termDate))->assertNotFound();
-    $this->actingAs($moderator)->get(route('terms.show', $termDate->term))->assertDontSee(route('term-dates.show', $termDate));
-});
 
 test('members cannot see the overview', function () {
-    enable_term_date_overview();
 
     $this->actingAs(make_user(UserRole::Member))->get(route('term-dates.show', make_term_date()))->assertForbidden();
 });
 
 test('the overview shows attendance, the setup group, the van driver, seating plans and emails', function () {
-    enable_term_date_overview();
     config(['app.readererer_setup_groups' => true, 'app.readererer_van_drivers' => true, 'app.readererer_assume_attending' => false]);
 
     $ensemble = Ensemble::factory()->create(['seating_plan_enabled' => true]);
@@ -69,7 +51,6 @@ test('the overview shows attendance, the setup group, the van driver, seating pl
 });
 
 test('the term page links each date to its overview', function () {
-    enable_term_date_overview();
     $termDate = make_term_date();
 
     $this->actingAs(make_user(UserRole::Moderator))->get(route('terms.show', $termDate->term))

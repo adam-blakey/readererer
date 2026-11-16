@@ -2,11 +2,9 @@
 
 namespace App\Traits;
 
-use App\Features\EnsembleViewInstrument;
 use App\Models\Ensemble;
 use App\Models\Term;
 use Illuminate\Support\Carbon;
-use Laravel\Pennant\Feature;
 
 trait ShowEnsemble
 {
@@ -31,9 +29,7 @@ trait ShowEnsemble
             ->sortBy('start_datetime')
             ->first();
 
-        $membership = Feature::active(EnsembleViewInstrument::class)
-            ? auth()->user()->ensembles->firstWhere('id', $ensemble->id)?->pivot
-            : null;
+        $membership = auth()->user()->ensembles->firstWhere('id', $ensemble->id)?->pivot;
 
         return view('ensembles.show', [
             'ensemble' => $ensemble,
