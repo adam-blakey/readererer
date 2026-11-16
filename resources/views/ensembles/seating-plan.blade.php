@@ -10,6 +10,12 @@
                             {{ $page_subname }}
                         </h3>
                         <div class="card-actions btn-list">
+                            @feature(\App\Features\SeatingPlanPdfOptions::class)
+                                <x-a class="btn" href="{{ route('ensembles.seating-plan.download-generic', $ensemble) }}" target="_blank">
+                                    <x-icon name="file-type-pdf" />
+                                    {{ __('Generic plan') }}
+                                </x-a>
+                            @endfeature
                             @if($upcoming_term_dates->isNotEmpty() || $past_term_dates->isNotEmpty())
                                 <div class="dropdown">
                                     <button class="btn dropdown-toggle" type="button" data-bs-toggle="dropdown" data-bs-auto-close="outside" aria-expanded="false">

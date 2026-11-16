@@ -38,6 +38,7 @@ class UpdateSettingsRequest extends FormRequest
             'single_ensemble' => ['sometimes', 'boolean', Rule::when(Ensemble::count() > 1, 'declined')],
             'log_emails' => ['sometimes', 'boolean'],
             'analytics' => ['sometimes', 'boolean'],
+            'abbreviate_surnames' => ['sometimes', 'boolean'],
             'reminder_hours' => ['nullable', 'integer', 'min:0', 'max:720'],
             'reminder_minutes' => ['nullable', 'integer', 'min:0', 'max:59'],
             'concert_reminder_hours' => ['nullable', 'integer', 'min:0', 'max:720'],

@@ -104,7 +104,7 @@ class SeatingPlanController extends Controller
         return to_route('ensembles.seating-plan.show', $ensemble);
     }
 
-    public function download(Ensemble $ensemble, TermDate $termDate)
+    public function download(Ensemble $ensemble, ?TermDate $termDate = null)
     {
         return $ensemble->seatingPlanPdf($termDate)->stream();
     }

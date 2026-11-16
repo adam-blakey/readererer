@@ -18,6 +18,18 @@ test('initials come from the first and last name', function () {
     expect($user->last_name_initial)->toBe('L');
 });
 
+test('the abbreviated name keeps the first name and the initials of the surname', function (string $lastName, string $abbreviated) {
+    $user = User::factory()->make(['first_name' => 'Adam', 'last_name' => $lastName]);
+
+    expect($user->abbreviated_name)->toBe($abbreviated);
+})->with([
+    ['Blakey', 'Adam B'],
+    ['van der Berg', 'Adam v d B'],
+    ['Smith-Jones', 'Adam S-J'],
+    ['Ødegaard', 'Adam Ø'],
+    ['', 'Adam'],
+]);
+
 test('role description matches the role', function (UserRole $role, string $description) {
     $user = User::factory()->make(['role' => $role]);
 

@@ -274,6 +274,12 @@ class User extends Authenticatable
         return $this->first_name.' '.$this->last_name;
     }
 
+    /** "Adam Blakey" becomes "Adam B", and each part of a longer surname keeps its initial: "van der Berg" becomes "v d B". */
+    public function getAbbreviatedNameAttribute(): string
+    {
+        return trim($this->first_name.' '.preg_replace('/(\p{L})\p{L}*/u', '$1', (string) $this->last_name));
+    }
+
     public function getFirstNameInitialAttribute(): string
     {
         return mb_substr($this->first_name, 0, 1);
