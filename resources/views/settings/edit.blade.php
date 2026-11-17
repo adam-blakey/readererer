@@ -300,6 +300,9 @@
 				<div class="card-footer d-flex justify-content-between">
 					<div class="btn-list">
 						<a class="btn" href="{{ route('settings.import') }}">{{ __('Import from Pollererer') }}</a>
+						@feature(\App\Features\MembermojoImport::class)
+							<a class="btn" href="{{ route('settings.membermojo') }}">{{ __('Import from Membermojo') }}</a>
+						@endfeature
 						<a class="btn" href="{{ route('settings.monitoring') }}">{{ __('Monitoring') }}</a>
 					</div>
 					<button class="btn btn-primary" type="submit">{{ __('Save settings') }}</button>

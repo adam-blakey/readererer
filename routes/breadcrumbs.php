@@ -77,6 +77,11 @@ Breadcrumbs::for('feature-flags.edit', function (BreadcrumbTrail $trail) {
     $trail->push(__('Feature flags'), route('feature-flags.edit'));
 });
 
+Breadcrumbs::for('settings.membermojo', function (BreadcrumbTrail $trail) {
+    $trail->parent('settings.edit');
+    $trail->push(__('Import from Membermojo'), route('settings.membermojo'));
+});
+
 Breadcrumbs::for('settings.import', function (BreadcrumbTrail $trail) {
     $trail->parent('settings.edit');
     $trail->push(__('Import from Pollererer'), route('settings.import'));

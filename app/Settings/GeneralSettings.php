@@ -42,6 +42,12 @@ class GeneralSettings extends Settings
         'feature_flags' => ['app.readererer_feature_flags'],
         'social_links' => ['app.readererer_social_links'],
         'abbreviate_surnames' => ['app.readererer_abbreviate_surnames'],
+        'membermojo_shortname' => ['services.membermojo.shortname'],
+        'membermojo_email' => ['services.membermojo.email'],
+        'membermojo_password' => ['services.membermojo.password'],
+        'membermojo_overwrite' => ['services.membermojo.overwrite'],
+        'membermojo_cookies' => ['services.membermojo.cookies'],
+        'membermojo_status' => ['services.membermojo.status'],
         'email_previews' => ['app.readererer_email_previews'],
     ];
 
@@ -120,6 +126,18 @@ class GeneralSettings extends Settings
 
     public ?bool $abbreviate_surnames;
 
+    public ?string $membermojo_shortname;
+
+    public ?string $membermojo_email;
+
+    public ?string $membermojo_password;
+
+    public ?bool $membermojo_overwrite;
+
+    public ?array $membermojo_cookies;
+
+    public ?array $membermojo_status;
+
     public ?bool $email_previews;
 
     public static function group(): string
@@ -129,7 +147,7 @@ class GeneralSettings extends Settings
 
     public static function encrypted(): array
     {
-        return ['google_client_secret'];
+        return ['google_client_secret', 'membermojo_password', 'membermojo_cookies'];
     }
 
     public static function applyToConfig(): void
