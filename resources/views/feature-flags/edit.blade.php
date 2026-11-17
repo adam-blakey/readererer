@@ -70,7 +70,7 @@
 							@endif
 							<div class="col-md-6 col-xl-3">
 								<label class="form-label" for="{{ $id }}-starts_at">{{ __('Starts at') }}</label>
-								<input @class(['form-control', 'is-invalid' => $errors->has($key('starts_at'))]) id="{{ $id }}-starts_at" name="{{ $input('starts_at') }}" type="datetime-local" value="{{ old($key('starts_at'), $options['starts_at']) }}">
+								<x-forms.datetime-input :id="$id.'-starts_at'" :invalid="$errors->has($key('starts_at'))" :name="$input('starts_at')" :value="old($key('starts_at'), $options['starts_at'])" />
 								<div class="form-hint">{{ __('Leave empty to start straight away.') }}</div>
 								@error($key('starts_at'))
 									<x-forms.input-error :messages="$message" />

@@ -846,5 +846,8 @@
     "Claimed": "Claimed",
     "Claim": "Claim",
     "No email address: ask an admin": "No email address: ask an admin",
-    "Email a login link to :name?": "Email a login link to :name?"
+    "Email a login link to :name?": "Email a login link to :name?",
+    "24-hour time inputs": "24-hour time inputs",
+    "Splits date and time fields into a date picker and a 24-hour time (HH:MM), instead of the browser's date and time picker, which shows 12-hour times in some languages.": "Splits date and time fields into a date picker and a 24-hour time (HH:MM), instead of the browser's date and time picker, which shows 12-hour times in some languages.",
+    "A 24-hour time, such as 19:30": "A 24-hour time, such as 19:30"
 }

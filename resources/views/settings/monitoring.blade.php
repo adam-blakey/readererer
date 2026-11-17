@@ -94,7 +94,7 @@
 						<div class="text-secondary mb-3">{{ trans_choice(':count check|:count checks', $summary->checks, ['count' => number_format($summary->checks)]) }} · {{ trans_choice(':count failed|:count failed', $summary->failed, ['count' => number_format($summary->failed)]) }}</div>
 						<div class="tracking">
 							@foreach ($buckets as $i => $bucket)
-								<div @class(['tracking-block', $bucket_colours[$bucket->status], 'd-none d-md-block' => $i < $phone_start]) data-bs-toggle="tooltip" title="{{ $bucket->from->isoFormat('lll') }} – {{ $bucket_labels[$bucket->status] }}"></div>
+								<div @class(['tracking-block', $bucket_colours[$bucket->status], 'd-none d-md-block' => $i < $phone_start]) data-bs-toggle="tooltip" title="{{ $bucket->from->format('j M Y, H:i') }} – {{ $bucket_labels[$bucket->status] }}"></div>
 							@endforeach
 						</div>
 					</div>
