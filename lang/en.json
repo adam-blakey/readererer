@@ -832,7 +832,7 @@
     "Member since": "Member since",
     "Membership expires": "Membership expires",
     "Download time": "Download time",
-    "When the members are downloaded each day, in the :timezone time zone.": "When the members are downloaded each day, in the :timezone time zone.",
+    "When the members are downloaded each day, as a 24-hour time (HH:MM) in the :timezone time zone.": "When the members are downloaded each day, as a 24-hour time (HH:MM) in the :timezone time zone.",
     "Your van driving dates have changed": "Your van driving dates have changed",
     "Claim accounts": "Claim accounts",
     "Invites ensemble logins to set up their own account: members who have never logged in can have a login link emailed to them from a list of the ensemble's members.": "Invites ensemble logins to set up their own account: members who have never logged in can have a login link emailed to them from a list of the ensemble's members.",
