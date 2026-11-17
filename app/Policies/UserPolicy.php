@@ -98,6 +98,19 @@ class UserPolicy
         return Response::deny();
     }
 
+    public function claim(User $user, User $user_)
+    {
+        if ($user->role === UserRole::Ensemble
+            && $user_->role !== UserRole::Ensemble
+            && $user_->last_login_at === null
+            && filled($user_->email)
+            && $user_->ensembles->pluck('id')->intersect($user->ensembles->pluck('id'))->isNotEmpty()) {
+            return Response::allow();
+        }
+
+        return Response::deny();
+    }
+
     private function isOwnMemberAccount(User $user, User $user_): bool
     {
         return $user->is($user_) && $user->role->value >= UserRole::Member->value;

@@ -55,6 +55,7 @@ class User extends Authenticatable
         'username',
         'email',
         'role',
+        'last_login_at',
         'created_at',
         'updated_at',
     ];
@@ -156,6 +157,7 @@ class User extends Authenticatable
             'updated_at' => 'datetime',
             'is_over_18' => 'boolean',
             'must_change_password' => 'boolean',
+            'last_login_at' => 'datetime',
             'has_photo_permission' => 'boolean',
             'is_gift_aiding_subs' => 'boolean',
             'settings' => 'array',

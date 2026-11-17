@@ -1,7 +1,9 @@
 <?php
 
+use App\Features\ClaimAccounts;
 use App\Http\Controllers\AttendanceController;
 use App\Http\Controllers\AttendanceRegisterController;
+use App\Http\Controllers\ClaimAccountController;
 use App\Http\Controllers\ComposerController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\EmailSnapshotController;
@@ -30,6 +32,7 @@ use App\Models\Ensemble;
 use App\Models\RegisterEntry;
 use App\Models\Term;
 use Illuminate\Support\Facades\Route;
+use Laravel\Pennant\Middleware\EnsureFeaturesAreActive;
 
 Route::get('/health', HealthCheckController::class)
     ->name('health');
@@ -47,6 +50,16 @@ Route::get('/', HomeController::class)
 Route::get('/dashboard', [DashboardController::class, 'index'])
     ->name('dashboard')
     ->can('view.dashboard');
+
+Route::middleware(EnsureFeaturesAreActive::using(ClaimAccounts::class))->group(function () {
+    Route::get('/claim-account', [ClaimAccountController::class, 'index'])
+        ->name('claim-account.index')
+        ->can('claim.accounts');
+    Route::post('/claim-account/{user}', [ClaimAccountController::class, 'store'])
+        ->name('claim-account.store')
+        ->middleware('throttle:10,1,claim-account.store')
+        ->can('claim', 'user');
+});
 
 Route::get('/attendance', [AttendanceController::class, 'index'])
     ->name('attendance.index')

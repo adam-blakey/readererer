@@ -63,7 +63,10 @@ class AppServiceProvider extends ServiceProvider
         $nightwatch->redactCommands(NightwatchRedaction::command(...));
         $nightwatch->redactExceptions(NightwatchRedaction::exception(...));
 
-        Event::listen(Login::class, fn (Login $event) => Log::info('User logged in', ['user_id' => $event->user->getAuthIdentifier(), 'remember' => $event->remember]));
+        Event::listen(Login::class, function (Login $event) {
+            User::withoutTimestamps(fn () => $event->user->forceFill(['last_login_at' => now()])->save());
+            Log::info('User logged in', ['user_id' => $event->user->getAuthIdentifier(), 'remember' => $event->remember]);
+        });
         Event::listen(Failed::class, fn (Failed $event) => Log::warning('Login failed', ['user_id' => $event->user?->getAuthIdentifier()]));
         Event::listen(Lockout::class, fn () => Log::warning('Login locked out after too many attempts'));
         Event::listen(PasswordReset::class, fn (PasswordReset $event) => Log::info('Password reset', ['user_id' => $event->user->getAuthIdentifier()]));
@@ -80,6 +83,10 @@ class AppServiceProvider extends ServiceProvider
 
         Gate::define('view.dashboard', function (User $user) {
             return true;
+        });
+
+        Gate::define('claim.accounts', function (User $user) {
+            return $user->role === UserRole::Ensemble;
         });
 
         Gate::define('view.settings', function (User $user) {

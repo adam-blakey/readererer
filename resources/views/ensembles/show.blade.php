@@ -48,6 +48,7 @@
 
 	<div class="page-body">
 		<div class="container-xl">
+			<x-claim-account-invite />
 			<div class="row g-3">
 				<div class="col">
                     <div class="mb-3 card">
