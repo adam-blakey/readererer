@@ -196,7 +196,7 @@
 				const row = buildRow(nextIndex());
 				// The template has no hidden id, so the duplicate is saved as a new term date.
 				row.querySelectorAll('[name]').forEach(el => {
-					const field = (el.name.match(/\[[^\]]+\](\[\])?$/) || [])[0];
+					const field = el.name.replace(/^term_dates\[[^\]]+\]/, '');
 					const source = field ? sourceRow.querySelector(`[name$="${field}"]`) : null;
 					if (source && source.multiple) {
 						Array.from(el.options).forEach(option => option.selected = source.querySelector(`option[value="${option.value}"]`)?.selected ?? false);

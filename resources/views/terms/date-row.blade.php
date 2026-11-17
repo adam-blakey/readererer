@@ -21,11 +21,11 @@
         <div class="row g-3 align-items-end">
             <div class="col-md-5">
                 <label class="form-label">{{ __('Start') }}</label>
-                <input class="form-control @error('term_dates.'.$i.'.start_datetime') is-invalid @enderror" name="term_dates[{{ $i }}][start_datetime]" type="datetime-local" value="{{ $date['start_datetime'] ?? '' }}" data-initial="{{ $orig?->start_datetime?->format('Y-m-d\TH:i') }}" required>
+                <x-forms.datetime-input :initial="$orig?->start_datetime?->format('Y-m-d\TH:i') ?? ''" :invalid="$errors->has('term_dates.'.$i.'.start_datetime')" :name="'term_dates['.$i.'][start_datetime]'" required :value="$date['start_datetime'] ?? ''" />
             </div>
             <div class="col-md-5">
                 <label class="form-label">{{ __('End') }}</label>
-                <input class="form-control @error('term_dates.'.$i.'.end_datetime') is-invalid @enderror" name="term_dates[{{ $i }}][end_datetime]" type="datetime-local" value="{{ $date['end_datetime'] ?? '' }}" data-initial="{{ $orig?->end_datetime?->format('Y-m-d\TH:i') }}" required>
+                <x-forms.datetime-input :initial="$orig?->end_datetime?->format('Y-m-d\TH:i') ?? ''" :invalid="$errors->has('term_dates.'.$i.'.end_datetime')" :name="'term_dates['.$i.'][end_datetime]'" required :value="$date['end_datetime'] ?? ''" />
             </div>
             <div class="col-md-2">
                 <label class="form-check mb-2">

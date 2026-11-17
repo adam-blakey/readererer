@@ -236,3 +236,27 @@ test('seat_rows counts from A to the last valid row, with Z followed by AA', fun
         ->and(seat_rows(['AB', 'Z', 'C']))->toHaveCount(28)
         ->and(array_slice(seat_rows(['AB', 'Z']), -3))->toBe(['Z', 'AA', 'AB']);
 });
+
+test('times are formatted and read in the site\'s 12- or 24-hour format', function () {
+    expect(time_format())->toBe('H:i')
+        ->and(display_time('07:05'))->toBe('07:05');
+
+    config(['app.readererer_twenty_four_hour_clock' => false]);
+
+    expect(time_format())->toBe('g:ia')
+        ->and(display_time('19:30'))->toBe('7:30pm')
+        ->and(display_time('00:15'))->toBe('12:15am')
+        ->and(display_time('25:00'))->toBe('25:00');
+});
+
+test('normalise_time turns 12-hour times into 24 hours and leaves anything else alone', function (?string $time, ?string $expected) {
+    expect(normalise_time($time))->toBe($expected);
+})->with([
+    ['7:30pm', '19:30'],
+    ['7:30 PM', '19:30'],
+    ['12:05 a.m.', '00:05'],
+    ['12:45pm', '12:45'],
+    ['19:30', '19:30'],
+    ['13:00pm', '13:00pm'],
+    [null, null],
+]);

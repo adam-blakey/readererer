@@ -107,11 +107,20 @@ test('date and datetime columns render inputs the browser can edit', function ()
     $date = render_field('start_date', ['type' => 'date', 'value' => '2026-03-04 19:30:00']);
     expect($date)->toContain('type="date"')->toContain('value="2026-03-04"');
 
-    $datetime = render_field('start_datetime', [
-        'type' => 'datetime',
-        'value' => Carbon::parse('2026-03-04 19:30:00'),
-    ]);
-    expect($datetime)->toContain('type="datetime-local"')->toContain('value="2026-03-04T19:30"');
+    $datetime = render_field('start_datetime', ['type' => 'datetime', 'value' => Carbon::parse('2026-03-04 19:30:00')]);
+    expect($datetime)->not->toContain('datetime-local')
+        ->toContain('name="start_datetime[date]" type="date" value="2026-03-04"')
+        ->toContain('name="start_datetime[time]"')
+        ->toContain('placeholder="HH:MM"')
+        ->toContain('value="19:30"');
+});
+
+test('with 12-hour times, a datetime column asks for a 12-hour time', function () {
+    config(['app.readererer_twenty_four_hour_clock' => false]);
+
+    $datetime = render_field('start_datetime', ['type' => 'datetime', 'value' => Carbon::parse('2026-03-04 19:30:00')]);
+
+    expect($datetime)->toContain('placeholder="h:mm am"')->toContain('value="7:30pm"');
 });
 
 test('an unparseable date value is handed back to the input rather than throwing', function () {

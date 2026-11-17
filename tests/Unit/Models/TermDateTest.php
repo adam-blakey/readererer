@@ -47,6 +47,12 @@ test('schedule label spells out both ends of a multi-day date', function () {
     expect($termDate->schedule_label)->toBe('Mon, 5 Jan 2026, 19:00 – Tue, 6 Jan 2026, 21:30');
 });
 
+test('labels use 12-hour times when the site is set to them', function () {
+    config(['app.readererer_twenty_four_hour_clock' => false]);
+
+    expect(term_date_at('2026-01-05 09:00:00', '2026-01-05 21:30:00')->schedule_label)->toBe('Mon, 5 Jan 2026, 9:00am–9:30pm');
+});
+
 test('labels show TBC in place of the time when it is not confirmed', function () {
     $termDate = term_date_at('2026-01-05 19:00:00', '2026-01-05 21:30:00', ['time_tbc' => true]);
 

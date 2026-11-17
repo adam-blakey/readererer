@@ -161,6 +161,7 @@ return [
     'readererer_google_register_role' => env('READERERER_GOOGLE_REGISTER_ROLE'),
     'readererer_abbreviate_surnames' => env('READERERER_ABBREVIATE_SURNAMES', false),
     'readererer_email_previews' => env('READERERER_EMAIL_PREVIEWS', false),
+    'readererer_twenty_four_hour_clock' => env('READERERER_TWENTY_FOUR_HOUR_CLOCK', true),
 
     'readererer_feature_flags' => [],
     'readererer_social_links' => [],

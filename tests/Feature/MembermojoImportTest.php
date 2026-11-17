@@ -300,7 +300,7 @@ test('the scheduled download runs at the saved time', function () {
     $admin = make_user(UserRole::Admin);
 
     $this->actingAs($admin)->put('/settings/membermojo/download', ['membermojo_time' => '25:00'])->assertSessionHasErrors('membermojo_time');
-    $this->actingAs($admin)->put('/settings/membermojo/download', ['membermojo_time' => '18:05'])->assertSessionHasNoErrors();
+    $this->actingAs($admin)->put('/settings/membermojo/download', ['membermojo_time' => '6:05pm'])->assertSessionHasNoErrors();
     GeneralSettings::applyToConfig();
     require base_path('routes/console.php');
 

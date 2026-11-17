@@ -40,6 +40,7 @@ class UpdateSettingsRequest extends FormRequest
             'analytics' => ['sometimes', 'boolean'],
             'abbreviate_surnames' => ['sometimes', 'boolean'],
             'email_previews' => ['sometimes', 'boolean'],
+            'twenty_four_hour_clock' => ['sometimes', 'boolean'],
             'reminder_hours' => ['nullable', 'integer', 'min:0', 'max:720'],
             'reminder_minutes' => ['nullable', 'integer', 'min:0', 'max:59'],
             'concert_reminder_hours' => ['nullable', 'integer', 'min:0', 'max:720'],

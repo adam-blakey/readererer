@@ -37,7 +37,7 @@ test('saving the page stores each flag\'s options', function () {
             'enabled' => '1',
             'roles' => [(string) UserRole::Member->value],
             'ensembles' => [(string) $ensemble->id],
-            'starts_at' => '2026-12-01T09:00',
+            'starts_at' => ['date' => '2026-12-01', 'time' => '09:00'],
             'from_version' => 'v1.5.0',
         ]]])
         ->assertSessionHasNoErrors()

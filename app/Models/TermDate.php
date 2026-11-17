@@ -221,10 +221,10 @@ class TermDate extends Model
         }
 
         if ($this->start_datetime->isSameDay($this->end_datetime)) {
-            return $this->start_datetime->format('l, jS F Y').', '.$this->start_datetime->format('H:i').'–'.$this->end_datetime->format('H:i');
+            return $this->start_datetime->format('l, jS F Y').', '.$this->start_datetime->format(time_format()).'–'.$this->end_datetime->format(time_format());
         }
 
-        return $this->start_datetime->format('l, jS F Y, H:i').' – '.$this->end_datetime->format('l, jS F Y, H:i');
+        return $this->start_datetime->format('l, jS F Y, '.time_format()).' – '.$this->end_datetime->format('l, jS F Y, '.time_format());
     }
 
     /** The date for its own table column; multi-day dates show the span. */
@@ -244,7 +244,7 @@ class TermDate extends Model
             return __('TBC');
         }
 
-        return $this->start_datetime->format('H:i').'–'.$this->end_datetime->format('H:i');
+        return $this->start_datetime->format(time_format()).'–'.$this->end_datetime->format(time_format());
     }
 
     /** Date and time on one line, e.g. "Wed, 12 Aug 2026, 19:30–21:30"; multi-day dates spell out both ends. */
@@ -254,7 +254,7 @@ class TermDate extends Model
             return $this->date_label.', '.$this->time_label;
         }
 
-        return $this->start_datetime->format('D, j M Y, H:i').' – '.$this->end_datetime->format('D, j M Y, H:i');
+        return $this->start_datetime->format('D, j M Y, '.time_format()).' – '.$this->end_datetime->format('D, j M Y, '.time_format());
     }
 
     /** The date's own location, else the term's default. */

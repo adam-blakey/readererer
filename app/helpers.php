@@ -424,3 +424,25 @@ function redact_personal_data(string $text): string
 {
     return preg_replace(['/ \(Connection: .*\)$/s', '/[\w.+-]+@[\w-]+(?:\.[\w-]+)+/'], ['', '[email]'], $text);
 }
+
+/** The PHP date format for a time of day, following the site's 12- or 24-hour setting. */
+function time_format(): string
+{
+    return config('app.readererer_twenty_four_hour_clock') ? 'H:i' : 'g:ia';
+}
+
+/** Turns a 12-hour time such as "7:30pm" into "19:30"; anything else is returned unchanged for validation to judge. */
+function normalise_time(?string $time): ?string
+{
+    if (preg_match('/^\s*(\d{1,2}):(\d{2})\s*([ap])\.?m\.?\s*$/i', (string) $time, $match) && $match[1] >= 1 && $match[1] <= 12) {
+        return sprintf('%02d:%s', $match[1] % 12 + (strtolower($match[3]) === 'p' ? 12 : 0), $match[2]);
+    }
+
+    return $time;
+}
+
+/** Shows a stored "H:i" time in the site's 12- or 24-hour format; anything else is returned unchanged. */
+function display_time(?string $time): ?string
+{
+    return preg_match('/^([01]\d|2[0-3]):[0-5]\d$/', (string) $time) ? Carbon\Carbon::createFromFormat('H:i', $time)->format(time_format()) : $time;
+}

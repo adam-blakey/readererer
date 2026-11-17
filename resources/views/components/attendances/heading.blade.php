@@ -26,8 +26,8 @@
 				{{ __('Time') }}<br />
 				{{ __('TBC') }}<br />
 			@else
-				{{ $term_date->start_datetime->format('G:i') }}<br />
-				{{ $term_date->end_datetime->format('G:i') }}<br />
+				{{ $term_date->start_datetime->format(time_format()) }}<br />
+				{{ $term_date->end_datetime->format(time_format()) }}<br />
 			@endif
             @if (config('app.readererer_setup_groups') && $term_date->setup_group != null)
                 <div class="mt-2">

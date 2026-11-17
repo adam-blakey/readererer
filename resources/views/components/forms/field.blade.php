@@ -101,8 +101,10 @@
                 </div>
                 @break
             @case('date')
+                <input type="date" name="{{ $name }}" id="{{ $id }}" value="{{ $date_value }}" @class($control_classes) @required($required) />
+                @break
             @case('datetime')
-                <input type="{{ $type === 'date' ? 'date' : 'datetime-local' }}" name="{{ $name }}" id="{{ $id }}" value="{{ $date_value }}" @class($control_classes) @required($required) />
+                <x-forms.datetime-input :id="$id" :invalid="$has_error" :name="$name" :required="$required" :value="$date_value" />
                 @break
             @case('color')
                 <x-forms.color-picker
