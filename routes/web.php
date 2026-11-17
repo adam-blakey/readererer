@@ -1,8 +1,10 @@
 <?php
 
+use App\Features\ClaimAccounts;
 use App\Features\MembermojoImport;
 use App\Http\Controllers\AttendanceController;
 use App\Http\Controllers\AttendanceRegisterController;
+use App\Http\Controllers\ClaimAccountController;
 use App\Http\Controllers\ComposerController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\EmailSnapshotController;
@@ -39,7 +41,7 @@ Route::get('/health', HealthCheckController::class)
 
 Route::get('/emails/{emailRecipient:view_uuid}', EmailSnapshotController::class)
     ->whereUuid('emailRecipient')
-    ->middleware('throttle:60,1')
+    ->middleware('throttle:60,1,emails.show')
     ->name('emails.show');
 
 Route::get('/manifest.webmanifest', ManifestController::class)
@@ -50,6 +52,16 @@ Route::get('/', HomeController::class)
 Route::get('/dashboard', [DashboardController::class, 'index'])
     ->name('dashboard')
     ->can('view.dashboard');
+
+Route::middleware(EnsureFeaturesAreActive::using(ClaimAccounts::class))->group(function () {
+    Route::get('/claim-account', [ClaimAccountController::class, 'index'])
+        ->name('claim-account.index')
+        ->can('claim.accounts');
+    Route::post('/claim-account/{user}', [ClaimAccountController::class, 'store'])
+        ->name('claim-account.store')
+        ->middleware('throttle:10,1,claim-account.store')
+        ->can('claim', 'user');
+});
 
 Route::get('/attendance', [AttendanceController::class, 'index'])
     ->name('attendance.index')
@@ -99,6 +111,7 @@ Route::middleware('auth')->group(function () {
         ->can('view.notifications');
     Route::post('/notifications/{emailLog}/resend', [NotificationController::class, 'resend'])
         ->name('notifications.resend')
+        ->middleware('throttle:10,1,send-emails')
         ->can('send.notifications');
 
     Route::get('/settings', [SettingController::class, 'edit'])->name('settings.edit')->can('view.settings')->middleware(ConfirmPasswordForSensitiveChanges::class);
@@ -154,15 +167,15 @@ Route::middleware('auth')->group(function () {
     Route::resource('terms', TermController::class);
 
     Route::get('/term-dates/{termDate}', [TermDateController::class, 'show'])->name('term-dates.show')->can('view', 'termDate');
-    Route::post('/term-dates/{termDate}/send-attendance-list', [TermDateNotificationController::class, 'sendAttendanceList'])->name('term-dates.send-attendance-list')->can('sendNotifications', 'termDate');
-    Route::post('/term-dates/{termDate}/send-setup-reminder', [TermDateNotificationController::class, 'sendSetupReminder'])->name('term-dates.send-setup-reminder')->can('sendNotifications', 'termDate');
-    Route::post('/term-dates/{termDate}/send-van-driver-reminder', [TermDateNotificationController::class, 'sendVanDriverReminder'])->name('term-dates.send-van-driver-reminder')->can('sendNotifications', 'termDate');
+    Route::post('/term-dates/{termDate}/send-attendance-list', [TermDateNotificationController::class, 'sendAttendanceList'])->name('term-dates.send-attendance-list')->middleware('throttle:10,1,send-emails')->can('sendNotifications', 'termDate');
+    Route::post('/term-dates/{termDate}/send-setup-reminder', [TermDateNotificationController::class, 'sendSetupReminder'])->name('term-dates.send-setup-reminder')->middleware('throttle:10,1,send-emails')->can('sendNotifications', 'termDate');
+    Route::post('/term-dates/{termDate}/send-van-driver-reminder', [TermDateNotificationController::class, 'sendVanDriverReminder'])->name('term-dates.send-van-driver-reminder')->middleware('throttle:10,1,send-emails')->can('sendNotifications', 'termDate');
 
     Route::patch('/users/{user}/restore', [UserController::class, 'restore'])->name('users.restore')->withTrashed()->can('restore', 'user');
     Route::resource('users', UserController::class)->withTrashed(['show'])
         ->middlewareFor(['edit', 'update'], ConfirmPasswordForSensitiveChanges::class.':manage');
     Route::delete('/users/{user}/erase', [UserController::class, 'erase'])->name('users.erase')->withTrashed()->can('erase', 'user')->middleware(ConfirmPasswordForSensitiveChanges::class);
-    Route::post('/users/{user}/password-reset-link', [UserController::class, 'sendPasswordResetLink'])->name('users.password-reset-link')->can('resetPassword', 'user');
+    Route::post('/users/{user}/password-reset-link', [UserController::class, 'sendPasswordResetLink'])->name('users.password-reset-link')->middleware('throttle:10,1,send-emails')->can('resetPassword', 'user');
     Route::get('/users/{user}/password', [UserController::class, 'editPassword'])->name('users.password.edit')->can('resetPassword', 'user')->middleware(ConfirmPasswordForSensitiveChanges::class);
     Route::put('/users/{user}/password', [UserController::class, 'setPassword'])->name('users.password')->can('resetPassword', 'user')->middleware(ConfirmPasswordForSensitiveChanges::class);
     Route::post('/users/{user}/ensembles', [UserController::class, 'attachEnsemble'])->name('users.ensembles.store')->can('manage', 'user');

@@ -25,6 +25,7 @@
 		],
 		__('Email') => [
 			'log_emails' => [__('Log emails instead of sending them'), __('Writes emails to storage/logs/emails.log rather than sending them. Use this on test sites so members are not emailed.')],
+			'email_previews' => [__('Preview emails before sending them'), __('The buttons that send an email for a date first show the email in a popup, with a button there to send it.')],
 		],
 		__('Analytics') => [
 			'analytics' => [__('Send analytics to Laravel Nightwatch'), __('Sends page timings, errors and logs to Laravel Nightwatch so the Readererer developers can find problems. Members appear only as an ID, and email and IP addresses are removed. Also needs the site\'s Nightwatch token.')],
@@ -69,7 +70,7 @@
 			@method('PUT')
 
 			<fieldset class="card-body" @disabled(! $can_edit)>
-				<x-forms.error-summary :fields="['name', 'logo', 'remove_logo', 'favicon', 'remove_favicon', 'primary_color', 'image_max_kilobytes', 'assume_attending', 'allow_change_to_unknown', 'repeating_headings', 'hide_past_dates', 'depping', 'setup_groups', 'van_drivers', 'single_ensemble', 'reminder_hours', 'reminder_minutes', 'concert_reminder_hours', 'concert_reminder_minutes', 'after_reminders', 'log_emails', 'analytics', 'abbreviate_surnames', 'terminology', 'terminology.*', 'social_links', 'social_links.*', 'shown_user_fields', 'shown_user_fields.*', 'google_login', 'google_client_id', 'google_client_secret', 'google_register_domain', 'google_register_role']" />
+				<x-forms.error-summary :fields="['name', 'logo', 'remove_logo', 'favicon', 'remove_favicon', 'primary_color', 'image_max_kilobytes', 'assume_attending', 'allow_change_to_unknown', 'repeating_headings', 'hide_past_dates', 'depping', 'setup_groups', 'van_drivers', 'single_ensemble', 'reminder_hours', 'reminder_minutes', 'concert_reminder_hours', 'concert_reminder_minutes', 'after_reminders', 'log_emails', 'email_previews', 'analytics', 'abbreviate_surnames', 'terminology', 'terminology.*', 'social_links', 'social_links.*', 'shown_user_fields', 'shown_user_fields.*', 'google_login', 'google_client_id', 'google_client_secret', 'google_register_domain', 'google_register_role']" />
 				@if (session('status'))
 					<div class="alert alert-success" role="alert">{{ session('status') }}</div>
 				@endif

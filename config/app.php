@@ -160,6 +160,7 @@ return [
     'readererer_google_register_domain' => env('READERERER_GOOGLE_REGISTER_DOMAIN'),
     'readererer_google_register_role' => env('READERERER_GOOGLE_REGISTER_ROLE'),
     'readererer_abbreviate_surnames' => env('READERERER_ABBREVIATE_SURNAMES', false),
+    'readererer_email_previews' => env('READERERER_EMAIL_PREVIEWS', false),
 
     'readererer_feature_flags' => [],
     'readererer_social_links' => [],

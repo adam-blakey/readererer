@@ -8,6 +8,7 @@
 				<a class="btn btn-primary" href="{{ route('login') }}"><x-icon name="login" /> {{ __('Log in') }}</a>
 			</div>
 		@endguest
+		<x-claim-account-invite />
 		@php($single = single_ensemble() !== null)
 		<div class="row row-cards">
 			@forelse($ensembles as $ensemble)
