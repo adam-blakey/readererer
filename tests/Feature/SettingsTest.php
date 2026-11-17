@@ -239,6 +239,16 @@ test('the abbreviate surnames switch is saved to the config', function () {
     expect(config('app.readererer_abbreviate_surnames'))->toBeTrue();
 });
 
+test('the email previews switch is saved to the config', function () {
+    $this->actingAs(make_user(UserRole::Admin))
+        ->put(route('settings.update'), settings_payload(['email_previews' => '1']))
+        ->assertSessionHasNoErrors();
+
+    reload_settings();
+
+    expect(config('app.readererer_email_previews'))->toBeTrue();
+});
+
 test('saving the settings logs which settings changed but not their values', function () {
     Log::spy();
 

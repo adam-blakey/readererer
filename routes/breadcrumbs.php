@@ -47,6 +47,11 @@ Breadcrumbs::for('dashboard', function (BreadcrumbTrail $trail) {
     $trail->push(__('Dashboard'), route('dashboard'));
 });
 
+Breadcrumbs::for('claim-account.index', function (BreadcrumbTrail $trail) {
+    $trail->parent('home');
+    $trail->push(__('Set up your own account'), route('claim-account.index'));
+});
+
 Breadcrumbs::for('notifications.index', function (BreadcrumbTrail $trail) {
     $trail->parent('home');
     $trail->push(__('Notifications'), route('notifications.index'));

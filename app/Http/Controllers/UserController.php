@@ -13,6 +13,7 @@ use App\Models\InstrumentFamily;
 use App\Models\SetupGroup;
 use App\Models\User;
 use App\Models\UserEnsemble;
+use App\Services\VanDriverRota;
 use Illuminate\Database\UniqueConstraintViolationException;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -176,27 +177,27 @@ class UserController extends Controller
         ]);
     }
 
-    public function destroy(User $user)
+    public function destroy(User $user, VanDriverRota $rota)
     {
-        $user->delete();
+        $rota->notifyingChanges(fn () => $user->delete());
         Log::notice('User deleted', ['user_id' => $user->id]);
 
         return redirect()->back()->with('status', __('Record deleted.'));
     }
 
-    public function restore(User $user)
+    public function restore(User $user, VanDriverRota $rota)
     {
-        $user->restore();
+        $rota->notifyingChanges(fn () => $user->restore());
         Log::notice('User restored', ['user_id' => $user->id]);
 
         return redirect()->back()->with('status', __('User restored.'));
     }
 
-    public function erase(EraseUserRequest $request, User $user): RedirectResponse
+    public function erase(EraseUserRequest $request, User $user, VanDriverRota $rota): RedirectResponse
     {
         $name = $user->name;
 
-        DB::transaction(function () use ($user) {
+        $rota->notifyingChanges(fn () => DB::transaction(function () use ($user) {
             $email = $user->email;
 
             $user->forceFill([
@@ -247,7 +248,7 @@ class UserController extends Controller
             if (! $user->trashed()) {
                 $user->delete();
             }
-        });
+        }));
 
         $mentioned = collect(Storage::disk('local')->files('emails'))
             ->filter(fn (string $path) => Str::contains((string) Storage::disk('local')->get($path), [$name, e($name)]))

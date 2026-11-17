@@ -7,6 +7,7 @@ use App\Mail\AttendanceChangedMail;
 use App\Mail\AttendanceListMail;
 use App\Mail\RosterChangedMail;
 use App\Mail\SetupReminderMail;
+use App\Mail\VanDriverDatesChangedMail;
 use App\Mail\VanDriverReminderMail;
 use Illuminate\Database\Eloquent\Attributes\Scope;
 use Illuminate\Database\Eloquent\Builder;
@@ -43,6 +44,7 @@ class EmailLog extends Model
         SetupReminderMail::class => 'Setup-group reminder',
         VanDriverReminderMail::class => 'Van-driver reminder',
         RosterChangedMail::class => 'Setup groups/driver changed',
+        VanDriverDatesChangedMail::class => 'Van driver dates changed',
     ];
 
     #[Scope]

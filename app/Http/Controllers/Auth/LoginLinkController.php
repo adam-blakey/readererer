@@ -33,10 +33,6 @@ class LoginLinkController extends Controller
             Log::warning('Login link not sent', ['status' => $status]);
         }
 
-        if ($status === Password::RESET_THROTTLED) {
-            return back()->withInput($request->only('email'))->withErrors(['email' => __($status)]);
-        }
-
         return back()->with('status', __('If :email belongs to a member\'s account, a login link has been sent to it.', ['email' => $request->email]));
     }
 

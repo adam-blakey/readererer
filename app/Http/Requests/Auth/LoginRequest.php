@@ -33,6 +33,7 @@ class LoginRequest extends FormRequest
 
         if (! Auth::attempt($this->only('username', 'password'), $this->boolean('remember_me'))) {
             RateLimiter::hit($this->throttleKey());
+            RateLimiter::hit($this->ipThrottleKey());
 
             throw ValidationException::withMessages([
                 'username' => trans('auth.failed'),
@@ -45,13 +46,16 @@ class LoginRequest extends FormRequest
     /** @throws ValidationException */
     public function ensureIsNotRateLimited(): void
     {
-        if (! RateLimiter::tooManyAttempts($this->throttleKey(), 5)) {
+        $key = collect([$this->throttleKey() => 5, $this->ipThrottleKey() => 20])
+            ->search(fn (int $max_attempts, string $key) => RateLimiter::tooManyAttempts($key, $max_attempts));
+
+        if ($key === false) {
             return;
         }
 
         event(new Lockout($this));
 
-        $seconds = RateLimiter::availableIn($this->throttleKey());
+        $seconds = RateLimiter::availableIn($key);
 
         throw ValidationException::withMessages([
             'username' => trans('auth.throttle', [
@@ -64,5 +68,11 @@ class LoginRequest extends FormRequest
     public function throttleKey(): string
     {
         return Str::transliterate(Str::lower($this->string('username')).'|'.$this->ip());
+    }
+
+    // Only failures count and a success does not clear it, so a shared login used by many people at one address is not locked out.
+    public function ipThrottleKey(): string
+    {
+        return 'login-failures|'.$this->ip();
     }
 }
