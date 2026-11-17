@@ -832,7 +832,6 @@
     "Member since": "Member since",
     "Membership expires": "Membership expires",
     "Download time": "Download time",
-    "When the members are downloaded each day, as a 24-hour time (HH:MM) in the :timezone time zone.": "When the members are downloaded each day, as a 24-hour time (HH:MM) in the :timezone time zone.",
     "Your van driving dates have changed": "Your van driving dates have changed",
     "Claim accounts": "Claim accounts",
     "Invites ensemble logins to set up their own account: members who have never logged in can have a login link emailed to them from a list of the ensemble's members.": "Invites ensemble logins to set up their own account: members who have never logged in can have a login link emailed to them from a list of the ensemble's members.",
@@ -849,7 +848,9 @@
     "Claim": "Claim",
     "No email address: ask an admin": "No email address: ask an admin",
     "Email a login link to :name?": "Email a login link to :name?",
-    "24-hour time inputs": "24-hour time inputs",
-    "Splits date and time fields into a date picker and a 24-hour time (HH:MM), instead of the browser's date and time picker, which shows 12-hour times in some languages.": "Splits date and time fields into a date picker and a 24-hour time (HH:MM), instead of the browser's date and time picker, which shows 12-hour times in some languages.",
-    "A 24-hour time, such as 19:30": "A 24-hour time, such as 19:30"
+    "A 24-hour time, such as 19:30": "A 24-hour time, such as 19:30",
+    "Use 24-hour times": "Use 24-hour times",
+    "Shows and asks for times as 19:30 rather than 7:30pm.": "Shows and asks for times as 19:30 rather than 7:30pm.",
+    "A 12-hour time, such as 7:30pm": "A 12-hour time, such as 7:30pm",
+    "When the members are downloaded each day, in the :timezone time zone.": "When the members are downloaded each day, in the :timezone time zone."
 }

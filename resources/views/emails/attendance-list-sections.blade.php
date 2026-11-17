@@ -21,7 +21,7 @@ $font = 'font-family: Open Sans, -apple-system, BlinkMacSystemFont, Roboto, Helv
 
 {{ __('Here is the current attendance for') }} **{{ $termDate->name }}**.
 
-<p style="{{ $font }} color: #9eb0b7; font-size: 13px;">{{ __('Sent :time', ['time' => $sentAt->format('l, jS F Y, H:i')]) }}</p>
+<p style="{{ $font }} color: #9eb0b7; font-size: 13px;">{{ __('Sent :time', ['time' => $sentAt->format('l, jS F Y, '.time_format())]) }}</p>
 
 @if($deps > 0)
 **{{ trans_choice(':count member is sending a dep.|:count members are sending a dep.', $deps) }}**

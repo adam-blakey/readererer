@@ -8,7 +8,8 @@ use Symfony\Component\HttpFoundation\Response;
 
 /**
  * Joins the date and time halves posted by <x-forms.datetime-input> into one
- * Y-m-d\TH:i value, so validation and controllers see what datetime-local sent.
+ * Y-m-d\TH:i value, turning a 12-hour time into 24 hours, so validation and
+ * controllers see what datetime-local sent.
  */
 class CombineDateTimeInputs
 {
@@ -27,7 +28,7 @@ class CombineDateTimeInputs
             }
 
             $input[$key] = array_keys($value) === ['date', 'time']
-                ? (filled($value['date']) || filled($value['time']) ? $value['date'].'T'.$value['time'] : null)
+                ? (filled($value['date']) || filled($value['time']) ? $value['date'].'T'.normalise_time($value['time']) : null)
                 : $this->combine($value);
         }
 

@@ -50,6 +50,7 @@ class GeneralSettings extends Settings
         'membermojo_status' => ['services.membermojo.status'],
         'membermojo_time' => ['services.membermojo.time'],
         'email_previews' => ['app.readererer_email_previews'],
+        'twenty_four_hour_clock' => ['app.readererer_twenty_four_hour_clock'],
     ];
 
     public const AFTER_REMINDERS = ['nothing', 'follow_up', 'lock'];
@@ -142,6 +143,8 @@ class GeneralSettings extends Settings
     public ?string $membermojo_time;
 
     public ?bool $email_previews;
+
+    public ?bool $twenty_four_hour_clock;
 
     public static function group(): string
     {

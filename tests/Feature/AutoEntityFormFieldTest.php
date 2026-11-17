@@ -2,13 +2,11 @@
 
 use App\Enums\Color;
 use App\Enums\UserRole;
-use App\Features\TwentyFourHourTimeInputs;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Blade;
 use Illuminate\Support\Facades\View;
 use Illuminate\Support\MessageBag;
 use Illuminate\Support\ViewErrorBag;
-use Laravel\Pennant\Feature;
 
 function render_field(string $name, array $data, ?string $error = null): string
 {
@@ -109,23 +107,20 @@ test('date and datetime columns render inputs the browser can edit', function ()
     $date = render_field('start_date', ['type' => 'date', 'value' => '2026-03-04 19:30:00']);
     expect($date)->toContain('type="date"')->toContain('value="2026-03-04"');
 
-    $datetime = render_field('start_datetime', [
-        'type' => 'datetime',
-        'value' => Carbon::parse('2026-03-04 19:30:00'),
-    ]);
-    expect($datetime)->toContain('type="datetime-local"')->toContain('value="2026-03-04T19:30"');
+    $datetime = render_field('start_datetime', ['type' => 'datetime', 'value' => Carbon::parse('2026-03-04 19:30:00')]);
+    expect($datetime)->not->toContain('datetime-local')
+        ->toContain('name="start_datetime[date]" type="date" value="2026-03-04"')
+        ->toContain('name="start_datetime[time]"')
+        ->toContain('placeholder="HH:MM"')
+        ->toContain('value="19:30"');
 });
 
-test('with 24-hour time inputs on, a datetime column renders a date and a 24-hour time', function () {
-    config(['app.readererer_feature_flags' => [TwentyFourHourTimeInputs::class => ['enabled' => true]]]);
-    Feature::flushCache();
+test('with 12-hour times, a datetime column asks for a 12-hour time', function () {
+    config(['app.readererer_twenty_four_hour_clock' => false]);
 
     $datetime = render_field('start_datetime', ['type' => 'datetime', 'value' => Carbon::parse('2026-03-04 19:30:00')]);
 
-    expect($datetime)->not->toContain('datetime-local')
-        ->toContain('name="start_datetime[date]" type="date" value="2026-03-04"')
-        ->toContain('name="start_datetime[time]" size="5" pattern="([01][0-9]|2[0-3]):[0-5][0-9]" placeholder="HH:MM"')
-        ->toContain('value="19:30"');
+    expect($datetime)->toContain('placeholder="h:mm am"')->toContain('value="7:30pm"');
 });
 
 test('an unparseable date value is handed back to the input rather than throwing', function () {

@@ -24,7 +24,7 @@
 											<td>{{ $attendance->term_date->date_label }}</td>
 											<td>{{ $attendance->status->label() }}@if ($attendance->dep_name): {{ $attendance->dep_name }}@endif</td>
 											<td>{{ $attendance->edit_user?->name ?? '-' }}</td>
-											<td>{{ $attendance->created_at->format('D, j M Y, H:i') }}</td>
+											<td>{{ $attendance->created_at->format('D, j M Y, '.time_format()) }}</td>
 										</tr>
 									@endforeach
 								</tbody>

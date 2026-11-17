@@ -41,7 +41,7 @@
 					@foreach ($entries as $entry)
 						<div class="list-group-item">
 							<div class="row g-2 align-items-baseline">
-								<div class="col-auto text-secondary text-nowrap font-monospace small" title="{{ $entry->at }}">{{ $entry->at->format('j M Y, H:i') }}</div>
+								<div class="col-auto text-secondary text-nowrap font-monospace small" title="{{ $entry->at }}">{{ $entry->at->format('j M Y, '.time_format()) }}</div>
 								<div class="col-auto"><span class="badge {{ $badge($entry->level) }}">{{ strtoupper($entry->level) }}</span></div>
 								<div class="col text-break">
 									{{ $entry->message }}

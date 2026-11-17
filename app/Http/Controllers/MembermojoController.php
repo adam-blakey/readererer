@@ -61,6 +61,8 @@ class MembermojoController extends Controller
 
     public function update(Request $request, GeneralSettings $settings)
     {
+        $request->merge(['membermojo_time' => normalise_time($request->input('membermojo_time'))]);
+
         $validated = $request->validate([
             'membermojo_shortname' => ['nullable', 'required_with:membermojo_email', 'string', 'max:100', 'regex:/^[A-Za-z0-9_-]+$/'],
             'membermojo_email' => ['nullable', 'required_with:membermojo_shortname', 'email', 'max:255'],

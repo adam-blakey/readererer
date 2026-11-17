@@ -239,6 +239,21 @@ test('the abbreviate surnames switch is saved to the config', function () {
     expect(config('app.readererer_abbreviate_surnames'))->toBeTrue();
 });
 
+test('the 24-hour times switch is on by default and is saved to the config', function () {
+    $admin = make_user(UserRole::Admin);
+
+    $this->actingAs($admin)->get(route('settings.edit'))
+        ->assertSee('name="twenty_four_hour_clock" type="checkbox" value="1" checked', false);
+
+    $this->actingAs($admin)
+        ->put(route('settings.update'), settings_payload(['twenty_four_hour_clock' => '0']))
+        ->assertSessionHasNoErrors();
+
+    reload_settings();
+
+    expect(config('app.readererer_twenty_four_hour_clock'))->toBeFalse();
+});
+
 test('the email previews switch is saved to the config', function () {
     $this->actingAs(make_user(UserRole::Admin))
         ->put(route('settings.update'), settings_payload(['email_previews' => '1']))

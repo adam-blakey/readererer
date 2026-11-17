@@ -78,7 +78,7 @@
 				@if ($status)
 					<div class="alert {{ $status['ok'] ? 'alert-success' : 'alert-danger' }}" role="alert">
 						<h4 class="alert-title">{{ $status['ok'] ? __('Last download worked') : __('Last download failed') }}</h4>
-						<div class="text-secondary">{{ \Illuminate\Support\Carbon::parse($status['at'])->timezone(config('app.timezone'))->format('j F Y H:i') }}</div>
+						<div class="text-secondary">{{ \Illuminate\Support\Carbon::parse($status['at'])->timezone(config('app.timezone'))->format('j F Y, '.time_format()) }}</div>
 						@unless ($status['ok'])
 							<div>{{ $status['error'] }}</div>
 						@endunless
@@ -148,11 +148,11 @@
 					<div class="row">
 						<div class="col-md-4 mb-3">
 							<label class="form-label" for="membermojo_time">{{ __('Download time') }}</label>
-							<input class="form-control @error('membermojo_time') is-invalid @enderror" id="membermojo_time" maxlength="5" name="membermojo_time" pattern="([01][0-9]|2[0-3]):[0-5][0-9]" placeholder="HH:MM" type="text" value="{{ old('membermojo_time', config('services.membermojo.time')) }}">
+							<x-forms.time-input id="membermojo_time" :invalid="$errors->has('membermojo_time')" name="membermojo_time" :value="old('membermojo_time', config('services.membermojo.time'))" />
 							@error('membermojo_time')
 								<x-forms.input-error :messages="$message" />
 							@enderror
-							<small class="form-hint">{{ __('When the members are downloaded each day, as a 24-hour time (HH:MM) in the :timezone time zone.', ['timezone' => config('app.timezone')]) }}</small>
+							<small class="form-hint">{{ __('When the members are downloaded each day, in the :timezone time zone.', ['timezone' => config('app.timezone')]) }}</small>
 						</div>
 					</div>
 					<label class="form-check">
