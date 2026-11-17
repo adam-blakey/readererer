@@ -1,9 +1,11 @@
 <?php
 
 use App\Enums\UserRole;
+use App\Features\AddUsersToEnsembles;
 use App\Models\Ensemble;
 use App\Models\SetupGroup;
 use App\Models\User;
+use Laravel\Pennant\Feature;
 
 test('the user index, create form and show page render', function () {
     $viewer = make_user(UserRole::Moderator);
@@ -574,4 +576,81 @@ test('the users index lists ensembles and filters by ensemble', function () {
 
     $this->get(route('users.index', ['ensembles' => ['junk']]))
         ->assertSee(['Violist1', 'Oboist1', 'Loner1']);
+});
+
+test('a new user can be added to an ensemble with a seat when the flag is on', function () {
+    config(['app.readererer_feature_flags' => [AddUsersToEnsembles::class => ['enabled' => true]]]);
+    Feature::flushCache();
+    $ensemble = Ensemble::factory()->create(['seating_plan_enabled' => true]);
+    $family = make_instrument_family('Brass');
+    $admin = make_user(UserRole::Admin);
+
+    $this->actingAs($admin)->get(route('users.create'))->assertOk()
+        ->assertSee('name="ensemble"', false)
+        ->assertSee('data-show-values="'.$ensemble->id.'"', false);
+
+    $this->actingAs($admin)->post(route('users.store'), [
+        'first_name' => 'Ada',
+        'last_name' => 'Lovelace',
+        'email' => 'ada@example.com',
+        'role' => UserRole::Member->value,
+        'ensemble' => $ensemble->id,
+        'instrument_family' => $family->id,
+        'seat_row' => 'B',
+        'seat_column' => '3',
+    ])->assertSessionHasNoErrors();
+
+    $pivot = User::where('email', 'ada@example.com')->first()->ensembles->sole()->pivot;
+    expect($pivot->ensemble_id)->toBe($ensemble->id)
+        ->and($pivot->instrument_family_id)->toBe($family->id)
+        ->and([$pivot->seat_row, $pivot->seat_column])->toBe(['B', '3']);
+});
+
+test('a seat is ignored for an ensemble without a seating plan', function () {
+    config(['app.readererer_feature_flags' => [AddUsersToEnsembles::class => ['enabled' => true]]]);
+    Feature::flushCache();
+    $ensemble = Ensemble::factory()->create(['seating_plan_enabled' => false]);
+
+    $this->actingAs(make_user(UserRole::Admin))->post(route('users.store'), [
+        'first_name' => 'Ada',
+        'last_name' => 'Lovelace',
+        'email' => 'ada@example.com',
+        'role' => UserRole::Member->value,
+        'ensemble' => $ensemble->id,
+        'instrument_family' => make_instrument_family()->id,
+        'seat_row' => 'B',
+        'seat_column' => '3',
+    ])->assertSessionHasNoErrors();
+
+    $pivot = User::where('email', 'ada@example.com')->first()->ensembles->sole()->pivot;
+    expect([$pivot->seat_row, $pivot->seat_column])->toBe([null, null]);
+});
+
+test('choosing an ensemble for a new user needs an instrument family', function () {
+    config(['app.readererer_feature_flags' => [AddUsersToEnsembles::class => ['enabled' => true]]]);
+    Feature::flushCache();
+
+    $this->actingAs(make_user(UserRole::Admin))->post(route('users.store'), [
+        'first_name' => 'Ada',
+        'last_name' => 'Lovelace',
+        'email' => 'ada@example.com',
+        'role' => UserRole::Member->value,
+        'ensemble' => Ensemble::factory()->create()->id,
+    ])->assertSessionHasErrors('instrument_family');
+});
+
+test('the ensemble is ignored on user creation while the flag is off', function () {
+    $admin = make_user(UserRole::Admin);
+    $this->actingAs($admin)->get(route('users.create'))->assertDontSee('name="ensemble"', false);
+
+    $this->actingAs($admin)->post(route('users.store'), [
+        'first_name' => 'Ada',
+        'last_name' => 'Lovelace',
+        'email' => 'ada@example.com',
+        'role' => UserRole::Member->value,
+        'ensemble' => Ensemble::factory()->create()->id,
+        'instrument_family' => make_instrument_family()->id,
+    ]);
+
+    expect(User::where('email', 'ada@example.com')->first()->ensembles)->toBeEmpty();
 });
