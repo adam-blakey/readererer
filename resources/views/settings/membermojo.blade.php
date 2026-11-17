@@ -73,7 +73,7 @@
 				<h2 class="card-title">{{ __('Scheduled download') }}</h2>
 			</div>
 			<div class="card-body">
-				<p class="text-secondary">{{ __('Readererer can sign in to Membermojo every night, download the members and import them. Members who have left are listed here and never archived. Use a read-only Membermojo admin account made just for this.') }}</p>
+				<p class="text-secondary">{{ __('Readererer can sign in to Membermojo every day, download the members and import them. Members who have left are listed here and never archived. Use a read-only Membermojo admin account made just for this.') }}</p>
 
 				@if ($status)
 					<div class="alert {{ $status['ok'] ? 'alert-success' : 'alert-danger' }}" role="alert">
@@ -117,7 +117,7 @@
 				<form action="{{ route('settings.membermojo.update') }}" method="POST">
 					@csrf
 					@method('PUT')
-					<x-forms.error-summary :fields="['membermojo_shortname', 'membermojo_email', 'membermojo_password', 'membermojo_overwrite']" />
+					<x-forms.error-summary :fields="['membermojo_shortname', 'membermojo_email', 'membermojo_password', 'membermojo_time', 'membermojo_overwrite']" />
 					<div class="row">
 						<div class="col-md-4 mb-3">
 							<label class="form-label" for="membermojo_shortname">{{ __('Membermojo short name') }}</label>
@@ -143,6 +143,16 @@
 							@if (filled(config('services.membermojo.password')))
 								<small class="form-hint">{{ __('A password is saved. Leave this empty to keep it.') }}</small>
 							@endif
+						</div>
+					</div>
+					<div class="row">
+						<div class="col-md-4 mb-3">
+							<label class="form-label" for="membermojo_time">{{ __('Download time') }}</label>
+							<input class="form-control @error('membermojo_time') is-invalid @enderror" id="membermojo_time" name="membermojo_time" type="time" value="{{ old('membermojo_time', config('services.membermojo.time')) }}">
+							@error('membermojo_time')
+								<x-forms.input-error :messages="$message" />
+							@enderror
+							<small class="form-hint">{{ __('When the members are downloaded each day, in the :timezone time zone.', ['timezone' => config('app.timezone')]) }}</small>
 						</div>
 					</div>
 					<label class="form-check">

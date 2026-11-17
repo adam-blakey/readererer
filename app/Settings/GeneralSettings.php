@@ -48,6 +48,7 @@ class GeneralSettings extends Settings
         'membermojo_overwrite' => ['services.membermojo.overwrite'],
         'membermojo_cookies' => ['services.membermojo.cookies'],
         'membermojo_status' => ['services.membermojo.status'],
+        'membermojo_time' => ['services.membermojo.time'],
     ];
 
     public const AFTER_REMINDERS = ['nothing', 'follow_up', 'lock'];
@@ -136,6 +137,8 @@ class GeneralSettings extends Settings
     public ?array $membermojo_cookies;
 
     public ?array $membermojo_status;
+
+    public ?string $membermojo_time;
 
     public static function group(): string
     {

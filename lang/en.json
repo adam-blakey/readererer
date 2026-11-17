@@ -787,7 +787,7 @@
     "Membermojo did not return the member list. Check the email address and password, or paste the verification link Membermojo emailed to that address.": "Membermojo did not return the member list. Check the email address and password, or paste the verification link Membermojo emailed to that address.",
     "Membermojo members download": "Membermojo members download",
     "Instrument families created": "Instrument families created",
-    "Readererer can sign in to Membermojo every night, download the members and import them. Members who have left are listed here and never archived. Use a read-only Membermojo admin account made just for this.": "Readererer can sign in to Membermojo every night, download the members and import them. Members who have left are listed here and never archived. Use a read-only Membermojo admin account made just for this.",
+    "Readererer can sign in to Membermojo every day, download the members and import them. Members who have left are listed here and never archived. Use a read-only Membermojo admin account made just for this.": "Readererer can sign in to Membermojo every day, download the members and import them. Members who have left are listed here and never archived. Use a read-only Membermojo admin account made just for this.",
     "The scheduled download was saved.": "The scheduled download was saved.",
     "The part after membermojo.co.uk/ in your site's address.": "The part after membermojo.co.uk/ in your site's address.",
     "Rows left out as not active": "Rows left out as not active",
@@ -820,5 +820,7 @@
     "The file is not a Membermojo members download.": "The file is not a Membermojo members download.",
     "Last download worked": "Last download worked",
     "Member since": "Member since",
-    "Membership expires": "Membership expires"
+    "Membership expires": "Membership expires",
+    "Download time": "Download time",
+    "When the members are downloaded each day, in the :timezone time zone.": "When the members are downloaded each day, in the :timezone time zone."
 }
