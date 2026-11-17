@@ -1,0 +1,455 @@
+<!doctype html>
+<html lang="en-GB">
+<head>
+<meta charset="utf-8">
+<title>Readererer moderator guide</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,300;0,400;0,500;0,700;0,900;1,400&family=Roboto+Condensed:wght@400;700&display=block" rel="stylesheet">
+<style>
+/* NSW brand: NSW Red (R190 G31 B67) and black; Roboto and Roboto Condensed; sizes on the golden ratio from an 11pt body. */
+:root {
+    --red: #BE1F43;
+    --red-tint: #F9E8EC;
+    --black: #000;
+    --text: #1b1b1b;
+    --muted: #5c5c5c;
+    --rule: #e2e2e2;
+    --body: 11pt;
+    --h3: 17.8pt;
+    --h2: 28.8pt;
+    --h1: 46.6pt;
+}
+@page {
+    size: A4;
+    margin: 20mm 18mm 22mm;
+    @bottom-left { content: "Readererer moderator guide"; font: 400 8.5pt "Roboto Condensed", sans-serif; color: #5c5c5c; }
+    @bottom-right { content: counter(page); font: 700 8.5pt "Roboto Condensed", sans-serif; color: #BE1F43; }
+}
+@page cover {
+    margin: 0;
+    @bottom-left { content: none; }
+    @bottom-right { content: none; }
+}
+* { box-sizing: border-box; }
+html { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+body { margin: 0; font: 400 var(--body)/1.5 Roboto, sans-serif; color: var(--text); background: #fff; }
+
+.cover { page: cover; width: 210mm; height: 297mm; background: var(--red); color: #fff; position: relative; padding: 24mm 22mm; break-after: page; }
+.cover .logo { width: 82mm; }
+.cover .title { position: absolute; left: 22mm; right: 22mm; bottom: 46mm; }
+.cover .kicker { font: 700 var(--h3)/1.2 "Roboto Condensed", sans-serif; letter-spacing: .02em; text-transform: uppercase; margin: 0 0 4mm; }
+.cover h1 { font: 900 var(--h1)/1.05 Roboto, sans-serif; margin: 0 0 6mm; color: #fff; }
+.cover .sub { font: 300 var(--h3)/1.35 Roboto, sans-serif; margin: 0; max-width: 140mm; }
+.cover .meta { position: absolute; left: 22mm; bottom: 20mm; font: 400 var(--body) "Roboto Condensed", sans-serif; }
+
+h1, h2, h3, h4 { color: var(--red); break-after: avoid; }
+h1 { font: 900 var(--h1)/1.1 Roboto, sans-serif; margin: 0 0 8mm; }
+h2 { font: 900 var(--h2)/1.1 Roboto, sans-serif; margin: 0 0 4mm; }
+h3 { font: 700 var(--h3)/1.2 Roboto, sans-serif; margin: 8mm 0 3mm; }
+h4 { font: 700 var(--body)/1.3 "Roboto Condensed", sans-serif; text-transform: uppercase; letter-spacing: .04em; color: var(--black); margin: 5mm 0 2mm; }
+section.chapter { break-before: page; }
+.chapter-no { font: 700 var(--h3)/1 "Roboto Condensed", sans-serif; color: var(--black); margin: 0 0 2mm; }
+.lead { font-size: 12.5pt; font-weight: 300; margin: 0 0 6mm; }
+p { margin: 0 0 3mm; }
+a { color: var(--red); }
+strong { font-weight: 700; }
+.ui { font-weight: 700; white-space: nowrap; }
+
+ol.steps { list-style: none; counter-reset: step; padding: 0; margin: 0 0 4mm; }
+ol.steps > li { counter-increment: step; position: relative; padding: 0 0 0 11mm; margin: 0 0 3mm; break-inside: avoid; }
+ol.steps > li::before { content: counter(step); position: absolute; left: 0; top: -.3mm; width: 7mm; height: 7mm; border-radius: 1.5mm; background: var(--black); color: #fff; font: 700 10pt/7mm "Roboto Condensed", sans-serif; text-align: center; }
+ul { margin: 0 0 3mm; padding-left: 5mm; }
+ol.steps ul { list-style: none; padding-left: 0; margin: 1.5mm 0 0; }
+li { margin: 0 0 1.5mm; }
+
+.n { display: inline-block; width: 1.45em; height: 1.45em; border-radius: 50%; background: var(--red); color: #fff; font: 700 .8em/1.45em Roboto, sans-serif; text-align: center; vertical-align: .1em; }
+
+figure { margin: 3mm 0 5mm; break-inside: avoid; }
+figure img { display: block; max-width: 100%; max-height: 92mm; margin: 0 auto; border: .3mm solid var(--rule); border-radius: 2mm; }
+figure.narrow img { max-width: 75%; }
+figure.half img { max-width: 55%; }
+figcaption { font: 400 9pt/1.4 "Roboto Condensed", sans-serif; color: var(--muted); margin-top: 1.5mm; text-align: center; }
+
+.note, .admin { border-left: 1.5mm solid var(--red); background: var(--red-tint); padding: 3mm 4mm; margin: 4mm 0; border-radius: 0 2mm 2mm 0; break-inside: avoid; }
+.note > :last-child, .admin > :last-child { margin-bottom: 0; }
+.note-title { font: 700 var(--body) "Roboto Condensed", sans-serif; text-transform: uppercase; letter-spacing: .04em; color: var(--red); display: block; margin-bottom: 1mm; }
+.admin { background: #f1f1f1; border-color: var(--black); }
+.admin .note-title { color: var(--black); }
+.tag { display: inline-block; font: 700 8pt/1 "Roboto Condensed", sans-serif; text-transform: uppercase; letter-spacing: .05em; padding: 1.2mm 2mm; border-radius: 1mm; background: var(--black); color: #fff; vertical-align: .25em; margin-left: 2mm; }
+
+table { width: 100%; border-collapse: collapse; margin: 2mm 0 4mm; font-size: 9.5pt; line-height: 1.35; break-inside: avoid; }
+th { text-align: left; font: 700 8.5pt "Roboto Condensed", sans-serif; text-transform: uppercase; letter-spacing: .04em; color: #fff; background: var(--black); padding: 1.6mm 3mm; }
+td { padding: 1.4mm 3mm; border-bottom: .3mm solid var(--rule); vertical-align: top; }
+tr:nth-child(even) td { background: #fafafa; }
+td.yes { color: #1f7a37; font-weight: 700; }
+td.no { color: var(--muted); }
+
+.legend { display: grid; grid-template-columns: repeat(2, 1fr); gap: 2mm 6mm; margin: 2mm 0 5mm; }
+.legend div { display: flex; align-items: center; gap: 3mm; }
+.box { width: 7mm; height: 7mm; border-radius: 1.2mm; color: #fff; font: 700 11pt/7mm Roboto, sans-serif; text-align: center; flex: none; }
+
+.toc { list-style: none; padding: 0; margin: 0; columns: 1; }
+.toc li { display: flex; align-items: baseline; gap: 3mm; padding: 2.2mm 0; border-bottom: .3mm solid var(--rule); margin: 0; }
+.toc .num { font: 700 var(--h3)/1 "Roboto Condensed", sans-serif; color: var(--red); width: 10mm; }
+.toc .what { font-weight: 500; }
+.toc .desc { color: var(--muted); font-size: 9.5pt; margin-left: auto; text-align: right; }
+.keep { break-inside: avoid; }
+.two { display: grid; grid-template-columns: 1fr 1fr; gap: 6mm; align-items: start; }
+</style>
+</head>
+<body>
+
+<div class="cover">
+    <img class="logo" src="nsw-logo-stacked-white.png" alt="Nottingham Symphonic Winds">
+    <div class="title">
+        <p class="kicker">Readererer</p>
+        <h1>Moderator guide</h1>
+        <p class="sub">How to add members, keep attendance polls up to date, take the register and look after rehearsals and concerts.</p>
+    </div>
+    <p class="meta">November 2026</p>
+</div>
+
+<section>
+    <h1>Contents</h1>
+    <ol class="toc">
+        <li><span class="num">1</span><span class="what">About this guide</span><span class="desc">What a moderator can do</span></li>
+        <li><span class="num">2</span><span class="what">Logging in</span><span class="desc">Passwords and login links</span></li>
+        <li><span class="num">3</span><span class="what">Finding your way around</span><span class="desc">The dashboard and menus</span></li>
+        <li><span class="num">4</span><span class="what">Adding a new member</span><span class="desc">Create an account, add it to an ensemble</span></li>
+        <li><span class="num">5</span><span class="what">Updating and removing members</span><span class="desc">Edit details, archive leavers</span></li>
+        <li><span class="num">6</span><span class="what">Attendance polls</span><span class="desc">Read the poll, reply for a member</span></li>
+        <li><span class="num">7</span><span class="what">Taking the register</span><span class="desc">Record who came on the night</span></li>
+        <li><span class="num">8</span><span class="what">Rehearsals and concerts</span><span class="desc">A date's page, setup groups, van drivers</span></li>
+        <li><span class="num">9</span><span class="what">Emails and notifications</span><span class="desc">Check what was sent</span></li>
+        <li><span class="num">10</span><span class="what">Adding a term and its dates</span><span class="desc">Admin accounts only</span></li>
+        <li><span class="num">11</span><span class="what">Your own account and quick reference</span><span class="desc">Profile, password, where to find things</span></li>
+    </ol>
+</section>
+
+<section class="chapter">
+    <p class="chapter-no">1</p>
+    <h2>About this guide</h2>
+    <p class="lead">Readererer is the NSW attendance site. Members use it to say whether they are coming to each rehearsal and concert, and committee members use it to run the evening: who is coming, who is setting up, who is driving the van and who actually turned up.</p>
+    <p>This guide is for <strong>moderators</strong>. It walks through the jobs you will do most often, with a screenshot of each page. The red numbers in the screenshots, such as <span class="n">1</span>, match the numbers in the text beside them.</p>
+    <p>The screenshots were taken on a practice copy of the site filled with made-up members, so the names, dates and numbers will not match the real site.</p>
+
+    <h3>What a moderator can do</h3>
+    <p>Every account has a role. Moderators can do everything a member can, plus the jobs in this table. A few jobs need an <strong>Admin</strong> account; if you need one of those done, ask an admin.</p>
+    <table>
+        <thead><tr><th>Job</th><th>Moderator</th><th>Admin</th></tr></thead>
+        <tbody>
+            <tr><td>Add new members and edit their details</td><td class="yes">Yes</td><td class="yes">Yes</td></tr>
+            <tr><td>Add members to an ensemble or take them out</td><td class="yes">Yes</td><td class="yes">Yes</td></tr>
+            <tr><td>Archive members who have left</td><td class="yes">Yes</td><td class="yes">Yes</td></tr>
+            <tr><td>Change any member's replies on a poll, even after replies close</td><td class="yes">Yes</td><td class="yes">Yes</td></tr>
+            <tr><td>Take the register</td><td class="yes">Yes</td><td class="yes">Yes</td></tr>
+            <tr><td>See terms, dates, setup groups, van drivers and sent emails</td><td class="yes">Yes</td><td class="yes">Yes</td></tr>
+            <tr><td>Add or change terms and their dates</td><td class="no">No</td><td class="yes">Yes</td></tr>
+            <tr><td>Send reminder emails by hand, or resend a failed email</td><td class="no">No</td><td class="yes">Yes</td></tr>
+            <tr><td>Bring back an archived member</td><td class="no">No</td><td class="yes">Yes</td></tr>
+            <tr><td>Set another member's password</td><td class="no">No</td><td class="yes">Yes</td></tr>
+            <tr><td>Change ensembles, setup groups, seating plans and site settings</td><td class="no">No</td><td class="yes">Yes</td></tr>
+        </tbody>
+    </table>
+
+    <h4>The roles</h4>
+    <table>
+        <thead><tr><th>Role</th><th>Who it is for</th></tr></thead>
+        <tbody>
+            <tr><td><strong>Member</strong></td><td>Players. They reply to their own ensembles' polls and keep their own details up to date.</td></tr>
+            <tr><td><strong>Moderator</strong></td><td>Committee members who look after members, polls and registers.</td></tr>
+            <tr><td><strong>Admin</strong></td><td>The people who set up terms, ensembles and the site itself.</td></tr>
+            <tr><td><strong>Ensemble</strong></td><td>A shared login for an ensemble, for example on a tablet at rehearsals. It can only fill in that ensemble's poll.</td></tr>
+            <tr><td><strong>Guest</strong></td><td>An account that can log in but see nothing until it is given another role.</td></tr>
+        </tbody>
+    </table>
+</section>
+
+<section class="chapter">
+    <p class="chapter-no">2</p>
+    <h2>Logging in</h2>
+    <p class="lead">Open the NSW attendance site in any web browser, on a computer, tablet or phone. If you are not logged in, you will see the login page.</p>
+    <div class="two">
+        <figure><img src="screenshots/login.png" alt="The login page"><figcaption>The login page.</figcaption></figure>
+        <div>
+            <ol class="steps">
+                <li>Type your <span class="ui">Username</span> <span class="n">1</span>.</li>
+                <li>Type your <span class="ui">Password</span> <span class="n">2</span>. The eye icon shows what you have typed.</li>
+                <li>Tick <span class="ui">Remember me on this device</span> if this is your own device, so you stay logged in.</li>
+                <li>Click <span class="ui">Login</span>.</li>
+            </ol>
+            <h4>If you cannot log in</h4>
+            <ul>
+                <li><span class="ui">I forgot password</span> <span class="n">3</span> emails you a link to choose a new password.</li>
+                <li><span class="ui">Email me a login link</span> <span class="n">4</span> emails you a link that logs you straight in, without a password.</li>
+            </ul>
+            <p>Both links go to the email address on your account. They work once and expire after a short time.</p>
+        </div>
+    </div>
+    <div class="note">
+        <span class="note-title">You may be asked for your password again</span>
+        <p>Before you edit another member's details, the site asks you to type your password again. You only need to do this once every three hours.</p>
+    </div>
+    <figure class="half"><img src="screenshots/confirm-password.png" alt="The Confirm password page"><figcaption>Type your password <span class="n">1</span> and click Confirm to carry on.</figcaption></figure>
+</section>
+
+<section class="chapter">
+    <p class="chapter-no">3</p>
+    <h2>Finding your way around</h2>
+    <p class="lead">After you log in you land on the dashboard. It shows what is coming up for you, and the menu at the top takes you to everything else.</p>
+    <figure><img src="screenshots/dashboard.png" alt="The dashboard"><figcaption>The dashboard for a moderator.</figcaption></figure>
+    <table>
+        <thead><tr><th style="width:12mm"></th><th>What it is</th></tr></thead>
+        <tbody>
+            <tr><td><span class="n">1</span></td><td><strong>Upcoming rehearsals</strong> lists every date still to come, with buttons for its polls and registers. Most of your work starts here.</td></tr>
+            <tr><td><span class="n">2</span></td><td><strong>Users</strong> lists every member. Add, find and edit members here.</td></tr>
+            <tr><td><span class="n">3</span></td><td><strong>Notifications</strong> lists the emails the site has sent.</td></tr>
+            <tr><td><span class="n">4</span></td><td><strong>Your name</strong> opens your own menu: your profile, changing your password and logging out.</td></tr>
+            <tr><td><span class="n">5</span></td><td><strong>Summary cards</strong> count the ensembles, setup groups, users and terms. Click a card to open that list.</td></tr>
+        </tbody>
+    </table>
+    <p>Further down, the dashboard shows the ensembles you play in, your setup group's next turn, your next rehearsal and concerts (each with <span class="ui">Poll</span> and <span class="ui">Register</span> buttons), the latest poll replies and the latest emails.</p>
+    <p>The moon icon next to your name switches to dark colours. On a phone, the menu is folded away behind the menu button at the top right.</p>
+</section>
+
+<section class="chapter">
+    <p class="chapter-no">4</p>
+    <h2>Adding a new member</h2>
+    <p class="lead">Adding a member takes two steps: create their account, then add them to the ensembles they play in. Until they are in an ensemble they will not appear on any poll or register.</p>
+
+    <h3>Create the account</h3>
+    <ol class="steps">
+        <li>Click <span class="ui">Users</span> in the menu, then <span class="ui">Add user</span>.</li>
+        <li>Fill in the form:
+            <ul>
+                <li><span class="n">1</span> <strong>First name</strong> and <strong>Last name</strong>.</li>
+                <li><span class="n">2</span> <strong>Username</strong>: what they will type to log in. Keep it simple, for example <em>samfletcher</em>.</li>
+                <li><span class="n">3</span> <strong>Email</strong>: needed for login links, password resets and reminder emails. Check it carefully.</li>
+                <li><span class="n">4</span> <strong>Role</strong>: leave this as <em>Member</em> for players.</li>
+                <li><span class="n">5</span> <strong>Setup group</strong>: the group they help set up and pack away with, if they have been given one.</li>
+            </ul>
+        </li>
+        <li>Fill in any of the other details you have: phone number, address, emergency contact, date of birth, photograph permission and gift aid. They are all optional and the member can add them later.</li>
+        <li>Click <span class="ui">Create</span> <span class="n">6</span> at the bottom of the form.</li>
+    </ol>
+    <figure class="narrow"><img src="screenshots/user-create.png" alt="The Create new user form"><figcaption>The top of the new user form.</figcaption></figure>
+    <figure class="narrow"><img src="screenshots/user-create-submit.png" alt="The Create button"><figcaption>The Create button is at the bottom of the form.</figcaption></figure>
+
+    <h3>Add them to an ensemble</h3>
+    <p>When the account is created, its page opens. The <strong>Ensembles</strong> card is empty, because the new member is not in an ensemble yet.</p>
+    <figure class="narrow"><img src="screenshots/user-created.png" alt="The new member's page"><figcaption>The new member's page. Click Edit <span class="n">1</span>.</figcaption></figure>
+    <ol class="steps">
+        <li>Click <span class="ui">Edit</span>. Type your password again if the site asks for it.</li>
+        <li>On the right, click <span class="ui">Add to ensemble</span>.</li>
+        <li>Choose the <strong>Ensemble</strong> and their <strong>Instrument family</strong>. The seat row and column are for the seating plan and can be left empty.</li>
+        <li>Click <span class="ui">Add to ensemble</span>. Repeat for any other ensemble they play in.</li>
+    </ol>
+    <div class="two">
+        <figure><img src="screenshots/user-edit-ensembles.png" alt="The Ensembles card on the edit page"><figcaption>The Add to ensemble button <span class="n">1</span> on the edit page.</figcaption></figure>
+        <figure><img src="screenshots/add-ensemble-modal.png" alt="The Add to an ensemble window"><figcaption>Choose the ensemble and instrument family.</figcaption></figure>
+    </div>
+
+    <h3>Tell them how to log in</h3>
+    <p>The site gives every new account a random password that nobody knows. Send the new member their username and ask them to open the login page and click <span class="ui">Email me a login link</span> (or <span class="ui">I forgot password</span>). The first time they log in, the site asks them to choose their own password.</p>
+</section>
+
+<section class="chapter">
+    <p class="chapter-no">5</p>
+    <h2>Updating and removing members</h2>
+    <h3>Find a member</h3>
+    <p>Click <span class="ui">Users</span> in the menu. Click any column heading with arrows to sort by it, use <span class="ui">All ensembles</span> to show one ensemble's members, and use the page numbers at the bottom to see the rest. Click a member's name to open their page.</p>
+    <figure class="narrow"><img src="screenshots/users.png" alt="The Users list"><figcaption>The Users list. <span class="n">1</span> adds a member; <span class="n">2</span> also shows archived members.</figcaption></figure>
+
+    <h3>Change a member's details</h3>
+    <ol class="steps">
+        <li>Open the member's page and click <span class="ui">Edit</span>. Type your password again if the site asks for it.</li>
+        <li>Change what you need: name, email, role, setup group or any other detail.</li>
+        <li>To move them to another ensemble or change their instrument, use the <strong>Ensembles</strong> card on the right: remove the old ensemble and add the new one.</li>
+        <li>Click <span class="ui">Save</span>.</li>
+    </ol>
+    <p>Members can update their own details too, from <span class="ui">My profile</span> in their own menu. They cannot change their own role, setup group or ensembles.</p>
+
+    <h3>Remove a member who has left</h3>
+    <p>Members are never deleted outright: they are <strong>archived</strong>. An archived member disappears from the lists, polls and registers, but their past replies are kept.</p>
+    <ol class="steps">
+        <li>In the <span class="ui">Users</span> list, scroll to the right-hand end of the member's row.</li>
+        <li>Click <span class="ui">Archive</span> and confirm.</li>
+    </ol>
+    <p>To see archived members, tick <span class="ui">Show archived</span> <span class="n">2</span>. Only an admin can bring an archived member back, so check you have the right person first. Moderators cannot archive or edit admins.</p>
+</section>
+
+<section class="chapter">
+    <p class="chapter-no">6</p>
+    <h2>Attendance polls</h2>
+    <p class="lead">Each ensemble has one poll per term: a grid with a row for every member and a column for every rehearsal and concert. Members fill in their own row. As a moderator you can change any reply, for example when a member tells you in person or by email.</p>
+
+    <h3>Open a poll</h3>
+    <p>Click <span class="ui">Upcoming rehearsals</span> in the menu. Each date has a <span class="ui">Poll</span> button for each ensemble <span class="n">1</span> and a <span class="ui">Register</span> button for each ensemble <span class="n">2</span>. Clicking the date itself <span class="n">3</span> opens that date's page. The list runs from the furthest date at the top to the next date at the bottom.</p>
+    <figure><img src="screenshots/upcoming.png" alt="The Upcoming rehearsals list"><figcaption>The bottom of the Upcoming rehearsals list, showing the next date.</figcaption></figure>
+    <p>You can also open a poll from the <span class="ui">Poll</span> button under <em>Next rehearsal</em> on the dashboard.</p>
+
+    <h3>Read the poll</h3>
+    <figure><img src="screenshots/poll.png" alt="An attendance poll"><figcaption>The Nottingham Symphonic Winds poll for the autumn term.</figcaption></figure>
+    <div class="legend">
+        <div><span class="box" style="background:#2fb344">&#10003;</span> Attending</div>
+        <div><span class="box" style="background:#d63939">&#10007;</span> Not attending</div>
+        <div><span class="box" style="background:#74b816">&#8644;</span> Sending a dep (point at it to see who)</div>
+        <div><span class="box" style="background:#616876">?</span> No reply yet</div>
+    </div>
+    <ul>
+        <li>Each column heading shows the date and time. The coloured number underneath is the setup group on duty that day.</li>
+        <li>A red column is a concert; a star marks a date at the concert venue rather than the usual rehearsal venue.</li>
+        <li>The <strong>Attending (no reply)</strong> row counts the members coming to each date, with the number who have not replied in brackets.</li>
+        <li>A small coloured dot on a reply means that member's setup group is on duty that day; a van means they are driving the van.</li>
+    </ul>
+    <table>
+        <thead><tr><th style="width:12mm"></th><th>What it does</th></tr></thead>
+        <tbody>
+            <tr><td><span class="n">1</span></td><td>Sorts the members by first name, last name, instrument or setup group. The last button reverses the order.</td></tr>
+            <tr><td><span class="n">2</span></td><td><strong>Only show me</strong> hides everyone else, so you can fill in your own replies quickly.</td></tr>
+            <tr><td><span class="n">3</span></td><td><strong>Register</strong> jumps to the register for one of the term's dates.</td></tr>
+            <tr><td><span class="n">4</span></td><td>When the member last changed a reply. Click it to see their full history.</td></tr>
+            <tr><td><span class="n">5</span></td><td>A reply. Click it to change it, as described below.</td></tr>
+        </tbody>
+    </table>
+
+    <div class="keep">
+    <h3>Change a member's reply</h3>
+    <ol class="steps">
+        <li>Find the member's row and the date's column.</li>
+        <li>Click the box. Each click moves it on to the next reply: <strong>Attending</strong>, then <strong>Not attending</strong>, then <strong>Sending a dep</strong>, then back to Attending.</li>
+        <li>If they are sending a dep, type the dep's name in the <strong>Who is coming instead?</strong> box that appears.</li>
+        <li>Change any other replies you need. The columns you have changed are shaded.</li>
+        <li>Click <span class="ui">Save</span> <span class="n">1</span> at the bottom of the poll. Nothing is saved until you do, and the site warns you if you try to leave with unsaved changes.</li>
+    </ol>
+    </div>
+    <figure class="narrow"><img src="screenshots/poll-save.png" alt="The bottom of the poll with the Save button"><figcaption>A changed reply is shaded until you click Save <span class="n">1</span>.</figcaption></figure>
+
+    <div class="note">
+        <span class="note-title">When replies close</span>
+        <p>Members cannot change their replies once a date has started, and, depending on the site's settings, once that date's reminder emails have gone out. Their boxes are greyed out, and the poll tells them to ask an admin. Moderators can still change them, so members may come to you.</p>
+    </div>
+
+    <h3>See who changed a reply</h3>
+    <p>Click the time next to a member's name <span class="n">4</span> to see every reply they have given this term, who made each change and when.</p>
+    <figure class="narrow"><img src="screenshots/poll-history.png" alt="A member's reply history"><figcaption>A member's reply history.</figcaption></figure>
+</section>
+
+<section class="chapter">
+    <p class="chapter-no">7</p>
+    <h2>Taking the register</h2>
+    <p class="lead">The poll records what members said they would do. The register records what actually happened on the day: who was there, who was late and who did not come.</p>
+    <ol class="steps">
+        <li>Click <span class="ui">Upcoming rehearsals</span> and then the <span class="ui">Register</span> button for your ensemble on today's date. The <span class="ui">Register</span> button under <em>Next rehearsal</em> on the dashboard does the same.</li>
+        <li>Start from the poll: click <span class="ui">Fill from poll</span> <span class="n">1</span> to mark everyone who said they were coming (or sending a dep) as present, and everyone who said they were not as absent. Members who did not reply are left unmarked. If you would rather start with everyone present, click <span class="ui">All present</span> <span class="n">2</span>.</li>
+        <li>Correct each member who did something different: click <span class="ui">Present</span>, <span class="ui">Late</span> or <span class="ui">Absent</span> <span class="n">3</span>, or the dash to leave them unmarked.</li>
+        <li>Add a note <span class="n">4</span> if it helps, for example <em>Held up in traffic</em>.</li>
+        <li>Click <span class="ui">Save register</span> at the bottom of the page. You can come back and change it later; <span class="ui">Clear</span> sets everyone back to unmarked.</li>
+    </ol>
+    <figure><img src="screenshots/register.png" alt="A register before it is taken"><figcaption>A register before it is taken. The badges at the top count each status, and the <em>Said on the poll</em> column shows each member's reply.</figcaption></figure>
+    <figure class="narrow"><img src="screenshots/register-save.png" alt="The Save register button"><figcaption>Save register <span class="n">1</span> is at the bottom of the page.</figcaption></figure>
+</section>
+
+<section class="chapter">
+    <p class="chapter-no">8</p>
+    <h2>Rehearsals and concerts</h2>
+    <h3>A date's page</h3>
+    <p>Click a date in <span class="ui">Upcoming rehearsals</span>, on the dashboard or on a term's page to open that date's page. It shows, for each ensemble playing, how many members are attending, not attending and have not replied, and each member's latest reply, with buttons for that ensemble's poll and register. On the right are the setup group on duty and the van driver.</p>
+    <figure class="narrow"><img src="screenshots/term-date.png" alt="A rehearsal's page"><figcaption>A rehearsal's page.</figcaption></figure>
+    <p>A rehearsal is for every ensemble. A concert is only for the ensembles playing in it, so only they see it on their polls and registers.</p>
+
+    <h3>Setup groups and van drivers</h3>
+    <p>Members are split into setup groups that take turns to set up and pack away. Each group has a week number and a colour, which appear as the coloured numbers on polls and date pages. Each group also has a rota of van drivers: a date's van driver is the next driver on its group's rota, unless an admin has chosen someone else for that date.</p>
+    <p>Click the <span class="ui">Setup groups</span> card on the dashboard to see every group, its van drivers in rota order and its members.</p>
+    <figure class="narrow"><img src="screenshots/setup-groups.png" alt="The Setup groups list"><figcaption>The Setup groups list.</figcaption></figure>
+    <ul>
+        <li>To move a member to another setup group, edit the member and change <strong>Setup group</strong>.</li>
+        <li>Setting up the groups themselves, their van-driver rotas and each date's group is done by an admin.</li>
+        <li>When a date's setup group or van driver changes, the site emails the people affected.</li>
+    </ul>
+</section>
+
+<section class="chapter">
+    <p class="chapter-no">9</p>
+    <h2>Emails and notifications</h2>
+    <p class="lead">The site sends its emails automatically before each date: the attendance list, the setup reminder to the setup group on duty and the van-driver reminder. It also emails people when a setup group or van driver changes.</p>
+    <p>Click <span class="ui">Notifications</span> in the menu to see every email the site has sent, newest first: when it was sent, what type it was, which date it was about, whether it was sent and who it went to.</p>
+    <figure class="narrow"><img src="screenshots/notifications.png" alt="The Notifications list"><figcaption>The Notifications list.</figcaption></figure>
+    <ul>
+        <li><strong>Sent</strong> (green) means every recipient's email left the site.</li>
+        <li><strong>Failed</strong> (red) means at least one did not. The recipients that failed are marked <em>(failed)</em>. A failure is usually a mistyped email address: check the member's email and correct it.</li>
+    </ul>
+    <div class="admin">
+        <span class="note-title">Admin only</span>
+        <p>Only admins can resend a failed email or send a reminder by hand. Ask an admin once you have fixed the email address.</p>
+    </div>
+</section>
+
+<section class="chapter">
+    <p class="chapter-no">10</p>
+    <h2>Adding a term and its dates <span class="tag">Admin only</span></h2>
+    <div class="admin">
+        <span class="note-title">You need an Admin account for this</span>
+        <p>Moderators can see terms and dates but cannot add or change them. If you are a moderator, send the dates to an admin, or ask an admin to make your account an Admin.</p>
+    </div>
+    <p class="lead">A term (for example <em>Spring 2027</em>) holds its rehearsals and concerts. Each ensemble gets one poll per term.</p>
+
+    <h3>Add a new term</h3>
+    <ol class="steps">
+        <li>Click the <span class="ui">Terms</span> card on the dashboard, then <span class="ui">Add term</span> <span class="n">1</span>.</li>
+        <li>Fill in the <strong>Name</strong>, for example <em>Spring 2027</em>.</li>
+        <li>Fill in the <strong>Slug</strong>: the name in lower case with hyphens instead of spaces, for example <em>spring-2027</em>. It becomes part of the poll's web address.</li>
+        <li>Choose the <strong>Default location</strong>, usually the rehearsal venue. Dates without a location of their own use it.</li>
+        <li>Turn on <strong>Hide from members</strong> if you want to set the term up before members can see its poll. Turn it off again when it is ready.</li>
+        <li>Add the dates as described below, then click <span class="ui">Save</span>.</li>
+    </ol>
+    <figure><img src="screenshots/terms.png" alt="The Terms list"><figcaption>The Terms list. <span class="n">1</span> adds a term; <span class="n">2</span> edits one.</figcaption></figure>
+
+    <h3>Add dates to a term</h3>
+    <ol class="steps">
+        <li>On the term's form (a new term, or <span class="ui">Edit</span> <span class="n">2</span> on an existing one), click <span class="ui">Add date</span> at the bottom of the <strong>Term dates</strong> list.</li>
+        <li>Set the <strong>Start</strong> and <strong>End</strong> date and time. Tick <strong>Time TBC</strong> if the time is not confirmed yet.</li>
+        <li>Leave <strong>Location</strong> on the default for a normal rehearsal, or choose the venue.</li>
+        <li><strong>Concert ensembles</strong>: leave this empty for a rehearsal, which is for every ensemble. For a concert, select the ensembles playing in it.</li>
+        <li>Choose the <strong>Setup group</strong> on duty. Leave <strong>Van driver override</strong> on <em>Infer van driver</em> to use the group's rota, or choose a driver for this date only.</li>
+        <li>For a run of weekly rehearsals, click <span class="ui">Duplicate</span> on a date to copy it, then change the copy's date and setup group.</li>
+        <li>Click <span class="ui">Save</span> <span class="n">1</span> at the top of the page.</li>
+    </ol>
+    <figure><img src="screenshots/term-add-date.png" alt="A new date on the term form"><figcaption>A new date on the term form.</figcaption></figure>
+    <figure class="narrow"><img src="screenshots/term-edit-top.png" alt="The top of the Edit term page"><figcaption>Save <span class="n">1</span> is at the top of the Edit term page.</figcaption></figure>
+    <p>To remove a date, click <span class="ui">Remove</span> on it and save. Members are emailed if a date's setup group or van driver changes.</p>
+</section>
+
+<section class="chapter">
+    <p class="chapter-no">11</p>
+    <h2>Your own account and quick reference</h2>
+    <h3>Your own account</h3>
+    <p>Click your name at the top right to open your menu.</p>
+    <figure class="narrow"><img src="screenshots/user-menu.png" alt="The user menu"><figcaption>Your menu.</figcaption></figure>
+    <ul>
+        <li><span class="ui">My profile</span> shows your details. Click <span class="ui">Edit</span> there to change them.</li>
+        <li><span class="ui">Change password</span> sets a new password. You need your current one.</li>
+        <li><span class="ui">Logout</span> logs you out. Always log out on a shared computer.</li>
+    </ul>
+
+    <h3>Quick reference</h3>
+    <table>
+        <thead><tr><th>I want to…</th><th>Go to</th></tr></thead>
+        <tbody>
+            <tr><td>Add a new member</td><td>Users › Add user, then Edit › Add to ensemble</td></tr>
+            <tr><td>Change a member's email, setup group or ensemble</td><td>Users › the member › Edit</td></tr>
+            <tr><td>Remove a member who has left</td><td>Users › Archive on their row</td></tr>
+            <tr><td>Put in a reply for a member</td><td>Upcoming rehearsals › Poll › click their box › Save</td></tr>
+            <tr><td>See who changed a reply</td><td>The poll › the time next to their name</td></tr>
+            <tr><td>Take tonight's register</td><td>Upcoming rehearsals › Register › Fill from poll › Save register</td></tr>
+            <tr><td>See who is setting up or driving the van</td><td>Upcoming rehearsals › click the date</td></tr>
+            <tr><td>Check an email went out</td><td>Notifications</td></tr>
+            <tr><td>Add a term or a date</td><td>Ask an admin (Terms › Add term, or Edit › Add date)</td></tr>
+            <tr><td>Reset your password</td><td>Login page › I forgot password</td></tr>
+        </tbody>
+    </table>
+</section>
+
+</body>
+</html>
