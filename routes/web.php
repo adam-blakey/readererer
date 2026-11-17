@@ -1,5 +1,6 @@
 <?php
 
+use App\Features\MembermojoImport;
 use App\Http\Controllers\AttendanceController;
 use App\Http\Controllers\AttendanceRegisterController;
 use App\Http\Controllers\ComposerController;
@@ -12,6 +13,7 @@ use App\Http\Controllers\HomeController;
 use App\Http\Controllers\InstrumentFamilyController;
 use App\Http\Controllers\LocationController;
 use App\Http\Controllers\ManifestController;
+use App\Http\Controllers\MembermojoController;
 use App\Http\Controllers\MonitoringController;
 use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\PieceController;
@@ -30,6 +32,7 @@ use App\Models\Ensemble;
 use App\Models\RegisterEntry;
 use App\Models\Term;
 use Illuminate\Support\Facades\Route;
+use Laravel\Pennant\Middleware\EnsureFeaturesAreActive;
 
 Route::get('/health', HealthCheckController::class)
     ->name('health');
@@ -105,6 +108,14 @@ Route::middleware('auth')->group(function () {
     Route::get('/settings/import', [PollererImportController::class, 'create'])->name('settings.import')->can('edit.settings')->middleware(ConfirmPasswordForSensitiveChanges::class);
     Route::post('/settings/import/preview', [PollererImportController::class, 'preview'])->name('settings.import.preview')->can('edit.settings')->middleware(ConfirmPasswordForSensitiveChanges::class);
     Route::post('/settings/import', [PollererImportController::class, 'store'])->name('settings.import.store')->can('edit.settings')->middleware(ConfirmPasswordForSensitiveChanges::class);
+    Route::middleware([EnsureFeaturesAreActive::using(MembermojoImport::class), ConfirmPasswordForSensitiveChanges::class])->group(function () {
+        Route::get('/settings/membermojo', [MembermojoController::class, 'create'])->name('settings.membermojo')->can('edit.settings');
+        Route::post('/settings/membermojo/preview', [MembermojoController::class, 'preview'])->name('settings.membermojo.preview')->can('edit.settings');
+        Route::post('/settings/membermojo', [MembermojoController::class, 'store'])->name('settings.membermojo.store')->can('edit.settings');
+        Route::put('/settings/membermojo/download', [MembermojoController::class, 'update'])->name('settings.membermojo.update')->can('edit.settings');
+        Route::post('/settings/membermojo/download', [MembermojoController::class, 'sync'])->name('settings.membermojo.sync')->can('edit.settings');
+        Route::post('/settings/membermojo/verify', [MembermojoController::class, 'verify'])->name('settings.membermojo.verify')->can('edit.settings');
+    });
 
     Route::get('/feature-flags', [FeatureFlagController::class, 'edit'])->name('feature-flags.edit')->can('edit.settings')->middleware(ConfirmPasswordForSensitiveChanges::class);
     Route::put('/feature-flags', [FeatureFlagController::class, 'update'])->name('feature-flags.update')->can('edit.settings')->middleware(ConfirmPasswordForSensitiveChanges::class);

@@ -223,6 +223,9 @@ class UserController extends Controller
                 'emergency_contact_address_city' => null,
                 'emergency_contact_address_post_code' => null,
                 'date_of_birth' => null,
+                'membermojo_id' => null,
+                'member_since' => null,
+                'membership_expires_on' => null,
                 'has_photo_permission' => false,
                 'is_gift_aiding_subs' => false,
             ])->save();

@@ -152,6 +152,8 @@ class User extends Authenticatable
             'password' => 'hashed',
             'role' => UserRole::class,
             'date_of_birth' => 'date',
+            'member_since' => 'date',
+            'membership_expires_on' => 'date',
             'created_at' => 'datetime',
             'updated_at' => 'datetime',
             'is_over_18' => 'boolean',

@@ -188,7 +188,21 @@
 											<strong>{{ $user->is_gift_aiding_subs ? __('Yes') : __('No') }}</strong>
 										</div>
 									@endif
-									@unless (config('app.readererer_setup_groups') || in_array('has_photo_permission', $shown) || in_array('is_gift_aiding_subs', $shown))
+									@if ($user->member_since)
+										<div class="mb-2">
+											<x-icon name="calendar" />
+											{{ __('Member since') }}:
+											<strong>{{ $user->member_since->format('j F Y') }}</strong>
+										</div>
+									@endif
+									@if ($user->membership_expires_on)
+										<div class="mb-2">
+											<x-icon name="calendar" />
+											{{ __('Membership expires') }}:
+											<strong>{{ $user->membership_expires_on->format('j F Y') }}</strong>
+										</div>
+									@endif
+									@unless (config('app.readererer_setup_groups') || in_array('has_photo_permission', $shown) || in_array('is_gift_aiding_subs', $shown) || $user->member_since || $user->membership_expires_on)
 										<p class="text-secondary mb-0">{{ __('No additional info available') }}</p>
 									@endunless
 								</div>

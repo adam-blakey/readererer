@@ -39,6 +39,15 @@ return [
         'redirect' => '/auth/google/callback',
     ],
 
+    'membermojo' => [
+        'shortname' => null,
+        'email' => null,
+        'password' => null,
+        'overwrite' => true,
+        'cookies' => null,
+        'status' => null,
+    ],
+
     'slack' => [
         'notifications' => [
             'bot_user_oauth_token' => env('SLACK_BOT_USER_OAUTH_TOKEN'),
