@@ -19,19 +19,20 @@ class StoreUserRequest extends FormRequest
     /** @return array<string, ValidationRule|array<mixed>|string> */
     public function rules(): array
     {
-        $choose_ensembles = single_ensemble() === null && Feature::active(AddUsersToEnsembles::class);
+        $choose_ensemble = single_ensemble() === null && Feature::active(AddUsersToEnsembles::class);
 
         return [
-            ...($choose_ensembles ? [
-                'ensembles' => ['sometimes', 'array'],
-                'ensembles.*' => ['distinct', 'exists:ensembles,id'],
+            ...($choose_ensemble ? ['ensemble' => ['nullable', 'exists:ensembles,id']] : []),
+            ...(single_ensemble() !== null || $choose_ensemble ? [
+                'seat_row' => ['nullable', 'string', 'max:10'],
+                'seat_column' => ['nullable', 'string', 'max:10'],
             ] : []),
             'first_name' => ['required', 'string', 'max:255'],
             'last_name' => ['required', 'string', 'max:255'],
             'email' => ['required', 'email', 'max:255', Rule::unique('users', 'email')],
             'role' => ['required', Rule::enum(UserRole::class)->only(UserRole::assignableBy($this->user()))],
             'setup_group' => ['nullable', 'exists:setup_groups,id'],
-            'instrument_family' => [Rule::requiredIf(fn () => single_ensemble() !== null || ($choose_ensembles && filled($this->input('ensembles')))), 'nullable', 'exists:instrument_families,id'],
+            'instrument_family' => [Rule::requiredIf(fn () => single_ensemble() !== null || ($choose_ensemble && filled($this->input('ensemble')))), 'nullable', 'exists:instrument_families,id'],
             'phone_number' => ['nullable', 'string', 'max:255'],
             'address_line1' => ['nullable', 'string', 'max:255'],
             'address_line2' => ['nullable', 'string', 'max:255'],

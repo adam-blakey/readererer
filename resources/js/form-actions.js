@@ -11,3 +11,9 @@ document.addEventListener('change', (event) => {
         event.target.form.submit();
     }
 });
+
+document.addEventListener('change', (event) => {
+    document.querySelectorAll(`[data-show-when="${event.target.id}"]`).forEach((element) => {
+        element.hidden = !element.dataset.showValues.split(',').includes(event.target.value);
+    });
+});

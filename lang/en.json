@@ -795,5 +795,6 @@
     "No email address: ask an admin": "No email address: ask an admin",
     "Email a login link to :name?": "Email a login link to :name?",
     "Add users to ensembles on creation": "Add users to ensembles on creation",
-    "Lets the create user form add the new user to one or more ensembles, with the instrument family they play.": "Lets the create user form add the new user to one or more ensembles, with the instrument family they play."
+    "Lets the create user form add the new user to an ensemble, with the instrument family they play and, where the ensemble has a seating plan, their seat.": "Lets the create user form add the new user to an ensemble, with the instrument family they play and, where the ensemble has a seating plan, their seat.",
+    "Members can play a different instrument in each ensemble, so choose one ensemble here and add them to any others from their profile afterwards.": "Members can play a different instrument in each ensemble, so choose one ensemble here and add them to any others from their profile afterwards."
 }
