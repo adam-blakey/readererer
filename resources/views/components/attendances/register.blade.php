@@ -8,7 +8,7 @@
 @endpush
 
 @php
-	$totals = register_status_totals($entries->only($members->pluck('id')->all()), $members->count());
+	$totals = register_status_totals($entries->toBase()->only($members->pluck('id')->all()), $members->count());
 
 	$sort_options = [
 	    'first_name' => __('First name'),

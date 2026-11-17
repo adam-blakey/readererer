@@ -283,6 +283,33 @@ test('a register that has been taken shows its members and their notes', functio
     $response->assertSee('Present: 0');
 });
 
+test('the register totals count entries by member, not by entry id', function () {
+    $ensemble = Ensemble::factory()->create();
+    $termDate = make_term_date(Term::factory()->create());
+    $moderator = make_user(UserRole::Moderator);
+
+    $members = collect(range(1, 3))->map(function () use ($ensemble) {
+        $member = make_user(UserRole::Member);
+        join_ensemble($member, $ensemble);
+
+        return $member;
+    });
+
+    $otherDate = make_term_date(Term::factory()->create());
+    foreach (range(1, 5) as $i) {
+        RegisterEntry::create(['user_id' => $moderator->id, 'term_date_id' => $otherDate->id, 'ensemble_id' => Ensemble::factory()->create()->id, 'status' => RegisterStatus::Present, 'marked_by_user_id' => $moderator->id]);
+    }
+
+    foreach ($members as $member) {
+        RegisterEntry::create(['user_id' => $member->id, 'term_date_id' => $termDate->id, 'ensemble_id' => $ensemble->id, 'status' => RegisterStatus::Present, 'marked_by_user_id' => $moderator->id]);
+    }
+
+    $this->actingAs($moderator)
+        ->get(route('attendance.register.show', ['ensemble' => $ensemble->slug, 'termDate' => $termDate->id]))
+        ->assertSee('Present: 3')
+        ->assertSee('Not marked: 0');
+});
+
 test('the register shows what each member said on the poll', function () {
     $ensemble = Ensemble::factory()->create();
     $termDate = make_term_date(Term::factory()->create());
