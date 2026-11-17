@@ -778,5 +778,20 @@
     "Your rehearsals, concerts, and setup groups will appear here once you've been added to an ensemble.": "Your rehearsals, concerts, and setup groups will appear here once you've been added to an ensemble.",
     "Your setup group": "Your setup group",
     "Your username": "Your username",
-    "Your van driving dates have changed": "Your van driving dates have changed"
+    "Your van driving dates have changed": "Your van driving dates have changed",
+    "Claim accounts": "Claim accounts",
+    "Invites ensemble logins to set up their own account: members who have never logged in can have a login link emailed to them from a list of the ensemble's members.": "Invites ensemble logins to set up their own account: members who have never logged in can have a login link emailed to them from a list of the ensemble's members.",
+    "Set up your own account": "Set up your own account",
+    "The login link could not be sent. Please wait a minute and try again.": "The login link could not be sent. Please wait a minute and try again.",
+    "A login link has been emailed to :name. Open it to log in and choose a password.": "A login link has been emailed to :name. Open it to log in and choose a password.",
+    "Get your own account": "Get your own account",
+    "You are using a shared ensemble login. Set up your own account to reply to polls and manage your details yourself.": "You are using a shared ensemble login. Set up your own account to reply to polls and manage your details yourself.",
+    "Set up my account": "Set up my account",
+    "Find yourself": "Find yourself",
+    "Claim your account and we will email you a login link. Members who have already set up their account can log in with the username shown.": "Claim your account and we will email you a login link. Members who have already set up their account can log in with the username shown.",
+    "Account": "Account",
+    "Claimed": "Claimed",
+    "Claim": "Claim",
+    "No email address: ask an admin": "No email address: ask an admin",
+    "Email a login link to :name?": "Email a login link to :name?"
 }
