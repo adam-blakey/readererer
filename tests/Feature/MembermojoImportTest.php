@@ -8,6 +8,7 @@ use App\Models\SetupGroup;
 use App\Models\User;
 use App\Services\MembermojoImporter;
 use App\Settings\GeneralSettings;
+use Illuminate\Console\Scheduling\Schedule;
 use Illuminate\Http\Client\Request;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\DB;
@@ -293,4 +294,17 @@ test('saving the download settings keeps a saved password and forgets the cookie
     expect($settings->refresh()->membermojo_cookies)->toBeNull()->and($settings->membermojo_overwrite)->toBeTrue();
 
     $this->actingAs($admin)->put('/settings/membermojo/download', ['membermojo_shortname' => '../evil', 'membermojo_email' => 'other@example.com'])->assertSessionHasErrors('membermojo_shortname');
+});
+
+test('the scheduled download runs at the saved time', function () {
+    $admin = make_user(UserRole::Admin);
+
+    $this->actingAs($admin)->put('/settings/membermojo/download', ['membermojo_time' => '25:00'])->assertSessionHasErrors('membermojo_time');
+    $this->actingAs($admin)->put('/settings/membermojo/download', ['membermojo_time' => '18:05'])->assertSessionHasNoErrors();
+    GeneralSettings::applyToConfig();
+    require base_path('routes/console.php');
+
+    $event = collect(app(Schedule::class)->events())->last(fn ($event) => str_contains($event->command, 'membermojo:sync'));
+    expect(app(GeneralSettings::class)->refresh()->membermojo_time)->toBe('18:05')
+        ->and($event->expression)->toBe('5 18 * * *');
 });
