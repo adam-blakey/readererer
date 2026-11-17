@@ -793,5 +793,7 @@
     "Claimed": "Claimed",
     "Claim": "Claim",
     "No email address: ask an admin": "No email address: ask an admin",
-    "Email a login link to :name?": "Email a login link to :name?"
+    "Email a login link to :name?": "Email a login link to :name?",
+    "Add users to ensembles on creation": "Add users to ensembles on creation",
+    "Lets the create user form add the new user to one or more ensembles, with the instrument family they play.": "Lets the create user form add the new user to one or more ensembles, with the instrument family they play."
 }

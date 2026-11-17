@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Enums\EmailLinkType;
 use App\Enums\UserRole;
+use App\Features\AddUsersToEnsembles;
 use App\Http\Requests\EraseUserRequest;
 use App\Http\Requests\StoreUserRequest;
 use App\Http\Requests\UpdateUserRequest;
@@ -26,6 +27,7 @@ use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use Illuminate\Validation\Rules\Password as PasswordRule;
 use Illuminate\View\View;
+use Laravel\Pennant\Feature;
 use Throwable;
 
 class UserController extends Controller
@@ -74,11 +76,27 @@ class UserController extends Controller
             unset($fields['setup_group']);
         }
 
-        if (single_ensemble()) {
+        $choose_ensembles = ! single_ensemble() && Feature::active(AddUsersToEnsembles::class);
+
+        if ($choose_ensembles) {
+            $fields['ensembles'] = [
+                'label' => __('Ensembles'),
+                'type' => 'class',
+                'required' => false,
+                'icon' => 'users-group',
+                'value' => null,
+                'options' => Ensemble::orderBy('name')->get(),
+                'default_option' => null,
+                'select_multiple' => true,
+                'width' => 12,
+            ];
+        }
+
+        if (single_ensemble() || $choose_ensembles) {
             $fields['instrument_family'] = [
                 'label' => __('Instrument family'),
                 'type' => 'class',
-                'required' => true,
+                'required' => ! $choose_ensembles,
                 'icon' => 'guitar-pick',
                 'value' => null,
                 'options' => InstrumentFamily::orderBy('name')->get(),
@@ -103,6 +121,7 @@ class UserController extends Controller
         $attributes['password'] = Str::password(16);
         $setup_group_id = Arr::pull($attributes, 'setup_group');
         $instrument_family_id = Arr::pull($attributes, 'instrument_family');
+        $ensemble_ids = Arr::pull($attributes, 'ensembles', []);
 
         // Someone else may take the generated username between the check and the insert.
         $user = retry(3, fn () => User::create($attributes + [
@@ -113,8 +132,10 @@ class UserController extends Controller
         $user->save();
 
         if ($ensemble = single_ensemble()) {
-            $user->ensembles()->attach($ensemble, ['instrument_family_id' => $instrument_family_id]);
+            $ensemble_ids = [$ensemble->id];
         }
+
+        $user->ensembles()->attach(array_fill_keys($ensemble_ids, ['instrument_family_id' => $instrument_family_id]));
 
         return to_route('users.show', $user);
     }

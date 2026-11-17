@@ -3,9 +3,11 @@
 namespace App\Http\Requests;
 
 use App\Enums\UserRole;
+use App\Features\AddUsersToEnsembles;
 use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
+use Laravel\Pennant\Feature;
 
 class StoreUserRequest extends FormRequest
 {
@@ -17,13 +19,19 @@ class StoreUserRequest extends FormRequest
     /** @return array<string, ValidationRule|array<mixed>|string> */
     public function rules(): array
     {
+        $choose_ensembles = single_ensemble() === null && Feature::active(AddUsersToEnsembles::class);
+
         return [
+            ...($choose_ensembles ? [
+                'ensembles' => ['sometimes', 'array'],
+                'ensembles.*' => ['distinct', 'exists:ensembles,id'],
+            ] : []),
             'first_name' => ['required', 'string', 'max:255'],
             'last_name' => ['required', 'string', 'max:255'],
             'email' => ['required', 'email', 'max:255', Rule::unique('users', 'email')],
             'role' => ['required', Rule::enum(UserRole::class)->only(UserRole::assignableBy($this->user()))],
             'setup_group' => ['nullable', 'exists:setup_groups,id'],
-            'instrument_family' => [Rule::requiredIf(fn () => single_ensemble() !== null), 'nullable', 'exists:instrument_families,id'],
+            'instrument_family' => [Rule::requiredIf(fn () => single_ensemble() !== null || ($choose_ensembles && filled($this->input('ensembles')))), 'nullable', 'exists:instrument_families,id'],
             'phone_number' => ['nullable', 'string', 'max:255'],
             'address_line1' => ['nullable', 'string', 'max:255'],
             'address_line2' => ['nullable', 'string', 'max:255'],
