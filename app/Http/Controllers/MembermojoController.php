@@ -65,12 +65,14 @@ class MembermojoController extends Controller
             'membermojo_shortname' => ['nullable', 'required_with:membermojo_email', 'string', 'max:100', 'regex:/^[A-Za-z0-9_-]+$/'],
             'membermojo_email' => ['nullable', 'required_with:membermojo_shortname', 'email', 'max:255'],
             'membermojo_password' => ['nullable', 'string', 'max:255'],
+            'membermojo_time' => ['nullable', 'date_format:H:i'],
         ]);
 
         $before = [$settings->membermojo_shortname, $settings->membermojo_email, $settings->membermojo_password];
         $settings->membermojo_shortname = $validated['membermojo_shortname'] ?? null;
         $settings->membermojo_email = $validated['membermojo_email'] ?? null;
         $settings->membermojo_overwrite = $request->boolean('membermojo_overwrite');
+        $settings->membermojo_time = $validated['membermojo_time'] ?? null;
 
         if (filled($validated['membermojo_password'] ?? null)) {
             $settings->membermojo_password = $validated['membermojo_password'];

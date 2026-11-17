@@ -46,6 +46,7 @@ return [
         'overwrite' => true,
         'cookies' => null,
         'status' => null,
+        'time' => '04:23',
     ],
 
     'slack' => [

@@ -48,6 +48,7 @@ class GeneralSettings extends Settings
         'membermojo_overwrite' => ['services.membermojo.overwrite'],
         'membermojo_cookies' => ['services.membermojo.cookies'],
         'membermojo_status' => ['services.membermojo.status'],
+        'membermojo_time' => ['services.membermojo.time'],
         'email_previews' => ['app.readererer_email_previews'],
     ];
 
@@ -137,6 +138,8 @@ class GeneralSettings extends Settings
     public ?array $membermojo_cookies;
 
     public ?array $membermojo_status;
+
+    public ?string $membermojo_time;
 
     public ?bool $email_previews;
 
