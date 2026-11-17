@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Enums\EmailLinkType;
 use App\Enums\UserRole;
+use App\Features\AddUsersToEnsembles;
 use App\Http\Requests\EraseUserRequest;
 use App\Http\Requests\StoreUserRequest;
 use App\Http\Requests\UpdateUserRequest;
@@ -26,6 +27,7 @@ use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use Illuminate\Validation\Rules\Password as PasswordRule;
 use Illuminate\View\View;
+use Laravel\Pennant\Feature;
 use Throwable;
 
 class UserController extends Controller
@@ -74,11 +76,28 @@ class UserController extends Controller
             unset($fields['setup_group']);
         }
 
-        if (single_ensemble()) {
+        $choose_ensemble = ! single_ensemble() && Feature::active(AddUsersToEnsembles::class);
+
+        if ($choose_ensemble) {
+            $fields['ensemble'] = [
+                'label' => __('Ensemble'),
+                'type' => 'class',
+                'required' => false,
+                'icon' => 'users-group',
+                'value' => null,
+                'options' => Ensemble::orderBy('name')->get(),
+                'default_option' => null,
+                'select_multiple' => false,
+                'width' => 12,
+                'help' => __('Members can play a different instrument in each ensemble, so choose one ensemble here and add them to any others from their profile afterwards.'),
+            ];
+        }
+
+        if (single_ensemble() || $choose_ensemble) {
             $fields['instrument_family'] = [
                 'label' => __('Instrument family'),
                 'type' => 'class',
-                'required' => true,
+                'required' => ! $choose_ensemble,
                 'icon' => 'guitar-pick',
                 'value' => null,
                 'options' => InstrumentFamily::orderBy('name')->get(),
@@ -86,6 +105,23 @@ class UserController extends Controller
                 'select_multiple' => false,
                 'width' => 12,
             ];
+
+            $seating = $choose_ensemble ? $fields['ensemble']['options']->where('seating_plan_enabled', true)->modelKeys() : null;
+
+            if ($seating !== [] && ($choose_ensemble || single_ensemble()->seating_plan_enabled)) {
+                foreach (['seat_row' => [__('Seat row'), 'A'], 'seat_column' => [__('Seat column'), '1']] as $name => [$label, $placeholder]) {
+                    $fields[$name] = [
+                        'label' => $label,
+                        'type' => 'text',
+                        'required' => false,
+                        'icon' => 'armchair',
+                        'value' => null,
+                        'width' => 6,
+                        'placeholder' => $placeholder,
+                        'show_when' => $seating === null ? null : ['field' => 'ensemble', 'values' => $seating],
+                    ];
+                }
+            }
         }
 
         return view('auto-entities.form', [
@@ -103,6 +139,9 @@ class UserController extends Controller
         $attributes['password'] = Str::password(16);
         $setup_group_id = Arr::pull($attributes, 'setup_group');
         $instrument_family_id = Arr::pull($attributes, 'instrument_family');
+        $ensemble = single_ensemble() ?? Ensemble::find(Arr::pull($attributes, 'ensemble'));
+        $seat = Arr::only($attributes, ['seat_row', 'seat_column']);
+        $attributes = Arr::except($attributes, ['seat_row', 'seat_column']);
 
         // Someone else may take the generated username between the check and the insert.
         $user = retry(3, fn () => User::create($attributes + [
@@ -112,8 +151,8 @@ class UserController extends Controller
         $user->must_change_password = true;
         $user->save();
 
-        if ($ensemble = single_ensemble()) {
-            $user->ensembles()->attach($ensemble, ['instrument_family_id' => $instrument_family_id]);
+        if ($ensemble) {
+            $user->ensembles()->attach($ensemble, ['instrument_family_id' => $instrument_family_id] + ($ensemble->seating_plan_enabled ? $seat : []));
         }
 
         return to_route('users.show', $user);

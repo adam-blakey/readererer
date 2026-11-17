@@ -48,7 +48,12 @@
     }
 @endphp
 
-<div @class(['col-md-'.$data['width'], 'mb-3'])>
+<div @class(['col-md-'.$data['width'], 'mb-3'])
+    @if ($show_when = $data['show_when'] ?? null)
+        data-show-when="field-{{ $show_when['field'] }}" data-show-values="{{ implode(',', $show_when['values']) }}"
+        @unless (in_array((string) old($show_when['field']), array_map('strval', $show_when['values']), true)) hidden @endunless
+    @endif
+>
     {{-- The colour picker is a radio group with no single control to point at. --}}
     <label @if (! $is_color) for="{{ $id }}" @endif @class(['form-label', 'required' => $required])>{{ $data['label'] }}</label>
 
@@ -135,7 +140,7 @@
                 </select>
                 @break
             @default
-                <input type="text" name="{{ $name }}" id="{{ $id }}" value="{{ $value }}" @class($control_classes) placeholder="{{ $data['label'] }}" @required($required) />
+                <input type="text" name="{{ $name }}" id="{{ $id }}" value="{{ $value }}" @class($control_classes) placeholder="{{ $data['placeholder'] ?? $data['label'] }}" @required($required) />
         @endswitch
     @if ($show_icon)
     </div>
@@ -144,4 +149,8 @@
     @if ($has_error)
         <div class="invalid-feedback d-block">{{ $error_message }}</div>
     @endif
+
+    @isset($data['help'])
+        <div class="form-hint">{{ $data['help'] }}</div>
+    @endisset
 </div>
