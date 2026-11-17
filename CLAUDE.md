@@ -35,7 +35,7 @@ php artisan test
 ./vendor/bin/pest --filter 'name of test'                        # single test
 ./vendor/bin/pest --testsuite=Unit,Feature                       # skip browser tests
 
-# Moderator guide (docs/moderator-guide/moderator-guide.pdf, NSW branding): seed a throwaway database,
+# Moderator guide (docs/moderator-guide/moderator-guide.pdf): seed a throwaway database,
 # serve it, then retake the screenshots and print guide.html to PDF
 touch /tmp/guide.sqlite && DB_DATABASE=/tmp/guide.sqlite php artisan migrate:fresh && DB_DATABASE=/tmp/guide.sqlite php artisan tinker docs/moderator-guide/sample-data.php
 DB_DATABASE=/tmp/guide.sqlite php artisan serve

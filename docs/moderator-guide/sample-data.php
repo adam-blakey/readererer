@@ -1,7 +1,6 @@
 <?php
 
 use App\Enums\AttendanceStatus;
-use App\Enums\Color;
 use App\Enums\RegisterStatus;
 use App\Enums\UserRole;
 use App\Models\Attendance;
@@ -17,7 +16,6 @@ use Carbon\Carbon;
 use Database\Seeders\EmailLogSeeder;
 use Database\Seeders\InstrumentFamilySeeder;
 use Database\Seeders\SetupGroupSeeder;
-use Illuminate\Support\Facades\Storage;
 
 // Run after `php artisan migrate:fresh` with `php artisan tinker docs/moderator-guide/sample-data.php`.
 
@@ -28,22 +26,18 @@ Carbon::setTestNow(); // dates are relative to today
 (new SetupGroupSeeder)->run();
 (new InstrumentFamilySeeder)->run();
 
-Storage::disk('public')->put('images/settings/nsw-logo.png', file_get_contents(__DIR__.'/nsw-logo.png'));
 $settings = app(GeneralSettings::class);
-$settings->name = 'Nottingham Symphonic Winds';
-$settings->logo = 'images/settings/nsw-logo.png';
-$settings->primary_color = Color::Red->value;
 $settings->setup_groups = true;
 $settings->van_drivers = true;
 $settings->depping = true;
 $settings->single_ensemble = false;
 $settings->save();
 
-$rehearsalVenue = Location::create(['name' => 'Rehearsal Hall', 'address' => 'Nottingham']);
-$concertVenue = Location::create(['name' => 'Concert Hall', 'address' => 'Nottingham']);
+$rehearsalVenue = Location::create(['name' => 'Rehearsal Hall', 'address' => 'Riverside']);
+$concertVenue = Location::create(['name' => 'Concert Hall', 'address' => 'Riverside']);
 
-$nsw = Ensemble::factory()->create(['name' => 'Nottingham Symphonic Winds', 'short_name' => 'NSW', 'slug' => 'nsw', 'image' => null]);
-$nwe = Ensemble::factory()->create(['name' => 'Nottingham Wind Ensemble', 'short_name' => 'NWE', 'slug' => 'nwe', 'image' => null]);
+$orchestra = Ensemble::factory()->create(['name' => 'Riverside Wind Orchestra', 'short_name' => 'RWO', 'slug' => 'rwo', 'image' => null]);
+$band = Ensemble::factory()->create(['name' => 'Riverside Youth Band', 'short_name' => 'RYB', 'slug' => 'ryb', 'image' => null]);
 
 $account = fn (string $first, string $last, UserRole $role) => User::factory()->create([
     'first_name' => $first,
@@ -72,15 +66,15 @@ $members->push($moderator);
 
 foreach ($members as $i => $member) {
     $family = $families[$i % $families->count()];
-    $nsw->users()->attach($member, ['instrument_family_id' => $family->id, 'seat_row' => chr(65 + $i % 4), 'seat_column' => intdiv($i, 4) + 1]);
+    $orchestra->users()->attach($member, ['instrument_family_id' => $family->id, 'seat_row' => chr(65 + $i % 4), 'seat_column' => intdiv($i, 4) + 1]);
     if ($i % 3 === 0) {
-        $nwe->users()->attach($member, ['instrument_family_id' => $family->id, 'seat_row' => chr(65 + $i % 3), 'seat_column' => intdiv($i, 3) + 1]);
+        $band->users()->attach($member, ['instrument_family_id' => $family->id, 'seat_row' => chr(65 + $i % 3), 'seat_column' => intdiv($i, 3) + 1]);
     }
 }
-$nsw->admins()->attach($admin);
-$nwe->admins()->attach($admin);
+$orchestra->admins()->attach($admin);
+$band->admins()->attach($admin);
 
-foreach ([$nsw, $nwe] as $ensemble) {
+foreach ([$orchestra, $band] as $ensemble) {
     User::create([
         'first_name' => $ensemble->name,
         'last_name' => 'Ensemble',
@@ -117,13 +111,13 @@ $makeTerm = function (string $name, Carbon $first, int $weeks, array $concerts) 
 };
 
 $autumnStart = Carbon::parse('first Tuesday of September '.now()->year);
-$autumn = $makeTerm('Autumn '.now()->year, $autumnStart, 14, [[$autumnStart->copy()->addWeeks(14)->next(Carbon::SATURDAY), $nsw], [$autumnStart->copy()->addWeeks(14)->next(Carbon::SUNDAY), $nwe]]);
+$autumn = $makeTerm('Autumn '.now()->year, $autumnStart, 14, [[$autumnStart->copy()->addWeeks(14)->next(Carbon::SATURDAY), $orchestra], [$autumnStart->copy()->addWeeks(14)->next(Carbon::SUNDAY), $band]]);
 $springStart = Carbon::parse('first Tuesday of January '.(now()->year + 1));
-$makeTerm('Spring '.(now()->year + 1), $springStart, 11, [[$springStart->copy()->addWeeks(11)->next(Carbon::SATURDAY), $nsw]]);
+$makeTerm('Spring '.(now()->year + 1), $springStart, 11, [[$springStart->copy()->addWeeks(11)->next(Carbon::SATURDAY), $orchestra]]);
 
 $statuses = [AttendanceStatus::Attending, AttendanceStatus::Attending, AttendanceStatus::Attending, AttendanceStatus::Attending, AttendanceStatus::NotAttending, AttendanceStatus::Depping];
 foreach ($autumn->term_dates as $date) {
-    foreach ([$nsw, $nwe] as $ensemble) {
+    foreach ([$orchestra, $band] as $ensemble) {
         if (! $date->appliesToEnsemble($ensemble)) {
             continue;
         }

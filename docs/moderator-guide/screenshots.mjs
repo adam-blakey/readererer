@@ -16,7 +16,7 @@ async function go(path) {
     await page.waitForLoadState('networkidle');
 }
 
-// Numbered red markers next to elements, so the text can refer to them.
+// Numbered markers next to elements, so the text can refer to them.
 async function mark(markers) {
     const missing = await page.evaluate((markers) => {
         const missing = [];
@@ -30,13 +30,13 @@ async function mark(markers) {
             const r = target.getBoundingClientRect();
             const ring = document.createElement('div');
             ring.className = 'guide-mark';
-            Object.assign(ring.style, { position: 'absolute', left: r.left + scrollX - 4 + 'px', top: r.top + scrollY - 4 + 'px', width: r.width + 8 + 'px', height: r.height + 8 + 'px', border: '3px solid #BE1F43', borderRadius: '8px', zIndex: 9998, pointerEvents: 'none' });
+            Object.assign(ring.style, { position: 'absolute', left: r.left + scrollX - 4 + 'px', top: r.top + scrollY - 4 + 'px', width: r.width + 8 + 'px', height: r.height + 8 + 'px', border: '3px solid #1d7a2c', borderRadius: '8px', zIndex: 9998, pointerEvents: 'none' });
             const dot = document.createElement('div');
             dot.className = 'guide-mark';
             dot.textContent = label;
             const x = side === 'right' ? r.right + scrollX + 8 : side === 'top' || side === 'bottom' ? r.left + scrollX + r.width / 2 - 14 : r.left + scrollX - 38;
             const y = side === 'top' ? r.top + scrollY - 40 : side === 'bottom' ? r.bottom + scrollY + 12 : r.top + scrollY + r.height / 2 - 14;
-            Object.assign(dot.style, { position: 'absolute', left: x + 'px', top: y + 'px', width: '28px', height: '28px', borderRadius: '50%', background: '#BE1F43', color: '#fff', font: '700 16px Roboto, Arial, sans-serif', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 9999, boxShadow: '0 1px 3px rgba(0,0,0,.4)' });
+            Object.assign(dot.style, { position: 'absolute', left: x + 'px', top: y + 'px', width: '28px', height: '28px', borderRadius: '50%', background: '#1d7a2c', color: '#fff', font: '700 16px Roboto, Arial, sans-serif', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 9999, boxShadow: '0 1px 3px rgba(0,0,0,.4)' });
             document.body.append(ring, dot);
         }
         return missing;
@@ -62,7 +62,7 @@ async function login(username) {
     await page.waitForLoadState('networkidle');
 }
 
-const nextRehearsal = async () => page.evaluate(() => [...document.querySelectorAll('a[href*="/attendance/register/nsw/"]')].map((a) => a.getAttribute('href')).pop());
+const nextRehearsal = async () => page.evaluate(() => [...document.querySelectorAll('a[href*="/attendance/register/rwo/"]')].map((a) => a.getAttribute('href')).pop());
 
 // Logging in
 await context.clearCookies();
@@ -120,7 +120,7 @@ await page.click(addButton);
 await page.waitForSelector('#modal-add-ensemble-user.show');
 await page.waitForTimeout(400);
 const modal = '#modal-add-ensemble-user';
-await page.selectOption(`${modal} select[name=ensemble_id]`, { label: 'Nottingham Symphonic Winds' });
+await page.selectOption(`${modal} select[name=ensemble_id]`, { label: 'Riverside Wind Orchestra' });
 await page.selectOption(`${modal} select[name=instrument_family_id]`, { label: 'Flutes' });
 const modalBox = await page.locator(`${modal} .modal-content`).boundingBox();
 await page.screenshot({ path: out + 'add-ensemble-modal.png', clip: { x: modalBox.x - 10, y: modalBox.y - 10, width: modalBox.width + 20, height: modalBox.height + 20 } });
@@ -137,7 +137,7 @@ const lastRowTop = await page.evaluate(() => document.querySelector('tbody tr:la
 await shot('upcoming', { y: lastRowTop - 330, height: 420 });
 
 // Poll
-await go('/attendance/poll/nsw/autumn-' + new Date().getFullYear());
+await go('/attendance/poll/rwo/autumn-' + new Date().getFullYear());
 // Wide enough for the whole term, so the names and the latest dates show together.
 await page.setViewportSize({ width: 1500, height: 800 });
 await page.evaluate(() => {
@@ -153,7 +153,7 @@ await mark([['button[type=submit]:last-of-type', '1']]);
 const saveTop = await page.evaluate(() => [...document.querySelectorAll('button.btn-primary[type=submit]')].pop().getBoundingClientRect().top + scrollY);
 await shot('poll-save', { y: saveTop - 260, height: 330 });
 
-await go('/attendance/poll/nsw/autumn-' + new Date().getFullYear());
+await go('/attendance/poll/rwo/autumn-' + new Date().getFullYear());
 await page.setViewportSize({ width: 1280, height: 800 });
 await page.click('tbody tr:nth-child(2) a[href*="/history/"]');
 await page.waitForLoadState('networkidle');
