@@ -10,6 +10,7 @@
 					</a>
 				</div>
 			@endforeach
+			<div class="w-100 m-0"></div>
 			@if($ensembles->isEmpty())
 				<div class="col-12">
 					<x-card>
