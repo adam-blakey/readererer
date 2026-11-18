@@ -306,7 +306,10 @@ document root `domains/readererer.blakey.family/public` before step 6.
      above to [Laravel Nightwatch](https://nightwatch.laravel.com), which also
      records requests, exceptions, queries, mail and scheduled tasks. Set
      `NIGHTWATCH_TOKEN` to the application's token; Nightwatch stays off
-     without it. The app sends to a Nightwatch agent at `NIGHTWATCH_INGEST_URI`
+     without it. To send to a self-hosted server such as Watch Tower instead,
+     set `NIGHTWATCH_BASE_URL` to its address; `AppServiceProvider` passes it
+     to the agent, which would otherwise lose it once `optimize` caches the
+     config. The app sends to a Nightwatch agent at `NIGHTWATCH_INGEST_URI`
      (`127.0.0.1:2407`; give each site on the same account its own port, as
      the agent listens on the same address), which must keep running beside
      the site. There is no
