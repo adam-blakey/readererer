@@ -50,6 +50,11 @@ class AppServiceProvider extends ServiceProvider
     {
         GeneralSettings::applyToConfig();
 
+        if (config('nightwatch.base_url')) {
+            // The agent reads its server only from $_SERVER, which .env no longer fills once config is cached.
+            $_SERVER['NIGHTWATCH_BASE_URL'] = config('nightwatch.base_url');
+        }
+
         $nightwatch = $this->app->make(Nightwatch::class);
 
         if (! config('app.readererer_analytics')) {
