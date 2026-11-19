@@ -59,7 +59,7 @@
 								@if ($log->recipients->contains('status', \App\Enums\EmailStatus::Failed) && $log->resendableMailable())
 									<form method="POST" action="{{ route('notifications.resend', $log) }}" class="mt-2">
 										@csrf
-										<button type="submit" class="btn btn-sm bg-info text-info-fg">
+										<button type="submit" class="btn btn-sm bg-info text-info-fg" {{ loading_text(__('Sending…')) }}>
 											<x-icon name="send" />
 											{{ __('Resend to failed recipients') }}
 										</button>

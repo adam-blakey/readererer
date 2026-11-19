@@ -34,7 +34,7 @@
 					</div>
 					<div class="modal-footer">
 						<button type="button" class="btn" data-bs-dismiss="modal">{{ __('Cancel') }}</button>
-						<button type="submit" class="btn btn-primary">
+						<button type="submit" class="btn btn-primary" {{ loading_text(__('Sending…')) }}>
 							<x-icon name="send" />
 							{{ __('Send') }}
 						</button>
@@ -43,7 +43,7 @@
 			</div>
 		</div>
 	@else
-		<button type="submit" class="btn btn-sm {{ $class }}">
+		<button type="submit" class="btn btn-sm {{ $class }}" {{ loading_text(__('Sending…')) }}>
 			<x-icon name="{{ $icon }}" />
 			{{ $label }}
 		</button>
