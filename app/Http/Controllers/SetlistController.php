@@ -15,7 +15,7 @@ class SetlistController extends Controller
     {
         $query = Setlist::query();
         $query->when(request('with_trashed'), fn ($query) => $query->withTrashed());
-        $setlists = $query->autosort()->paginate(10)->withQueryString();
+        $setlists = $query->autosort()->paginate(per_page())->withQueryString();
 
         return view('auto-entities.index', [
             'entities' => $setlists,

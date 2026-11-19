@@ -22,7 +22,7 @@ class AttendanceRegisterController extends Controller
     {
         $term_dates = TermDate::with(['term', 'concert_ensembles', 'register_entries', 'email_logs.recipients', 'setup_group', 'van_driver'])
             ->orderByDesc('start_datetime')
-            ->paginate(15)->withQueryString();
+            ->paginate(per_page(15))->withQueryString();
 
         $ensembles = Ensemble::shown()->orderBy('name')
             ->get()

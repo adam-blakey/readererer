@@ -3,6 +3,7 @@
 use App\Enums\AttendanceStatus;
 use App\Enums\Color;
 use App\Enums\RegisterStatus;
+use App\Features\TableSize;
 use App\Http\Middleware\AddSecurityHeaders;
 use App\Models\Ensemble;
 use Illuminate\Database\Eloquent\Model;
@@ -15,6 +16,7 @@ use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Facades\Vite;
 use Illuminate\Support\Str;
 use Illuminate\Support\ViewErrorBag;
+use Laravel\Pennant\Feature;
 
 function logo_url(): string
 {
@@ -45,6 +47,15 @@ function single_ensemble(): ?Ensemble
     $ensembles = Ensemble::limit(2)->get();
 
     return $ensembles->count() === 1 ? $ensembles->first() : null;
+}
+
+const TABLE_SIZES = [10, 25, 50, 100];
+
+function per_page(int $default = 10): int
+{
+    $requested = request()->query('per_page');
+
+    return Feature::active(TableSize::class) && in_array($requested, array_map('strval', TABLE_SIZES), true) ? (int) $requested : $default;
 }
 
 function apply_terminology(string $line, array $terminology): string

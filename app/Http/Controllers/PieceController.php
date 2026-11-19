@@ -15,7 +15,7 @@ class PieceController extends Controller
     {
         $query = Piece::query();
         $query->when(request('with_trashed'), fn ($query) => $query->withTrashed());
-        $pieces = $query->with(['composer'])->autosort()->paginate(10)->withQueryString();
+        $pieces = $query->with(['composer'])->autosort()->paginate(per_page())->withQueryString();
 
         return view('auto-entities.index', [
             'entities' => $pieces,

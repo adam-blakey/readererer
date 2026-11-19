@@ -24,7 +24,7 @@ class EnsembleController extends Controller
     {
         $query = Ensemble::query();
         $query->when(request('with_trashed'), fn ($query) => $query->withTrashed());
-        $ensembles = $query->with(['admins'])->withCount('users')->autosort()->paginate(10)->withQueryString();
+        $ensembles = $query->with(['admins'])->withCount('users')->autosort()->paginate(per_page())->withQueryString();
 
         return view('auto-entities.index', [
             'entities' => $ensembles,

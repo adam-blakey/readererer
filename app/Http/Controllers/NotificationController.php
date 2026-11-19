@@ -13,7 +13,7 @@ class NotificationController extends Controller
     {
         $logs = EmailLog::with(['recipients', 'termDate'])
             ->newestOrSorted()
-            ->paginate(15)
+            ->paginate(per_page(15))
             ->withQueryString();
 
         return view('notifications.index', [

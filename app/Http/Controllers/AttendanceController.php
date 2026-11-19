@@ -19,7 +19,7 @@ class AttendanceController extends Controller
 {
     public function index()
     {
-        $attendances = Attendance::latestUpdates()->paginate(10)->withQueryString();
+        $attendances = Attendance::latestUpdates()->paginate(per_page())->withQueryString();
 
         return view('attendances.index', [
             'attendances' => $attendances,

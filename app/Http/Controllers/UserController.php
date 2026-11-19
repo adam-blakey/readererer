@@ -49,7 +49,7 @@ class UserController extends Controller
                 ->when($ensemble_ids, fn ($query) => $query->whereHas('ensembles', fn ($query) => $query->whereKey($ensemble_ids)))
                 ->when(in_array('none', $chosen), fn ($query) => $query->orWhereDoesntHave('ensembles')));
         }
-        $users = $query->with(['ensembles', 'setup_group'])->autosort()->paginate(10)->withQueryString();
+        $users = $query->with(['ensembles', 'setup_group'])->autosort()->paginate(per_page())->withQueryString();
 
         return view('auto-entities.index', [
             'entities' => $users,
