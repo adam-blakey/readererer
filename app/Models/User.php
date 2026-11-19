@@ -320,12 +320,13 @@ class User extends Authenticatable
 
     public function membership($ensemble): string
     {
-        $membership = $this->ensembles->firstWhere('id', $ensemble->id);
-        if (! $membership) {
+        $pivot = $this->relationLoaded('pivot') && $this->pivot->ensemble_id == $ensemble->id
+            ? $this->pivot
+            : $this->ensembles->firstWhere('id', $ensemble->id)?->pivot;
+        if (! $pivot) {
             return __('Not a member');
         }
 
-        $pivot = $membership->pivot;
         $instrument_name = $pivot->instrumentFamily?->name ?? '';
         $seat_name = $pivot->seat_row.$pivot->seat_column;
 

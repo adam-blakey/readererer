@@ -49,7 +49,7 @@ class Attendance extends Model
     #[Scope]
     protected function latestUpdates(Builder $query): void
     {
-        $query->with(['user', 'edit_user', 'term_date'])
+        $query->with(['user', 'edit_user', 'term_date.term', 'ensemble'])
             ->whereRelation('user', 'deleted_at', null)
             ->whereRelation('edit_user', 'deleted_at', null)
             ->whereRelation('term_date', 'deleted_at', null)

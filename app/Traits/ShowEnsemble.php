@@ -32,7 +32,7 @@ trait ShowEnsemble
         $membership = auth()->user()->ensembles->firstWhere('id', $ensemble->id)?->pivot;
 
         return view('ensembles.show', [
-            'ensemble' => $ensemble,
+            'ensemble' => $ensemble->loadMembers(),
             'membership' => $membership,
             'upcomingTerms' => $upcoming_terms,
             'nextRehearsal' => $next_rehearsal,

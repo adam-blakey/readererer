@@ -96,7 +96,7 @@ class TermController extends Controller
 
     public function show(Term $term)
     {
-        $term->load('location', 'term_dates.concert_ensembles', 'term_dates.location')->with('van_driver');
+        $term->load('location', 'term_dates.concert_ensembles', 'term_dates.location', 'term_dates.van_driver', 'term_dates.setup_group.van_drivers');
 
         return view('terms.show', [
             'term' => $term,

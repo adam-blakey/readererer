@@ -41,6 +41,7 @@ class AttendanceRegisterController extends Controller
         abort_unless($termDate->appliesToEnsemble($ensemble), 404);
 
         $sortby = $request->query('sortby') ?? 'first_name';
+        $ensemble->load('users.setup_group');
         $members = $this->sorted_members($ensemble, $sortby);
         $polled = $this->polled_attendances($ensemble, $termDate);
 
