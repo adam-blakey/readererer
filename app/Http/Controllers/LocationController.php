@@ -19,7 +19,7 @@ class LocationController extends Controller
     {
         $query = Location::query();
         $query->when(request('with_trashed'), fn ($query) => $query->withTrashed());
-        $locations = $query->autosort()->paginate(10)->appends(request()->only('with_trashed'));
+        $locations = $query->autosort()->paginate(10)->withQueryString();
 
         return view('auto-entities.index', [
             'entities' => $locations,

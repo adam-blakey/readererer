@@ -22,7 +22,7 @@ class SetupGroupController extends Controller
     {
         $query = SetupGroup::query();
         $query->when(request('with_trashed'), fn ($query) => $query->withTrashed());
-        $setupGroups = $query->autosort()->paginate(10)->appends(request()->only('with_trashed'));
+        $setupGroups = $query->autosort()->paginate(10)->withQueryString();
 
         return view('auto-entities.index', [
             'entities' => $setupGroups,

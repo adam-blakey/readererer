@@ -15,7 +15,7 @@ class ComposerController extends Controller
     {
         $query = Composer::query();
         $query->when(request('with_trashed'), fn ($query) => $query->withTrashed());
-        $composers = $query->autosort()->paginate(10)->appends(request()->only('with_trashed'));
+        $composers = $query->autosort()->paginate(10)->withQueryString();
 
         return view('auto-entities.index', [
             'entities' => $composers,

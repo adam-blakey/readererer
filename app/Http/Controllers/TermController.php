@@ -30,7 +30,7 @@ class TermController extends Controller
         if (! request('with_past')) {
             $query = $query->current();
         }
-        $terms = $query->with(['term_dates.concert_ensembles'])->withCount('term_dates')->autosort()->paginate(10)->appends(request()->only('with_trashed', 'with_past'));
+        $terms = $query->with(['term_dates.concert_ensembles'])->withCount('term_dates')->autosort()->paginate(10)->withQueryString();
 
         return view('auto-entities.index', [
             'entities' => $terms,
