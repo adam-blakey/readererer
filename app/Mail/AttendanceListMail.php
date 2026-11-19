@@ -18,7 +18,21 @@ class AttendanceListMail extends Mailable
 {
     use Queueable, SerializesModels;
 
+    private bool $rendering = false;
+
     public function __construct(public TermDate $termDate, public ?User $recipient = null) {}
+
+    /** Rendering for a preview, snapshot or log needs only the body, so it skips building the seating plan PDFs. */
+    public function render()
+    {
+        $this->rendering = true;
+
+        try {
+            return parent::render();
+        } finally {
+            $this->rendering = false;
+        }
+    }
 
     public function envelope(): Envelope
     {
@@ -43,6 +57,10 @@ class AttendanceListMail extends Mailable
     /** A seating plan for each of the date's ensembles that has one. */
     public function attachments(): array
     {
+        if ($this->rendering) {
+            return [];
+        }
+
         return $this->termDate->notifiedEnsembles()
             ->filter->hasSeatingPlan()
             ->map(fn (Ensemble $ensemble) => Attachment::fromData(

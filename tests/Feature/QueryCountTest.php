@@ -6,6 +6,7 @@ use App\Enums\UserRole;
 use App\Models\Attendance;
 use App\Models\Ensemble;
 use App\Models\RegisterEntry;
+use App\Models\SetupGroup;
 use App\Models\Term;
 use App\Models\TermDate;
 use Illuminate\Support\Facades\DB;
@@ -14,9 +15,10 @@ function populate_ensemble(Ensemble $ensemble, Term $term, int $members): void
 {
     $families = collect(range(0, 3))->map(fn ($i) => make_instrument_family("Family $i"));
     $dates = TermDate::where('term_id', $term->id)->get();
+    $setupGroup = SetupGroup::factory()->create();
 
     foreach (range(1, $members) as $i) {
-        $user = make_user(UserRole::Member);
+        $user = make_user(UserRole::Member, ['setup_group_id' => $setupGroup->id]);
         join_ensemble($user, $ensemble, $families[$i % 4], chr(65 + $i % 5), $i);
 
         foreach ($dates as $date) {
@@ -57,6 +59,12 @@ dataset('pages', [
     'term show' => fn ($ensemble, $term, $date) => route('terms.show', $term),
     'users index' => fn ($ensemble, $term, $date) => route('users.index'),
     'ensembles index' => fn ($ensemble, $term, $date) => route('ensembles.index'),
+    'ensemble show' => fn ($ensemble, $term, $date) => route('ensembles.show', $ensemble),
+    'ensemble members' => fn ($ensemble, $term, $date) => route('ensembles.members.index', $ensemble),
+    'ensemble edit' => fn ($ensemble, $term, $date) => route('ensembles.edit', $ensemble),
+    'attendance updates' => fn ($ensemble, $term, $date) => route('attendance.index'),
+    'term date' => fn ($ensemble, $term, $date) => route('term-dates.show', $date),
+    'registers' => fn ($ensemble, $term, $date) => route('attendance.register.index'),
     'seating plan' => fn ($ensemble, $term, $date) => route('ensembles.seating-plan.show', $ensemble),
 ]);
 

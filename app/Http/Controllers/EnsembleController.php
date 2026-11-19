@@ -68,7 +68,7 @@ class EnsembleController extends Controller
     public function edit(Ensemble $ensemble)
     {
         return view('ensembles.edit', [
-            'ensemble' => $ensemble,
+            'ensemble' => $ensemble->loadMembers(),
             'admins_field' => get_create_fields($ensemble)['admins'],
             'page_name' => __('Edit :name', ['name' => $ensemble->name]),
         ]);
@@ -105,7 +105,7 @@ class EnsembleController extends Controller
     public function members(Ensemble $ensemble): View
     {
         return view('ensembles.members', [
-            'ensemble' => $ensemble,
+            'ensemble' => $ensemble->loadMembers(),
             'page_name' => $ensemble->name,
             'page_subname' => __('Members'),
         ]);
