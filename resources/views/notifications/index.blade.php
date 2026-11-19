@@ -9,6 +9,7 @@
 				</x-card>
 			</div>
 		</x-card-row>
+		<x-per-page-select :paginator="$logs" />
 		{{ $logs->links() }}
 	</div>
 </x-layout>

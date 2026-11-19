@@ -9,6 +9,7 @@
 				</x-card>
 			</div>
 		</x-card-row>
+		<x-per-page-select :paginator="$term_dates" />
 		{{ $term_dates->links() }}
 	</div>
 </x-layout>
