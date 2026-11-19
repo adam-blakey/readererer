@@ -166,6 +166,17 @@ test('the attendance list carries the seating plan of each ensemble that has one
         ->and($attachments[0]->mime)->toBe('application/pdf');
 });
 
+test('rendering the attendance list for a preview builds no seating plans', function () {
+    $seated = Ensemble::factory()->create();
+    join_ensemble(make_user(UserRole::Member), $seated, seatRow: 'A', seatColumn: 1);
+    $mail = new AttendanceListMail(make_term_date_in(12));
+
+    $mail->render();
+
+    expect($mail->rawAttachments)->toBeEmpty()
+        ->and($mail->attachments())->toHaveCount(1);
+});
+
 test('a reminder that failed for every recipient is sent again on the next run', function () {
     Ensemble::factory()->create()->admins()->attach(make_user(UserRole::Member)->id);
     make_term_date_in(12);
