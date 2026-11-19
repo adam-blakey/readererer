@@ -4,6 +4,7 @@ namespace App\Models;
 
 use App\Enums\UserRole;
 use App\Traits\HasImage;
+use Illuminate\Database\Eloquent\Collection as EloquentCollection;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Foundation\Auth\User as Authenticatable;
@@ -86,11 +87,34 @@ class User extends Authenticatable
 
     public function latestAttendanceFor(TermDate $termDate, ?Ensemble $ensemble = null): ?Attendance
     {
-        return $this->attendances
-            ->where('term_date_id', $termDate->id)
-            ->when($ensemble, fn ($attendances) => $attendances->where('ensemble_id', $ensemble->id))
-            ->sortBy([['created_at', 'desc'], ['id', 'desc']])
-            ->first();
+        return self::latestAttendances($this->attendances)['dates'][$termDate->id][$ensemble?->id ?? 'any'] ?? null;
+    }
+
+    /** When the loaded attendances last changed for the ensemble. */
+    public function lastAttendanceUpdateIn(Ensemble $ensemble): ?SupportCarbon
+    {
+        return (self::latestAttendances($this->attendances)['ensembles'][$ensemble->id] ?? null)?->created_at;
+    }
+
+    /** The latest of the loaded attendances by date and ensemble, built once per collection because a poll asks for every cell. */
+    private static function latestAttendances(EloquentCollection $attendances): array
+    {
+        static $cache = new \WeakMap;
+
+        if (($cache[$attendances]['count'] ?? null) !== $attendances->count()) {
+            $latest = ['dates' => [], 'ensembles' => []];
+
+            // Sorting on the stored Y-m-d H:i:s strings skips a Carbon cast per comparison.
+            foreach ($attendances->sortByDesc(fn (Attendance $attendance) => [$attendance->getAttributes()['created_at'] ?? null, $attendance->id]) as $attendance) {
+                $latest['dates'][$attendance->term_date_id][$attendance->ensemble_id] ??= $attendance;
+                $latest['dates'][$attendance->term_date_id]['any'] ??= $attendance;
+                $latest['ensembles'][$attendance->ensemble_id] ??= $attendance;
+            }
+
+            $cache[$attendances] = ['count' => $attendances->count(), 'latest' => $latest];
+        }
+
+        return $cache[$attendances]['latest'];
     }
 
     public function ensembles()

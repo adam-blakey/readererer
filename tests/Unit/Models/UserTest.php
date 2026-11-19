@@ -1,6 +1,9 @@
 <?php
 
+use App\Enums\AttendanceStatus;
 use App\Enums\UserRole;
+use App\Models\Attendance;
+use App\Models\Ensemble;
 use App\Models\SetupGroup;
 use App\Models\User;
 
@@ -112,4 +115,30 @@ test('users are soft deleted and can be restored', function () {
 
     $user->restore();
     expect(User::find($user->id))->not->toBeNull();
+});
+
+test('the latest attendance is found per date and ensemble, and follows newly loaded replies', function () {
+    $user = User::factory()->create();
+    $termDate = make_term_date();
+    [$band, $choir] = Ensemble::factory()->count(2)->create();
+    $reply = fn (Ensemble $ensemble, AttendanceStatus $status, string $at) => Attendance::factory()->create([
+        'user_id' => $user->id,
+        'term_date_id' => $termDate->id,
+        'ensemble_id' => $ensemble->id,
+        'status' => $status,
+        'dep_name' => null,
+        'created_at' => $at,
+    ]);
+    $reply($band, AttendanceStatus::Attending, '2026-01-01 10:00:00');
+    $reply($band, AttendanceStatus::NotAttending, '2026-01-02 10:00:00');
+    $reply($choir, AttendanceStatus::Attending, '2026-01-03 10:00:00');
+
+    expect($user->latestAttendanceFor($termDate, $band)->status)->toBe(AttendanceStatus::NotAttending)
+        ->and($user->latestAttendanceFor($termDate)->ensemble_id)->toBe($choir->id)
+        ->and($user->lastAttendanceUpdateIn($band)->toDateTimeString())->toBe('2026-01-02 10:00:00');
+
+    $reply($band, AttendanceStatus::Attending, '2026-01-04 10:00:00');
+    $user->load('attendances');
+
+    expect($user->latestAttendanceFor($termDate, $band)->status)->toBe(AttendanceStatus::Attending);
 });
