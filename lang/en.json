@@ -841,7 +841,7 @@
     "Claim accounts": "Claim accounts",
     "Invites ensemble logins to set up their own account: members who have never logged in can have a login link emailed to them from a list of the ensemble's members.": "Invites ensemble logins to set up their own account: members who have never logged in can have a login link emailed to them from a list of the ensemble's members.",
     "Configurable table size": "Configurable table size",
-    "Shows a selector beside each table's pagination so users can choose how many rows a page shows.": "Shows a selector beside each table's pagination so users can choose how many rows a page shows.",
+    "Shows a selector beside each table's pagination so users can choose how many rows a page shows, remembered for each user and page.": "Shows a selector beside each table's pagination so users can choose how many rows a page shows, remembered for each user and page.",
     "Rows per page": "Rows per page",
     "Set up your own account": "Set up your own account",
     "The login link could not be sent. Please wait a minute and try again.": "The login link could not be sent. Please wait a minute and try again.",

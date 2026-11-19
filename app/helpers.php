@@ -55,9 +55,24 @@ const TABLE_SIZES = [10, 25, 50, 100];
 
 function per_page(int $default = 10): int
 {
+    if (! Feature::active(TableSize::class)) {
+        return $default;
+    }
+
+    $user = request()->user();
+    $route = request()->route()?->getName();
+    $saved = $user && $route ? $user->setting('table_sizes', []) : [];
     $requested = request()->query('per_page');
 
-    return Feature::active(TableSize::class) && in_array($requested, array_map('strval', TABLE_SIZES), true) ? (int) $requested : $default;
+    if (! in_array($requested, array_map('strval', TABLE_SIZES), true)) {
+        return in_array($saved[$route] ?? null, TABLE_SIZES, true) ? $saved[$route] : $default;
+    }
+
+    if ($user && $route && ($saved[$route] ?? null) !== (int) $requested) {
+        $user->putSetting('table_sizes', [...$saved, $route => (int) $requested]);
+    }
+
+    return (int) $requested;
 }
 
 function apply_terminology(string $line, array $terminology): string

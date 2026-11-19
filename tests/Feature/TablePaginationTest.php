@@ -51,3 +51,29 @@ test('a page size outside the allow-list falls back to the default', function (s
         ->assertOk()
         ->assertViewHas('entities', fn ($entities) => $entities->perPage() === 10);
 })->with(['9999', '0', '-5', 'abc', '25abc', [['25']]]);
+
+test('a chosen page size is saved for the user and that page', function () {
+    enable_table_size();
+    Composer::factory()->count(30)->create();
+    $admin = make_user(UserRole::Admin);
+
+    $this->actingAs($admin)->get(route('composers.index', ['per_page' => 50]))->assertOk();
+
+    expect($admin->fresh()->setting('table_sizes'))->toBe(['composers.index' => 50]);
+
+    $this->actingAs($admin->fresh())->get(route('composers.index'))
+        ->assertViewHas('entities', fn ($entities) => $entities->perPage() === 50);
+    $this->actingAs($admin->fresh())->get(route('setlists.index'))
+        ->assertViewHas('entities', fn ($entities) => $entities->perPage() === 10);
+    $this->actingAs(make_user(UserRole::Admin))->get(route('composers.index'))
+        ->assertViewHas('entities', fn ($entities) => $entities->perPage() === 10);
+});
+
+test('a saved page size is ignored while the feature is off', function () {
+    Composer::factory()->count(30)->create();
+    $admin = make_user(UserRole::Admin);
+    $admin->putSetting('table_sizes', ['composers.index' => 50]);
+
+    $this->actingAs($admin)->get(route('composers.index'))
+        ->assertViewHas('entities', fn ($entities) => $entities->perPage() === 10);
+});
