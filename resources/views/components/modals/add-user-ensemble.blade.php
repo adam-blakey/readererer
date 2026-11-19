@@ -3,7 +3,7 @@
 @props(['ensemble'])
 
 @php
-    $users = User::all()->sortBy('name');
+    $users = User::with('ensembles')->get()->sortBy('name');
     $instrumentFamilies = App\Models\InstrumentFamily::all()->sortBy('name');
 @endphp
 
@@ -26,7 +26,7 @@
                                 @if($user->ensembles->contains('id', $ensemble->id))
                                     @php
                                         $pivot = $user->ensembles->firstWhere('id', $ensemble->id)->pivot;
-                                        $instrument = App\Models\InstrumentFamily::find($pivot->instrument_family_id)?->name ?? __('No instrument');
+                                        $instrument = $instrumentFamilies->firstWhere('id', $pivot->instrument_family_id)?->name ?? __('No instrument');
                                     @endphp
                                     <option value="{{ $user->id }}" disabled>{{ $user->name }} ({{ $instrument }} in {{ $pivot->seat_row }}{{ $pivot->seat_column }})</option>
                                 @else

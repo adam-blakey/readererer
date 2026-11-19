@@ -22,7 +22,7 @@ class AttendanceRegisterController extends Controller
     {
         $term_dates = TermDate::with(['term', 'concert_ensembles', 'register_entries', 'email_logs.recipients', 'setup_group', 'van_driver'])
             ->orderByDesc('start_datetime')
-            ->paginate(15);
+            ->paginate(per_page(15))->withQueryString();
 
         $ensembles = Ensemble::shown()->orderBy('name')
             ->get()
@@ -41,6 +41,7 @@ class AttendanceRegisterController extends Controller
         abort_unless($termDate->appliesToEnsemble($ensemble), 404);
 
         $sortby = $request->query('sortby') ?? 'first_name';
+        $ensemble->load('users.setup_group');
         $members = $this->sorted_members($ensemble, $sortby);
         $polled = $this->polled_attendances($ensemble, $termDate);
 

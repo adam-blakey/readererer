@@ -3,6 +3,8 @@
 use App\Enums\AttendanceStatus;
 use App\Enums\Color;
 use App\Enums\RegisterStatus;
+use App\Features\LoadingButtons;
+use App\Features\TableSize;
 use App\Http\Middleware\AddSecurityHeaders;
 use App\Models\Ensemble;
 use Illuminate\Database\Eloquent\Model;
@@ -13,8 +15,10 @@ use Illuminate\Support\Arr;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Facades\Vite;
+use Illuminate\Support\HtmlString;
 use Illuminate\Support\Str;
 use Illuminate\Support\ViewErrorBag;
+use Laravel\Pennant\Feature;
 
 function logo_url(): string
 {
@@ -45,6 +49,15 @@ function single_ensemble(): ?Ensemble
     $ensembles = Ensemble::limit(2)->get();
 
     return $ensembles->count() === 1 ? $ensembles->first() : null;
+}
+
+const TABLE_SIZES = [10, 25, 50, 100];
+
+function per_page(int $default = 10): int
+{
+    $requested = request()->query('per_page');
+
+    return Feature::active(TableSize::class) && in_array($requested, array_map('strval', TABLE_SIZES), true) ? (int) $requested : $default;
 }
 
 function apply_terminology(string $line, array $terminology): string
@@ -445,4 +458,10 @@ function normalise_time(?string $time): ?string
 function display_time(?string $time): ?string
 {
     return preg_match('/^([01]\d|2[0-3]):[0-5]\d$/', (string) $time) ? Carbon\Carbon::createFromFormat('H:i', $time)->format(time_format()) : $time;
+}
+
+/** The attribute that makes a submit button show a spinner and the given text while its form is sent, when the Loading buttons flag is on. */
+function loading_text(string $text): HtmlString
+{
+    return new HtmlString(Feature::active(LoadingButtons::class) ? 'data-loading-text="'.e($text).'"' : '');
 }

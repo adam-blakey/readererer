@@ -57,10 +57,10 @@
                         @endif
                         @if ($show_van_drivers)
                             <td>
-                                @if ($td->inferred_van_driver == null)
-                                    <span class="badge bg-red text-red-fg">{{ __('No van driver!') }}</span>
+                                @if ($van_driver = $td->inferred_van_driver)
+                                    {{ $van_driver->name }}
                                 @else
-                                    {{ $td->inferred_van_driver->name }}
+                                    <span class="badge bg-red text-red-fg">{{ __('No van driver!') }}</span>
                                 @endif
                             </td>
                         @endif

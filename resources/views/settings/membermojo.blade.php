@@ -30,7 +30,7 @@
 					@include('settings.membermojo-report', ['report' => $preview['report']])
 				</div>
 				<div class="card-footer text-end">
-					<button class="btn btn-primary" type="submit">{{ __('Import') }}</button>
+					<button class="btn btn-primary" type="submit" {{ loading_text(__('Importing…')) }}>{{ __('Import') }}</button>
 				</div>
 			</form>
 		@endif
@@ -64,7 +64,7 @@
 				</label>
 			</div>
 			<div class="card-footer text-end">
-				<button class="btn btn-primary" type="submit">{{ __('Preview import') }}</button>
+				<button class="btn btn-primary" type="submit" {{ loading_text(__('Importing…')) }}>{{ __('Preview import') }}</button>
 			</div>
 		</form>
 
@@ -91,7 +91,7 @@
 				@if ($configured)
 					<form action="{{ route('settings.membermojo.sync') }}" class="mb-3" method="POST">
 						@csrf
-						<button class="btn" type="submit">
+						<button class="btn" type="submit" {{ loading_text(__('Downloading…')) }}>
 							<x-icon name="refresh" />
 							{{ __('Download now') }}
 						</button>
@@ -104,7 +104,7 @@
 							<label class="form-label" for="verification_link">{{ __('Verification link') }}</label>
 							<div class="input-group">
 								<input class="form-control @error('verification_link') is-invalid @enderror" id="verification_link" name="verification_link" placeholder="{{ \App\Services\MembermojoClient::BASE_URL }}/…" required type="url" value="{{ old('verification_link') }}">
-								<button class="btn" type="submit">{{ __('Verify and download') }}</button>
+								<button class="btn" type="submit" {{ loading_text(__('Downloading…')) }}>{{ __('Verify and download') }}</button>
 							</div>
 							@error('verification_link')
 								<x-forms.input-error :messages="$message" />

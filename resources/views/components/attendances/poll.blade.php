@@ -220,7 +220,7 @@
 							<div class="d-flex align-items-center">
 								<x-user-entry :add_route="false" :secondary_info="$instrument_families->get($member->pivot->instrument_family_id)?->name ?? ''" :user="$member" show_setup_group="true" />
 								@php
-									$last_updated = $member->attendances->where('ensemble_id', $ensemble->id)->max('created_at');
+									$last_updated = $member->lastAttendanceUpdateIn($ensemble);
 								@endphp
 								<a class="btn btn-sm btn-ghost-secondary ms-auto d-print-none" href="{{ route('attendance.poll.history', ['ensemble' => $ensemble, 'term' => $term, 'user' => $member]) }}" aria-label="{{ __('View edit history for :name', ['name' => $member->name]) }}" title="{{ __('View edit history') }}" data-bs-toggle="tooltip">
 									<x-icon name="history" />

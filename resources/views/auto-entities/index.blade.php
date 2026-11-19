@@ -35,6 +35,7 @@
 				</x-card>
 			</div>
 		</x-card-row>
+		<x-per-page-select :paginator="$entities" />
 		{{ $entities->links() }}
 	</div>
 </x-layout>
