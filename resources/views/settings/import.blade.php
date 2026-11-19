@@ -64,7 +64,7 @@
 					@endif
 				</div>
 				<div class="card-footer text-end">
-					<button class="btn btn-primary" type="submit">{{ __('Import') }}</button>
+					<button class="btn btn-primary" type="submit" {{ loading_text(__('Importing…')) }}>{{ __('Import') }}</button>
 				</div>
 			</form>
 		@endif
@@ -88,7 +88,7 @@
 				</div>
 			</div>
 			<div class="card-footer text-end">
-				<button class="btn btn-primary" type="submit">{{ __('Preview import') }}</button>
+				<button class="btn btn-primary" type="submit" {{ loading_text(__('Importing…')) }}>{{ __('Preview import') }}</button>
 			</div>
 		</form>
 	</div>
