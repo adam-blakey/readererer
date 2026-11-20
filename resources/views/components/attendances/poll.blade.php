@@ -57,6 +57,16 @@
 	$location_symbols = $other_locations->mapWithKeys(fn ($location, $index) => [
 		$location->id => str_repeat($footnote_symbols[$index % count($footnote_symbols)], intdiv($index, count($footnote_symbols)) + 1),
 	]);
+
+	// Worked out once per date rather than in every member's row, as the poll has a cell for each member and date.
+	$date_cells = $term_dates->map(fn ($term_date) => [
+	    'term_date' => $term_date,
+	    'id' => $term_date->id,
+	    'class' => $term_date->concert_ensembles->contains($ensemble) ? 'bg-primary-subtle' : '',
+	    'setup_group_id' => $term_date->setup_group?->id,
+	    'van_driver_id' => $van_driver_ids->get($term_date->id),
+	    'locked' => $locked_ids->contains($term_date->id),
+	]);
 @endphp
 
 <div class="card-header flex-wrap row-gap-1 d-print-none">
@@ -188,6 +198,7 @@
 			<tbody>
 				@php
 					$prev_sort_value = null;
+					$totals = $term_dates->mapWithKeys(fn ($term_date) => [$term_date->id => member_status_totals($members, $term_date, $ensemble)]);
 				@endphp
 				@foreach ($members as $member)
 					@php
@@ -204,13 +215,13 @@
 						</thead>
 					@endif
 					@if ($loop->first)
-						<x-attendances.totals-row :$ensemble :$members :$term_dates />
+						<x-attendances.totals-row :$ensemble :$term_dates :$totals />
 					@endif
 					@if ($repeating_headings and $sort_value != $prev_sort_value)
 						<tr>
 							<td>{{ $sort_value }}</td>
-							@foreach ($term_dates as $term_date)
-                                <td class="w-1 {{ $term_date->concert_ensembles->contains($ensemble) ? 'bg-primary-subtle' : '' }}"></td>
+							@foreach ($date_cells as $cell)
+                                <td class="w-1 {{ $cell['class'] }}"></td>
 							@endforeach
 						</tr>
 					@endif
@@ -228,24 +239,17 @@
 								</a>
 							</div>
 						</td>
-						@foreach ($term_dates as $term_date)
-                            <td class="w-1 {{ $term_date->concert_ensembles->contains($ensemble) ? 'bg-primary-subtle' : '' }}">
+						@php
+							$member_id = $member->id;
+							$member_setup_group = $member->setup_group;
+						@endphp
+						@foreach ($date_cells as $cell)
+                            <td class="w-1 {{ $cell['class'] }}">
 								@php
-									$attendance = $member->latestAttendanceFor($term_date, $ensemble);
-									$attendance_value = $attendance?->status ?? App\Enums\AttendanceStatus::Unknown;
-
-                                    if ($term_date->setup_group != null && $member->setup_group != null)
-                                    {
-                                        $setup_group =  ($term_date->setup_group->id == $member->setup_group->id) ? $member->setup_group : null;
-                                    }
-                                    else
-                                    {
-                                        $setup_group = null;
-                                    }
-
-                                    $is_van_driver = $van_driver_ids->get($term_date->id) === $member->id;
+									$attendance = $member->latestAttendanceFor($cell['term_date'], $ensemble);
+									$setup_group = $member_setup_group != null && $cell['setup_group_id'] === $member_setup_group->id ? $member_setup_group : null;
 								@endphp
-								<x-forms.input-three-state-checkbox :$allow_change_to_unknown :$assume_attending :member_id="$member->id" :status="$attendance_value" :dep_name="$attendance?->dep_name" :term_date_id="$term_date->id" :$setup_group :$is_van_driver :locked="$locked_ids->contains($term_date->id)" />
+								<x-forms.input-three-state-checkbox :$allow_change_to_unknown :$assume_attending :$member_id :status="$attendance?->status ?? App\Enums\AttendanceStatus::Unknown" :dep_name="$attendance?->dep_name" :term_date_id="$cell['id']" :$setup_group :is_van_driver="$cell['van_driver_id'] === $member_id" :locked="$cell['locked']" />
 							</td>
 						@endforeach
 					</tr>
@@ -254,7 +258,7 @@
 						$prev_sort_value = $sort_value;
 					@endphp
 				@endforeach
-				<x-attendances.totals-row :$ensemble :$members :$term_dates />
+				<x-attendances.totals-row :$ensemble :$term_dates :$totals />
 				<tr>
 					<td class="align-right" colspan="{{ $term_dates->count() + 1 }}">
 						<button class="btn btn-primary" type="submit">{{ __('Save') }}</button>
