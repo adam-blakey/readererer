@@ -4,44 +4,63 @@ use App\Enums\UserRole;
 
 beforeEach(fn () => $this->withSession(['auth.password_confirmed_at' => 0]));
 
-test('sensitive pages ask for the password', function (string $route) {
+test('sensitive pages open without the password', function (string $route) {
 
     $this->actingAs(make_user(UserRole::Admin))
         ->get(route($route))
-        ->assertRedirect(route('password.confirm'));
+        ->assertOk();
 })->with(['settings.edit', 'settings.import', 'feature-flags.edit']);
 
-test('sensitive pages open once the password has been confirmed', function () {
+test('saving sensitive changes asks for the password', function () {
+
+    $this->actingAs(make_user(UserRole::Admin))
+        ->put(route('feature-flags.update'))
+        ->assertRedirect(route('password.confirm'));
+});
+
+test('saving sensitive changes works once the password has been confirmed', function () {
 
     $this->actingAs(make_user(UserRole::Admin))
         ->withSession(['auth.password_confirmed_at' => time()])
-        ->get(route('settings.edit'))
-        ->assertOk();
+        ->put(route('feature-flags.update'))
+        ->assertRedirect()
+        ->assertSessionHasNoErrors();
 });
 
-test('confirming the password returns to the page that asked for it', function () {
+test('confirming the password returns to the form and keeps what was typed', function () {
     $admin = make_user(UserRole::Admin);
 
-    $this->actingAs($admin)->get(route('feature-flags.edit'));
+    $this->actingAs($admin)
+        ->from(route('feature-flags.edit'))
+        ->put(route('feature-flags.update'), ['typed' => 'kept', 'password' => 'secret'])
+        ->assertRedirect(route('password.confirm'));
 
     $this->actingAs($admin)
         ->post(route('password.confirm'), ['password' => 'password'])
-        ->assertRedirect(route('feature-flags.edit'));
+        ->assertRedirect(route('feature-flags.edit'))
+        ->assertSessionHasInput('typed', 'kept')
+        ->assertSessionMissing('_old_input.password');
 });
 
-test('editing a user asks a moderator for the password', function () {
+test('editing a user opens without the password but saving asks a moderator for it', function () {
+    $moderator = make_user(UserRole::Moderator);
+    $user = make_user();
 
-    $this->actingAs(make_user(UserRole::Moderator))
-        ->get(route('users.edit', make_user()))
+    $this->actingAs($moderator)
+        ->get(route('users.edit', $user))
+        ->assertOk();
+
+    $this->actingAs($moderator)
+        ->put(route('users.update', $user), ['name' => 'New name'])
         ->assertRedirect(route('password.confirm'));
 });
 
-test('members editing their own profile are not asked for the password', function () {
+test('members saving their own profile are not asked for the password', function () {
     $member = make_user();
 
     $this->actingAs($member)
-        ->get(route('users.edit', $member))
-        ->assertOk();
+        ->put(route('users.update', $member))
+        ->assertSessionHasErrors('email');
 });
 
 test('erasing a user asks for the password', function () {

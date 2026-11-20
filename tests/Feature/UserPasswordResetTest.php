@@ -182,7 +182,7 @@ test('setting a user\'s password asks for the password', function () {
     $admin = make_user(UserRole::Admin);
     $this->withSession(['auth.password_confirmed_at' => 0]);
 
-    $this->actingAs($admin)->get(route('users.password.edit', $user))->assertRedirect(route('password.confirm'));
+    $this->actingAs($admin)->get(route('users.password.edit', $user))->assertOk();
     $this->actingAs($admin)
         ->put(route('users.password', $user), ['password' => 'a-new-Password-123', 'password_confirmation' => 'a-new-Password-123'])
         ->assertRedirect(route('password.confirm'));
