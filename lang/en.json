@@ -265,6 +265,8 @@
     "No dress code": "No dress code",
     "Sending…": "Sending…",
     "Loading buttons": "Loading buttons",
+    "Confirm password on save": "Confirm password on save",
+    "Asks for the password only when sensitive changes are saved, not when their pages are opened. What was typed is kept while the password is confirmed.": "Asks for the password only when sensitive changes are saved, not when their pages are opened. What was typed is kept while the password is confirmed.",
     "Disables buttons that send emails or import data once they are pressed and shows a spinner, so slow actions do not look stuck or get submitted twice.": "Disables buttons that send emails or import data once they are pressed and shows a spinner, so slow actions do not look stuck or get submitted twice.",
     "Import from Pollererer": "Import from Pollererer",
     "Import the times unchanged": "Import the times unchanged",
