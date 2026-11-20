@@ -27,6 +27,9 @@ class TermDate extends Model
         'van_driver_id',
         'time_tbc',
         'location_id',
+        'description',
+        'concert_order',
+        'dress_code_id',
     ];
 
     /** A date whose time is to be confirmed starts and ends at midnight, so its reminders go out relative to the start of the day. */
@@ -53,6 +56,11 @@ class TermDate extends Model
     public function location(): BelongsTo
     {
         return $this->belongsTo(Location::class)->withTrashed();
+    }
+
+    public function dress_code(): BelongsTo
+    {
+        return $this->belongsTo(DressCode::class)->withTrashed();
     }
 
     public function van_driver(): BelongsTo

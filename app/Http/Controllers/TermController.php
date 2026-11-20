@@ -2,7 +2,9 @@
 
 namespace App\Http\Controllers;
 
+use App\Features\ConcertDetails;
 use App\Http\Requests\UpdateTermRequest;
+use App\Models\DressCode;
 use App\Models\Ensemble;
 use App\Models\Location;
 use App\Models\SetupGroup;
@@ -15,6 +17,7 @@ use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\Rule;
 use Illuminate\View\View;
+use Laravel\Pennant\Feature;
 
 class TermController extends Controller
 {
@@ -58,6 +61,7 @@ class TermController extends Controller
             'setup_groups' => $setup_groups,
             'van_drivers' => $van_drivers,
             'locations' => $this->locationOptions($term),
+            'dress_codes' => $this->dressCodeOptions($term),
             'form_route' => route('terms.store'),
             'form_method' => 'POST',
         ]);
@@ -82,6 +86,9 @@ class TermController extends Controller
             'term_dates.*.van_driver_id' => 'nullable|integer|exists:users,id',
             'term_dates.*.time_tbc' => 'sometimes|boolean',
             'term_dates.*.location_id' => 'nullable|integer|exists:locations,id',
+            'term_dates.*.description' => 'nullable|string|max:5000',
+            'term_dates.*.concert_order' => 'nullable|string|max:5000',
+            'term_dates.*.dress_code_id' => 'nullable|integer|exists:dress_codes,id',
         ]);
 
         $term = $rota->notifyingChanges(fn () => DB::transaction(function () use ($validated) {
@@ -122,6 +129,7 @@ class TermController extends Controller
             'setup_groups' => $setup_groups,
             'van_drivers' => $van_drivers,
             'locations' => $this->locationOptions($term),
+            'dress_codes' => $this->dressCodeOptions($term),
             'form_route' => route('terms.update', $term),
             'form_method' => 'PATCH',
         ]);
@@ -160,6 +168,14 @@ class TermController extends Controller
             ->get();
     }
 
+    private function dressCodeOptions(Term $term)
+    {
+        return DressCode::withTrashed()
+            ->where(fn ($query) => $query->whereNull('deleted_at')->orWhereIn('id', $term->term_dates->pluck('dress_code_id')->filter()))
+            ->orderBy('name')
+            ->get();
+    }
+
     private function syncTermDates(Term $term, array $rows): void
     {
         $rows = collect($rows);
@@ -174,9 +190,13 @@ class TermController extends Controller
                 'van_driver_id' => $row['van_driver_id'] ?? null,
                 'time_tbc' => ! empty($row['time_tbc']),
                 'location_id' => $row['location_id'] ?? null,
+                'description' => $row['description'] ?? null,
+                'concert_order' => $row['concert_order'] ?? null,
+                'dress_code_id' => $row['dress_code_id'] ?? null,
             ], fn (string $key) => match ($key) {
                 'setup_group_id' => config('app.readererer_setup_groups'),
                 'van_driver_id' => config('app.readererer_van_drivers'),
+                'description', 'concert_order', 'dress_code_id' => Feature::active(ConcertDetails::class),
                 default => true,
             }, ARRAY_FILTER_USE_KEY);
 

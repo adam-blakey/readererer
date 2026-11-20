@@ -1,4 +1,4 @@
-@props(['term', 'ensembles', 'setup_groups', 'van_drivers', 'locations', 'form_route', 'form_method'])
+@props(['term', 'ensembles', 'setup_groups', 'van_drivers', 'locations', 'dress_codes', 'form_route', 'form_method'])
 
 @php
 	$can_add_location = Gate::allows('create', App\Models\Location::class);
@@ -31,7 +31,7 @@
 							<h2 class="mb-0 card-heading">{{ __('Edit term details') }}</h2>
 						</div>
 						<div class="card-body">
-							<x-forms.error-summary :fields="['name', 'slug', 'location_id', 'hidden', 'term_dates.*.start_datetime', 'term_dates.*.end_datetime', 'term_dates.*.time_tbc', 'term_dates.*.location_id']" />
+							<x-forms.error-summary :fields="['name', 'slug', 'location_id', 'hidden', 'term_dates.*.start_datetime', 'term_dates.*.end_datetime', 'term_dates.*.time_tbc', 'term_dates.*.location_id', 'term_dates.*.description', 'term_dates.*.concert_order', 'term_dates.*.dress_code_id']" />
 
 							<form action="{{ $form_route }}" id="term-edit-form" method="POST" data-dirty-check data-default-label="{{ __('Default: :location') }}" data-tbc-label="{{ __('TBC') }}">
 								@csrf
@@ -100,6 +100,9 @@
 														'van_driver_id' => $d->van_driver_id,
 														'time_tbc' => $d->time_tbc,
 														'location_id' => $d->location_id,
+														'description' => $d->description,
+														'concert_order' => $d->concert_order,
+														'dress_code_id' => $d->dress_code_id,
 													]);
 												}
 											@endphp

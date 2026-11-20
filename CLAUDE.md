@@ -134,6 +134,7 @@ Laravel Pulse records exceptions, slow requests, queries and outgoing requests, 
 
 ### Key domain relationships
 - `Term` hasMany `TermDate`; a `TermDate` with no `concert_ensembles` (belongsToMany through the `concert_ensemble` pivot) is a rehearsal for every ensemble, otherwise it's a concert for just those ensembles (`is_concert`, `appliesToEnsemble()`, `ShowEnsemble` trait). A term's `earliest_date`/`latest_date` are accessors over its dates, not columns, so they cannot be used in queries. A `hidden` term is left out of listings for users below Moderator (`Term::visibleTo()`) and its poll is a 404 for them.
+- Behind the `ConcertDetails` flag a `TermDate` has a free-text `description` and `concert_order` and belongsTo a reusable `DressCode` (managed like `Location`), shown on the date's page, which members may then open (without the attendance tables or emails) from the poll's linked date headings.
 - `User` belongsToMany `Ensemble` through `user_ensemble` (pivot carries `instrument_family_id`, `seat_row`, `seat_column`); belongsTo `SetupGroup`.
 - `Setlist` ↔ `Piece` via `SetlistPiece`; `Piece` belongsTo `Composer`, hasMany `Part` (each part tied to an `InstrumentFamily`).
 

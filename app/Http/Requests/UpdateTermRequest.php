@@ -34,6 +34,9 @@ class UpdateTermRequest extends FormRequest
             'term_dates.*.van_driver_id' => 'nullable|integer|exists:users,id',
             'term_dates.*.time_tbc' => 'sometimes|boolean',
             'term_dates.*.location_id' => 'nullable|integer|exists:locations,id',
+            'term_dates.*.description' => 'nullable|string|max:5000',
+            'term_dates.*.concert_order' => 'nullable|string|max:5000',
+            'term_dates.*.dress_code_id' => 'nullable|integer|exists:dress_codes,id',
         ];
     }
 }
