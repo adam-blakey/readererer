@@ -1,4 +1,4 @@
-@props(['period', 'latest', 'summary', 'availability', 'buckets', 'failures', 'requests', 'exception_count', 'cache', 'exceptions', 'slow_requests', 'slow_queries', 'slow_outgoing_requests', 'active_users'])
+@props(['period', 'latest', 'summary', 'availability', 'buckets', 'failures', 'metrics_failure', 'metrics_missing_token', 'requests', 'exception_count', 'cache', 'exceptions', 'slow_requests', 'slow_queries', 'slow_outgoing_requests', 'active_users'])
 
 @php
 	use App\Http\Controllers\MonitoringController;
@@ -66,6 +66,13 @@
 			<div class="alert alert-info" role="alert">{{ __('The health check has not run yet. It runs every five minutes from the scheduler.') }}</div>
 		@elseif ($stale)
 			<div class="alert alert-warning" role="alert">{{ __('The last health check was :time. Check that the scheduler\'s cron job is running.', ['time' => $latest->at->diffForHumans()]) }}</div>
+		@endif
+
+		@if ($metrics_missing_token)
+			<div class="alert alert-warning" role="alert">{{ __('Analytics is on but no Nightwatch token is set, so no metrics are being sent.') }}</div>
+		@endif
+		@if ($metrics_failure)
+			<div class="alert alert-warning" role="alert">{{ __('Sending metrics to Nightwatch last failed :time: :reason', ['time' => $metrics_failure->at->diffForHumans(), 'reason' => $metrics_failure->reason]) }}</div>
 		@endif
 
 		<div class="row row-cards">

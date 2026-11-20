@@ -4,6 +4,7 @@ namespace App\Providers;
 
 use App\Contracts\EmailSender;
 use App\Enums\UserRole;
+use App\Logging\NightwatchFailure;
 use App\Logging\NightwatchRedaction;
 use App\Models\User;
 use App\Services\EmailSenders\LogEmailSender;
@@ -26,6 +27,7 @@ use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\URL;
 use Illuminate\Support\ServiceProvider;
 use Laravel\Nightwatch\Core as Nightwatch;
+use Laravel\Nightwatch\Facades\Nightwatch as NightwatchFacade;
 use Laravel\Pennant\Feature;
 use Laravel\Pulse\Facades\Pulse;
 
@@ -61,6 +63,8 @@ class AppServiceProvider extends ServiceProvider
             // Nightwatch reads its config before the settings are applied, so the opt-out samples nothing instead.
             $nightwatch->config['sampling'] = array_fill_keys(array_keys($nightwatch->config['sampling']), 0.0);
         }
+
+        NightwatchFacade::handleUnrecoverableExceptionsUsing(NightwatchFailure::note(...));
 
         $nightwatch->user(NightwatchRedaction::user(...));
         $nightwatch->redactRequests(NightwatchRedaction::request(...));

@@ -1,7 +1,10 @@
 <?php
 
 use App\Enums\UserRole;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Log;
+use Laravel\Nightwatch\Facades\Nightwatch;
 use Laravel\Pulse\Facades\Pulse;
 
 beforeEach(function () {
@@ -142,3 +145,31 @@ test('the application log shows the newest entries and filters by level', functi
         ->get(route('settings.monitoring.logs'))
         ->assertForbidden();
 });
+
+test('a failure sending metrics is logged once and shown on the page', function () {
+    Cache::flush();
+    Log::shouldReceive('channel')->with('daily')->once()->andReturnSelf();
+    Log::shouldReceive('warning')->once()->with('Sending metrics to Nightwatch failed', Mockery::on(
+        fn (array $context) => $context['reason'] === 'Connection refused for [email]'
+    ));
+
+    Nightwatch::unrecoverableExceptionOccurred(new RuntimeException('Connection refused for jo@example.com'));
+    Nightwatch::unrecoverableExceptionOccurred(new RuntimeException('Connection refused again'));
+
+    $this->actingAs(make_user(UserRole::Admin))
+        ->get(route('settings.monitoring'))
+        ->assertOk()
+        ->assertSee('Sending metrics to Nightwatch last failed')
+        ->assertSee('Connection refused for [email]');
+});
+
+test('the page warns when analytics is on without a Nightwatch token', function (?string $token, bool $warned) {
+    config(['app.readererer_analytics' => true, 'nightwatch.token' => $token]);
+
+    $response = $this->actingAs(make_user(UserRole::Admin))->get(route('settings.monitoring'))->assertOk();
+
+    $warned ? $response->assertSee('no Nightwatch token is set') : $response->assertDontSee('no Nightwatch token is set');
+})->with([
+    'no token' => [null, true],
+    'token' => ['abc', false],
+]);

@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Logging\NightwatchFailure;
 use App\Models\User;
 use Carbon\CarbonImmutable;
 use Carbon\CarbonInterval;
@@ -55,6 +56,8 @@ class MonitoringController extends Controller
                 ->sortByDesc('timestamp')
                 ->take(10)
                 ->map(fn ($row) => (object) [...json_decode($row->value, true), 'at' => $this->at((int) $row->timestamp)]),
+            'metrics_failure' => NightwatchFailure::latest(),
+            'metrics_missing_token' => config('app.readererer_analytics') && ! config('nightwatch.token'),
             'requests' => (int) Pulse::aggregateTotal('user_request', 'count', $interval),
             'exception_count' => (int) Pulse::aggregateTotal('exception', 'count', $interval),
             'cache' => (object) ['hits' => (int) ($cache['cache_hit'] ?? 0), 'misses' => (int) ($cache['cache_miss'] ?? 0)],
