@@ -48,6 +48,7 @@
 		['instrumentfamilys.index', 'guitar-pick', __('Instrument families')],
 		['terms.index', 'calendar-month', __('Terms')],
 		['locations.index', 'map-pin', __('Locations')],
+		Laravel\Pennant\Feature::active(App\Features\ConcertDetails::class) ? ['dresscodes.index', 'shirt', __('Dress codes')] : null,
 		config('app.readererer_setup_groups') ? ['setupgroups.index', 'users', __('Setup groups')] : null,
 	]);
 	$can_edit = Gate::allows('edit.settings');
