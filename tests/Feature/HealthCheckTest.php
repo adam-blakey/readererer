@@ -9,7 +9,7 @@ it('reports healthy when the database is reachable', function () {
 });
 
 it('reports unavailable when the database cannot be queried', function () {
-    DB::shouldReceive('connection')->andThrow(new RuntimeException('down'));
+    DB::partialMock()->shouldReceive('connection')->andThrow(new RuntimeException('down'));
 
     $this->get('/health')
         ->assertStatus(503)
