@@ -120,11 +120,12 @@ class Ensemble extends Model
             ->orderBy('first_name');
     }
 
-    /** Loads the members with their setup groups and each membership's instrument family, for pages that list them. */
+    /** Loads the members with their setup groups and every membership's instrument family, for the pages that list them. */
     public function loadMembers(): static
     {
-        $this->load('users.setup_group');
-        (new Collection($this->users->pluck('pivot')))->load('instrumentFamily');
+        $this->load(['users.setup_group', 'users.ensembles']);
+
+        Collection::make($this->users->pluck('pivot')->concat($this->users->flatMap->ensembles->pluck('pivot')))->load('instrumentFamily');
 
         return $this;
     }

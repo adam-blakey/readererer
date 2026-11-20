@@ -17,6 +17,8 @@ function populate_ensemble(Ensemble $ensemble, Term $term, int $members): void
     $dates = TermDate::where('term_id', $term->id)->get();
     $setupGroup = SetupGroup::factory()->create();
 
+    $setupGroup = SetupGroup::first() ?? SetupGroup::factory()->create();
+
     foreach (range(1, $members) as $i) {
         $user = make_user(UserRole::Member, ['setup_group_id' => $setupGroup->id]);
         join_ensemble($user, $ensemble, $families[$i % 4], chr(65 + $i % 5), $i);
@@ -66,6 +68,10 @@ dataset('pages', [
     'term date' => fn ($ensemble, $term, $date) => route('term-dates.show', $date),
     'registers' => fn ($ensemble, $term, $date) => route('attendance.register.index'),
     'seating plan' => fn ($ensemble, $term, $date) => route('ensembles.seating-plan.show', $ensemble),
+    'ensemble show' => fn ($ensemble, $term, $date) => route('ensembles.show', $ensemble),
+    'ensemble edit' => fn ($ensemble, $term, $date) => route('ensembles.edit', $ensemble),
+    'ensemble members' => fn ($ensemble, $term, $date) => route('ensembles.members.index', $ensemble),
+    'term date show' => fn ($ensemble, $term, $date) => route('term-dates.show', $date),
 ]);
 
 test('the page runs the same number of queries however many members there are', function (Closure $page) {
