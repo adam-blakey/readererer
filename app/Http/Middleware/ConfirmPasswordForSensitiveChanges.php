@@ -5,6 +5,7 @@ namespace App\Http\Middleware;
 use Closure;
 use Illuminate\Auth\Middleware\RequirePassword;
 use Illuminate\Http\Request;
+use Illuminate\Support\Arr;
 use Symfony\Component\HttpFoundation\Response;
 
 class ConfirmPasswordForSensitiveChanges
@@ -13,10 +14,16 @@ class ConfirmPasswordForSensitiveChanges
 
     public function handle(Request $request, Closure $next, ?string $ability = null): Response
     {
-        if ($ability && $request->user()->cannot($ability, array_values($request->route()->parameters()))) {
+        if ($request->isMethodSafe() || ($ability && $request->user()->cannot($ability, array_values($request->route()->parameters())))) {
             return $next($request);
         }
 
-        return $this->requirePassword->handle($request, $next);
+        $response = $this->requirePassword->handle($request, $next);
+
+        if ($response->isRedirect(route('password.confirm'))) {
+            $request->session()->put('password_confirm.input', Arr::except($request->post(), ['password', 'password_confirmation', 'current_password']));
+        }
+
+        return $response;
     }
 }

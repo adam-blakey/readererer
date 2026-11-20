@@ -105,6 +105,8 @@ await shot('user-created', { y: 160, height: 520 });
 
 await page.click('a[href$="/edit"]');
 await page.waitForLoadState('networkidle');
+await page.click('form[data-dirty-check] button[type=submit]');
+await page.waitForLoadState('networkidle');
 await mark([['#password', '1']]);
 await shot('confirm-password', { y: 130, height: 360 });
 await page.fill('#password', 'password');

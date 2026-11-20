@@ -1,4 +1,4 @@
-@props(['term_date', 'ensembles', 'last_updated'])
+@props(['term_date', 'ensembles', 'show_attendance', 'last_updated'])
 
 @use('App\Enums\AttendanceStatus')
 
@@ -31,7 +31,13 @@
 									@endif
 								</span>
 								<span class="list-inline-item">{{ $term_date->relative_label }}</span>
-								<span class="list-inline-item"><x-a href="{{ route('terms.show', $term_date->term) }}">{{ $term_date->term->name }}</x-a></span>
+								<span class="list-inline-item">
+									@can('view', $term_date->term)
+										<x-a href="{{ route('terms.show', $term_date->term) }}">{{ $term_date->term->name }}</x-a>
+									@else
+										{{ $term_date->term->name }}
+									@endcan
+								</span>
 								<span class="list-inline-item"><x-icon name="map-pin" /> <x-location-link :location="$term_date->inferred_location" /></span>
 								@if ($term_date->remindersDueAt())
 									<span class="list-inline-item" title="{{ $term_date->remindersDueAt() }}"><x-icon name="bell" /> {{ __('Reminders :time', ['time' => $term_date->remindersDueAt()->diffForHumans()]) }}</span>
@@ -39,9 +45,11 @@
 								@if ($term_date->isLockedByReminders())
 									<span class="list-inline-item"><x-icon name="lock" /> {{ __('Poll locked') }}</span>
 								@endif
-								<span class="list-inline-item">
-									{{ $last_updated ? __('Attendance last updated :time', ['time' => $last_updated->diffForHumans()]) : __('No attendance replies yet') }}
-								</span>
+								@if ($show_attendance)
+									<span class="list-inline-item">
+										{{ $last_updated ? __('Attendance last updated :time', ['time' => $last_updated->diffForHumans()]) : __('No attendance replies yet') }}
+									</span>
+								@endif
 							</div>
 						</div>
 						@can('update', $term_date->term)
@@ -53,6 +61,46 @@
 				</x-card>
 			</div>
 
+			@feature(\App\Features\ConcertDetails::class)
+				@if ($term_date->description || $term_date->dress_code || $term_date->concert_order)
+					<div class="col-12">
+						<x-card>
+							<div class="card-header">
+								<h3 class="card-title">{{ __('Details') }}</h3>
+							</div>
+							<div class="card-body">
+								<div class="datagrid">
+									@if ($term_date->description)
+										<div class="datagrid-item">
+											<div class="datagrid-title"><x-icon name="align-left" /> {{ __('Description') }}</div>
+											<div class="datagrid-content">{!! nl2br(e($term_date->description)) !!}</div>
+										</div>
+									@endif
+									@if ($term_date->dress_code)
+										<div class="datagrid-item">
+											<div class="datagrid-title"><x-icon name="shirt" /> {{ __('Dress code') }}</div>
+											<div class="datagrid-content">
+												<strong>{{ $term_date->dress_code->name }}</strong>
+												@if ($term_date->dress_code->description)
+													<div class="text-secondary">{!! nl2br(e($term_date->dress_code->description)) !!}</div>
+												@endif
+											</div>
+										</div>
+									@endif
+									@if ($term_date->concert_order)
+										<div class="datagrid-item">
+											<div class="datagrid-title"><x-icon name="list-numbers" /> {{ __('Concert order') }}</div>
+											<div class="datagrid-content">{!! nl2br(e($term_date->concert_order)) !!}</div>
+										</div>
+									@endif
+								</div>
+							</div>
+						</x-card>
+					</div>
+				@endif
+			@endfeature
+
+			@if ($show_attendance)
 			<div class="col-lg-8">
 				@forelse ($ensembles as $ensemble)
 					@php
@@ -132,6 +180,7 @@
 					</x-card>
 				@endforelse
 			</div>
+			@endif
 
 			<div class="col-lg-4">
 				@if ($show_setup_groups || $show_van_drivers)
@@ -182,14 +231,16 @@
 				@endcan
 			</div>
 
-			<div class="col-12">
-				<x-card>
-					<div class="card-header">
-						<h3 class="card-title">{{ __('Emails sent') }}</h3>
-					</div>
-					<x-notifications.table :logs="$term_date->email_logs" />
-				</x-card>
-			</div>
+			@if ($show_attendance)
+				<div class="col-12">
+					<x-card>
+						<div class="card-header">
+							<h3 class="card-title">{{ __('Emails sent') }}</h3>
+						</div>
+						<x-notifications.table :logs="$term_date->email_logs" />
+					</x-card>
+				</div>
+			@endif
 		</x-card-row>
 	</div>
 </x-layout>

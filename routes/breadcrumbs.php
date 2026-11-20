@@ -110,6 +110,7 @@ $auto_entity = function (string $route_prefix, string $index_label, string $crea
 };
 
 $auto_entity('composers', 'Composers', 'New composer');
+$auto_entity('dresscodes', 'Dress codes', 'New dress code');
 $auto_entity('ensembles', 'Ensembles', 'New ensemble');
 $auto_entity('instrumentfamilys', 'Instrument families', 'New instrument family');
 $auto_entity('locations', 'Locations', 'New location');
@@ -160,6 +161,6 @@ Breadcrumbs::for('attendance.register.show', function (BreadcrumbTrail $trail, E
 });
 
 Breadcrumbs::for('term-dates.show', function (BreadcrumbTrail $trail, TermDate $term_date) {
-    $trail->parent('terms.show', $term_date->term);
+    auth()->user()?->can('view', $term_date->term) ? $trail->parent('terms.show', $term_date->term) : $trail->parent('home');
     $trail->push($term_date->schedule_label, route('term-dates.show', $term_date));
 });

@@ -4,6 +4,7 @@
     $selectedSetupGroup = $date['setup_group_id'] ?? null;
     $selectedVanDriver = $date['van_driver_id'] ?? null;
     $selectedLocation = $date['location_id'] ?? null;
+    $selectedDressCode = $date['dress_code_id'] ?? null;
 @endphp
 
 <div class="card card-sm mb-3 term-date-row" data-index="{{ $i }}">
@@ -93,5 +94,26 @@
                 </div>
             @endif
         </div>
+        @feature(\App\Features\ConcertDetails::class)
+            <div class="row g-3 mt-0 align-items-start">
+                <div class="col-md-6 col-xl-3">
+                    <label class="form-label">{{ __('Dress code') }}</label>
+                    <select class="form-select @error('term_dates.'.$i.'.dress_code_id') is-invalid @enderror" name="term_dates[{{ $i }}][dress_code_id]" data-initial="{{ $orig?->dress_code_id ?? '' }}">
+                        <option value="" @selected(empty($selectedDressCode))>{{ __('No dress code') }}</option>
+                        @foreach ($dress_codes as $dress_code)
+                            <option value="{{ $dress_code->id }}" @selected((int) $selectedDressCode === $dress_code->id)>{{ $dress_code->name }}</option>
+                        @endforeach
+                    </select>
+                </div>
+                <div class="col-md-6 col-xl-5">
+                    <label class="form-label">{{ __('Description') }}</label>
+                    <textarea class="form-control @error('term_dates.'.$i.'.description') is-invalid @enderror" name="term_dates[{{ $i }}][description]" rows="3" data-initial="{{ $orig?->description ?? '' }}">{{ $date['description'] ?? '' }}</textarea>
+                </div>
+                <div class="col-md-12 col-xl-4">
+                    <label class="form-label">{{ __('Concert order') }}</label>
+                    <textarea class="form-control @error('term_dates.'.$i.'.concert_order') is-invalid @enderror" name="term_dates[{{ $i }}][concert_order]" rows="3" data-initial="{{ $orig?->concert_order ?? '' }}">{{ $date['concert_order'] ?? '' }}</textarea>
+                </div>
+            </div>
+        @endfeature
     </div>
 </div>

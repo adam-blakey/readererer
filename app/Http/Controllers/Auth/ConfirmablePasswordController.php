@@ -28,6 +28,7 @@ class ConfirmablePasswordController extends Controller
         }
 
         $request->session()->put('auth.password_confirmed_at', time());
+        $request->session()->flashInput($request->session()->pull('password_confirm.input', []));
 
         return redirect()->intended(route('dashboard', absolute: false));
     }

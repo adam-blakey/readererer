@@ -1,12 +1,14 @@
 <?php
 
 use App\Features\ClaimAccounts;
+use App\Features\ConcertDetails;
 use App\Features\MembermojoImport;
 use App\Http\Controllers\AttendanceController;
 use App\Http\Controllers\AttendanceRegisterController;
 use App\Http\Controllers\ClaimAccountController;
 use App\Http\Controllers\ComposerController;
 use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\DressCodeController;
 use App\Http\Controllers\EmailSnapshotController;
 use App\Http\Controllers\EnsembleController;
 use App\Http\Controllers\FeatureFlagController;
@@ -143,6 +145,13 @@ Route::middleware('auth')->group(function () {
     Route::delete('/ensembles/{ensemble}/members/{user}', [EnsembleController::class, 'removeMember'])->name('ensembles.members.destroy')->can('update', 'ensemble');
     Route::get('/ensembles/{ensemble}/seating-plan', [SeatingPlanController::class, 'show'])->name('ensembles.seating-plan.show')->can('update', 'ensemble');
     Route::put('/ensembles/{ensemble}/seating-plan', [SeatingPlanController::class, 'update'])->name('ensembles.seating-plan.update')->can('update', 'ensemble');
+
+    Route::middleware(EnsureFeaturesAreActive::using(ConcertDetails::class))->group(function () {
+        Route::patch('/dress-codes/{dressCode}/restore', [DressCodeController::class, 'restore'])->name('dresscodes.restore')->withTrashed()->can('restore', 'dressCode');
+        Route::resource('dress-codes', DressCodeController::class)
+            ->names('dresscodes')
+            ->parameter('dress-codes', 'dressCode');
+    });
 
     Route::patch('/instrument-families/{instrumentFamily}/restore', [InstrumentFamilyController::class, 'restore'])->name('instrumentfamilys.restore')->withTrashed()->can('restore', 'instrumentFamily');
     Route::resource('instrument-families', InstrumentFamilyController::class)
