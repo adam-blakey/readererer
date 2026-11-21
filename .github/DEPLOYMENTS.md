@@ -28,16 +28,44 @@ requests show no skipped release jobs.
    and `public/build` as the `build` artifact. On `main` it also smoke-tests
    `php artisan optimize --env=production`.
 2. **`deploy`** runs once per environment, one at a time (on `main`: `dev`, then
-   `qa`, then `prod`, so a failure skips the environments after it). For each domain it:
-   - rsyncs `vendor` and `public/build` to `~/domains/<domain>/`;
-   - fetches the exact commit on the server and `git reset --hard`s to it;
-   - stops, before touching the site, if `.env` is missing or its `APP_KEY`
-     is not a valid key (empty, or not `base64:` plus 32 bytes), which would
-     make every page fail with "Unsupported cipher or incorrect key length";
-   - writes `VERSION` (`git describe`, plus `+pr<n>` on dev);
-   - puts the app in maintenance mode, migrates, runs `optimize`,
-     `event:cache` and `queue:restart`, and brings it back up;
+   `qa`, then `prod`, so a failure skips the environments after it). Dev and qa
+   are deployed by [Deployer](https://deployer.org) (`deploy.php`, run by
+   `.github/actions/deploy-ssh` from the runner over SSH). Each site's folder
+   holds releases rather than one checkout:
+
+   ```
+   ~/domains/<domain>/
+     current -> releases/42   # the document root is current/public
+     releases/40 41 42        # the last three releases
+     shared/.env
+     shared/storage/
+     shared/database/database.sqlite
+   ```
+
+   For each domain the action writes `VERSION` (`git describe`, plus `+pr<n>`
+   on dev), downloads the Deployer phar (checked against its SHA-256) and runs
+   `dep deploy`, which:
+   - stops, before touching the site, if `shared/.env` is missing (the site
+     has not been moved to this layout yet, see "Moving dev or qa to
+     Deployer");
+   - rsyncs the checkout with the build artifact (`vendor`, `public/build`)
+     into a new folder under `releases/`, and links `.env` and `storage`
+     from `shared/` into it;
+   - stops if its `APP_KEY` is not a valid key (empty, or not `base64:` plus
+     32 bytes), which would make every page fail with "Unsupported cipher or
+     incorrect key length";
+   - puts the app in maintenance mode (`storage` is shared, so this takes
+     down the live release), migrates (`migrate:fresh --seed` on dev), runs
+     `optimize` and `event:cache` in the new release, points `current` at it,
+     brings the app back up, runs `queue:restart` and deletes all but the
+     last three releases;
+   - on failure, brings the app back up and leaves `current` on the previous
+     release;
    - checks the site answers (below).
+
+   The server needs only PHP and rsync; it no longer fetches from GitHub.
+   To go back to an earlier release, run `ln -nfs releases/<n> current` in
+   the site's folder. This does not undo migrations.
 
    The production sites (`prod`, `nsw-beta`, `blackwood-beta`) have no SSH, so they are
    deployed by cPanel's **Git™ Version Control**,
@@ -115,7 +143,7 @@ requests show no skipped release jobs.
    refuses to run if `~/domains/<domain>/artisan` exists, so it cannot
    overwrite a folder that still holds the app.
 
-Dev and qa need only PHP and git on the server. Prod also builds there, with
+Dev and qa need only PHP and rsync on the server. Prod also builds there, with
 Composer and CloudLinux's Node 24 (`/opt/alt/alt-nodejs24`, which
 `.cpanel.yml` puts on `PATH`).
 
@@ -167,7 +195,6 @@ per environment and the rest once on the repository.
 | `DEPLOY_SSH_HOST`                   | `ssh.example.krystal.uk`        | SSH host.                                                                             |
 | `DEPLOY_SSH_PORT`                   | `722`                           | SSH port (Krystal uses 722).                                                          |
 | `DEPLOY_SSH_USER`                   | `readererer`                    | cPanel username.                                                                      |
-| `DEPLOY_GIT_KEY`                    | `github_readererer`             | File name, in the server's `~/.ssh/`, of the key the server fetches from GitHub with. |
 | `SSH_PRIVATE_KEY` (secret)          |                                 | Private key GitHub logs in to the server with.                                        |
 | `CPANEL_HOST` (production)          | `server.example.krystal.uk`     | cPanel host; the API is on port 2083.                                                 |
 | `CPANEL_USER` (production)          | `readererer`                    | The site's cPanel username.                                                           |
@@ -176,7 +203,7 @@ per environment and the rest once on the repository.
 | `CF_ACCESS_CLIENT_SECRET` (secret)  |                                 | That service token's client secret.                                                   |
 
 The SSH values are not used by the production sites; `docs` still needs them. The old
-`DEPLOY_FTP_HOST`, `DEPLOY_FTP_USER`, `DEPLOY_FTP_PASSWORD` and `DEPLOY_TOKEN`
+`DEPLOY_GIT_KEY`, `DEPLOY_FTP_HOST`, `DEPLOY_FTP_USER`, `DEPLOY_FTP_PASSWORD` and `DEPLOY_TOKEN`
 settings are no longer read and can be deleted, along with `DEPLOY_TOKEN` in
 prod's `.env`.
 
@@ -193,12 +220,7 @@ then delete `production`. Its `UNIX_USERNAME`, `SERVER_DOMAIN` and
    `readererer-deploy.pub` as the public key, then **Manage** → **Authorize**.
    Put the contents of `readererer-deploy` in the `SSH_PRIVATE_KEY` secret and
    delete both local files.
-2. **Fetch key for the server.** In cPanel → **Terminal**, run
-   `ssh-keygen -t ed25519 -N '' -f ~/.ssh/github_readererer` and
-   `cat ~/.ssh/github_readererer.pub`. Add that as a read-only deploy key in
-   GitHub → Settings → **Deploy keys**. `github_readererer` is the
-   `DEPLOY_GIT_KEY` value.
-3. **PHP.** In **Select PHP Version** (or **MultiPHP Manager**) choose 8.5 with
+2. **PHP.** In **Select PHP Version** (or **MultiPHP Manager**) choose 8.5 with
    `pdo_mysql`/`pdo_sqlite`, `mbstring`, `gd`, `zip`, `bcmath`, `exif` and
    `fileinfo` enabled. The deploy runs `php artisan` over SSH, so check
    `php -v` in **Terminal** reports 8.5 too.
@@ -266,28 +288,34 @@ document root `domains/readererer.blakey.family/public` before step 6.
 
 1. **Domain.** In **Domains** → **Create A New Domain**, enter the domain,
    untick *Share document root*, and set the document root to
-   `domains/<domain>/public`. Then run **SSL/TLS Status** → **Run AutoSSL**.
-2. **First deploy.** Run a deploy to the environment. It turns the folder
-   into a git checkout of the commit (no clone needed), then stops because
-   there is no `.env` yet. Delete any placeholder page cPanel put in
-   `public/` (such as `index.html`), as it would be served instead of the app.
+   `domains/<domain>/current/public` for dev and qa, or `domains/<domain>/public`
+   for a production site. Then run **SSL/TLS Status** → **Run AutoSSL**.
+2. **Folders (dev and qa).** Run
+   `mkdir -p ~/domains/<domain>/shared/database` and delete anything cPanel
+   put in `~/domains/<domain>` (such as `public/index.html`). Until
+   `shared/.env` exists (step 4), deploys stop without changing the site.
 3. **Database.** Each site needs its own database; dev's is wiped and reseeded
    on every deploy. For MySQL use **MySQL Database Wizard** to create a
    database and user with all privileges. For SQLite run
-   `touch ~/domains/<domain>/database/database.sqlite`.
-4. **`.env`.** `cp .env.example .env` in the site folder and set at least
+   `touch ~/domains/<domain>/shared/database/database.sqlite` (dev and qa) or
+   `touch ~/domains/<domain>/database/database.sqlite` (production).
+4. **`.env`.** Copy `.env.example` from the repository to `shared/.env` (dev
+   and qa) or `.env` (production) in the site folder and set at least
    `APP_ENV` (`dev`, `qa`, or `production` on prod, which Laravel treats
    specially), `APP_DEBUG=false` (except dev),
    `APP_URL=https://<domain>`, the `DB_*` values from step 3 (SQLite needs the
-   absolute path, `/home/<user>/domains/<domain>/database/database.sqlite`) and
-   the mail settings. On prod keep `APP_MAINTENANCE_DRIVER=file`. For `APP_KEY`, run
+   absolute path of the file from step 3, such as
+   `/home/<user>/domains/<domain>/shared/database/database.sqlite`) and
+   the mail settings. Keep `APP_MAINTENANCE_DRIVER=file`: on dev and qa
+   maintenance mode reaches the live release through the shared `storage`. For `APP_KEY`, run
    `php -r "echo 'base64:'.base64_encode(random_bytes(32)).PHP_EOL;"` and paste
    the output. Keep prod's existing key. Then re-run the deploy.
 
 5. **Cron.** Automatic reminder emails (the reminder time on the settings
    page) need Laravel's scheduler. In **Cron Jobs** add one that runs every
    minute:
-   `cd ~/domains/<domain> && php artisan schedule:run > /dev/null 2>&1`.
+   `cd ~/domains/<domain> && php artisan schedule:run > /dev/null 2>&1`
+   (on dev and qa, `cd ~/domains/<domain>/current`).
    Without it reminders can still be sent by hand from the term page. There
    are no queued jobs. The scheduler also runs `health:check` every five
    minutes, which requests the site's own `/health` and shows the result on
@@ -312,9 +340,30 @@ document root `domains/readererer.blakey.family/public` before step 6.
      the site. There is no
      supervisor on cPanel, so add a cron job that runs every minute and starts
      the agent when it is not already running:
-     `cd ~/domains/<domain> && flock -n ~/nightwatch-<domain>.lock php artisan nightwatch:agent --silent > /dev/null 2>&1`.
+     `cd ~/domains/<domain> && flock -n ~/nightwatch-<domain>.lock php artisan nightwatch:agent --silent > /dev/null 2>&1`
+     (on dev and qa, `cd ~/domains/<domain>/current`; the agent keeps running
+     the release it started in until it is restarted).
      If the host stops long-running processes, the agent is down for up to a
      minute at a time and entries sent meanwhile are lost.
+
+### Moving dev or qa to Deployer
+
+Once per site, in cPanel → **Terminal** (shown for `<domain>`):
+
+1. `php ~/domains/<domain>/artisan down --retry=5 --refresh=5`
+2. `mv ~/domains/<domain> ~/domains/<domain>.old && mkdir -p ~/domains/<domain>/shared/database`
+3. `mv ~/domains/<domain>.old/.env ~/domains/<domain>.old/storage ~/domains/<domain>/shared/`
+4. For SQLite, `mv ~/domains/<domain>.old/database/database.sqlite* ~/domains/<domain>/shared/database/`
+   and set `DB_DATABASE` in `shared/.env` to
+   `/home/<user>/domains/<domain>/shared/database/database.sqlite`.
+5. In **Domains** → **Manage**, set the document root to
+   `domains/<domain>/current/public`.
+6. Re-run the environment's latest deploy. It brings the site back up.
+7. Change the `schedule:run` (and Nightwatch agent) cron jobs to `cd` into
+   `~/domains/<domain>/current`, as in "cPanel, once per site".
+8. Check the site, then `rm -rf ~/domains/<domain>.old`.
+
+Until a site is moved, its deploys stop at the first step without changing it.
 
 ### Rules (Settings → Rules → Rulesets → `main`)
 
