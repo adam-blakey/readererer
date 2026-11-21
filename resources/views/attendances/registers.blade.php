@@ -7,12 +7,16 @@
 				<x-card>
 					@if ($split)
 						<div class="card-header">
-							<div class="card-actions">
-								<x-a class="btn" href="{{ route('attendance.register.index', $past ? [] : ['past' => 1]) }}">
-									<x-icon name="{{ $past ? 'calendar-event' : 'history' }}" />
-									{{ $past ? __('View upcoming dates') : __('View past dates') }}
-								</x-a>
-							</div>
+							<ul class="nav nav-tabs card-header-tabs">
+								@foreach ([__('Upcoming') => [false, [], 'calendar-event'], __('Past') => [true, ['past' => 1], 'history']] as $label => [$is_past, $query, $icon])
+									<li class="nav-item">
+										<a @class(['nav-link', 'active' => $past === $is_past]) href="{{ route('attendance.register.index', $query) }}" @if ($past === $is_past) aria-current="page" @endif>
+											<span class="me-2 d-inline-flex"><x-icon name="{{ $icon }}" /></span>
+											{{ $label }}
+										</a>
+									</li>
+								@endforeach
+							</ul>
 						</div>
 					@endif
 					<x-attendances.registers-table :$ensembles :$term_dates />

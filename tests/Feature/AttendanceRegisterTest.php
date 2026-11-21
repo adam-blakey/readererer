@@ -392,7 +392,7 @@ test('with upcoming dates first, the index lists dates that have not ended soone
         ->assertSee(route('attendance.register.index', ['past' => 1]), false);
 
     $this->get(route('attendance.register.index', ['past' => 1]))
-        ->assertSee('View upcoming dates')
+        ->assertSee('class="nav-link active" href="'.route('attendance.register.index', ['past' => 1]).'"', false)
         ->assertSeeInOrder([$dates[1]->date_label, $dates[0]->date_label])
         ->assertDontSee($dates[2]->date_label);
 });
