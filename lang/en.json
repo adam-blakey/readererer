@@ -878,5 +878,7 @@
     "When the members are downloaded each day, in the :timezone time zone.": "When the members are downloaded each day, in the :timezone time zone.",
     "Add users to ensembles on creation": "Add users to ensembles on creation",
     "Lets the create user form add the new user to an ensemble, with the instrument family they play and, where the ensemble has a seating plan, their seat.": "Lets the create user form add the new user to an ensemble, with the instrument family they play and, where the ensemble has a seating plan, their seat.",
-    "Members can play a different instrument in each ensemble, so choose one ensemble here and add them to any others from their profile afterwards.": "Members can play a different instrument in each ensemble, so choose one ensemble here and add them to any others from their profile afterwards."
+    "Members can play a different instrument in each ensemble, so choose one ensemble here and add them to any others from their profile afterwards.": "Members can play a different instrument in each ensemble, so choose one ensemble here and add them to any others from their profile afterwards.",
+    "Upcoming rehearsals first": "Upcoming rehearsals first",
+    "Lists only dates that have not ended on the upcoming rehearsals page, soonest first, with a button to view past dates.": "Lists only dates that have not ended on the upcoming rehearsals page, soonest first, with a button to view past dates."
 }

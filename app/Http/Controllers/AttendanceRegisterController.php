@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Enums\AttendanceStatus;
 use App\Enums\RegisterStatus;
+use App\Features\UpcomingDatesFirst;
 use App\Models\Attendance;
 use App\Models\Ensemble;
 use App\Models\InstrumentFamily;
@@ -15,13 +16,18 @@ use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Validation\Rule;
+use Laravel\Pennant\Feature;
 
 class AttendanceRegisterController extends Controller
 {
     public function index(Request $request)
     {
+        $split = Feature::active(UpcomingDatesFirst::class);
+        $past = $split && $request->boolean('past');
+
         $term_dates = TermDate::with(['term', 'concert_ensembles', 'register_entries', 'email_logs.recipients', 'setup_group', 'van_driver'])
-            ->orderByDesc('start_datetime')
+            ->when($split, fn ($query) => $query->where('end_datetime', $past ? '<' : '>=', now()))
+            ->orderBy('start_datetime', $split && ! $past ? 'asc' : 'desc')
             ->paginate(per_page(15))->withQueryString();
 
         $ensembles = Ensemble::shown()->orderBy('name')
@@ -32,6 +38,8 @@ class AttendanceRegisterController extends Controller
         return view('attendances.registers', [
             'term_dates' => $term_dates,
             'ensembles' => $ensembles,
+            'split' => $split,
+            'past' => $past,
             'page_name' => __('Upcoming rehearsals'),
         ]);
     }
