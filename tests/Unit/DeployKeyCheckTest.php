@@ -5,12 +5,12 @@ use Illuminate\Support\Facades\Process;
 
 function deploy_key_checks(): array
 {
-    return collect(['.cpanel.yml', '.github/actions/deploy-ssh/action.yml'])
+    return collect(['.cpanel.yml', 'deploy.php'])
         ->map(fn (string $file) => preg_match("/php -r '(.*APP_KEY.*?)'/", file_get_contents(base_path($file)), $match) ? $match[1] : null)
         ->all();
 }
 
-it('runs the same APP_KEY check in both deploy actions', function () {
+it('runs the same APP_KEY check in both deploy scripts', function () {
     [$cpanel, $ssh] = deploy_key_checks();
 
     expect($cpanel)->not->toBeNull()->toBe($ssh);

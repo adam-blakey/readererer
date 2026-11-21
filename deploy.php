@@ -32,7 +32,7 @@ task('deploy:update_code', function () {
 task('readererer:check_app_key', function () {
     cd('{{release_path}}');
     run(<<<'SH'
-        php -r 'require $argv[1]; $key = Dotenv\Dotenv::createArrayBacked(".")->load()["APP_KEY"] ?? ""; if (str_starts_with($key, "base64:")) $key = base64_decode(substr($key, 7)); if (! Illuminate\Encryption\Encrypter::supported($key, "aes-256-cbc")) { fwrite(STDERR, "APP_KEY in shared/.env is missing or invalid. In the current release run php artisan config:clear and php artisan key:generate --force (or restore the old key), then deploy again.\n"); exit(1); }' vendor/autoload.php
+        php -r 'require $argv[1]; $key = Dotenv\Dotenv::createArrayBacked(".")->load()["APP_KEY"] ?? ""; if (str_starts_with($key, "base64:")) $key = base64_decode(substr($key, 7)); if (! Illuminate\Encryption\Encrypter::supported($key, "aes-256-cbc")) { fwrite(STDERR, "APP_KEY in .env is missing or invalid. In this folder run php artisan config:clear and php artisan key:generate --force (or restore the old key), then deploy again.\n"); exit(1); }' vendor/autoload.php
         SH);
 });
 
