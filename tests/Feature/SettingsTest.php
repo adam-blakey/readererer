@@ -147,7 +147,7 @@ test('moderators see the settings read-only', function () {
 
 test('deploys link public/storage to the public disk', function () {
     expect(file_get_contents(base_path('.cpanel.yml')))->toContain('ln -sfn ../storage/app/public public/storage')
-        ->and(file_get_contents(base_path('.github/actions/deploy-ssh/action.yml')))->toContain('ln -sfn ../storage/app/public public/storage');
+        ->and(file_get_contents(base_path('deploy.php')))->toContain('ln -sfn ../storage/app/public public/storage');
 });
 
 test('every member detail is shown until the setting is saved', function () {

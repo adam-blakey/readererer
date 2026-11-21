@@ -60,6 +60,8 @@ jobs:
       url: https://${{ vars.APP_DOMAIN }}
     steps:
       - uses: actions/checkout@v7.0.1
+        with:
+          fetch-depth: 0
       - uses: actions/download-artifact@v8.0.2
         with:
           name: build
@@ -73,5 +75,4 @@ jobs:
           ssh-port: ${{ vars.DEPLOY_SSH_PORT }}
           ssh-user: ${{ vars.DEPLOY_SSH_USER }}
           ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
-          git-key: ${{ vars.DEPLOY_GIT_KEY }}
           fresh-database: 'true'
