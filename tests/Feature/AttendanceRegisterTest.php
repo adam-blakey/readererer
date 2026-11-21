@@ -3,11 +3,14 @@
 use App\Enums\AttendanceStatus;
 use App\Enums\RegisterStatus;
 use App\Enums\UserRole;
+use App\Features\UpcomingDatesFirst;
 use App\Models\Attendance;
 use App\Models\Ensemble;
 use App\Models\RegisterEntry;
 use App\Models\SetupGroup;
 use App\Models\Term;
+use App\Models\TermDate;
+use Laravel\Pennant\Feature;
 
 test('the register index requires moderator or above', function () {
     $url = route('attendance.register.index');
@@ -370,4 +373,26 @@ test('a concert for two ensembles is on the poll and register of each and not of
     $this->actingAs($admin)
         ->get(route('attendance.register.show', ['ensemble' => $strings->slug, 'termDate' => $concert->id]))
         ->assertNotFound();
+});
+
+test('with upcoming dates first, the index lists dates that have not ended soonest first and past dates behind a button', function () {
+    config(['app.readererer_feature_flags' => [UpcomingDatesFirst::class => ['enabled' => true]]]);
+    Feature::flushCache();
+    $term = Term::factory()->create();
+    $dates = collect(['-2 weeks', '-1 week', '+1 week', '+2 weeks'])->map(fn ($start) => TermDate::forceCreate([
+        'term_id' => $term->id,
+        'start_datetime' => now()->modify($start),
+        'end_datetime' => now()->modify($start)->addHours(2),
+    ]));
+    $this->actingAs(make_user(UserRole::Admin));
+
+    $this->get(route('attendance.register.index'))
+        ->assertSeeInOrder([$dates[2]->date_label, $dates[3]->date_label])
+        ->assertDontSee($dates[0]->date_label)
+        ->assertSee(route('attendance.register.index', ['past' => 1]), false);
+
+    $this->get(route('attendance.register.index', ['past' => 1]))
+        ->assertSee('View upcoming dates')
+        ->assertSeeInOrder([$dates[1]->date_label, $dates[0]->date_label])
+        ->assertDontSee($dates[2]->date_label);
 });
