@@ -2,8 +2,11 @@
 
 <x-layout :show_page_header="false">
 	<div class="container py-4 container-tight">
-		<form action="{{ route('password.confirm') }}" class="card card-md" method="POST">
+		<form action="{{ session('password_confirm.url') ?? route('password.confirm') }}" class="card card-md" method="POST">
 			@csrf
+			@if (session('password_confirm.url'))
+				@method(session('password_confirm.method'))
+			@endif
 
 			<div class="card-body">
 				<h2 class="mb-3 text-center h2">{{ __('Confirm password') }}</h2>
@@ -18,7 +21,7 @@
 							<x-a :route="'password.request'">{{ __('I forgot password') }}</x-a>
 						</span>
 					</label>
-					<input autocomplete="current-password" autofocus class="form-control" id="password" name="password" required type="password">
+					<input autocomplete="current-password" autofocus class="form-control" id="password" name="{{ session('password_confirm.url') ? 'confirm_password' : 'password' }}" required type="password">
 					<x-forms.input-error :messages="$errors->get('password')" />
 				</div>
 				<div class="form-footer">
