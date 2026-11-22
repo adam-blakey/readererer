@@ -13,7 +13,7 @@
                     <h3 class="card-title">{{ __('Map') }}</h3>
                     @if ($location->map_url)
                         <div class="card-actions">
-                            <a href="{{ $location->map_url }}" rel="noopener" target="_blank"><x-icon name="external-link" /> {{ __('Open in OpenStreetMap') }}</a>
+                            <a href="{{ $location->map_url }}" rel="noopener" target="_blank"><x-icon name="external-link" /> {{ __('Open in Google Maps') }}</a>
                         </div>
                     @endif
                 </div>

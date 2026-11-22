@@ -430,7 +430,7 @@
     "Only users with these roles get the feature.": "Only users with these roles get the feature.",
     "Only version 1 Pollererer exports can be imported.": "Only version 1 Pollererer exports can be imported.",
     "Open": "Open",
-    "Open in OpenStreetMap": "Open in OpenStreetMap",
+    "Open in Google Maps": "Open in Google Maps",
     "Open user menu": "Open user menu",
     "OpenStreetMap contributors": "OpenStreetMap contributors",
     "Optional note": "Optional note",
@@ -888,5 +888,8 @@
     "Shared login": "Shared login",
     "Members can sign in with this login to fill in the poll for anyone in the ensemble.": "Members can sign in with this login to fill in the poll for anyone in the ensemble.",
     "Leave it empty to keep the current password. Setting one logs the shared login out on every device.": "Leave it empty to keep the current password. Setting one logs the shared login out on every device.",
-    "Save shared login": "Save shared login"
+    "Save shared login": "Save shared login",
+    "Touchscreen seating plan": "Touchscreen seating plan",
+    "Adds a grab handle to each member on the seating plan, so seats can be moved on phones and tablets by dragging the handle.": "Adds a grab handle to each member on the seating plan, so seats can be moved on phones and tablets by dragging the handle.",
+    "Drag to move": "Drag to move"
 }

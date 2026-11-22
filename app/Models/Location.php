@@ -81,14 +81,14 @@ class Location extends Model
         ];
     }
 
-    /** OpenStreetMap's page for the location: a pin at its coordinates, or else a search for its address or name. */
+    /** Google Maps directions to the location: its coordinates, or else its address or name. */
     public function getMapUrlAttribute(): string
     {
-        if ($this->latitude !== null && $this->longitude !== null) {
-            return 'https://www.openstreetmap.org/?'.http_build_query(['mlat' => $this->latitude, 'mlon' => $this->longitude]).'#map=17/'.$this->latitude.'/'.$this->longitude;
-        }
+        $destination = $this->latitude !== null && $this->longitude !== null
+            ? $this->latitude.','.$this->longitude
+            : ($this->address ?: $this->name);
 
-        return 'https://www.openstreetmap.org/search?'.http_build_query(['query' => $this->address ?: $this->name]);
+        return 'https://www.google.com/maps/dir/?'.http_build_query(['api' => 1, 'destination' => $destination]);
     }
 
     /** Fills in the coordinates from the address with OpenStreetMap's Nominatim, leaving them empty if it finds nothing. */

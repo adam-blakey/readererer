@@ -3,12 +3,14 @@
 use App\Enums\AttendanceStatus;
 use App\Enums\Color;
 use App\Enums\UserRole;
+use App\Features\TouchSeatingPlan;
 use App\Models\Attendance;
 use App\Models\Ensemble;
 use App\Models\InstrumentFamily;
 use App\Models\Term;
 use App\Models\TermDate;
 use App\Models\User;
+use Laravel\Pennant\Feature;
 
 test('the seating plan page requires permission to update the ensemble', function () {
     $ensemble = Ensemble::factory()->create();
@@ -373,3 +375,19 @@ test('the seating plan pdf shows a dep as the member attending while depping is 
 
     expect(render_seating_plan_pdf($ensemble, $termDate))->toContain('Ada Lovelace')->not->toContain('Charles Babbage');
 });
+
+test('each member on the seating plan has a grab handle only while the touchscreen flag is on', function (bool $on) {
+    config(['app.readererer_feature_flags' => $on ? [TouchSeatingPlan::class => ['enabled' => true]] : []]);
+    Feature::flushCache();
+
+    $ensemble = Ensemble::factory()->create();
+    join_ensemble(make_user(UserRole::Member), $ensemble, null, 'A', 1);
+    join_ensemble(make_user(UserRole::Member), $ensemble);
+
+    $html = $this->actingAs(make_user(UserRole::Admin))
+        ->get(route('ensembles.seating-plan.show', $ensemble))
+        ->assertOk()
+        ->getContent();
+
+    expect(substr_count($html, 'class="seat-handle'))->toBe($on ? 2 : 0);
+})->with([true, false]);
