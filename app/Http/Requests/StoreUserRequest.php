@@ -29,7 +29,7 @@ class StoreUserRequest extends FormRequest
             ] : []),
             'first_name' => ['required', 'string', 'max:255'],
             'last_name' => ['required', 'string', 'max:255'],
-            'email' => ['required', 'email', 'max:255', Rule::unique('users', 'email')],
+            'email' => ['nullable', 'email', 'max:255', Rule::unique('users', 'email')],
             'role' => ['required', Rule::enum(UserRole::class)->only(UserRole::assignableBy($this->user()))],
             'setup_group' => ['nullable', 'exists:setup_groups,id'],
             'instrument_family' => [Rule::requiredIf(fn () => single_ensemble() !== null || ($choose_ensemble && filled($this->input('ensemble')))), 'nullable', 'exists:instrument_families,id'],
