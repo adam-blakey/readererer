@@ -179,5 +179,6 @@ test('the rendered form marks fields required to match the rules, not the column
 
     $html = $this->actingAs($admin)->get(route('users.create'))->assertOk()->getContent();
 
-    expect($html)->toMatch('/<input type="email" name="email"[^>]*\brequired\b[^>]*>/');
+    expect($html)->toMatch('/<input type="text" name="first_name"[^>]*\brequired\b[^>]*>/')
+        ->toMatch('/<input type="email" name="email"(?![^>]*\brequired\b)[^>]*>/');
 });
