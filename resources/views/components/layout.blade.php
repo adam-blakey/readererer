@@ -5,7 +5,7 @@
 
 <head>
 	<meta charset="utf-8" />
-	<meta content="width=device-width, initial-scale=1, viewport-fit=cover" name="viewport" />
+	<meta content="width=device-width, initial-scale=1, viewport-fit=cover, interactive-widget=resizes-content" name="viewport" />
 	<meta content="ie=edge" http-equiv="X-UA-Compatible" />
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>{{ Breadcrumbs::exists() ? Breadcrumbs::current()?->title ?? config('app.name') : config('app.name') }}</title>
