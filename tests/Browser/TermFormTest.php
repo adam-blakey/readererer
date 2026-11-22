@@ -25,7 +25,7 @@ test('repeating dates are added to the term form and a removed date is deleted o
         ->click('#repeat-dates-panel button[type="submit"]')
         ->assertCount('#term-dates-list .term-date-row', 4)
         ->assertSee('Wed, 13 Jan 2027, 19:30–21:30')
-        ->click('#term-dates-list .remove-term-date')
+        ->click('#term-dates-list .term-date-row:first-child .remove-term-date')
         ->assertSee('Removed when you save')
         ->click('button[form="term-edit-form"]')
         ->assertPathIs(route('terms.show', $term, absolute: false))
