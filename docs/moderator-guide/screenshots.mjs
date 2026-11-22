@@ -105,6 +105,8 @@ await shot('user-created', { y: 160, height: 520 });
 
 await page.click('a[href$="/edit"]');
 await page.waitForLoadState('networkidle');
+const userEditUrl = page.url();
+await page.fill('input[name=phone_number]', '07700 900456');
 await page.click('form[data-dirty-check] button[type=submit]');
 await page.waitForLoadState('networkidle');
 await mark([['#password', '1']]);
@@ -112,6 +114,7 @@ await shot('confirm-password', { y: 130, height: 360 });
 await page.fill('#password', 'password');
 await page.click('button.btn-primary[type=submit]');
 await page.waitForLoadState('networkidle');
+await go(userEditUrl);
 
 const addButton = '[data-bs-target="#modal-add-ensemble-user"]';
 await page.locator(addButton).scrollIntoViewIfNeeded();
@@ -191,16 +194,31 @@ await mark([['a[href$="/terms/create"]', '1', 'right'], ['tbody tr:last-child a[
 await shot('terms', { y: 130, height: 300 });
 await page.click('tbody tr:last-child a[href$="/edit"]');
 await page.waitForLoadState('networkidle');
+await mark([['button.btn-primary[form="term-edit-form"]', '1', 'left'], ['button[aria-controls="repeat-dates-panel"]', '2', 'left']]);
+await shot('term-edit-top', { y: 130, height: await page.evaluate(() => document.querySelector('#term-dates-list').getBoundingClientRect().top + scrollY + 200 - 130) });
+await mark([]);
+await page.click('button[aria-controls="repeat-dates-panel"]');
+await page.waitForTimeout(400);
+await page.fill('#repeat-first', '2027-01-06');
+await page.fill('#repeat-last', '2027-03-24');
+await page.fill('#repeat-start', '19:30');
+await page.fill('#repeat-end', '21:30');
+const panel = await page.evaluate(() => {
+    const r = document.querySelector('#repeat-dates-panel').getBoundingClientRect();
+    return { y: r.top + scrollY, height: r.height };
+});
+await shot('term-repeat-dates', { y: panel.y - 16, height: panel.height + 32 });
+await page.click('#repeat-dates-panel button[type="submit"]');
+await page.waitForTimeout(300);
 await page.click('#add-term-date');
 await page.waitForTimeout(300);
 const newRow = await page.evaluate(() => {
-    const rows = [...document.querySelectorAll('.term-date-row:not([data-index="__INDEX__"])')];
-    return rows.pop().getBoundingClientRect().top + scrollY;
+    const row = [...document.querySelectorAll('#term-dates-list .term-date-row')].pop();
+    scrollTo(0, row.getBoundingClientRect().top + scrollY - 300);
+    const r = row.getBoundingClientRect();
+    return { y: r.top + scrollY, height: r.height };
 });
-await page.evaluate((y) => scrollTo(0, y - 300), newRow);
-await mark([['button.btn-primary[type=submit]', '1', 'left']]);
-await shot('term-edit-top', { y: 130, height: 240 });
-await shot('term-add-date', { y: newRow - 16, height: await page.evaluate(() => [...document.querySelectorAll('.term-date-row:not([data-index="__INDEX__"])')].pop().getBoundingClientRect().height + 32) });
+await shot('term-add-date', { y: newRow.y - 16, height: newRow.height + 32 });
 
 await browser.close();
 console.log('Created user page:', newUserUrl);

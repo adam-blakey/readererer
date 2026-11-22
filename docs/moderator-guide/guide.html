@@ -122,7 +122,7 @@ td.no { color: var(--muted); }
         <li><span class="num">7</span><span class="what">Taking the register</span><span class="desc">Record who came on the night</span></li>
         <li><span class="num">8</span><span class="what">Rehearsals and concerts</span><span class="desc">A date's page, setup groups, van drivers</span></li>
         <li><span class="num">9</span><span class="what">Emails and notifications</span><span class="desc">Check what was sent</span></li>
-        <li><span class="num">10</span><span class="what">Adding a term and its dates</span><span class="desc">Admin accounts only</span></li>
+        <li><span class="num">10</span><span class="what">Adding a term and its dates</span><span class="desc">Rehearsals, concerts and repeating dates</span></li>
         <li><span class="num">11</span><span class="what">Your own account and quick reference</span><span class="desc">Profile, password, where to find things</span></li>
     </ol>
 </section>
@@ -149,7 +149,7 @@ td.no { color: var(--muted); }
             <tr><td>Change any member's replies on a poll, even after replies close</td><td class="yes">Yes</td><td class="yes">Yes</td></tr>
             <tr><td>Take the register</td><td class="yes">Yes</td><td class="yes">Yes</td></tr>
             <tr><td>See terms, dates, setup groups, van drivers and sent emails</td><td class="yes">Yes</td><td class="yes">Yes</td></tr>
-            <tr><td>Add or change terms and their dates</td><td class="no">No</td><td class="yes">Yes</td></tr>
+            <tr><td>Add or change terms and their dates</td><td class="yes">Yes</td><td class="yes">Yes</td></tr>
             <tr><td>Send reminder emails by hand, or resend a failed email</td><td class="no">No</td><td class="yes">Yes</td></tr>
             <tr><td>Bring back an archived member</td><td class="no">No</td><td class="yes">Yes</td></tr>
             <tr><td>Set another member's password</td><td class="no">No</td><td class="yes">Yes</td></tr>
@@ -392,11 +392,7 @@ td.no { color: var(--muted); }
 
 <section class="chapter">
     <p class="chapter-no">10</p>
-    <h2>Adding a term and its dates <span class="tag">Admin only</span></h2>
-    <div class="admin">
-        <span class="note-title">You need an Admin account for this</span>
-        <p>Moderators can see terms and dates but cannot add or change them. If you are a moderator, send the dates to an admin, or ask an admin to make your account an Admin.</p>
-    </div>
+    <h2>Adding a term and its dates</h2>
     <p class="lead">A term (for example <em>Spring 2027</em>) holds its rehearsals and concerts. Each ensemble gets one poll per term.</p>
 
     <h3>Add a new term</h3>
@@ -410,19 +406,34 @@ td.no { color: var(--muted); }
     </ol>
     <figure><img src="screenshots/terms.png" alt="The Terms list"><figcaption>The Terms list. <span class="n">1</span> adds a term; <span class="n">2</span> edits one.</figcaption></figure>
 
-    <h3>Add dates to a term</h3>
+    <h3>Find your way around the dates</h3>
+    <p>On the term's form (a new term, or <span class="ui">Edit</span> <span class="n">2</span> on an existing one), each date in the <strong>Term dates</strong> list is one line: its day and time, then whether it is a rehearsal or a concert, its location, setup group and van driver. Click the line to open the date and change its details, and click it again to close it. <span class="ui">Expand all</span> and <span class="ui">Collapse all</span> open or close every date at once. A date you have added is marked <strong>New</strong>, and one you have changed is marked <strong>Changed</strong>, until you save.</p>
+    <p><span class="ui">Save</span> <span class="n">1</span> stays at the top of the page as you scroll, and there is another at the bottom of the list. Nothing is saved until you click one of them.</p>
+    <figure><img src="screenshots/term-edit-top.png" alt="The top of the Edit term page"><figcaption>The Edit term page, with Save <span class="n">1</span> and Add repeating dates <span class="n">2</span>.</figcaption></figure>
+
+    <h3>Add a run of repeating dates</h3>
+    <p>Use this for a term of weekly rehearsals, rather than adding each date by hand.</p>
     <ol class="steps">
-        <li>On the term's form (a new term, or <span class="ui">Edit</span> <span class="n">2</span> on an existing one), click <span class="ui">Add date</span> at the bottom of the <strong>Term dates</strong> list.</li>
+        <li>Click <span class="ui">Add repeating dates</span> <span class="n">2</span> above the list.</li>
+        <li>Choose the <strong>First date</strong> and the <strong>Last date</strong>. Every date falls on the same day of the week as the first one.</li>
+        <li>Under <strong>Repeat</strong>, choose how often: every week, or every 2, 3 or 4 weeks.</li>
+        <li>Fill in the <strong>Start time</strong> and <strong>End time</strong>, then click <span class="ui">Add dates</span>.</li>
+        <li>The new dates appear in the list in date order, marked <strong>New</strong>. Open any of them to choose its setup group or change it. To skip a week, such as half term, click <span class="ui">Remove</span> on that date.</li>
+        <li>Click <span class="ui">Save</span> <span class="n">1</span>.</li>
+    </ol>
+    <figure><img src="screenshots/term-repeat-dates.png" alt="Adding repeating dates"><figcaption>Adding a rehearsal every Wednesday evening.</figcaption></figure>
+
+    <h3>Add or change a single date</h3>
+    <ol class="steps">
+        <li>Click <span class="ui">Add date</span> at the bottom of the list, or <span class="ui">Duplicate</span> on a similar date to copy it. To change a date, click its line to open it.</li>
         <li>Set the <strong>Start</strong> and <strong>End</strong> date and time. Tick <strong>Time TBC</strong> if the time is not confirmed yet.</li>
         <li>Leave <strong>Location</strong> on the default for a normal rehearsal, or choose the venue.</li>
-        <li><strong>Concert ensembles</strong>: leave this empty for a rehearsal, which is for every ensemble. For a concert, select the ensembles playing in it.</li>
+        <li><strong>Concert ensembles</strong>: leave every ensemble unticked for a rehearsal, which is for every ensemble. For a concert, tick the ensembles playing in it.</li>
         <li>Choose the <strong>Setup group</strong> on duty. Leave <strong>Van driver override</strong> on <em>Infer van driver</em> to use the group's rota, or choose a driver for this date only.</li>
-        <li>For a run of weekly rehearsals, click <span class="ui">Duplicate</span> on a date to copy it, then change the copy's date and setup group.</li>
-        <li>Click <span class="ui">Save</span> <span class="n">1</span> at the top of the page.</li>
+        <li>Click <span class="ui">Save</span> <span class="n">1</span>.</li>
     </ol>
     <figure><img src="screenshots/term-add-date.png" alt="A new date on the term form"><figcaption>A new date on the term form.</figcaption></figure>
-    <figure class="narrow"><img src="screenshots/term-edit-top.png" alt="The top of the Edit term page"><figcaption>Save <span class="n">1</span> is at the top of the Edit term page.</figcaption></figure>
-    <p>To remove a date, click <span class="ui">Remove</span> on it and save. Members are emailed if a date's setup group or van driver changes.</p>
+    <p>To remove a date, click <span class="ui">Remove</span> on it. It stays in the list, crossed out, until you save, so click <span class="ui">Undo</span> if you change your mind. Members are emailed if a date's setup group or van driver changes.</p>
 </section>
 
 <section class="chapter">
@@ -449,7 +460,8 @@ td.no { color: var(--muted); }
             <tr><td>Take tonight's register</td><td>Upcoming rehearsals › Register › Fill from poll › Save register</td></tr>
             <tr><td>See who is setting up or driving the van</td><td>Upcoming rehearsals › click the date</td></tr>
             <tr><td>Check an email went out</td><td>Notifications</td></tr>
-            <tr><td>Add a term or a date</td><td>Ask an admin (Terms › Add term, or Edit › Add date)</td></tr>
+            <tr><td>Add a term or a date</td><td>Terms › Add term, or Edit › Add date</td></tr>
+            <tr><td>Add a term's weekly rehearsals</td><td>Terms › Edit › Add repeating dates › Add dates › Save</td></tr>
             <tr><td>Reset your password</td><td>Login page › I forgot password</td></tr>
         </tbody>
     </table>
