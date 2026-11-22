@@ -3,6 +3,7 @@
 use App\Enums\AttendanceStatus;
 use App\Enums\RegisterStatus;
 use App\Enums\UserRole;
+use App\Features\ClaimAccounts;
 use App\Models\Attendance;
 use App\Models\Ensemble;
 use App\Models\InstrumentFamily;
@@ -17,7 +18,7 @@ use Database\Seeders\EmailLogSeeder;
 use Database\Seeders\InstrumentFamilySeeder;
 use Database\Seeders\SetupGroupSeeder;
 
-// Run after `php artisan migrate:fresh` with `php artisan tinker docs/moderator-guide/sample-data.php`.
+// Run after `php artisan migrate:fresh` with `php artisan tinker docs/sample-data.php`.
 
 fake()->seed(2026);
 mt_srand(2026);
@@ -31,6 +32,7 @@ $settings->setup_groups = true;
 $settings->van_drivers = true;
 $settings->depping = true;
 $settings->single_ensemble = false;
+$settings->feature_flags = [ClaimAccounts::class => ['enabled' => true]];
 $settings->save();
 
 $rehearsalVenue = Location::create(['name' => 'Rehearsal Hall', 'address' => 'Riverside']);
@@ -52,6 +54,7 @@ $account = fn (string $first, string $last, UserRole $role) => User::factory()->
 
 $admin = $account('Alex', 'Admin', UserRole::Admin);
 $moderator = $account('Morgan', 'Moderator', UserRole::Moderator);
+$jamie = $account('Jamie', 'Member', UserRole::Member);
 
 $families = InstrumentFamily::where('name', '!=', 'Conductor')->get();
 $groups = SetupGroup::all();
@@ -63,6 +66,9 @@ $members = collect(range(1, 28))->map(fn ($i) => User::factory()->create([
     'last_login_at' => $i % 5 ? now()->subDays($i) : null,
 ]));
 $members->push($moderator);
+$jamie->setup_group_id = $groups[1]->id;
+$jamie->save();
+$members->push($jamie);
 
 foreach ($members as $i => $member) {
     $family = $families[$i % $families->count()];
@@ -150,4 +156,4 @@ foreach ($autumn->term_dates as $date) {
 
 (new EmailLogSeeder)->run();
 
-echo "Sample data ready: log in as morgan / password (Moderator) or alex / password (Admin).\n";
+echo "Sample data ready: log in as jamie (Member), rwo (Ensemble), morgan (Moderator) or alex (Admin), all with the password password.\n";

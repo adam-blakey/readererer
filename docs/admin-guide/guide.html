@@ -1,0 +1,343 @@
+<!doctype html>
+<html lang="en-GB">
+<head>
+<meta charset="utf-8">
+<title>Readererer admin guide</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,400&display=block" rel="stylesheet">
+<link href="../guide.css" rel="stylesheet">
+<style>@page { @bottom-left { content: "Readererer admin guide"; } }</style>
+</head>
+<body>
+
+<div class="cover">
+    <img class="logo" src="../../resources/images/readererer-long-logo-white.svg" alt="Readererer">
+    <div class="title">
+        <h1>Admin guide</h1>
+        <p class="sub">How to set up the site, its ensembles, setup groups and seating plans, send emails, manage accounts and keep an eye on how it is running.</p>
+    </div>
+    <p class="meta">November 2026</p>
+</div>
+
+<section>
+    <h1>Contents</h1>
+    <ol class="toc">
+        <li><span class="num">1</span><span class="what">About this guide</span><span class="desc">What an admin can do</span></li>
+        <li><span class="num">2</span><span class="what">Finding the admin pages</span><span class="desc">Settings and feature flags</span></li>
+        <li><span class="num">3</span><span class="what">Site settings</span><span class="desc">Name, logo, polls, reminders, wording</span></li>
+        <li><span class="num">4</span><span class="what">Ensembles</span><span class="desc">Add, edit, admins and members</span></li>
+        <li><span class="num">5</span><span class="what">Seating plans</span><span class="desc">Arrange seats and print the plan</span></li>
+        <li><span class="num">6</span><span class="what">Setup groups, van drivers and venues</span><span class="desc">Rotas, locations, instrument families</span></li>
+        <li><span class="num">7</span><span class="what">Emails</span><span class="desc">Reminders, sending by hand, resending</span></li>
+        <li><span class="num">8</span><span class="what">Accounts</span><span class="desc">Roles, passwords, archiving and erasing</span></li>
+        <li><span class="num">9</span><span class="what">Feature flags</span><span class="desc">Try new features with a few people first</span></li>
+        <li><span class="num">10</span><span class="what">Importing and monitoring</span><span class="desc">Pollererer, Membermojo, site health</span></li>
+        <li><span class="num">11</span><span class="what">Quick reference</span><span class="desc">Where to find things</span></li>
+    </ol>
+</section>
+
+<section class="chapter">
+    <p class="chapter-no">1</p>
+    <h2>About this guide</h2>
+    <p class="lead">Admins set the site up and look after it: its settings, ensembles, setup groups, seating plans and accounts. This guide covers the jobs only an admin can do.</p>
+    <p>An admin can also do everything a moderator can: add and edit members, keep polls up to date, take registers and add terms and their dates. Those jobs are described in the <strong>moderator guide</strong>, and what members see is in the <strong>user guide</strong>.</p>
+    <p>The green numbers in the screenshots, such as <span class="n">1</span>, match the numbers in the text beside them. The screenshots were taken on a practice site filled with made-up ensembles and members.</p>
+
+    <h3>What only an admin can do</h3>
+    <table>
+        <thead><tr><th>Job</th><th>Moderator</th><th>Admin</th></tr></thead>
+        <tbody>
+            <tr><td>Change the site settings and feature flags</td><td class="no">No</td><td class="yes">Yes</td></tr>
+            <tr><td>Add and change ensembles, their admins and seating plans</td><td class="no">No</td><td class="yes">Yes</td></tr>
+            <tr><td>Change setup groups, van-driver rotas, locations and instrument families</td><td class="no">No</td><td class="yes">Yes</td></tr>
+            <tr><td>Send reminder emails by hand, or resend a failed email</td><td class="no">No</td><td class="yes">Yes</td></tr>
+            <tr><td>Set another member's password or send them a reset email</td><td class="no">No</td><td class="yes">Yes</td></tr>
+            <tr><td>Bring back an archived member or erase their personal data</td><td class="no">No</td><td class="yes">Yes</td></tr>
+            <tr><td>Edit or archive other admins</td><td class="no">No</td><td class="yes">Yes</td></tr>
+            <tr><td>Archive a term, and edit a single date from its own page</td><td class="no">No</td><td class="yes">Yes</td></tr>
+            <tr><td>Import members, and read the monitoring page</td><td class="no">No</td><td class="yes">Yes</td></tr>
+        </tbody>
+    </table>
+    <div class="note">
+        <span class="note-title">Saving sensitive changes asks for your password</span>
+        <p>Saving the settings or feature flags, a Pollererer import, another member's password, or changes to another member's account asks you to type your own password again, then saves. You only need to do this once every three hours.</p>
+    </div>
+</section>
+
+<section class="chapter">
+    <p class="chapter-no">2</p>
+    <h2>Finding the admin pages</h2>
+    <p class="lead">Admins have two extra items in the menu, and an extra card on the dashboard.</p>
+    <figure><img src="screenshots/dashboard.png" alt="The dashboard for an admin"><figcaption>The dashboard for an admin.</figcaption></figure>
+    <table>
+        <thead><tr><th style="width:12mm"></th><th>What it is</th></tr></thead>
+        <tbody>
+            <tr><td><span class="n">1</span></td><td><strong>Settings</strong>: the site's options, and links to ensembles, instrument families, terms, locations and setup groups.</td></tr>
+            <tr><td><span class="n">2</span></td><td><strong>Feature flags</strong>: new features you can turn on for some or all members (chapter 9).</td></tr>
+            <tr><td><span class="n">3</span></td><td>The <strong>Settings</strong> card opens the same page as the menu item.</td></tr>
+        </tbody>
+    </table>
+    <p>The <span class="ui">Ensembles</span>, <span class="ui">Setup groups</span>, <span class="ui">Users</span> and <span class="ui">Terms</span> cards open those lists. Every list has an <span class="ui">Archive</span> button on each row and a <span class="ui">Show archived</span> tick-box, so nothing you archive is lost: tick the box and click <span class="ui">Unarchive</span> to bring it back.</p>
+</section>
+
+<section class="chapter">
+    <p class="chapter-no">3</p>
+    <h2>Site settings</h2>
+    <p class="lead">Click <span class="ui">Settings</span> in the menu. The buttons at the top <span class="n">1</span> open the lists of ensembles, instrument families, terms, locations and setup groups. Below them is one long form: change what you need and click <span class="ui">Save settings</span> at the bottom.</p>
+    <figure><img src="screenshots/settings-top.png" alt="The top of the settings page"><figcaption>The top of the settings page.</figcaption></figure>
+
+    <h3>Site</h3>
+    <ul>
+        <li><strong>Site name</strong> appears in page titles and as the sender of emails.</li>
+        <li><strong>Logo</strong> and <strong>Favicon</strong> (the icon in browser tabs) replace the Readererer ones. Tick <em>Remove</em> under one to go back to the default.</li>
+        <li><strong>Featured colour</strong> colours the buttons, links and illustrations.</li>
+        <li><strong>Largest image upload</strong> limits the size of logos, ensemble images and profile pictures.</li>
+    </ul>
+
+    <div class="two">
+        <div>
+            <h3>Attendance polls</h3>
+            <ul>
+                <li><strong>Assume members are attending</strong>: members who have not replied count as coming.</li>
+                <li><strong>Allow changing a reply back to unknown</strong>: members can clear a reply.</li>
+                <li><strong>Repeat headings in polls</strong>: repeats the date headings above each section of a long poll.</li>
+                <li><strong>Allow sending a dep</strong>: adds the fourth, lime reply for members sending someone in their place. A dep counts as attending.</li>
+                <li><strong>Hide past dates in polls</strong>: leaves finished dates out.</li>
+            </ul>
+        </div>
+        <figure><img src="screenshots/settings-polls.png" alt="The attendance poll settings"><figcaption>The poll settings.</figcaption></figure>
+    </div>
+
+    <h3>Features</h3>
+    <ul>
+        <li><strong>Use setup groups</strong> and <strong>Use van drivers</strong> show or hide those features everywhere: pages, columns, badges and reminder emails. Turning one off keeps its data, so turning it back on restores it.</li>
+        <li><strong>Single ensemble</strong> is for a site with one ensemble: new members join it when they are created, and no second ensemble can be added. It can only be turned on while the site has at most one ensemble.</li>
+    </ul>
+
+    <h3>Times, seating plans, email and analytics</h3>
+    <ul>
+        <li><strong>Use 24-hour times</strong> shows times as 19:30 rather than 7:30pm.</li>
+        <li><strong>Shorten surnames in seating plan PDFs</strong> prints members as, for example, <em>Adam B</em>.</li>
+        <li><strong>Log emails instead of sending them</strong> writes emails to a file on the server instead of sending them. Use it on a test site so members are not emailed. Password reset emails are always sent.</li>
+        <li><strong>Preview emails before sending them</strong> shows each email in a popup before a send button sends it.</li>
+        <li><strong>Send analytics to Laravel Nightwatch</strong> sends page timings and errors to the Readererer developers. Members appear only as a number, and email and IP addresses are removed. It is off unless you turn it on.</li>
+    </ul>
+
+    <div class="two">
+        <div>
+            <h3>Reminders</h3>
+            <p><strong>Time before a date to send reminders</strong> is how long before each date the site emails the attendance list to the ensemble's admins, the setup reminder to the setup group on duty and the reminder to the van driver. Leave it empty to only send them by hand. <strong>Time before a concert</strong> replaces it for concerts.</p>
+            <p><strong>After reminders are sent</strong> decides what happens when a member changes a reply after that time:</p>
+            <ul>
+                <li><em>Nothing</em>: replies carry on as normal.</li>
+                <li><em>Email the admins about each change</em>: the ensemble's admins get an email for each change.</li>
+                <li><em>Lock the poll for members</em>: members can no longer change that date. Moderators and admins always can.</li>
+            </ul>
+        </div>
+        <figure><img src="screenshots/settings-reminders.png" alt="The reminder settings"><figcaption>The reminder settings.</figcaption></figure>
+    </div>
+
+    <h3>Member details, wording and social links</h3>
+    <ul>
+        <li><strong>Member details</strong>: untick a detail, such as date of birth or gift aid, to hide it from member pages and forms. What is already saved is kept.</li>
+        <li><strong>Wording</strong> replaces words throughout the site, for example <em>term</em> with <em>season</em> or <em>ensemble</em> with <em>band</em>. Fill in the singular and plural; leave a box empty to keep the original.</li>
+        <li><strong>Social links</strong> add Facebook, Instagram, YouTube and X icons to the bottom of every email.</li>
+    </ul>
+
+    <h3>Login with Google</h3>
+    <p>To let members log in with their Google account, create an OAuth client of type <em>Web application</em> in the Google Cloud console, add the redirect address the settings page shows, and paste its <strong>Client ID</strong> and <strong>Client secret</strong> here. Then turn on <strong>Allow login with Google</strong>. A member logs in with the Google account that has their email address. If you fill in <strong>Register new users from this domain</strong>, anyone with a Google account on that domain who has no account yet gets one with the role you choose.</p>
+</section>
+
+<section class="chapter">
+    <p class="chapter-no">4</p>
+    <h2>Ensembles</h2>
+    <p class="lead">Each ensemble has its own members, polls, registers and seating plan. Open the list from <span class="ui">Settings</span> › <span class="ui">Ensembles</span> or the <span class="ui">Ensembles</span> card on the dashboard.</p>
+    <figure class="narrow"><img src="screenshots/ensembles.png" alt="The Ensembles list"><figcaption>The Ensembles list. <span class="n">1</span> adds an ensemble.</figcaption></figure>
+
+    <h3>Add or edit an ensemble</h3>
+    <ol class="steps">
+        <li>Click <span class="ui">Add ensemble</span>, or <span class="ui">Edit</span> on an ensemble's row.</li>
+        <li>Fill in the <strong>Name</strong>, and a <strong>Short name</strong> (such as <em>RWO</em>) for tight places like tables.</li>
+        <li>Fill in the <strong>Slug</strong>, the short lower-case name used in poll links, such as <em>rwo</em>. Changing it later breaks any link already shared.</li>
+        <li>Choose the ensemble's <strong>Admins</strong>. They receive its attendance list before each date and, if the site is set to, an email about each late change. Hold Ctrl (or ⌘ on a Mac) to choose more than one.</li>
+        <li>Add an <strong>Ensemble image</strong> if you like.</li>
+        <li>Turn <strong>Seating plan enabled</strong> on or off. With it off, members are added without a seat.</li>
+        <li>Turn off <strong>Show ensemble</strong> to hide an ensemble from the home page, dashboards, date pages and concert choices. Its own pages still work.</li>
+        <li>Click <span class="ui">Save</span>.</li>
+    </ol>
+    <figure><img src="screenshots/ensemble-edit.png" alt="The Edit ensemble page"><figcaption>The Edit ensemble page, with its members on the right.</figcaption></figure>
+
+    <h3>Members of an ensemble</h3>
+    <p>The right of the edit page, and the ensemble's <span class="ui">Members</span> page, list its members. <span class="ui">Add user</span> adds an existing account with their instrument family and seat; <span class="ui">Remove</span> takes them out of the ensemble without archiving their account. Members can also be added from their own edit page, as the moderator guide describes.</p>
+    <h4>Shared ensemble logins</h4>
+    <p>An account with the <strong>Ensemble</strong> role is a shared login for one ensemble, for example on a tablet at rehearsals. It can only fill in that ensemble's polls, and it cannot use login links, password resets or Google. Create it like any account, choose the Ensemble role, add it to its ensemble and set its password with <span class="ui">Set password</span> (chapter 8). With the <em>Claim accounts</em> feature flag on, it also invites members to set up their own accounts (see the user guide).</p>
+</section>
+
+<section class="chapter">
+    <p class="chapter-no">5</p>
+    <h2>Seating plans</h2>
+    <p class="lead">Open an ensemble and click <span class="ui">Seating plan</span>. The button only appears when the ensemble has <strong>Seating plan enabled</strong>. Members are grouped into rows; anyone without a seat is under <strong>Unassigned</strong>.</p>
+    <figure><img src="screenshots/seating-plan.png" alt="A seating plan"><figcaption>A seating plan. New members wait under Unassigned.</figcaption></figure>
+    <ol class="steps">
+        <li>Drag a member to where they sit in a row; the others in the row move along. If the <em>Touchscreen seating plan</em> feature flag is on, drag by the handle on phones and tablets.</li>
+        <li>There is always an empty row at the bottom: drag a member into it to start a new row.</li>
+        <li>Click <span class="ui">Save</span>.</li>
+    </ol>
+    <h4>Printing the plan</h4>
+    <ul>
+        <li><span class="ui">Generic plan</span> downloads a PDF of everyone's seats.</li>
+        <li><span class="ui">Download</span> chooses a date and downloads that date's plan, which counts who is coming and crosses out members who said they are not. The <span class="ui">Seating plan</span> button on a date's page downloads the same.</li>
+    </ul>
+</section>
+
+<section class="chapter">
+    <p class="chapter-no">6</p>
+    <h2>Setup groups, van drivers and venues</h2>
+    <h3>Setup groups and their van-driver rotas</h3>
+    <p>Open <span class="ui">Settings</span> › <span class="ui">Setup groups</span> and click <span class="ui">Edit</span> on a group, or <span class="ui">Add setup group</span>.</p>
+    <div class="two">
+        <div>
+            <ul>
+                <li><strong>Name</strong>, <strong>Week</strong> (the number shown on polls) and <strong>Colour</strong>.</li>
+                <li><strong>Mailing list email</strong>: if the group has its own mailing list, setup reminders go there as well.</li>
+                <li><strong>Van drivers</strong>: the group's rota, in order. A date's van driver is the next driver on its setup group's rota, unless the date has a <em>van driver override</em>.</li>
+                <li><strong>Members</strong>: who is in the group. You can also set this on each member's edit page.</li>
+            </ul>
+            <p>Click <span class="ui">Update</span> to save. When a change moves an upcoming date to a different van driver, the drivers affected are emailed their next three dates.</p>
+        </div>
+        <figure><img src="screenshots/setup-group-edit.png" alt="Editing a setup group"><figcaption>Editing a setup group.</figcaption></figure>
+    </div>
+    <p>Each date's setup group is chosen on the term's form, as the moderator guide describes. If your site does not use setup groups or van drivers, turn them off in the settings (chapter 3).</p>
+
+    <h3>Locations and instrument families</h3>
+    <ul>
+        <li><strong>Locations</strong> are the venues. Each has a name and an address, which opens directions in Google Maps. A term has a default location; a date can have its own.</li>
+        <li><strong>Instrument families</strong> group members on polls, registers and seating plans, such as <em>Flutes</em> or <em>Lower Brass</em>. Each has a colour.</li>
+    </ul>
+    <p>Both are reached from the buttons at the top of the settings page and work like every other list: add, edit or archive.</p>
+</section>
+
+<section class="chapter">
+    <p class="chapter-no">7</p>
+    <h2>Emails</h2>
+    <p class="lead">The site sends three emails for each date: the <strong>attendance list</strong> to the ensemble's admins, the <strong>setup reminder</strong> to the setup group on duty and the <strong>van driver reminder</strong>. With a reminder time set (chapter 3), they go out automatically.</p>
+    <div class="two">
+        <div>
+            <h3>Send an email by hand</h3>
+            <ol class="steps">
+                <li>Open the date's page, from <span class="ui">Upcoming rehearsals</span> or a term's page.</li>
+                <li>In the <strong>Send emails</strong> card on the right, click the email to send.</li>
+                <li>With previews on, check the email in the popup and click its send button.</li>
+            </ol>
+            <p>The emails already sent for the date are listed below the card.</p>
+        </div>
+        <figure class="narrow"><img src="screenshots/send-emails.png" alt="The Send emails card"><figcaption>The Send emails card on a date's page.</figcaption></figure>
+    </div>
+
+    <h3>Resend a failed email</h3>
+    <p><span class="ui">Notifications</span> in the menu lists every email sent. When an email failed for some recipients, fix their email address first, then click <span class="ui">Resend to failed recipients</span> <span class="n">1</span>.</p>
+    <figure><img src="screenshots/notifications.png" alt="The Notifications list"><figcaption>The Notifications list.</figcaption></figure>
+    <p>The site also emails people when an upcoming date's setup group or van driver changes, and, depending on the settings, the ensemble's admins when a reply changes after the reminders.</p>
+</section>
+
+<section class="chapter">
+    <p class="chapter-no">8</p>
+    <h2>Accounts</h2>
+    <p class="lead">Adding, editing and archiving members is described in the moderator guide. Admins have a few more buttons on a member's page.</p>
+    <figure class="narrow"><img src="screenshots/user.png" alt="A member's page seen by an admin"><figcaption>A member's page seen by an admin.</figcaption></figure>
+    <table>
+        <thead><tr><th style="width:12mm"></th><th>What it does</th></tr></thead>
+        <tbody>
+            <tr><td><span class="n">1</span></td><td><strong>Edit</strong>: change their details, including their <strong>Role</strong>.</td></tr>
+            <tr><td><span class="n">2</span></td><td><strong>Send reset email</strong>: emails them a link to choose a new password.</td></tr>
+            <tr><td><span class="n">3</span></td><td><strong>Set password</strong>: type a new password for them. Tick <em>Make them choose a new password when they next log in</em> unless it is a shared ensemble login.</td></tr>
+            <tr><td><span class="n">4</span></td><td><strong>Delete</strong>: erases their personal data for good (see below).</td></tr>
+        </tbody>
+    </table>
+
+    <h3>Roles</h3>
+    <table>
+        <thead><tr><th>Role</th><th>What it can do</th></tr></thead>
+        <tbody>
+            <tr><td><strong>Guest</strong></td><td>Log in, but see nothing until given another role.</td></tr>
+            <tr><td><strong>Ensemble</strong></td><td>A shared login that fills in its ensemble's polls.</td></tr>
+            <tr><td><strong>Member</strong></td><td>Reply to their ensembles' polls and keep their own details up to date.</td></tr>
+            <tr><td><strong>Moderator</strong></td><td>Look after members, polls, registers and terms.</td></tr>
+            <tr><td><strong>Admin</strong></td><td>Everything, including this guide.</td></tr>
+        </tbody>
+    </table>
+
+    <h3>Archiving, unarchiving and erasing</h3>
+    <ul>
+        <li><strong>Archive</strong> (on the Users list) hides a member from lists, polls and registers and stops them logging in. Their replies are kept.</li>
+        <li><strong>Unarchive</strong>: tick <span class="ui">Show archived</span>, open the member and click <span class="ui">Unarchive</span>.</li>
+        <li><strong>Erase personal data</strong> (<span class="ui">Delete</span> on their page) permanently removes everything that identifies the person. Their attendance and register records are kept without their name. This cannot be undone, so use it only when someone asks for their data to be removed.</li>
+    </ul>
+</section>
+
+<section class="chapter">
+    <p class="chapter-no">9</p>
+    <h2>Feature flags</h2>
+    <p class="lead">New features arrive switched off. On the <span class="ui">Feature flags</span> page you decide who gets each one and when, so you can try it with a few people before everyone.</p>
+    <figure><img src="screenshots/feature-flag.png" alt="One feature flag"><figcaption>The options for one feature flag. The badge shows whether it is on for you.</figcaption></figure>
+    <ul>
+        <li><strong>Turned on</strong>: nobody gets the feature while this is off.</li>
+        <li><strong>Roles</strong> and <strong>Ensembles</strong>: limit it to some roles or the members of some ensembles. Leave them on <em>Every role</em> and <em>Every ensemble</em> for everyone.</li>
+        <li><strong>Starts at</strong>: a date and time to switch it on, for example at the start of term.</li>
+        <li><strong>From release</strong>: switch it on once a given version of Readererer is installed. The page shows the current version.</li>
+    </ul>
+    <p>Click <span class="ui">Save feature flags</span> at the bottom. Changes take effect on each person's next page. Each flag's description says what it does; for example, <em>Claim accounts</em> lets members set up their own accounts from a shared ensemble login, and <em>Concert details</em> adds a description and dress code to each date.</p>
+</section>
+
+<section class="chapter">
+    <p class="chapter-no">10</p>
+    <h2>Importing and monitoring</h2>
+    <p class="lead">The buttons at the bottom of the settings page open the import and monitoring pages.</p>
+    <figure class="narrow"><img src="screenshots/settings-bottom.png" alt="The bottom of the settings page"><figcaption><span class="n">1</span> imports from Pollererer; <span class="n">2</span> opens monitoring. <em>Import from Membermojo</em> appears between them when its feature flag is on.</figcaption></figure>
+
+    <h3>Import from Pollererer</h3>
+    <p>For a site moving from Pollererer. It only works on a new site with no ensembles, terms, dates or attendance yet.</p>
+    <ol class="steps">
+        <li>In Pollererer, download the admin export (a JSON file).</li>
+        <li>Upload it under <strong>Pollererer export</strong> and click <span class="ui">Preview import</span>. Nothing is saved yet.</li>
+        <li>Check the preview: the ensembles, members, terms, dates and replies it found, and any warnings. If it warns that rehearsal times shift between summer and winter, choose whether to keep the times Pollererer showed.</li>
+        <li>Confirm the import. Members keep their Pollererer passwords.</li>
+    </ol>
+    <figure class="narrow"><img src="screenshots/import.png" alt="The Pollererer import page"><figcaption>The Pollererer import page.</figcaption></figure>
+
+    <h3>Import from Membermojo</h3>
+    <p>With the <em>Membermojo import</em> feature flag on, you can upload Membermojo's <em>members.csv</em> download, or let the site download it every night. Only active members are imported. They are matched to existing accounts by Membermojo number, then by email; their ensemble, instrument and setup group come from the matching columns. The import never changes a role or password. Members who have left Membermojo are listed, and are only archived if you tick the box. As with Pollererer, you see a preview before anything is saved.</p>
+
+    <h3>Monitoring</h3>
+    <p>The monitoring page shows whether the site is up and how quickly it answers (checked every five minutes), errors, slow pages and the most active users, over the last hour, six hours, day or week. <span class="ui">Application log</span> shows the newest entries in the site's log, filtered by level. Look here first if members report a problem.</p>
+    <figure class="narrow"><img src="screenshots/monitoring.png" alt="The Monitoring page"><figcaption>The Monitoring page.</figcaption></figure>
+</section>
+
+<section class="chapter">
+    <p class="chapter-no">11</p>
+    <h2>Quick reference</h2>
+    <table>
+        <thead><tr><th>I want to…</th><th>Go to</th></tr></thead>
+        <tbody>
+            <tr><td>Change the site's name, logo or colour</td><td>Settings › Site</td></tr>
+            <tr><td>Change when reminders go out</td><td>Settings › Reminders</td></tr>
+            <tr><td>Stop members changing replies after the reminders</td><td>Settings › After reminders are sent › Lock the poll</td></tr>
+            <tr><td>Rename "term" or "ensemble"</td><td>Settings › Wording</td></tr>
+            <tr><td>Add an ensemble or change its admins</td><td>Settings › Ensembles › Add ensemble, or Edit</td></tr>
+            <tr><td>Arrange the seating</td><td>The ensemble › Seating plan</td></tr>
+            <tr><td>Change a van-driver rota</td><td>Settings › Setup groups › Edit</td></tr>
+            <tr><td>Add a venue</td><td>Settings › Locations</td></tr>
+            <tr><td>Send a reminder now</td><td>The date's page › Send emails</td></tr>
+            <tr><td>Resend a failed email</td><td>Notifications › Resend to failed recipients</td></tr>
+            <tr><td>Make someone a moderator</td><td>Users › the member › Edit › Role</td></tr>
+            <tr><td>Set a shared login's password</td><td>Users › the login › Set password</td></tr>
+            <tr><td>Bring back an archived member</td><td>Users › Show archived › the member › Unarchive</td></tr>
+            <tr><td>Try a new feature with a few people</td><td>Feature flags</td></tr>
+            <tr><td>Check the site is working</td><td>Settings › Monitoring</td></tr>
+        </tbody>
+    </table>
+</section>
+
+</body>
+</html>
