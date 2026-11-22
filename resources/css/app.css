@@ -105,6 +105,10 @@
     border: 2px dashed #ccc;
 }
 
+.seat-handle {
+    touch-action: none;
+}
+
 .min-h-2 {
     min-height: 2rem;
 }
