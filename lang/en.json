@@ -880,5 +880,8 @@
     "Lets the create user form add the new user to an ensemble, with the instrument family they play and, where the ensemble has a seating plan, their seat.": "Lets the create user form add the new user to an ensemble, with the instrument family they play and, where the ensemble has a seating plan, their seat.",
     "Members can play a different instrument in each ensemble, so choose one ensemble here and add them to any others from their profile afterwards.": "Members can play a different instrument in each ensemble, so choose one ensemble here and add them to any others from their profile afterwards.",
     "Upcoming rehearsals first": "Upcoming rehearsals first",
-    "Lists only dates that have not ended on the upcoming rehearsals page, soonest first, with a button to view past dates.": "Lists only dates that have not ended on the upcoming rehearsals page, soonest first, with a button to view past dates."
+    "Lists only dates that have not ended on the upcoming rehearsals page, soonest first, with a button to view past dates.": "Lists only dates that have not ended on the upcoming rehearsals page, soonest first, with a button to view past dates.",
+    "Touchscreen seating plan": "Touchscreen seating plan",
+    "Adds a grab handle to each member on the seating plan, so seats can be moved on phones and tablets by dragging the handle.": "Adds a grab handle to each member on the seating plan, so seats can be moved on phones and tablets by dragging the handle.",
+    "Drag to move": "Drag to move"
 }

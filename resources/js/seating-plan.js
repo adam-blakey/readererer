@@ -107,21 +107,15 @@ document.addEventListener('DOMContentLoaded', function () {
         item.draggable = true;
     });
 
-    // Delegated from the document so rows added after load behave like server-rendered ones.
-    document.addEventListener('dragstart', (e) => {
-        const entry = e.target.closest('.user-entry');
-        if (!entry) {
-            return;
-        }
-
+    function startDrag(entry) {
         draggedItem = entry;
         setTimeout(() => {
             entry.style.opacity = '0.5';
         }, 0);
         document.querySelectorAll('.seating-row').forEach(rowEl => rowEl.classList.add('drop-highlight'));
-    });
+    }
 
-    document.addEventListener('dragend', () => {
+    function endDrag() {
         if (draggedItem) {
             draggedItem.style.opacity = '';
             draggedItem = null;
@@ -129,7 +123,26 @@ document.addEventListener('DOMContentLoaded', function () {
         document.querySelectorAll('.seating-row').forEach(rowEl => rowEl.classList.remove('drop-highlight'));
         normaliseRows();
         updateSeatingPositions();
+    }
+
+    function moveDraggedInto(container, x, y) {
+        const afterElement = getDragAfterElement(container, x, y);
+        if (afterElement == null) {
+            container.appendChild(draggedItem);
+        } else if (afterElement !== draggedItem.nextElementSibling) {
+            container.insertBefore(draggedItem, afterElement);
+        }
+    }
+
+    // Delegated from the document so rows added after load behave like server-rendered ones.
+    document.addEventListener('dragstart', (e) => {
+        const entry = e.target.closest('.user-entry');
+        if (entry) {
+            startDrag(entry);
+        }
     });
+
+    document.addEventListener('dragend', endDrag);
 
     document.addEventListener('dragover', (e) => {
         if (!draggedItem) {
@@ -142,12 +155,7 @@ document.addEventListener('DOMContentLoaded', function () {
         }
 
         e.preventDefault();
-        const afterElement = getDragAfterElement(container, e.clientX);
-        if (afterElement == null) {
-            container.appendChild(draggedItem);
-        } else {
-            container.insertBefore(draggedItem, afterElement);
-        }
+        moveDraggedInto(container, e.clientX, e.clientY);
     });
 
     document.addEventListener('drop', (e) => {
@@ -156,18 +164,73 @@ document.addEventListener('DOMContentLoaded', function () {
         }
     });
 
-    function getDragAfterElement(container, x) {
-        const draggableElements = [...container.querySelectorAll('.user-entry')].filter(el => el !== draggedItem);
+    // Touch and pen drag from the grab handle; a mouse keeps using the native drag above.
+    let pointer = null;
 
-        return draggableElements.reduce((closest, child) => {
-            const box = child.getBoundingClientRect();
-            const offset = x - box.left - box.width / 2;
-            if (offset < 0 && offset > closest.offset) {
-                return { offset: offset, element: child };
-            } else {
-                return closest;
-            }
-        }, { offset: Number.NEGATIVE_INFINITY }).element;
+    function movePointerDrag() {
+        const container = document.elementFromPoint(pointer.x, pointer.y)?.closest('.drop-container');
+        if (container) {
+            moveDraggedInto(container, pointer.x, pointer.y);
+        }
+    }
+
+    function autoScroll() {
+        if (!pointer) {
+            return;
+        }
+
+        const edge = 60;
+        const speed = pointer.y < edge ? -10 : (pointer.y > window.innerHeight - edge ? 10 : 0);
+        if (speed) {
+            window.scrollBy(0, speed);
+            movePointerDrag();
+        }
+        requestAnimationFrame(autoScroll);
+    }
+
+    document.addEventListener('pointerdown', (e) => {
+        const handle = e.target.closest('.seat-handle');
+        if (!handle || e.pointerType === 'mouse' || pointer) {
+            return;
+        }
+
+        e.preventDefault();
+        handle.setPointerCapture(e.pointerId);
+        pointer = { id: e.pointerId, x: e.clientX, y: e.clientY };
+        startDrag(handle.closest('.user-entry'));
+        requestAnimationFrame(autoScroll);
+    });
+
+    document.addEventListener('pointermove', (e) => {
+        if (pointer?.id !== e.pointerId) {
+            return;
+        }
+
+        pointer.x = e.clientX;
+        pointer.y = e.clientY;
+        movePointerDrag();
+    });
+
+    function endPointerDrag(e) {
+        if (pointer?.id !== e.pointerId) {
+            return;
+        }
+
+        pointer = null;
+        endDrag();
+    }
+
+    document.addEventListener('pointerup', endPointerDrag);
+    document.addEventListener('pointercancel', endPointerDrag);
+
+    // The first entry, in reading order, that the point is above or to the left of; entries wrap onto several lines on narrow screens.
+    function getDragAfterElement(container, x, y) {
+        return [...container.querySelectorAll('.user-entry')]
+            .filter(el => el !== draggedItem)
+            .find(child => {
+                const box = child.getBoundingClientRect();
+                return y < box.top || (y <= box.bottom && x < box.left + box.width / 2);
+            }) ?? null;
     }
 
     const downloadMenu = document.getElementById('download-menu');
