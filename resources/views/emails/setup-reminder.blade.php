@@ -7,7 +7,7 @@
 
 {{ __('Location: :location', ['location' => $termDate->location_label]) }}
 @if($termDate->inferred_location?->map_url)
-([{{ __('Open in OpenStreetMap') }}]({{ $termDate->inferred_location->map_url }}))
+([{{ __('Open in Google Maps') }}]({{ $termDate->inferred_location->map_url }}))
 @endif
 
 @if($termDate->is_concert)
