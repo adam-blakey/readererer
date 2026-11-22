@@ -880,5 +880,13 @@
     "Lets the create user form add the new user to an ensemble, with the instrument family they play and, where the ensemble has a seating plan, their seat.": "Lets the create user form add the new user to an ensemble, with the instrument family they play and, where the ensemble has a seating plan, their seat.",
     "Members can play a different instrument in each ensemble, so choose one ensemble here and add them to any others from their profile afterwards.": "Members can play a different instrument in each ensemble, so choose one ensemble here and add them to any others from their profile afterwards.",
     "Upcoming rehearsals first": "Upcoming rehearsals first",
-    "Lists only dates that have not ended on the upcoming rehearsals page, soonest first, with a button to view past dates.": "Lists only dates that have not ended on the upcoming rehearsals page, soonest first, with a button to view past dates."
+    "Lists only dates that have not ended on the upcoming rehearsals page, soonest first, with a button to view past dates.": "Lists only dates that have not ended on the upcoming rehearsals page, soonest first, with a button to view past dates.",
+    "A shared ensemble login keeps its role.": "A shared ensemble login keeps its role.",
+    "Shared login on the ensemble page": "Shared login on the ensemble page",
+    "Lets admins set the username, email address and password of an ensemble's shared login from the ensemble's page.": "Lets admins set the username, email address and password of an ensemble's shared login from the ensemble's page.",
+    "The shared login has been saved.": "The shared login has been saved.",
+    "Shared login": "Shared login",
+    "Members can sign in with this login to fill in the poll for anyone in the ensemble.": "Members can sign in with this login to fill in the poll for anyone in the ensemble.",
+    "Leave it empty to keep the current password. Setting one logs the shared login out on every device.": "Leave it empty to keep the current password. Setting one logs the shared login out on every device.",
+    "Save shared login": "Save shared login"
 }

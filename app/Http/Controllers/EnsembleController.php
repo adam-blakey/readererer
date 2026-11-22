@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\StoreEnsembleRequest;
+use App\Http\Requests\UpdateEnsembleLoginRequest;
 use App\Http\Requests\UpdateEnsembleRequest;
 use App\Models\Ensemble;
 use App\Models\User;
@@ -10,6 +11,7 @@ use App\Models\UserEnsemble;
 use App\Traits\ShowEnsemble;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Arr;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
 use Illuminate\View\View;
 
@@ -59,6 +61,7 @@ class EnsembleController extends Controller
         $ensemble->slug = Str::slug($attributes['name'], '_');
         $ensemble->save();
         $ensemble->admins()->sync($admins);
+        $ensemble->createSharedLogin();
 
         return to_route('ensembles.show', $ensemble);
     }
@@ -100,6 +103,26 @@ class EnsembleController extends Controller
         $ensemble->restore();
 
         return redirect()->back()->with('status', __('Restored.'));
+    }
+
+    public function updateLogin(UpdateEnsembleLoginRequest $request, Ensemble $ensemble): RedirectResponse
+    {
+        $login = $ensemble->sharedLogins()->first() ?? $ensemble->createSharedLogin();
+        $login->forceFill($request->safe()->only(['username', 'email']));
+
+        if ($request->filled('password')) {
+            $login->forceFill(['password' => $request->validated('password'), 'remember_token' => Str::random(60)]);
+        }
+
+        $login->save();
+
+        if ($request->filled('password')) {
+            $login->endSessions();
+        }
+
+        Log::notice('Ensemble login updated', ['ensemble_id' => $ensemble->id, 'user_id' => $login->id, 'password_set' => $request->filled('password')]);
+
+        return to_route('ensembles.show', $ensemble)->with('status', __('The shared login has been saved.'));
     }
 
     public function members(Ensemble $ensemble): View

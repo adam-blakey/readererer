@@ -41,7 +41,7 @@ class UpdateUserRequest extends FormRequest
         ];
 
         if ($this->user()->can('manage', $this->route('user'))) {
-            if ($this->user()->isNot($this->route('user'))) {
+            if ($this->user()->isNot($this->route('user')) && $this->route('user')->role !== UserRole::Ensemble) {
                 $rules['role'] = ['required', Rule::enum(UserRole::class)->only(UserRole::assignableBy($this->user()))];
             }
             $rules['setup_group'] = ['nullable', 'exists:setup_groups,id'];

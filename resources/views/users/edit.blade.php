@@ -65,11 +65,11 @@
 								@can('manage', $user)
 								<div class="mb-3">
 									<label class="form-label required">{{ __('Role') }}</label>
-									@if (auth()->user()->is($user))
+									@if (auth()->user()->is($user) || $user->role === App\Enums\UserRole::Ensemble)
 										<select class="form-select" disabled>
 											<option selected>{{ $user->role->label() }}</option>
 										</select>
-										<small class="form-hint">{{ __('You cannot change your own role.') }}</small>
+										<small class="form-hint">{{ auth()->user()->is($user) ? __('You cannot change your own role.') : __('A shared ensemble login keeps its role.') }}</small>
 									@else
 									<select name="role" class="form-select @error('role') is-invalid @enderror" required>
 										@foreach ($roles as $role)

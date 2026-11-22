@@ -18,13 +18,13 @@ class CreateUser extends Command
         {first_name : The user\'s first name}
         {last_name : The user\'s last name}
         {email : The user\'s email address}
-        {--role=member : guest, ensemble, member, moderator or admin}';
+        {--role=member : guest, member, moderator or admin}';
 
     protected $description = 'Create a user and print their temporary password';
 
     public function handle(): int
     {
-        $roles = array_map(fn (UserRole $role) => strtolower($role->name), UserRole::cases());
+        $roles = array_map(fn (UserRole $role) => strtolower($role->name), array_filter(UserRole::cases(), fn (UserRole $role) => $role !== UserRole::Ensemble));
         $input = $this->arguments() + ['role' => strtolower($this->option('role'))];
 
         $validator = Validator::make($input, [

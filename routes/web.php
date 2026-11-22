@@ -2,6 +2,7 @@
 
 use App\Features\ClaimAccounts;
 use App\Features\ConcertDetails;
+use App\Features\EnsembleLoginCredentials;
 use App\Features\MembermojoImport;
 use App\Http\Controllers\AttendanceController;
 use App\Http\Controllers\AttendanceRegisterController;
@@ -145,6 +146,7 @@ Route::middleware('auth')->group(function () {
     Route::delete('/ensembles/{ensemble}/members/{user}', [EnsembleController::class, 'removeMember'])->name('ensembles.members.destroy')->can('update', 'ensemble');
     Route::get('/ensembles/{ensemble}/seating-plan', [SeatingPlanController::class, 'show'])->name('ensembles.seating-plan.show')->can('update', 'ensemble');
     Route::put('/ensembles/{ensemble}/seating-plan', [SeatingPlanController::class, 'update'])->name('ensembles.seating-plan.update')->can('update', 'ensemble');
+    Route::put('/ensembles/{ensemble}/login', [EnsembleController::class, 'updateLogin'])->name('ensembles.login.update')->can('update', 'ensemble')->middleware([EnsureFeaturesAreActive::using(EnsembleLoginCredentials::class), ConfirmPasswordForSensitiveChanges::class]);
 
     Route::middleware(EnsureFeaturesAreActive::using(ConcertDetails::class))->group(function () {
         Route::patch('/dress-codes/{dressCode}/restore', [DressCodeController::class, 'restore'])->name('dresscodes.restore')->withTrashed()->can('restore', 'dressCode');

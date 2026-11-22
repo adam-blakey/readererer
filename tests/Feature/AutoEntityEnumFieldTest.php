@@ -27,8 +27,8 @@ test('an enum column renders as a select of labelled cases', function () {
 
     $options = enum_select_options($html, 'role');
 
-    expect($options->pluck('value')->all())->toBe(['0', '1', '2', '3', '4']);
-    expect($options->pluck('label')->all())->toBe(['Guest', 'Ensemble', 'Member', 'Moderator', 'Admin']);
+    expect($options->pluck('value')->all())->toBe(['0', '2', '3', '4']);
+    expect($options->pluck('label')->all())->toBe(['Guest', 'Member', 'Moderator', 'Admin']);
 });
 
 test('a create form pre-selects the column\'s database default', function () {
@@ -47,7 +47,7 @@ test('an edit form pre-selects the record\'s current case', function () {
         ->assertOk()
         ->getContent(), 'role');
 
-    expect($options)->toHaveCount(count(UserRole::cases()));
+    expect($options)->toHaveCount(count(UserRole::assignableBy(make_user(UserRole::Admin))));
     expect($options->where('selected')->pluck('value')->all())->toBe([(string) UserRole::Moderator->value]);
     expect($options->pluck('label')->all())->toContain('Moderator');
 });

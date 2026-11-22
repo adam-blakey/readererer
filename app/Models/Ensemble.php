@@ -15,7 +15,10 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Database\UniqueConstraintViolationException;
+use Illuminate\Support\Str;
 use SDamian\Larasort\AutoSortable;
+use Throwable;
 
 #[Icon('abc', for: 'short_name')]
 class Ensemble extends Model
@@ -118,6 +121,28 @@ class Ensemble extends Model
             ->withPivot('seat_row')
             ->where('role', '!=', UserRole::Ensemble)
             ->orderBy('first_name');
+    }
+
+    public function sharedLogins(): BelongsToMany
+    {
+        return $this->belongsToMany(User::class, 'user_ensemble')->where('role', UserRole::Ensemble)->orderBy('users.id');
+    }
+
+    public function createSharedLogin(): User
+    {
+        // Someone else may take the generated username between the check and the insert.
+        $login = retry(3, fn () => User::forceCreate([
+            'first_name' => $this->name,
+            'last_name' => __('Ensemble'),
+            'username' => User::generateUniqueUsername($this->name, __('Ensemble')),
+            'password' => Str::password(64),
+            'role' => UserRole::Ensemble,
+            'must_change_password' => false,
+        ]), when: fn (Throwable $exception) => $exception instanceof UniqueConstraintViolationException);
+
+        $login->ensembles()->attach($this);
+
+        return $login;
     }
 
     /** Loads the members with their setup groups and every membership's instrument family, for the pages that list them. */

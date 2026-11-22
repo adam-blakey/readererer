@@ -12,10 +12,10 @@ enum UserRole: int
     case Moderator = 3; // View and edit of most things; can't change important config settings.
     case Admin = 4; // Full access to everything.
 
-    /** @return list<self> */
+    /** @return list<self> Shared ensemble logins are only made with their ensemble, so no one can assign that role. */
     public static function assignableBy(User $user): array
     {
-        return array_values(array_filter(self::cases(), fn (self $role) => $role->value <= $user->role->value));
+        return array_values(array_filter(self::cases(), fn (self $role) => $role !== self::Ensemble && $role->value <= $user->role->value));
     }
 
     public function label(): string
