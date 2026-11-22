@@ -2,7 +2,7 @@
 // Usage: node docs/moderator-guide/screenshots.mjs [http://127.0.0.1:8000]
 import { openGuideBrowser } from '../guide-browser.mjs';
 
-const { browser, context, page, out, go, mark, shot, login } = await openGuideBrowser(new URL('./screenshots/', import.meta.url).pathname);
+const { browser, context, page, out, go, mark, shot, shotOf, login } = await openGuideBrowser(new URL('./screenshots/', import.meta.url).pathname);
 
 const nextRehearsal = async () => page.evaluate(() => [...document.querySelectorAll('a[href*="/attendance/register/rwo/"]')].map((a) => a.getAttribute('href')).pop());
 
@@ -145,15 +145,10 @@ await shot('term-edit-top', { y: 130, height: 240 });
 await shot('term-add-date', { y: newRow - 16, height: await page.evaluate(() => [...document.querySelectorAll('.term-date-row:not([data-index="__INDEX__"])')].pop().getBoundingClientRect().height + 32) });
 
 // An ensemble's shared login (admin)
+await login('alex');
 await go('/ensembles/1');
-const loginForm = 'form[action$="/login"]';
-await page.locator(loginForm).scrollIntoViewIfNeeded();
-await mark([['#login_username', '1'], ['#login_password', '2'], [loginForm + ' button[type=submit]', '3']]);
-const loginBox = await page.evaluate((s) => {
-    const r = document.querySelector(s).getBoundingClientRect();
-    return { x: r.left - 60, y: r.top + scrollY - 20, width: r.width + 80, height: r.height + 40 };
-}, loginForm);
-await shot('ensemble-shared-login', loginBox);
+await mark([['#login_username', '1'], ['#login_password', '2'], ['form[action$="/login"] button[type=submit]', '3']]);
+await shotOf('ensemble-shared-login', 'form[action$="/login"]', 60);
 
 await browser.close();
 console.log('Created user page:', newUserUrl);
