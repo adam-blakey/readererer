@@ -22,7 +22,7 @@
             <span class="badge bg-azure-lt d-none term-date-changed">{{ __('Changed') }}</span>
             <span class="text-danger d-none term-date-removed">{{ __('Removed when you save') }}</span>
             <span class="text-secondary small term-date-summary"></span>
-            <div class="card-actions btn-list">
+            <div class="card-actions btn-list my-0">
                 <button class="btn btn-sm duplicate-term-date" type="button"><x-icon name="copy" /> {{ __('Duplicate') }}</button>
                 <button class="btn btn-sm btn-outline-danger remove-term-date" type="button"><x-icon name="trash" /> {{ __('Remove') }}</button>
                 <button class="btn btn-sm d-none restore-term-date" type="button"><x-icon name="arrow-back-up" /> {{ __('Undo') }}</button>
