@@ -155,7 +155,7 @@ test('a field is required when the FormRequest requires it, whatever the column 
     $admin = make_user(UserRole::Admin);
     request()->setUserResolver(fn () => $admin);
 
-    expect(get_create_fields(new User)['email']['required'])->toBeTrue();
+    expect(get_create_fields(new User)['first_name']['required'])->toBeTrue();
 });
 
 test('a field is optional when the FormRequest allows it to be empty', function () {
