@@ -26,7 +26,7 @@ test('creating a location looks up its coordinates from the address on OpenStree
     $location = Location::firstWhere('name', 'Big Ben');
     expect($location->latitude)->toBe(51.5007292)
         ->and($location->longitude)->toBe(-0.1246254)
-        ->and($location->map_url)->toBe('https://www.openstreetmap.org/?mlat=51.5007292&mlon=-0.1246254#map=17/51.5007292/-0.1246254');
+        ->and($location->map_url)->toBe('https://www.google.com/maps/dir/?api=1&destination=51.5007292%2C-0.1246254');
 
     Http::assertSent(fn ($request) => $request['q'] === 'Westminster, London');
 });
@@ -43,9 +43,9 @@ test('coordinates entered by hand are kept, and a failed lookup leaves them empt
 
     $unknown = Location::firstWhere('name', 'Unknown');
     expect($unknown->latitude)->toBeNull()
-        ->and($unknown->map_url)->toBe('https://www.openstreetmap.org/search?query=Nowhere+at+all')
+        ->and($unknown->map_url)->toBe('https://www.google.com/maps/dir/?api=1&destination=Nowhere+at+all')
         ->and(Location::factory()->make(['name' => 'Village Hall', 'address' => null, 'latitude' => null, 'longitude' => null])->map_url)
-        ->toBe('https://www.openstreetmap.org/search?query=Village+Hall');
+        ->toBe('https://www.google.com/maps/dir/?api=1&destination=Village+Hall');
     Http::assertSentCount(1);
 });
 
