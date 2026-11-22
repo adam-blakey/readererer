@@ -65,7 +65,6 @@ test('moderators can view but not create or edit the records listed on the setti
 })->with([
     ['ensembles', Ensemble::class],
     ['instrumentfamilys', InstrumentFamily::class],
-    ['terms', Term::class],
     ['setupgroups', SetupGroup::class],
 ]);
 
@@ -79,6 +78,16 @@ test('moderators can create, update and delete users but not restore or erase th
         ->and($moderator->can('restore', $user))->toBeFalse()
         ->and($moderator->can('erase', $user))->toBeFalse()
         ->and($moderator->can('resetPassword', $user))->toBeFalse();
+});
+
+test('moderators can create and update terms but not delete or restore them', function () {
+    $moderator = make_user(UserRole::Moderator);
+    $term = Term::factory()->create();
+
+    expect($moderator->can('create', Term::class))->toBeTrue()
+        ->and($moderator->can('update', $term))->toBeTrue()
+        ->and($moderator->can('delete', $term))->toBeFalse()
+        ->and($moderator->can('restore', $term))->toBeFalse();
 });
 
 test('moderators can create and update attendance and registers but not delete them or send notifications', function () {

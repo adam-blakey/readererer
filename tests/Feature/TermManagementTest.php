@@ -220,13 +220,13 @@ test('updating a term rejects term dates with missing or invalid fields', functi
     expect($term->term_dates->pluck('id')->all())->toBe([$existing->id]);
 });
 
-test('updating a term requires the admin role', function (UserRole $role) {
+test('updating a term requires the moderator role', function () {
     $term = Term::factory()->create();
 
-    $this->actingAs(make_user($role))
+    $this->actingAs(make_user(UserRole::Member))
         ->patch(route('terms.update', $term), ['name' => 'New Name', 'slug' => $term->slug])
         ->assertForbidden();
-})->with([UserRole::Member, UserRole::Moderator]);
+});
 
 test('a term can be soft deleted and restored', function () {
     $term = Term::factory()->create();
