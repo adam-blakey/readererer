@@ -7,18 +7,37 @@
     $selectedDressCode = $date['dress_code_id'] ?? null;
 @endphp
 
-<div class="card card-sm mb-3 term-date-row" data-index="{{ $i }}">
+<div class="card card-sm mb-3 term-date-row" data-index="{{ $i }}" @if ($compact) data-new="{{ empty($date['id']) ? '1' : '' }}" @endif>
     @if (!empty($date['id']))
         <input type="hidden" name="term_dates[{{ $i }}][id]" value="{{ $date['id'] }}">
     @endif
-    <div class="card-header">
-        <h4 class="card-title">{{ $orig?->schedule_label ?? __('New date') }}</h4>
-        <div class="card-actions btn-list">
-            <button class="btn btn-sm duplicate-term-date" type="button"><x-icon name="copy" /> {{ __('Duplicate') }}</button>
-            <button class="btn btn-sm btn-outline-danger remove-term-date" type="button"><x-icon name="trash" /> {{ __('Remove') }}</button>
+    @if ($compact)
+        @php($open = empty($date['id']) || $errors->has('term_dates.'.$i.'.*'))
+        <div class="card-header flex-wrap gap-2 py-2 border-bottom-0">
+            <button class="btn btn-ghost-secondary px-2 term-date-toggle" type="button" aria-expanded="{{ $open ? 'true' : 'false' }}">
+                <x-icon name="chevron-down" />
+                <span class="text-body fw-bold term-date-title">{{ $orig?->schedule_label ?? __('New date') }}</span>
+            </button>
+            <span class="badge bg-green-lt d-none term-date-new">{{ __('New') }}</span>
+            <span class="badge bg-azure-lt d-none term-date-changed">{{ __('Changed') }}</span>
+            <span class="text-danger d-none term-date-removed">{{ __('Removed when you save') }}</span>
+            <span class="text-secondary small term-date-summary"></span>
+            <div class="card-actions btn-list my-0">
+                <button class="btn btn-sm duplicate-term-date" type="button"><x-icon name="copy" /> {{ __('Duplicate') }}</button>
+                <button class="btn btn-sm btn-outline-danger remove-term-date" type="button"><x-icon name="trash" /> {{ __('Remove') }}</button>
+                <button class="btn btn-sm d-none restore-term-date" type="button"><x-icon name="arrow-back-up" /> {{ __('Undo') }}</button>
+            </div>
         </div>
-    </div>
-    <div class="card-body">
+    @else
+        <div class="card-header">
+            <h4 class="card-title">{{ $orig?->schedule_label ?? __('New date') }}</h4>
+            <div class="card-actions btn-list">
+                <button class="btn btn-sm duplicate-term-date" type="button"><x-icon name="copy" /> {{ __('Duplicate') }}</button>
+                <button class="btn btn-sm btn-outline-danger remove-term-date" type="button"><x-icon name="trash" /> {{ __('Remove') }}</button>
+            </div>
+        </div>
+    @endif
+    <div @class(['card-body', 'collapse term-date-body border-top' => $compact, 'show' => $compact && $open])>
         <div class="row g-3 align-items-end">
             <div class="col-md-5">
                 <label class="form-label">{{ __('Start') }}</label>
@@ -61,6 +80,17 @@
                         <span class="form-check-label">{{ __('Concert') }}</span>
                     </label>
                     <small class="form-hint">{{ __('Leave unticked for a rehearsal') }}</small>
+                @elseif ($compact)
+                    <div class="form-label">{{ __('Concert ensembles') }}</div>
+                    <div class="form-selectgroup">
+                        @foreach ($ensembles as $ens)
+                            <label class="form-selectgroup-item">
+                                <input class="form-selectgroup-input" name="term_dates[{{ $i }}][ensemble_ids][]" type="checkbox" value="{{ $ens->id }}" data-initial="{{ $orig?->concert_ensembles->contains($ens) ? '1' : '' }}" @checked($selectedEnsembles->contains($ens->id))>
+                                <span class="form-selectgroup-label">{{ $ens->name }}</span>
+                            </label>
+                        @endforeach
+                    </div>
+                    <small class="form-hint">{{ __('Tick none for a rehearsal') }}</small>
                 @else
                     <label class="form-label">{{ __('Concert ensembles') }}</label>
                     <select class="form-select" name="term_dates[{{ $i }}][ensemble_ids][]" multiple size="3" data-initial="{{ $orig?->concert_ensembles->pluck('id')->join(',') }}">

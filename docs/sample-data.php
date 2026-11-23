@@ -4,6 +4,7 @@ use App\Enums\AttendanceStatus;
 use App\Enums\RegisterStatus;
 use App\Enums\UserRole;
 use App\Features\ClaimAccounts;
+use App\Features\CompactTermForm;
 use App\Models\Attendance;
 use App\Models\Ensemble;
 use App\Models\InstrumentFamily;
@@ -32,7 +33,7 @@ $settings->setup_groups = true;
 $settings->van_drivers = true;
 $settings->depping = true;
 $settings->single_ensemble = false;
-$settings->feature_flags = [ClaimAccounts::class => ['enabled' => true]];
+$settings->feature_flags = [ClaimAccounts::class => ['enabled' => true], CompactTermForm::class => ['enabled' => true]];
 $settings->save();
 
 $rehearsalVenue = Location::create(['name' => 'Rehearsal Hall', 'address' => 'Riverside']);
