@@ -49,13 +49,14 @@ test('a user cannot be changed to the ensemble role', function () {
     expect($member->fresh()->role)->toBe(UserRole::Member);
 });
 
-test('a shared ensemble login keeps its role when edited', function () {
-    $login = make_user(UserRole::Ensemble);
+test('a shared ensemble login keeps its role and has no email when edited', function () {
+    $login = make_user(UserRole::Ensemble, ['email' => null]);
 
     $this->actingAs(make_user(UserRole::Admin))
         ->get(route('users.edit', $login))
         ->assertOk()
         ->assertDontSee('name="role"', false)
+        ->assertDontSee('name="email"', false)
         ->assertSee(__('A shared ensemble login keeps its role.'));
 
     $this->actingAs(make_user(UserRole::Admin))
@@ -63,7 +64,8 @@ test('a shared ensemble login keeps its role when edited', function () {
         ->assertSessionHasNoErrors();
 
     expect($login->fresh()->role)->toBe(UserRole::Ensemble)
-        ->and($login->fresh()->first_name)->toBe('Ada');
+        ->and($login->fresh()->first_name)->toBe('Ada')
+        ->and($login->fresh()->email)->toBeNull();
 });
 
 test('creating an ensemble creates its shared login', function () {
@@ -111,7 +113,7 @@ test('an admin can set the shared login from the ensemble page', function () {
 
     $login->refresh();
     expect($login->username)->toBe('band')
-        ->and($login->email)->toBe('band@example.com')
+        ->and($login->email)->toBeNull()
         ->and($login->role)->toBe(UserRole::Ensemble)
         ->and(Hash::check('a-new-Password-123', $login->password))->toBeTrue();
 });
@@ -147,7 +149,7 @@ test('an ensemble without a shared login gets one when its credentials are first
 
 test('shared login credentials are validated', function (array $input, string $error) {
     enable_ensemble_login_credentials();
-    make_user(UserRole::Member, ['username' => 'taken', 'email' => 'taken@example.com']);
+    make_user(UserRole::Member, ['username' => 'taken']);
     $ensemble = Ensemble::factory()->create();
     $login = $ensemble->createSharedLogin();
 
@@ -159,8 +161,6 @@ test('shared login credentials are validated', function (array $input, string $e
 })->with([
     'missing username' => [['username' => ''], 'username'],
     'taken username' => [['username' => 'taken'], 'username'],
-    'taken email' => [['email' => 'taken@example.com'], 'email'],
-    'invalid email' => [['email' => 'not-an-email'], 'email'],
     'unconfirmed password' => [['password' => 'a-new-Password-123', 'password_confirmation' => 'different'], 'password'],
 ]);
 

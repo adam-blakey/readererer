@@ -116,17 +116,12 @@
 								@method('PUT')
 								<div class="card-body">
 									<div class="card-title">{{ __('Shared login') }}</div>
-									<x-forms.error-summary :fields="['username', 'email', 'password', 'password_confirmation']" />
+									<x-forms.error-summary :fields="['username', 'password', 'password_confirmation']" />
 									<p class="text-secondary">{{ __('Members can sign in with this login to fill in the poll for anyone in the ensemble.') }}</p>
 									<div class="mb-3">
 										<label class="form-label required" for="login_username">{{ __('Username') }}</label>
 										<input autocomplete="off" class="form-control @error('username') is-invalid @enderror" id="login_username" name="username" required type="text" value="{{ old('username', $sharedLogin?->username) }}">
 										<x-forms.input-error :messages="$errors->get('username')" />
-									</div>
-									<div class="mb-3">
-										<label class="form-label" for="login_email">{{ __('Email address') }}</label>
-										<input autocomplete="off" class="form-control @error('email') is-invalid @enderror" id="login_email" name="email" type="email" value="{{ old('email', $sharedLogin?->email) }}">
-										<x-forms.input-error :messages="$errors->get('email')" />
 									</div>
 									<div class="mb-3">
 										<label @class(['form-label', 'required' => ! $sharedLogin]) for="login_password">{{ __('New password') }}</label>

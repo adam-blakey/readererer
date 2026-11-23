@@ -108,7 +108,7 @@ class EnsembleController extends Controller
     public function updateLogin(UpdateEnsembleLoginRequest $request, Ensemble $ensemble): RedirectResponse
     {
         $login = $ensemble->sharedLogins()->first() ?? $ensemble->createSharedLogin();
-        $login->forceFill($request->safe()->only(['username', 'email']));
+        $login->forceFill($request->safe()->only(['username']));
 
         if ($request->filled('password')) {
             $login->forceFill(['password' => $request->validated('password'), 'remember_token' => Str::random(60)]);

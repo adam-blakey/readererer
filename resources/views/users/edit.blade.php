@@ -55,6 +55,7 @@
 										@enderror
 									</div>
 								</div>
+								@unless ($user->role === App\Enums\UserRole::Ensemble)
 								<div class="mb-3">
 									<label class="form-label required">{{ __('Email') }}</label>
 									<input class="form-control @error('email') is-invalid @enderror" name="email" type="email" value="{{ old('email', $user->email) }}" required>
@@ -62,6 +63,7 @@
 										<div class="invalid-feedback">{{ $message }}</div>
 									@enderror
 								</div>
+								@endunless
 								@can('manage', $user)
 								<div class="mb-3">
 									<label class="form-label required">{{ __('Role') }}</label>

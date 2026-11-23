@@ -21,7 +21,6 @@ class UpdateEnsembleLoginRequest extends FormRequest
 
         return [
             'username' => ['required', 'string', 'max:255', Rule::unique('users', 'username')->ignore($login)],
-            'email' => ['nullable', 'email', 'max:255', Rule::unique('users', 'email')->ignore($login)],
             'password' => [Rule::requiredIf($login === null), 'nullable', 'confirmed', Password::defaults()],
         ];
     }
