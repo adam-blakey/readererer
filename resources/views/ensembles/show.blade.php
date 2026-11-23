@@ -49,6 +49,9 @@
 	<div class="page-body">
 		<div class="container-xl">
 			<x-claim-account-invite />
+			@if (session('status'))
+				<div class="alert alert-success" role="alert">{{ session('status') }}</div>
+			@endif
 			<div class="row g-3">
 				<div class="col">
                     <div class="mb-3 card">
@@ -104,6 +107,46 @@
 								</div>
 							</div>
 						</div>
+						@feature(App\Features\EnsembleLoginCredentials::class)
+						@can('update', $ensemble)
+						@php($sharedLogin = $ensemble->sharedLogins()->first())
+						<div class="col-12">
+							<form action="{{ route('ensembles.login.update', $ensemble) }}" class="card" method="POST">
+								@csrf
+								@method('PUT')
+								<div class="card-body">
+									<div class="card-title">{{ __('Shared login') }}</div>
+									<x-forms.error-summary :fields="['username', 'password', 'password_confirmation']" />
+									<p class="text-secondary">{{ __('Members can sign in with this login to fill in the poll for anyone in the ensemble.') }}</p>
+									<div class="mb-3">
+										<label class="form-label required" for="login_username">{{ __('Username') }}</label>
+										<input autocomplete="off" class="form-control @error('username') is-invalid @enderror" id="login_username" name="username" required type="text" value="{{ old('username', $sharedLogin?->username) }}">
+										<x-forms.input-error :messages="$errors->get('username')" />
+									</div>
+									<div class="mb-3">
+										<label @class(['form-label', 'required' => ! $sharedLogin]) for="login_password">{{ __('New password') }}</label>
+										<input autocomplete="new-password" class="form-control @error('password') is-invalid @enderror" id="login_password" name="password" @required(! $sharedLogin) type="password">
+										@if ($sharedLogin)
+											<div class="form-hint">{{ __('Leave it empty to keep the current password. Setting one logs the shared login out on every device.') }}</div>
+										@endif
+										<x-forms.input-error :messages="$errors->get('password')" />
+									</div>
+									<div>
+										<label class="form-label" for="login_password_confirmation">{{ __('Confirm password') }}</label>
+										<input autocomplete="new-password" class="form-control" id="login_password_confirmation" name="password_confirmation" type="password">
+										<x-forms.input-error :messages="$errors->get('password_confirmation')" />
+									</div>
+								</div>
+								<div class="card-footer text-end">
+									<button class="btn btn-primary" type="submit">
+										<x-icon name="key" />
+										{{ __('Save shared login') }}
+									</button>
+								</div>
+							</form>
+						</div>
+						@endcan
+						@endfeature
 					</div>
 				</div>
 			</div>

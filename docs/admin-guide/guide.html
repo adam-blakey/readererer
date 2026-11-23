@@ -164,14 +164,15 @@
         <li>Add an <strong>Ensemble image</strong> if you like.</li>
         <li>Turn <strong>Seating plan enabled</strong> on or off. With it off, members are added without a seat.</li>
         <li>Turn off <strong>Show ensemble</strong> to hide an ensemble from the home page, dashboards, date pages and concert choices. Its own pages still work.</li>
-        <li>Click <span class="ui">Save</span>.</li>
+        <li>Click <span class="ui">Save</span>. A new ensemble gets its shared login at the same time (see below).</li>
     </ol>
     <figure><img src="screenshots/ensemble-edit.png" alt="The Edit ensemble page"><figcaption>The Edit ensemble page, with its members on the right.</figcaption></figure>
 
     <h3>Members of an ensemble</h3>
     <p>The right of the edit page, and the ensemble's <span class="ui">Members</span> page, list its members. <span class="ui">Add user</span> adds an existing account with their instrument family and seat; <span class="ui">Remove</span> takes them out of the ensemble without archiving their account. Members can also be added from their own edit page, as the moderator guide describes.</p>
     <h4>Shared ensemble logins</h4>
-    <p>An account with the <strong>Ensemble</strong> role is a shared login for one ensemble, for example on a tablet at rehearsals. It can only fill in that ensemble's polls, and it cannot use login links, password resets or Google. Create it like any account, choose the Ensemble role, add it to its ensemble and set its password with <span class="ui">Set password</span> (chapter 8). With the <em>Claim accounts</em> feature flag on, it also invites members to set up their own accounts (see the user guide).</p>
+    <p>An account with the <strong>Ensemble</strong> role is a shared login for one ensemble, for example on a tablet at rehearsals. It can only fill in that ensemble's polls, and it cannot use login links, password resets or Google. The site creates one when an ensemble is created, with a random password nobody knows, and no other account can be given the Ensemble role or have it taken away. With the <em>Claim accounts</em> feature flag on, it also invites members to set up their own accounts (see the user guide).</p>
+    <p>With the <em>Shared login on the ensemble page</em> feature flag on, set its username and password in the <strong>Shared login</strong> card on the ensemble's page (click the ensemble's name in the list). Leave the password empty to keep the current one; setting one logs the shared login out on every device. An ensemble created before this existed may have no shared login yet: fill in a username and password there to create one. With the flag off, set the password from the login's own page with <span class="ui">Set password</span> (chapter 8).</p>
 </section>
 
 <section class="chapter">
@@ -261,7 +262,7 @@
         <thead><tr><th>Role</th><th>What it can do</th></tr></thead>
         <tbody>
             <tr><td><strong>Guest</strong></td><td>Log in, but see nothing until given another role.</td></tr>
-            <tr><td><strong>Ensemble</strong></td><td>A shared login that fills in its ensemble's polls.</td></tr>
+            <tr><td><strong>Ensemble</strong></td><td>A shared login that fills in its ensemble's polls. Each ensemble gets one when it is created; no other account can be given this role.</td></tr>
             <tr><td><strong>Member</strong></td><td>Reply to their ensembles' polls and keep their own details up to date.</td></tr>
             <tr><td><strong>Moderator</strong></td><td>Look after members, polls, registers and terms.</td></tr>
             <tr><td><strong>Admin</strong></td><td>Everything, including this guide.</td></tr>
@@ -331,7 +332,7 @@
             <tr><td>Send a reminder now</td><td>The date's page › Send emails</td></tr>
             <tr><td>Resend a failed email</td><td>Notifications › Resend to failed recipients</td></tr>
             <tr><td>Make someone a moderator</td><td>Users › the member › Edit › Role</td></tr>
-            <tr><td>Set a shared login's password</td><td>Users › the login › Set password</td></tr>
+            <tr><td>Set a shared login's password</td><td>Settings › Ensembles › the ensemble › Shared login (or Users › the login › Set password)</td></tr>
             <tr><td>Bring back an archived member</td><td>Users › Show archived › the member › Unarchive</td></tr>
             <tr><td>Try a new feature with a few people</td><td>Feature flags</td></tr>
             <tr><td>Check the site is working</td><td>Settings › Monitoring</td></tr>

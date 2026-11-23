@@ -70,7 +70,7 @@ class UserController extends Controller
         $fields['last_name']['width'] = 6;
         unset($fields['password']);
         unset($fields['image']);
-        $fields['role']['options'] = array_filter($fields['role']['options'], fn ($role) => $role <= auth()->user()->role->value, ARRAY_FILTER_USE_KEY);
+        $fields['role']['options'] = array_intersect_key($fields['role']['options'], array_flip(array_column(UserRole::assignableBy(auth()->user()), 'value')));
 
         if (! config('app.readererer_setup_groups')) {
             unset($fields['setup_group']);
@@ -332,10 +332,7 @@ class UserController extends Controller
             'must_change_password' => $request->boolean('must_change_password'),
         ])->save();
 
-        // shortcut: only database sessions are ended, switch to the auth.session middleware if another driver is used.
-        if (config('session.driver') === 'database') {
-            DB::connection(config('session.connection'))->table(config('session.table'))->where('user_id', $user->id)->delete();
-        }
+        $user->endSessions();
 
         Log::notice('User password set', ['user_id' => $user->id, 'must_change_password' => $user->must_change_password]);
 

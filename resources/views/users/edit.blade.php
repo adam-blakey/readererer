@@ -55,6 +55,7 @@
 										@enderror
 									</div>
 								</div>
+								@unless ($user->role === App\Enums\UserRole::Ensemble)
 								<div class="mb-3">
 									<label class="form-label required">{{ __('Email') }}</label>
 									<input class="form-control @error('email') is-invalid @enderror" name="email" type="email" value="{{ old('email', $user->email) }}" required>
@@ -62,14 +63,15 @@
 										<div class="invalid-feedback">{{ $message }}</div>
 									@enderror
 								</div>
+								@endunless
 								@can('manage', $user)
 								<div class="mb-3">
 									<label class="form-label required">{{ __('Role') }}</label>
-									@if (auth()->user()->is($user))
+									@if (auth()->user()->is($user) || $user->role === App\Enums\UserRole::Ensemble)
 										<select class="form-select" disabled>
 											<option selected>{{ $user->role->label() }}</option>
 										</select>
-										<small class="form-hint">{{ __('You cannot change your own role.') }}</small>
+										<small class="form-hint">{{ auth()->user()->is($user) ? __('You cannot change your own role.') : __('A shared ensemble login keeps its role.') }}</small>
 									@else
 									<select name="role" class="form-select @error('role') is-invalid @enderror" required>
 										@foreach ($roles as $role)

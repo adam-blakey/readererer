@@ -2,7 +2,7 @@
 // Usage: node docs/moderator-guide/screenshots.mjs [http://127.0.0.1:8000]
 import { openGuideBrowser } from '../guide-browser.mjs';
 
-const { browser, context, page, out, go, mark, shot, login } = await openGuideBrowser(new URL('./screenshots/', import.meta.url).pathname);
+const { browser, context, page, out, go, mark, shot, shotOf, login } = await openGuideBrowser(new URL('./screenshots/', import.meta.url).pathname);
 
 const nextRehearsal = async () => page.evaluate(() => [...document.querySelectorAll('a[href*="/attendance/register/rwo/"]')].map((a) => a.getAttribute('href')).pop());
 
@@ -158,6 +158,12 @@ const newRow = await page.evaluate(() => {
     return { y: r.top + scrollY, height: r.height };
 });
 await shot('term-add-date', { y: newRow.y - 16, height: newRow.height + 32 });
+
+// An ensemble's shared login (admin)
+await login('alex');
+await go('/ensembles/1');
+await mark([['#login_username', '1'], ['#login_password', '2'], ['form[action$="/login"] button[type=submit]', '3']]);
+await shotOf('ensemble-shared-login', 'form[action$="/login"]', 60);
 
 await browser.close();
 console.log('Created user page:', newUserUrl);

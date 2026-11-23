@@ -11,6 +11,7 @@ use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Carbon as SupportCarbon;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 use SDamian\Larasort\AutoSortable;
 
@@ -206,6 +207,14 @@ class User extends Authenticatable
      * A unique dotted-slug username: "john.smith", then "john.smith.2", ...
      * Soft-deleted users count too, as their rows still hold the unique value.
      */
+    public function endSessions(): void
+    {
+        // shortcut: only database sessions are ended, switch to the auth.session middleware if another driver is used.
+        if (config('session.driver') === 'database') {
+            DB::connection(config('session.connection'))->table(config('session.table'))->where('user_id', $this->id)->delete();
+        }
+    }
+
     public static function generateUniqueUsername(string $firstName, string $lastName): string
     {
         $base = Str::slug($firstName.' '.$lastName, '.');
