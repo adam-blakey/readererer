@@ -78,7 +78,7 @@ test('creating a user rejects a duplicate email address', function () {
     expect(User::where('email', 'ada@example.com')->count())->toBe(1);
 });
 
-test('creating a user rejects a malformed email address and requires one', function () {
+test('creating a user rejects a malformed email address but does not require one', function () {
     $setupGroup = SetupGroup::factory()->create();
     $admin = make_user(UserRole::Admin);
 
@@ -93,11 +93,13 @@ test('creating a user rejects a malformed email address and requires one', funct
         ->post(route('users.store'), array_merge($base, ['email' => 'not-an-email']))
         ->assertSessionHasErrors('email');
 
+    expect(User::where('first_name', 'Ada')->exists())->toBeFalse();
+
     $this->actingAs($admin)
         ->post(route('users.store'), $base)
-        ->assertSessionHasErrors('email');
+        ->assertSessionDoesntHaveErrors();
 
-    expect(User::where('first_name', 'Ada')->exists())->toBeFalse();
+    expect(User::where('first_name', 'Ada')->value('email'))->toBeNull();
 });
 
 test('two users with the same name get distinct usernames', function () {
