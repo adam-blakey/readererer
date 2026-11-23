@@ -131,13 +131,12 @@ class Ensemble extends Model
     public function createSharedLogin(): User
     {
         // Someone else may take the generated username between the check and the insert.
-        $login = retry(3, fn () => User::forceCreate([
+        $login = retry(3, fn () => User::create([
             'first_name' => $this->name,
             'last_name' => __('Ensemble'),
             'username' => User::generateUniqueUsername($this->name, __('Ensemble')),
             'password' => Str::password(64),
             'role' => UserRole::Ensemble,
-            'must_change_password' => false,
         ]), when: fn (Throwable $exception) => $exception instanceof UniqueConstraintViolationException);
 
         $login->ensembles()->attach($this);
