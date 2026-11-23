@@ -4,7 +4,7 @@
 
 <x-layout>
     <div class="container">
-        <div class="row align-items-center">
+        <div class="row g-2 align-items-center">
             <div class="col-auto">
                 <span class="rounded avatar avatar-lg" style="background-image: url({{ $user->image_url }})"></span>
             </div>
@@ -12,7 +12,7 @@
                 <h1 class="my-0 font-bold">{{ $user->name }}</h1>
                 <span class="badge bg-blue text-blue-fg">{{ $user->role_description }}</span>
             </div>
-            <div class="col-auto ms-auto">
+            <div class="col-12 col-md-auto ms-auto">
                 <div class="btn-list">
                     @if ($user->trashed())
                         @can('restore', $user)
