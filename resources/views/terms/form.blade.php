@@ -9,11 +9,11 @@
 
 <x-layout>
     <div @class(['container', 'sticky-top bg-body py-2' => $compact])>
-        <div class="row align-items-center">
+        <div class="row g-2 align-items-center">
             <div class="col">
                 <h1 class="my-0 font-bold">{{ $term->exists ? __('Edit term: :name', ['name' => $term->name]) : __('New term') }}</h1>
             </div>
-            <div class="col-auto ms-auto">
+            <div class="col-12 col-md-auto ms-auto">
                 <div class="btn-list">
                     <button aria-label="{{ __('Save') }}" class="btn btn-primary" form="term-edit-form" type="submit">
                         {{ __('Save') }}

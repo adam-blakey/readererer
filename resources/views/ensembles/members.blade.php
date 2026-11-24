@@ -2,7 +2,7 @@
 
 <x-layout>
     <div class="container">
-        <div class="row align-items-center">
+        <div class="row g-2 align-items-center">
             <div class="col-auto">
                 <span class="rounded avatar avatar-lg" style="background-image: url({{ $ensemble->image_url }})"></span>
             </div>
@@ -10,7 +10,7 @@
                 <div class="page-pretitle">{{ $page_subname }}</div>
                 <h1 class="my-0 font-bold">{{ $ensemble->name }}</h1>
             </div>
-            <div class="col-auto ms-auto">
+            <div class="col-12 col-md-auto ms-auto">
                 <div class="btn-list">
                     <x-a href="{{ route('ensembles.show', ['ensemble' => $ensemble]) }}" class="btn"><x-icon name="arrow-left" />{{ __('Back to ensemble') }}</x-a>
                     @can('update', $ensemble)

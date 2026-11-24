@@ -2,7 +2,7 @@
 
 <x-layout>
     <div class="container">
-        <div class="row align-items-center">
+        <div class="row g-2 align-items-center">
             <div class="col">
                 <div class="d-flex align-items-center gap-2 flex-wrap">
                     <h1 class="my-0 font-bold">{{ $term->name }}</h1>
@@ -18,7 +18,7 @@
                     <span class="list-inline-item">{{ __('Updated :time', ['time' => $term->updated_at?->diffForHumans()]) }}</span>
                 </div>
             </div>
-            <div class="col-auto ms-auto">
+            <div class="col-12 col-md-auto ms-auto">
                 <div class="btn-list">
                     <a aria-label="{{ __('Edit') }}" class="btn" href="{{ route('terms.edit', ['term' => $term]) }}">
                         <svg class="icon icon-tabler icons-tabler-outline icon-tabler-pencil" fill="none" height="24" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" stroke="currentColor" viewBox="0 0 24 24" width="24" xmlns="http://www.w3.org/2000/svg">
