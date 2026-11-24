@@ -63,6 +63,23 @@ class Term extends Model
         ];
     }
 
+    /** Archiving a term archives its dates, and restoring it brings back only the dates archived with it. */
+    protected static function booted(): void
+    {
+        static::deleted(function (Term $term) {
+            if (! $term->isForceDeleting()) {
+                TermDate::where('term_id', $term->id)->update(['deleted_at' => $term->deleted_at]);
+            }
+        });
+
+        static::restoring(function (Term $term) {
+            TermDate::onlyTrashed()
+                ->where('term_id', $term->id)
+                ->where('deleted_at', $term->getRawOriginal('deleted_at'))
+                ->update(['deleted_at' => null]);
+        });
+    }
+
     public function term_dates(): HasMany
     {
         return $this->hasMany(TermDate::class)->orderBy('start_datetime')->chaperone();

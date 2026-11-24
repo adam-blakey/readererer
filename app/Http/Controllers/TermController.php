@@ -145,16 +145,16 @@ class TermController extends Controller
         return redirect()->route('terms.show', $term);
     }
 
-    public function destroy(Term $term)
+    public function destroy(Term $term, VanDriverRota $rota)
     {
-        $term->delete();
+        $rota->notifyingChanges(fn () => DB::transaction(fn () => $term->delete()));
 
         return redirect()->back()->with('status', __('Record deleted.'));
     }
 
-    public function restore(Term $term)
+    public function restore(Term $term, VanDriverRota $rota)
     {
-        $term->restore();
+        $rota->notifyingChanges(fn () => DB::transaction(fn () => $term->restore()));
 
         return redirect()->back()->with('status', __('Restored.'));
     }

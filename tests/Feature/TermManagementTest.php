@@ -241,6 +241,22 @@ test('a term can be soft deleted and restored', function () {
     expect(Term::find($term->id))->not->toBeNull();
 });
 
+test('archiving a term archives its dates and restoring it restores only those dates', function () {
+    $term = Term::factory()->create();
+    $kept = TermDate::factory()->for($term)->create();
+    $archivedEarlier = TermDate::factory()->for($term)->create();
+    $archivedEarlier->delete();
+    $user = make_user(UserRole::Admin);
+
+    $this->travel(1)->minutes();
+    $this->actingAs($user)->delete(route('terms.destroy', $term))->assertRedirect();
+    expect(TermDate::find($kept->id))->toBeNull();
+
+    $this->actingAs($user)->patch(route('terms.restore', $term->id))->assertRedirect();
+    expect(TermDate::find($kept->id))->not->toBeNull()
+        ->and(TermDate::find($archivedEarlier->id))->toBeNull();
+});
+
 test('the terms index shows the friendly column labels', function () {
     Term::factory()->create();
 
