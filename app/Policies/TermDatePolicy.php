@@ -3,11 +3,9 @@
 namespace App\Policies;
 
 use App\Enums\UserRole;
-use App\Features\ConcertDetails;
 use App\Models\TermDate;
 use App\Models\User;
 use Illuminate\Auth\Access\Response;
-use Laravel\Pennant\Feature;
 
 class TermDatePolicy
 {
@@ -26,7 +24,7 @@ class TermDatePolicy
             return Response::allow();
         }
 
-        if (Feature::for($user)->active(ConcertDetails::class) && $termDate->term && ! $termDate->term->hidden) {
+        if ($termDate->term && ! $termDate->term->hidden) {
             return Response::allow();
         }
 

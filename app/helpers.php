@@ -3,8 +3,6 @@
 use App\Enums\AttendanceStatus;
 use App\Enums\Color;
 use App\Enums\RegisterStatus;
-use App\Features\LoadingButtons;
-use App\Features\TableSize;
 use App\Http\Middleware\AddSecurityHeaders;
 use App\Models\Ensemble;
 use Illuminate\Database\Eloquent\Model;
@@ -18,7 +16,6 @@ use Illuminate\Support\Facades\Vite;
 use Illuminate\Support\HtmlString;
 use Illuminate\Support\Str;
 use Illuminate\Support\ViewErrorBag;
-use Laravel\Pennant\Feature;
 
 function logo_url(): string
 {
@@ -55,10 +52,6 @@ const TABLE_SIZES = [10, 25, 50, 100];
 
 function per_page(int $default = 10): int
 {
-    if (! Feature::active(TableSize::class)) {
-        return $default;
-    }
-
     $user = request()->user();
     $route = request()->route()?->getName();
     $saved = $user && $route ? $user->setting('table_sizes', []) : [];
@@ -475,8 +468,8 @@ function display_time(?string $time): ?string
     return preg_match('/^([01]\d|2[0-3]):[0-5]\d$/', (string) $time) ? Carbon\Carbon::createFromFormat('H:i', $time)->format(time_format()) : $time;
 }
 
-/** The attribute that makes a submit button show a spinner and the given text while its form is sent, when the Loading buttons flag is on. */
+/** The attribute that makes a submit button show a spinner and the given text while its form is sent. */
 function loading_text(string $text): HtmlString
 {
-    return new HtmlString(Feature::active(LoadingButtons::class) ? 'data-loading-text="'.e($text).'"' : '');
+    return new HtmlString('data-loading-text="'.e($text).'"');
 }

@@ -4,7 +4,6 @@ namespace App\Http\Controllers;
 
 use App\Enums\EmailLinkType;
 use App\Enums\UserRole;
-use App\Features\AddUsersToEnsembles;
 use App\Http\Requests\EraseUserRequest;
 use App\Http\Requests\StoreUserRequest;
 use App\Http\Requests\UpdateUserRequest;
@@ -27,7 +26,6 @@ use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use Illuminate\Validation\Rules\Password as PasswordRule;
 use Illuminate\View\View;
-use Laravel\Pennant\Feature;
 use Throwable;
 
 class UserController extends Controller
@@ -75,7 +73,7 @@ class UserController extends Controller
             unset($fields['setup_group']);
         }
 
-        $choose_ensemble = ! single_ensemble() && Feature::active(AddUsersToEnsembles::class);
+        $choose_ensemble = ! single_ensemble();
 
         if ($choose_ensemble) {
             $fields['ensemble'] = [

@@ -107,7 +107,6 @@
 								</div>
 							</div>
 						</div>
-						@feature(App\Features\EnsembleLoginCredentials::class)
 						@can('update', $ensemble)
 						@php($sharedLogin = $ensemble->sharedLogins()->first())
 						<div class="col-12">
@@ -146,7 +145,6 @@
 							</form>
 						</div>
 						@endcan
-						@endfeature
 					</div>
 				</div>
 			</div>

@@ -48,7 +48,7 @@
 		['instrumentfamilys.index', 'guitar-pick', __('Instrument families')],
 		['terms.index', 'calendar-month', __('Terms')],
 		['locations.index', 'map-pin', __('Locations')],
-		Laravel\Pennant\Feature::active(App\Features\ConcertDetails::class) ? ['dresscodes.index', 'shirt', __('Dress codes')] : null,
+		['dresscodes.index', 'shirt', __('Dress codes')],
 		config('app.readererer_setup_groups') ? ['setupgroups.index', 'users', __('Setup groups')] : null,
 	]);
 	$can_edit = Gate::allows('edit.settings');
@@ -304,9 +304,7 @@
 				<div class="card-footer d-flex justify-content-between">
 					<div class="btn-list">
 						<a class="btn" href="{{ route('settings.import') }}">{{ __('Import from Pollererer') }}</a>
-						@feature(\App\Features\MembermojoImport::class)
-							<a class="btn" href="{{ route('settings.membermojo') }}">{{ __('Import from Membermojo') }}</a>
-						@endfeature
+						<a class="btn" href="{{ route('settings.membermojo') }}">{{ __('Import from Membermojo') }}</a>
 						<a class="btn" href="{{ route('settings.monitoring') }}">{{ __('Monitoring') }}</a>
 					</div>
 					<button class="btn btn-primary" type="submit">{{ __('Save settings') }}</button>

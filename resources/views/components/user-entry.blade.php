@@ -8,11 +8,9 @@
 
 <div class="p-1 nav-link d-flex lh-1 text-reset {{ $draggable ? 'cursor-grab border border-2 rounded' : '' }}">
     @if ($draggable)
-        @feature(\App\Features\TouchSeatingPlan::class)
-            <span class="seat-handle align-self-center text-secondary pe-1" title="{{ __('Drag to move') }}">
-                <x-icon name="grip-vertical" />
-            </span>
-        @endfeature
+        <span class="seat-handle align-self-center text-secondary pe-1" title="{{ __('Drag to move') }}">
+            <x-icon name="grip-vertical" />
+        </span>
     @endif
     <x-avatar :user="$user" size="sm" :$show_setup_group />
     <div class="entry-text ps-2">

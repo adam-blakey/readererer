@@ -171,8 +171,8 @@
     <h3>Members of an ensemble</h3>
     <p>The right of the edit page, and the ensemble's <span class="ui">Members</span> page, list its members. <span class="ui">Add user</span> adds an existing account with their instrument family and seat; <span class="ui">Remove</span> takes them out of the ensemble without archiving their account. Members can also be added from their own edit page, as the moderator guide describes.</p>
     <h4>Shared ensemble logins</h4>
-    <p>An account with the <strong>Ensemble</strong> role is a shared login for one ensemble, for example on a tablet at rehearsals. It can only fill in that ensemble's polls, and it cannot use login links, password resets or Google. The site creates one when an ensemble is created, with a random password nobody knows, and no other account can be given the Ensemble role or have it taken away. With the <em>Claim accounts</em> feature flag on, it also invites members to set up their own accounts (see the user guide).</p>
-    <p>With the <em>Shared login on the ensemble page</em> feature flag on, set its username and password in the <strong>Shared login</strong> card on the ensemble's page (click the ensemble's name in the list). Leave the password empty to keep the current one; setting one logs the shared login out on every device. An ensemble created before this existed may have no shared login yet: fill in a username and password there to create one. With the flag off, set the password from the login's own page with <span class="ui">Set password</span> (chapter 8).</p>
+    <p>An account with the <strong>Ensemble</strong> role is a shared login for one ensemble, for example on a tablet at rehearsals. It can only fill in that ensemble's polls, and it cannot use login links, password resets or Google. The site creates one when an ensemble is created, with a random password nobody knows, and no other account can be given the Ensemble role or have it taken away. It also invites members to set up their own accounts (see the user guide).</p>
+    <p>Set its username and password in the <strong>Shared login</strong> card on the ensemble's page (click the ensemble's name in the list). Leave the password empty to keep the current one; setting one logs the shared login out on every device. An ensemble created before this existed may have no shared login yet: fill in a username and password there to create one.</p>
 </section>
 
 <section class="chapter">
@@ -181,7 +181,7 @@
     <p class="lead">Open an ensemble and click <span class="ui">Seating plan</span>. The button only appears when the ensemble has <strong>Seating plan enabled</strong>. Members are grouped into rows; anyone without a seat is under <strong>Unassigned</strong>.</p>
     <figure><img src="screenshots/seating-plan.png" alt="A seating plan"><figcaption>A seating plan. New members wait under Unassigned.</figcaption></figure>
     <ol class="steps">
-        <li>Drag a member to where they sit in a row; the others in the row move along. If the <em>Touchscreen seating plan</em> feature flag is on, drag by the handle on phones and tablets.</li>
+        <li>Drag a member to where they sit in a row; the others in the row move along. On phones and tablets, drag by the handle.</li>
         <li>There is always an empty row at the bottom: drag a member into it to start a new row.</li>
         <li>Click <span class="ui">Save</span>.</li>
     </ol>
@@ -280,15 +280,14 @@
 <section class="chapter">
     <p class="chapter-no">9</p>
     <h2>Feature flags</h2>
-    <p class="lead">New features arrive switched off. On the <span class="ui">Feature flags</span> page you decide who gets each one and when, so you can try it with a few people before everyone.</p>
-    <figure><img src="screenshots/feature-flag.png" alt="One feature flag"><figcaption>The options for one feature flag. The badge shows whether it is on for you.</figcaption></figure>
+    <p class="lead">New features can arrive switched off. On the <span class="ui">Feature flags</span> page you decide who gets each one and when, so you can try it with a few people before everyone. The page is empty while there are none to try.</p>
     <ul>
-        <li><strong>Turned on</strong>: nobody gets the feature while this is off.</li>
+        <li><strong>Turned on</strong>: nobody gets the feature while this is off. A badge beside the name shows whether it is on for you.</li>
         <li><strong>Roles</strong> and <strong>Ensembles</strong>: limit it to some roles or the members of some ensembles. Leave them on <em>Every role</em> and <em>Every ensemble</em> for everyone.</li>
         <li><strong>Starts at</strong>: a date and time to switch it on, for example at the start of term.</li>
         <li><strong>From release</strong>: switch it on once a given version of Readererer is installed. The page shows the current version.</li>
     </ul>
-    <p>Click <span class="ui">Save feature flags</span> at the bottom. Changes take effect on each person's next page. Each flag's description says what it does; for example, <em>Claim accounts</em> lets members set up their own accounts from a shared ensemble login, and <em>Concert details</em> adds a description and dress code to each date.</p>
+    <p>Click <span class="ui">Save feature flags</span> at the bottom. Changes take effect on each person's next page. Each flag's description says what it does.</p>
 </section>
 
 <section class="chapter">
@@ -308,7 +307,7 @@
     <figure class="narrow"><img src="screenshots/import.png" alt="The Pollererer import page"><figcaption>The Pollererer import page.</figcaption></figure>
 
     <h3>Import from Membermojo</h3>
-    <p>With the <em>Membermojo import</em> feature flag on, you can upload Membermojo's <em>members.csv</em> download, or let the site download it every night. Only active members are imported. They are matched to existing accounts by Membermojo number, then by email; their ensemble, instrument and setup group come from the matching columns. The import never changes a role or password. Members who have left Membermojo are listed, and are only archived if you tick the box. As with Pollererer, you see a preview before anything is saved.</p>
+    <p>You can upload Membermojo's <em>members.csv</em> download, or let the site download it every night. Only active members are imported. They are matched to existing accounts by Membermojo number, then by email; their ensemble, instrument and setup group come from the matching columns. The import never changes a role or password. Members who have left Membermojo are listed, and are only archived if you tick the box. As with Pollererer, you see a preview before anything is saved.</p>
 
     <h3>Monitoring</h3>
     <p>The monitoring page shows whether the site is up and how quickly it answers (checked every five minutes), errors, slow pages and the most active users, over the last hour, six hours, day or week. <span class="ui">Application log</span> shows the newest entries in the site's log, filtered by level. Look here first if members report a problem.</p>

@@ -1,17 +1,12 @@
 <?php
 
 use App\Enums\UserRole;
-use App\Features\ClaimAccounts;
 use App\Models\Ensemble;
 use App\Models\User;
 use App\Notifications\EmailLink;
 use Illuminate\Support\Facades\Notification;
-use Laravel\Pennant\Feature;
 
 beforeEach(function () {
-    config(['app.readererer_feature_flags' => [ClaimAccounts::class => ['enabled' => true]]]);
-    Feature::flushCache();
-
     $this->ensemble = Ensemble::factory()->create();
     $this->login = make_user(UserRole::Ensemble);
     join_ensemble_without_instrument($this->login, $this->ensemble);
@@ -29,14 +24,6 @@ test('the ensemble login is invited to set up an account on the home page and da
     $this->actingAs($this->login)->get('/')->assertSee(route('claim-account.index'));
     $this->actingAs($this->login)->get('/dashboard')->assertSee(route('claim-account.index'));
     $this->actingAs(make_user())->get('/')->assertDontSee(route('claim-account.index'));
-});
-
-test('nothing is shown and the page is unavailable while the flag is off', function () {
-    config(['app.readererer_feature_flags' => []]);
-    Feature::flushCache();
-
-    $this->actingAs($this->login)->get('/')->assertDontSee(route('claim-account.index'));
-    $this->actingAs($this->login)->get('/claim-account')->assertBadRequest();
 });
 
 test('the page lists the ensemble members with claim buttons or usernames', function () {

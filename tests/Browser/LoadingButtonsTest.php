@@ -1,14 +1,10 @@
 <?php
 
 use App\Enums\UserRole;
-use App\Features\LoadingButtons;
 use App\Models\Term;
 use App\Models\TermDate;
-use Laravel\Pennant\Feature;
 
 test('a send button is disabled and shows a spinner once its form is submitted', function () {
-    config(['app.readererer_feature_flags' => [LoadingButtons::class => ['enabled' => true]]]);
-    Feature::flushCache();
 
     $termDate = TermDate::forceCreate([
         'term_id' => Term::factory()->create()->id,

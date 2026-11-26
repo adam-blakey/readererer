@@ -61,44 +61,42 @@
 				</x-card>
 			</div>
 
-			@feature(\App\Features\ConcertDetails::class)
-				@if ($term_date->description || $term_date->dress_code || $term_date->concert_order)
-					<div class="col-12">
-						<x-card>
-							<div class="card-header">
-								<h3 class="card-title">{{ __('Details') }}</h3>
+			@if ($term_date->description || $term_date->dress_code || $term_date->concert_order)
+				<div class="col-12">
+					<x-card>
+						<div class="card-header">
+							<h3 class="card-title">{{ __('Details') }}</h3>
+						</div>
+						<div class="card-body">
+							<div class="datagrid">
+								@if ($term_date->description)
+									<div class="datagrid-item">
+										<div class="datagrid-title"><x-icon name="align-left" /> {{ __('Description') }}</div>
+										<div class="datagrid-content">{!! nl2br(e($term_date->description)) !!}</div>
+									</div>
+								@endif
+								@if ($term_date->dress_code)
+									<div class="datagrid-item">
+										<div class="datagrid-title"><x-icon name="shirt" /> {{ __('Dress code') }}</div>
+										<div class="datagrid-content">
+											<strong>{{ $term_date->dress_code->name }}</strong>
+											@if ($term_date->dress_code->description)
+												<div class="text-secondary">{!! nl2br(e($term_date->dress_code->description)) !!}</div>
+											@endif
+										</div>
+									</div>
+								@endif
+								@if ($term_date->concert_order)
+									<div class="datagrid-item">
+										<div class="datagrid-title"><x-icon name="list-numbers" /> {{ __('Concert order') }}</div>
+										<div class="datagrid-content">{!! nl2br(e($term_date->concert_order)) !!}</div>
+									</div>
+								@endif
 							</div>
-							<div class="card-body">
-								<div class="datagrid">
-									@if ($term_date->description)
-										<div class="datagrid-item">
-											<div class="datagrid-title"><x-icon name="align-left" /> {{ __('Description') }}</div>
-											<div class="datagrid-content">{!! nl2br(e($term_date->description)) !!}</div>
-										</div>
-									@endif
-									@if ($term_date->dress_code)
-										<div class="datagrid-item">
-											<div class="datagrid-title"><x-icon name="shirt" /> {{ __('Dress code') }}</div>
-											<div class="datagrid-content">
-												<strong>{{ $term_date->dress_code->name }}</strong>
-												@if ($term_date->dress_code->description)
-													<div class="text-secondary">{!! nl2br(e($term_date->dress_code->description)) !!}</div>
-												@endif
-											</div>
-										</div>
-									@endif
-									@if ($term_date->concert_order)
-										<div class="datagrid-item">
-											<div class="datagrid-title"><x-icon name="list-numbers" /> {{ __('Concert order') }}</div>
-											<div class="datagrid-content">{!! nl2br(e($term_date->concert_order)) !!}</div>
-										</div>
-									@endif
-								</div>
-							</div>
-						</x-card>
-					</div>
-				@endif
-			@endfeature
+						</div>
+					</x-card>
+				</div>
+			@endif
 
 			@if ($show_attendance)
 			<div class="col-lg-8">

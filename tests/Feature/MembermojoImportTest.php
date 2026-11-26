@@ -1,7 +1,6 @@
 <?php
 
 use App\Enums\UserRole;
-use App\Features\MembermojoImport;
 use App\Models\Ensemble;
 use App\Models\InstrumentFamily;
 use App\Models\SetupGroup;
@@ -15,13 +14,10 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Validation\ValidationException;
-use Laravel\Pennant\Feature;
 
 beforeEach(function () {
     Storage::fake('local');
     Http::preventStrayRequests();
-    config(['app.readererer_feature_flags' => [MembermojoImport::class => ['enabled' => true]]]);
-    Feature::flushCache();
 });
 
 function membermojo_csv(): string
@@ -182,16 +178,11 @@ test('a file that is not a members download, or has no active members, is refuse
     'no active members' => "\"First name\",\"Last name\",Email,\"Membership state\",\"membermojo ID\"\nA,B,a@example.com,Expired,1\n",
 ]);
 
-test('the page needs the feature flag and an admin', function () {
+test('the page needs an admin', function () {
     $this->actingAs(make_user(UserRole::Moderator))->get('/settings/membermojo')->assertForbidden();
     $this->actingAs(make_user(UserRole::Admin))->get('/settings/membermojo')->assertOk()->assertSee('Scheduled download');
     $this->actingAs(make_user(UserRole::Admin))->get('/settings')->assertSee(route('settings.membermojo'));
 
-    config(['app.readererer_feature_flags' => []]);
-    Feature::flushCache();
-
-    $this->actingAs(make_user(UserRole::Admin))->get('/settings/membermojo')->assertStatus(400);
-    $this->actingAs(make_user(UserRole::Admin))->get('/settings')->assertDontSee(route('settings.membermojo'));
 });
 
 test('an upload is previewed, then imported on confirmation and deleted', function () {

@@ -9,11 +9,6 @@ use App\Models\EmailLog;
 use App\Models\Ensemble;
 use App\Models\SetupGroup;
 
-test('members cannot see the overview', function () {
-
-    $this->actingAs(make_user(UserRole::Member))->get(route('term-dates.show', make_term_date()))->assertForbidden();
-});
-
 test('the overview shows attendance, the setup group, the van driver, seating plans and emails', function () {
     config(['app.readererer_setup_groups' => true, 'app.readererer_van_drivers' => true, 'app.readererer_assume_attending' => false]);
 
