@@ -100,12 +100,7 @@ class SetupGroupController extends Controller
         $this->syncMembers($setupGroup, $members);
 
         if (config('app.readererer_van_drivers')) {
-            $rota->notifyingChanges(function () use ($setupGroup, $van_drivers) {
-                $setupGroup->van_drivers()->detach();
-                foreach ($van_drivers as $van_driver) {
-                    $setupGroup->van_drivers()->attach($van_driver);
-                }
-            });
+            $rota->notifyingChanges(fn () => $setupGroup->van_drivers()->sync($van_drivers));
         }
 
         return to_route('setupgroups.show', $setupGroup);

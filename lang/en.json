@@ -911,5 +911,9 @@
     "The last date must be on or after the first.": "The last date must be on or after the first.",
     "Tick none for a rehearsal": "Tick none for a rehearsal",
     "Term details": "Term details",
-    "New": "New"
+    "New": "New",
+    "First setup group": "First setup group",
+    "Later dates take the next setup group in turn.": "Later dates take the next setup group in turn.",
+    "Fair van driver rota": "Fair van driver rota",
+    "Gives each date without a chosen van driver to the setup group's driver who has driven its dates the fewest times, then to whoever drove longest ago. A driver who covers someone else's date misses their own next turn, and a driver added to a group joins level with the others. It applies to the whole site, so leave roles and ensembles empty. Switching it on can change the drivers of upcoming dates.": "Gives each date without a chosen van driver to the setup group's driver who has driven its dates the fewest times, then to whoever drove longest ago. A driver who covers someone else's date misses their own next turn, and a driver added to a group joins level with the others. It applies to the whole site, so leave roles and ensembles empty. Switching it on can change the drivers of upcoming dates."
 }
