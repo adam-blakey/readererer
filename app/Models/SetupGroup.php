@@ -94,6 +94,7 @@ class SetupGroup extends Model
     {
         return $this
             ->belongsToMany(User::class, 'setup_group_van_driver', 'setup_group_id', 'user_id')
+            ->withTimestamps()
             ->orderBy('sort');
     }
 }

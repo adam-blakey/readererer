@@ -116,6 +116,21 @@ test('updating a setup group replaces its attributes and van drivers', function 
     expect($setupGroup->van_drivers->pluck('id')->all())->toBe([$newDriver->id]);
 });
 
+test('updating a setup group keeps when its existing van drivers joined', function () {
+    $setupGroup = SetupGroup::factory()->create();
+    $driver = make_user();
+    $setupGroup->van_drivers()->attach($driver->id, ['sort' => 0, 'created_at' => '2025-01-01 00:00:00']);
+
+    $this->actingAs(make_user(UserRole::Admin))->patch(route('setupgroups.update', $setupGroup), [
+        'name' => 'Group A',
+        'week' => 1,
+        'color' => 'blue',
+        'van_drivers' => [$driver->id],
+    ]);
+
+    expect($setupGroup->fresh()->van_drivers->first()->pivot->created_at->toDateString())->toBe('2025-01-01');
+});
+
 test('updating a setup group without van drivers removes them all', function () {
     $setupGroup = SetupGroup::factory()->create();
     $driver = make_user();

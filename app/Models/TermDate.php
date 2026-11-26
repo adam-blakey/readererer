@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use App\Enums\UserRole;
+use App\Features\FairVanDriverRota;
 use App\Observers\TermDateObserver;
 use Illuminate\Database\Eloquent\Attributes\ObservedBy;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -13,6 +14,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Collection;
+use Laravel\Pennant\Feature;
 
 #[ObservedBy(TermDateObserver::class)]
 class TermDate extends Model
@@ -78,16 +80,54 @@ class TermDate extends Model
             return null;
         }
 
-        $previousCount = TermDate::where('setup_group_id', $this->setup_group_id)
-            ->where('start_datetime', '<', $this->start_datetime)
-            ->count();
-        $vanDriversCount = $this->setup_group->van_drivers->count();
+        $drivers = $this->setup_group->van_drivers->values();
 
-        if ($vanDriversCount == 0) {
+        if ($drivers->isEmpty()) {
             return null;
         }
 
-        return $this->setup_group->van_drivers->get($previousCount % $vanDriversCount);
+        if (! Feature::for(null)->active(FairVanDriverRota::class)) {
+            $previousCount = TermDate::where('setup_group_id', $this->setup_group_id)
+                ->where('start_datetime', '<', $this->start_datetime)
+                ->count();
+
+            return $drivers->get($previousCount % $drivers->count());
+        }
+
+        $drives = [];
+        $lastDrove = [];
+        // A driver added to the group (or added back) joins level with the least-used driver, rather than catching up on dates from before they joined.
+        $join = function (Carbon $at) use ($drivers, &$drives): void {
+            foreach ($drivers as $driver) {
+                if (! isset($drives[$driver->id]) && ($driver->pivot->created_at === null || $driver->pivot->created_at->lte($at))) {
+                    $drives[$driver->id] = $drives === [] ? 0 : min($drives);
+                }
+            }
+        };
+        $next = function () use ($drivers, &$drives, &$lastDrove): ?int {
+            return $drivers->filter(fn (User $driver) => isset($drives[$driver->id]))
+                ->sortBy(fn (User $driver, int $sort) => [$drives[$driver->id], $lastDrove[$driver->id] ?? -1, $sort])
+                ->first()?->id;
+        };
+
+        $earlier = TermDate::where('setup_group_id', $this->setup_group_id)
+            ->where(fn ($query) => $query->where('start_datetime', '<', $this->start_datetime)
+                ->orWhere(fn ($query) => $query->where('start_datetime', $this->start_datetime)->where('id', '<', $this->id ?? 0)))
+            ->orderBy('start_datetime')
+            ->orderBy('id')
+            ->get(['start_datetime', 'van_driver_id']);
+
+        foreach ($earlier as $index => $date) {
+            $join($date->start_datetime);
+            $driverId = $date->van_driver_id ?? $next();
+            if ($driverId !== null && isset($drives[$driverId])) {
+                $drives[$driverId]++;
+                $lastDrove[$driverId] = $index;
+            }
+        }
+        $join($this->start_datetime);
+
+        return $drivers->firstWhere('id', $next());
     }
 
     public function concert_ensembles(): BelongsToMany

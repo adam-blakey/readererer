@@ -1,11 +1,13 @@
 <?php
 
+use App\Features\FairVanDriverRota;
 use App\Models\Ensemble;
 use App\Models\Location;
 use App\Models\SetupGroup;
 use App\Models\Term;
 use App\Models\TermDate;
 use App\Models\User;
+use Laravel\Pennant\Feature;
 
 function term_date_at(string $start, string $end, array $attributes = []): TermDate
 {
@@ -196,4 +198,53 @@ test('van drivers rotate across a setup group\'s term dates in start order', fun
     expect($dates[0]->inferred_van_driver->is($driverOne))->toBeTrue();
     expect($dates[1]->inferred_van_driver->is($driverTwo))->toBeTrue();
     expect($dates[2]->inferred_van_driver->is($driverOne))->toBeTrue();
+});
+
+/**
+ * @param  array<int, ?string>  $overrides  each date's chosen driver, null for none
+ * @param  array<string, int>  $joinWeeks  drivers who join the group just before the given date, the rest are in it from the start
+ * @return array<int, string> the name of each date's driver
+ */
+function fair_rota(array $groupDrivers, array $overrides, array $joinWeeks = []): array
+{
+    config(['app.readererer_feature_flags' => [FairVanDriverRota::class => ['enabled' => true]]]);
+    Feature::flushCache();
+
+    $setupGroup = SetupGroup::factory()->create();
+    $week = fn (int $week) => now()->addWeeks($week + 1)->setTime(19, 0);
+    $users = collect([...$groupDrivers, ...$overrides])->filter()->unique()
+        ->mapWithKeys(fn (string $name) => [$name => User::factory()->create(['first_name' => $name, 'last_name' => ''])]);
+    foreach ($groupDrivers as $sort => $name) {
+        $setupGroup->van_drivers()->attach($users[$name]->id, ['sort' => $sort] + (isset($joinWeeks[$name]) ? ['created_at' => $week($joinWeeks[$name])->subDay()] : []));
+    }
+
+    $term = Term::factory()->create();
+
+    return collect($overrides)
+        ->map(fn (?string $override, int $index) => TermDate::forceCreate([
+            'term_id' => $term->id,
+            'start_datetime' => $week($index),
+            'end_datetime' => $week($index)->addHours(2),
+            'setup_group_id' => $setupGroup->id,
+            'van_driver_id' => $override ? $users[$override]->id : null,
+        ]))
+        ->map(fn (TermDate $date) => trim($date->inferred_van_driver->name))
+        ->all();
+}
+
+test('the fair rota takes turns', function () {
+    expect(fair_rota(['A', 'B'], [null, null, null, null, null]))->toBe(['A', 'B', 'A', 'B', 'A']);
+});
+
+test('the fair rota gives a covered date back to the driver who missed it', function () {
+    expect(fair_rota(['A', 'B'], [null, 'A', null, null, null, null]))->toBe(['A', 'A', 'B', 'B', 'A', 'B']);
+});
+
+test('the fair rota carries on past a date driven by someone outside the group', function () {
+    expect(fair_rota(['A', 'B'], [null, 'C', null, null]))->toBe(['A', 'C', 'B', 'A']);
+});
+
+test('a driver joining the fair rota drives once and then takes turns', function () {
+    expect(fair_rota(['A', 'B', 'C'], array_fill(0, 8, null), ['C' => 4]))
+        ->toBe(['A', 'B', 'A', 'B', 'C', 'A', 'B', 'C']);
 });

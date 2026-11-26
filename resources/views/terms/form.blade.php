@@ -128,6 +128,18 @@
 																<label class="form-label required" for="repeat-end">{{ __('End time') }}</label>
 																<x-forms.time-input form="term-repeat-dates" id="repeat-end" name="end_time" required />
 															</div>
+															@if (config('app.readererer_setup_groups'))
+																<div class="col-sm-6 col-lg-3">
+																	<label class="form-label" for="repeat-setup-group">{{ __('First setup group') }}</label>
+																	<select class="form-select" form="term-repeat-dates" id="repeat-setup-group">
+																		<option value="">{{ __('None') }}</option>
+																		@foreach ($setup_groups as $setup_group)
+																			<option value="{{ $setup_group->id }}">{{ $setup_group->name }}</option>
+																		@endforeach
+																	</select>
+																	<small class="form-hint">{{ __('Later dates take the next setup group in turn.') }}</small>
+																</div>
+															@endif
 														</div>
 														<div class="invalid-feedback d-block" id="repeat-dates-error"></div>
 														<div class="btn-list mt-3">
@@ -406,7 +418,10 @@
 					repeatError.textContent = last < first ? labels.last_before_first : (dates.length > 100 ? labels.too_many : '');
 					if (repeatError.textContent) return;
 
-					const added = dates.map(date => {
+					const groupSelect = document.getElementById('repeat-setup-group');
+					const groupIds = Array.from(groupSelect?.options ?? [], option => option.value).filter(Boolean);
+					const firstGroup = groupIds.indexOf(groupSelect?.value);
+					const added = dates.map((date, index) => {
 						const row = buildRow(nextIndex());
 						const next = Array.from(list.children).find(other => (field(other, '[start_datetime][date]').value || '9999') > date);
 						list.insertBefore(row, next ?? null);
@@ -415,6 +430,7 @@
 						field(row, '[end_datetime][date]').value = date;
 						field(row, '[start_datetime][time]').value = document.getElementById('repeat-start').value;
 						field(row, '[end_datetime][time]').value = document.getElementById('repeat-end').value;
+						if (firstGroup >= 0) field(row, '[setup_group_id]').value = groupIds[(firstGroup + index) % groupIds.length];
 						setOpen(row, false);
 						summarise(row);
 						return row;
