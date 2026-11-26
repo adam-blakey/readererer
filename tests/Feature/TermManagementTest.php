@@ -480,3 +480,18 @@ test('the new term page is headed as a new term', function () {
         ->assertSee('<h1 class="my-0 font-bold">New term</h1>', false)
         ->assertDontSee('Edit term:');
 });
+
+test('the migration archives live dates of archived terms so restoring the term brings them back', function () {
+    $term = Term::factory()->create();
+    $hanging = TermDate::factory()->for($term)->create();
+    $live = TermDate::factory()->create();
+    Term::withoutEvents(fn () => $term->delete());
+
+    (require database_path('migrations/2026_11_26_000000_archive_dates_of_archived_terms.php'))->up();
+
+    expect(TermDate::find($hanging->id))->toBeNull()
+        ->and(TermDate::find($live->id))->not->toBeNull();
+
+    $term->fresh()->restore();
+    expect(TermDate::find($hanging->id))->not->toBeNull();
+});
