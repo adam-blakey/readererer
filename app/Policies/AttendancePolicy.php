@@ -38,6 +38,10 @@ class AttendancePolicy
             return Response::allow();
         }
 
+        if ($ensemble && $user->role === UserRole::Guest && $user->can('viewPoll', $ensemble)) {
+            return Response::allow();
+        }
+
         return Response::deny();
     }
 

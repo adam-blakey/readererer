@@ -72,7 +72,7 @@ Route::get('/attendance', [AttendanceController::class, 'index'])
 Route::get('/attendance/poll/{ensemble:slug}/{term:slug}', [AttendanceController::class, 'poll'])
     ->withoutScopedBindings()
     ->name('attendance.poll.show')
-    ->can('view', 'ensemble');
+    ->can('viewPoll', 'ensemble');
 Route::post('/attendance/poll/{ensemble:slug}/{term:slug}', [AttendanceController::class, 'poll_store'])
     ->withoutScopedBindings()
     ->name('attendance.poll.store')
