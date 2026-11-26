@@ -3,9 +3,11 @@
 namespace App\Policies;
 
 use App\Enums\UserRole;
+use App\Features\GuestPolls;
 use App\Models\Ensemble;
 use App\Models\User;
 use Illuminate\Auth\Access\Response;
+use Laravel\Pennant\Feature;
 
 class EnsemblePolicy
 {
@@ -28,6 +30,17 @@ class EnsemblePolicy
         }
 
         return Response::deny();
+    }
+
+    public function viewPoll(User $user, Ensemble $ensemble)
+    {
+        if ($user->role === UserRole::Guest
+            && Feature::for($user)->active(GuestPolls::class)
+            && $user->ensembles->firstWhere('id', $ensemble->id)?->pivot->instrument_family_id !== null) {
+            return Response::allow();
+        }
+
+        return $this->view($user, $ensemble);
     }
 
     public function create(User $user)

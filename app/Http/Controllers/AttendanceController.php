@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Enums\AttendanceStatus;
+use App\Enums\UserRole;
 use App\Mail\AttendanceChangedMail;
 use App\Models\Attendance;
 use App\Models\Ensemble;
@@ -11,6 +12,7 @@ use App\Models\Term;
 use App\Models\TermDate;
 use App\Models\User;
 use App\Services\EmailDispatcher;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
@@ -37,8 +39,7 @@ class AttendanceController extends Controller
             ->values()
             ->load(['setup_group.van_drivers', 'van_driver', 'location', 'term.location']);
 
-        $members = $ensemble->users()
-            ->wherePivotNotNull('instrument_family_id')
+        $members = $this->pollMembers($ensemble, $request->user())
             ->with(['setup_group', 'attendances' => fn ($query) => $query->whereIn('term_date_id', $term_dates->pluck('id'))])
             ->get();
 
@@ -63,6 +64,13 @@ class AttendanceController extends Controller
             'sortby' => $request->query('sortby') ?? 'first_name',
             'sortdir' => $request->query('sortdir') === 'desc' ? 'desc' : 'asc',
         ]);
+    }
+
+    private function pollMembers(Ensemble $ensemble, User $user): BelongsToMany
+    {
+        return $ensemble->users()
+            ->wherePivotNotNull('instrument_family_id')
+            ->when($user->role === UserRole::Guest, fn ($query) => $query->whereKey($user->id));
     }
 
     /** The upcoming term that starts soonest, for a poll whose dates have all passed. */
@@ -112,7 +120,7 @@ class AttendanceController extends Controller
     {
         $this->abortIfHidden($term);
 
-        $members = $ensemble->users()->wherePivotNotNull('instrument_family_id')->get()->keyBy('id');
+        $members = $this->pollMembers($ensemble, $request->user())->get()->keyBy('id');
         $term_dates = $term->term_dates->load('concert_ensembles')->filter(fn (TermDate $term_date) => $term_date->appliesToEnsemble($ensemble))->keyBy('id');
         $changes = [];
         $replies = 0;

@@ -47,7 +47,8 @@
 	$locked_by_reminders = $term_dates->contains(fn ($term_date) => $locked_ids->contains($term_date->id) && $term_date->isLockedByReminders() && $term_date->start_datetime->isFuture());
 
 	$self = auth()->user()?->role !== App\Enums\UserRole::Ensemble ? $members->firstWhere('id', auth()->id()) : null;
-	$own_view = $self && auth()->user()->setting('poll_own_view', false);
+	$guest = auth()->user()?->role === App\Enums\UserRole::Guest;
+	$own_view = $self && ($guest || auth()->user()->setting('poll_own_view', false));
 	$show_registers = $can_take_registers && $term_dates->isNotEmpty();
 
 	// Dates away from the term's default location are marked with footnote symbols, doubled once they run out (*, †, … then **, ††, …).
@@ -82,7 +83,7 @@
 				</x-a>
 			</div>
 		@endunless
-			@if ($self)
+			@if ($self && ! $guest)
 				<form action="{{ route('attendance.poll.view') }}" method="POST">
 					@csrf
 					@method('PUT')
