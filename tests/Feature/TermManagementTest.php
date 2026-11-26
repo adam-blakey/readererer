@@ -241,6 +241,22 @@ test('a term can be soft deleted and restored', function () {
     expect(Term::find($term->id))->not->toBeNull();
 });
 
+test('archiving a term archives its dates and restoring it restores only those dates', function () {
+    $term = Term::factory()->create();
+    $kept = TermDate::factory()->for($term)->create();
+    $archivedEarlier = TermDate::factory()->for($term)->create();
+    $archivedEarlier->delete();
+    $user = make_user(UserRole::Admin);
+
+    $this->travel(1)->minutes();
+    $this->actingAs($user)->delete(route('terms.destroy', $term))->assertRedirect();
+    expect(TermDate::find($kept->id))->toBeNull();
+
+    $this->actingAs($user)->patch(route('terms.restore', $term->id))->assertRedirect();
+    expect(TermDate::find($kept->id))->not->toBeNull()
+        ->and(TermDate::find($archivedEarlier->id))->toBeNull();
+});
+
 test('the terms index shows the friendly column labels', function () {
     Term::factory()->create();
 
@@ -463,4 +479,19 @@ test('the new term page is headed as a new term', function () {
         ->assertOk()
         ->assertSee('<h1 class="my-0 font-bold">New term</h1>', false)
         ->assertDontSee('Edit term:');
+});
+
+test('the migration archives live dates of archived terms so restoring the term brings them back', function () {
+    $term = Term::factory()->create();
+    $hanging = TermDate::factory()->for($term)->create();
+    $live = TermDate::factory()->create();
+    Term::withoutEvents(fn () => $term->delete());
+
+    (require database_path('migrations/2026_11_26_000000_archive_dates_of_archived_terms.php'))->up();
+
+    expect(TermDate::find($hanging->id))->toBeNull()
+        ->and(TermDate::find($live->id))->not->toBeNull();
+
+    $term->fresh()->restore();
+    expect(TermDate::find($hanging->id))->not->toBeNull();
 });
