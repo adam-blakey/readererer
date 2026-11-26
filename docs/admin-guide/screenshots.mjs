@@ -57,10 +57,6 @@ await go('/users/3');
 await mark([['a[href$="/edit"]', '1', 'bottom'], ['form[action*="password-reset-link"] button', '2', 'bottom'], ['a.btn[href$="/password"]', '3', 'bottom'], ['[data-bs-target="#modal-erase-user"]', '4', 'bottom']]);
 await shot('user', { y: 130, height: 340 });
 
-// Feature flags
-await go('/feature-flags');
-await shot('feature-flag', await section('Claim accounts'));
-
 // Imports and monitoring
 await go('/settings/import');
 await shot('import', { y: 130, height: 420 });

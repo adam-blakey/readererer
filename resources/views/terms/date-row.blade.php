@@ -7,37 +7,27 @@
     $selectedDressCode = $date['dress_code_id'] ?? null;
 @endphp
 
-<div class="card card-sm mb-3 term-date-row" data-index="{{ $i }}" @if ($compact) data-new="{{ empty($date['id']) ? '1' : '' }}" @endif>
+<div class="card card-sm mb-3 term-date-row" data-index="{{ $i }}" data-new="{{ empty($date['id']) ? '1' : '' }}">
     @if (!empty($date['id']))
         <input type="hidden" name="term_dates[{{ $i }}][id]" value="{{ $date['id'] }}">
     @endif
-    @if ($compact)
-        @php($open = empty($date['id']) || $errors->has('term_dates.'.$i.'.*'))
-        <div class="card-header flex-wrap gap-2 py-2 border-bottom-0">
-            <button class="btn btn-ghost-secondary px-2 term-date-toggle" type="button" aria-expanded="{{ $open ? 'true' : 'false' }}">
-                <x-icon name="chevron-down" />
-                <span class="text-body fw-bold term-date-title">{{ $orig?->schedule_label ?? __('New date') }}</span>
-            </button>
-            <span class="badge bg-green-lt d-none term-date-new">{{ __('New') }}</span>
-            <span class="badge bg-azure-lt d-none term-date-changed">{{ __('Changed') }}</span>
-            <span class="text-danger d-none term-date-removed">{{ __('Removed when you save') }}</span>
-            <span class="text-secondary small term-date-summary"></span>
-            <div class="card-actions btn-list my-0">
-                <button class="btn btn-sm duplicate-term-date" type="button"><x-icon name="copy" /> {{ __('Duplicate') }}</button>
-                <button class="btn btn-sm btn-outline-danger remove-term-date" type="button"><x-icon name="trash" /> {{ __('Remove') }}</button>
-                <button class="btn btn-sm d-none restore-term-date" type="button"><x-icon name="arrow-back-up" /> {{ __('Undo') }}</button>
-            </div>
+    @php($open = empty($date['id']) || $errors->has('term_dates.'.$i.'.*'))
+    <div class="card-header flex-wrap gap-2 py-2 border-bottom-0">
+        <button class="btn btn-ghost-secondary px-2 term-date-toggle" type="button" aria-expanded="{{ $open ? 'true' : 'false' }}">
+            <x-icon name="chevron-down" />
+            <span class="text-body fw-bold term-date-title">{{ $orig?->schedule_label ?? __('New date') }}</span>
+        </button>
+        <span class="badge bg-green-lt d-none term-date-new">{{ __('New') }}</span>
+        <span class="badge bg-azure-lt d-none term-date-changed">{{ __('Changed') }}</span>
+        <span class="text-danger d-none term-date-removed">{{ __('Removed when you save') }}</span>
+        <span class="text-secondary small term-date-summary"></span>
+        <div class="card-actions btn-list my-0">
+            <button class="btn btn-sm duplicate-term-date" type="button"><x-icon name="copy" /> {{ __('Duplicate') }}</button>
+            <button class="btn btn-sm btn-outline-danger remove-term-date" type="button"><x-icon name="trash" /> {{ __('Remove') }}</button>
+            <button class="btn btn-sm d-none restore-term-date" type="button"><x-icon name="arrow-back-up" /> {{ __('Undo') }}</button>
         </div>
-    @else
-        <div class="card-header">
-            <h4 class="card-title">{{ $orig?->schedule_label ?? __('New date') }}</h4>
-            <div class="card-actions btn-list">
-                <button class="btn btn-sm duplicate-term-date" type="button"><x-icon name="copy" /> {{ __('Duplicate') }}</button>
-                <button class="btn btn-sm btn-outline-danger remove-term-date" type="button"><x-icon name="trash" /> {{ __('Remove') }}</button>
-            </div>
-        </div>
-    @endif
-    <div @class(['card-body', 'collapse term-date-body border-top' => $compact, 'show' => $compact && $open])>
+    </div>
+    <div @class(['card-body collapse term-date-body border-top', 'show' => $open])>
         <div class="row g-3 align-items-end">
             <div class="col-md-5">
                 <label class="form-label">{{ __('Start') }}</label>
@@ -80,7 +70,7 @@
                         <span class="form-check-label">{{ __('Concert') }}</span>
                     </label>
                     <small class="form-hint">{{ __('Leave unticked for a rehearsal') }}</small>
-                @elseif ($compact)
+                @else
                     <div class="form-label">{{ __('Concert ensembles') }}</div>
                     <div class="form-selectgroup">
                         @foreach ($ensembles as $ens)
@@ -91,14 +81,6 @@
                         @endforeach
                     </div>
                     <small class="form-hint">{{ __('Tick none for a rehearsal') }}</small>
-                @else
-                    <label class="form-label">{{ __('Concert ensembles') }}</label>
-                    <select class="form-select" name="term_dates[{{ $i }}][ensemble_ids][]" multiple size="3" data-initial="{{ $orig?->concert_ensembles->pluck('id')->join(',') }}">
-                        @foreach ($ensembles as $ens)
-                            <option value="{{ $ens->id }}" @selected($selectedEnsembles->contains($ens->id))>{{ $ens->name }}</option>
-                        @endforeach
-                    </select>
-                    <small class="form-hint">{{ __('Select none for a rehearsal') }}</small>
                 @endif
             </div>
             @if (config('app.readererer_setup_groups'))
@@ -124,26 +106,24 @@
                 </div>
             @endif
         </div>
-        @feature(\App\Features\ConcertDetails::class)
-            <div class="row g-3 mt-0 align-items-start">
-                <div class="col-md-6 col-xl-3">
-                    <label class="form-label">{{ __('Dress code') }}</label>
-                    <select class="form-select @error('term_dates.'.$i.'.dress_code_id') is-invalid @enderror" name="term_dates[{{ $i }}][dress_code_id]" data-initial="{{ $orig?->dress_code_id ?? '' }}">
-                        <option value="" @selected(empty($selectedDressCode))>{{ __('No dress code') }}</option>
-                        @foreach ($dress_codes as $dress_code)
-                            <option value="{{ $dress_code->id }}" @selected((int) $selectedDressCode === $dress_code->id)>{{ $dress_code->name }}</option>
-                        @endforeach
-                    </select>
-                </div>
-                <div class="col-md-6 col-xl-5">
-                    <label class="form-label">{{ __('Description') }}</label>
-                    <textarea class="form-control @error('term_dates.'.$i.'.description') is-invalid @enderror" name="term_dates[{{ $i }}][description]" rows="3" data-initial="{{ $orig?->description ?? '' }}">{{ $date['description'] ?? '' }}</textarea>
-                </div>
-                <div class="col-md-12 col-xl-4">
-                    <label class="form-label">{{ __('Concert order') }}</label>
-                    <textarea class="form-control @error('term_dates.'.$i.'.concert_order') is-invalid @enderror" name="term_dates[{{ $i }}][concert_order]" rows="3" data-initial="{{ $orig?->concert_order ?? '' }}">{{ $date['concert_order'] ?? '' }}</textarea>
-                </div>
+        <div class="row g-3 mt-0 align-items-start">
+            <div class="col-md-6 col-xl-3">
+                <label class="form-label">{{ __('Dress code') }}</label>
+                <select class="form-select @error('term_dates.'.$i.'.dress_code_id') is-invalid @enderror" name="term_dates[{{ $i }}][dress_code_id]" data-initial="{{ $orig?->dress_code_id ?? '' }}">
+                    <option value="" @selected(empty($selectedDressCode))>{{ __('No dress code') }}</option>
+                    @foreach ($dress_codes as $dress_code)
+                        <option value="{{ $dress_code->id }}" @selected((int) $selectedDressCode === $dress_code->id)>{{ $dress_code->name }}</option>
+                    @endforeach
+                </select>
             </div>
-        @endfeature
+            <div class="col-md-6 col-xl-5">
+                <label class="form-label">{{ __('Description') }}</label>
+                <textarea class="form-control @error('term_dates.'.$i.'.description') is-invalid @enderror" name="term_dates[{{ $i }}][description]" rows="3" data-initial="{{ $orig?->description ?? '' }}">{{ $date['description'] ?? '' }}</textarea>
+            </div>
+            <div class="col-md-12 col-xl-4">
+                <label class="form-label">{{ __('Concert order') }}</label>
+                <textarea class="form-control @error('term_dates.'.$i.'.concert_order') is-invalid @enderror" name="term_dates[{{ $i }}][concert_order]" rows="3" data-initial="{{ $orig?->concert_order ?? '' }}">{{ $date['concert_order'] ?? '' }}</textarea>
+            </div>
+        </div>
     </div>
 </div>

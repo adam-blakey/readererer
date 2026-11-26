@@ -4,11 +4,10 @@
 	$can_add_location = Gate::allows('create', App\Models\Location::class);
 	$single_ensemble = single_ensemble();
 	$default_location_name = $locations->firstWhere('id', (int) old('location_id', $term->location_id))?->name ?? __('TBC');
-	$compact = Feature::active(App\Features\CompactTermForm::class);
 @endphp
 
 <x-layout>
-    <div @class(['container', 'sticky-top bg-body py-2' => $compact])>
+    <div class="container sticky-top bg-body py-2">
         <div class="row g-2 align-items-center">
             <div class="col">
                 <h1 class="my-0 font-bold">{{ $term->exists ? __('Edit term: :name', ['name' => $term->name]) : __('New term') }}</h1>
@@ -34,34 +33,28 @@
 						<div class="card-body">
 							<x-forms.error-summary :fields="['name', 'slug', 'location_id', 'hidden', 'term_dates.*.start_datetime', 'term_dates.*.end_datetime', 'term_dates.*.time_tbc', 'term_dates.*.location_id', 'term_dates.*.description', 'term_dates.*.concert_order', 'term_dates.*.dress_code_id']" />
 
-							<form action="{{ $form_route }}" id="term-edit-form" method="POST" data-dirty-check @if ($compact) data-compact @endif data-default-label="{{ __('Default: :location') }}" data-tbc-label="{{ __('TBC') }}">
+							<form action="{{ $form_route }}" id="term-edit-form" method="POST" data-dirty-check data-default-label="{{ __('Default: :location') }}" data-tbc-label="{{ __('TBC') }}">
 								@csrf
                                 @method($form_method)
 
 								<div class="row g-5">
 									<div class="col-xl-12">
-										<div @class(['row' => $compact])>
-										@unless ($compact)
-											<div class="mb-3">
-												<label class="form-label">{{ __('ID') }}</label>
-												<input class="form-control" disabled id="id" name="id" type="text" value="{{ $term->id }}">
-											</div>
-										@endunless
-										<div @class(['mb-3', 'col-md-6' => $compact])>
+										<div class="row">
+										<div class="mb-3 col-md-6">
 											<label class="form-label" for="name">{{ __('Name') }}</label>
    								            <input class="form-control" id="name" name="name" placeholder="{{ __('Term name') }}" type="text" value="{{ old('name', $term->name) }}" data-initial="{{ $term->name }}">
 											@error('name')
 												<x-forms.input-error :messages="$message" />
 											@enderror
 										</div>
-										<div @class(['mb-3', 'col-md-6' => $compact])>
+										<div class="mb-3 col-md-6">
 											<label class="form-label" for="slug">{{ __('Slug') }}</label>
    								            <input class="form-control" id="slug" name="slug" placeholder="term-slug" type="text" value="{{ old('slug', $term->slug) }}" data-initial="{{ $term->slug }}">
 											@error('slug')
 												<x-forms.input-error :messages="$message" />
 											@enderror
 										</div>
-										<div @class(['mb-3', 'col-md-6' => $compact])>
+										<div class="mb-3 col-md-6">
 											<label class="form-label" for="location_id">{{ __('Default location') }}</label>
 											<select class="form-select" id="location_id" name="location_id" data-initial="{{ $term->location_id ?? '' }}" data-location-select>
 												<option value="">{{ __('TBC') }}</option>
@@ -77,7 +70,7 @@
 												<x-forms.input-error :messages="$message" />
 											@enderror
 										</div>
-										<div @class(['mb-3', 'col-md-6 align-self-center' => $compact])>
+										<div class="mb-3 col-md-6 align-self-center">
 											<input name="hidden" type="hidden" value="0">
 											<label class="form-check form-switch">
 												<input class="form-check-input" name="hidden" type="checkbox" value="1" @checked(old('hidden', $term->hidden))>
@@ -91,54 +84,50 @@
 										</div>
                                         <hr />
 										<div class="mb-3">
-											@if ($compact)
-												<div class="d-flex flex-wrap align-items-center gap-2 mb-3">
-													<h3 class="card-title mb-0 me-auto">{{ __('Term dates') }}</h3>
-													<div class="btn-list">
-														<button class="btn" type="button" aria-controls="repeat-dates-panel" aria-expanded="false" data-bs-target="#repeat-dates-panel" data-bs-toggle="collapse"><x-icon name="repeat" /> {{ __('Add repeating dates') }}</button>
-														<button class="btn btn-ghost-secondary" id="expand-term-dates" type="button">{{ __('Expand all') }}</button>
-														<button class="btn btn-ghost-secondary" id="collapse-term-dates" type="button">{{ __('Collapse all') }}</button>
-													</div>
+											<div class="d-flex flex-wrap align-items-center gap-2 mb-3">
+												<h3 class="card-title mb-0 me-auto">{{ __('Term dates') }}</h3>
+												<div class="btn-list">
+													<button class="btn" type="button" aria-controls="repeat-dates-panel" aria-expanded="false" data-bs-target="#repeat-dates-panel" data-bs-toggle="collapse"><x-icon name="repeat" /> {{ __('Add repeating dates') }}</button>
+													<button class="btn btn-ghost-secondary" id="expand-term-dates" type="button">{{ __('Expand all') }}</button>
+													<button class="btn btn-ghost-secondary" id="collapse-term-dates" type="button">{{ __('Collapse all') }}</button>
 												</div>
-												<div class="card card-sm mb-3 collapse" id="repeat-dates-panel">
-													<div class="card-body">
-														<p class="text-secondary">{{ __('Adds a date on the same day of the week from the first date to the last. Change any of them before you save.') }}</p>
-														<div class="row g-3 align-items-end">
-															<div class="col-sm-6 col-lg-3">
-																<label class="form-label required" for="repeat-first">{{ __('First date') }}</label>
-																<input class="form-control" form="term-repeat-dates" id="repeat-first" type="date" required>
-															</div>
-															<div class="col-sm-6 col-lg-3">
-																<label class="form-label required" for="repeat-last">{{ __('Last date') }}</label>
-																<input class="form-control" form="term-repeat-dates" id="repeat-last" type="date" required>
-															</div>
-															<div class="col-sm-4 col-lg-2">
-																<label class="form-label" for="repeat-weeks">{{ __('Repeat') }}</label>
-																<select class="form-select" form="term-repeat-dates" id="repeat-weeks">
-																	@foreach ([1, 2, 3, 4] as $weeks)
-																		<option value="{{ $weeks }}">{{ trans_choice('Every week|Every :count weeks', $weeks) }}</option>
-																	@endforeach
-																</select>
-															</div>
-															<div class="col-6 col-sm-4 col-lg-2">
-																<label class="form-label required" for="repeat-start">{{ __('Start time') }}</label>
-																<x-forms.time-input form="term-repeat-dates" id="repeat-start" name="start_time" required />
-															</div>
-															<div class="col-6 col-sm-4 col-lg-2">
-																<label class="form-label required" for="repeat-end">{{ __('End time') }}</label>
-																<x-forms.time-input form="term-repeat-dates" id="repeat-end" name="end_time" required />
-															</div>
+											</div>
+											<div class="card card-sm mb-3 collapse" id="repeat-dates-panel">
+												<div class="card-body">
+													<p class="text-secondary">{{ __('Adds a date on the same day of the week from the first date to the last. Change any of them before you save.') }}</p>
+													<div class="row g-3 align-items-end">
+														<div class="col-sm-6 col-lg-3">
+															<label class="form-label required" for="repeat-first">{{ __('First date') }}</label>
+															<input class="form-control" form="term-repeat-dates" id="repeat-first" type="date" required>
 														</div>
-														<div class="invalid-feedback d-block" id="repeat-dates-error"></div>
-														<div class="btn-list mt-3">
-															<button class="btn btn-primary" form="term-repeat-dates" type="submit" data-dirty-ignore><x-icon name="plus" /> {{ __('Add dates') }}</button>
-															<button class="btn" type="button" data-bs-target="#repeat-dates-panel" data-bs-toggle="collapse">{{ __('Cancel') }}</button>
+														<div class="col-sm-6 col-lg-3">
+															<label class="form-label required" for="repeat-last">{{ __('Last date') }}</label>
+															<input class="form-control" form="term-repeat-dates" id="repeat-last" type="date" required>
+														</div>
+														<div class="col-sm-4 col-lg-2">
+															<label class="form-label" for="repeat-weeks">{{ __('Repeat') }}</label>
+															<select class="form-select" form="term-repeat-dates" id="repeat-weeks">
+																@foreach ([1, 2, 3, 4] as $weeks)
+																	<option value="{{ $weeks }}">{{ trans_choice('Every week|Every :count weeks', $weeks) }}</option>
+																@endforeach
+															</select>
+														</div>
+														<div class="col-6 col-sm-4 col-lg-2">
+															<label class="form-label required" for="repeat-start">{{ __('Start time') }}</label>
+															<x-forms.time-input form="term-repeat-dates" id="repeat-start" name="start_time" required />
+														</div>
+														<div class="col-6 col-sm-4 col-lg-2">
+															<label class="form-label required" for="repeat-end">{{ __('End time') }}</label>
+															<x-forms.time-input form="term-repeat-dates" id="repeat-end" name="end_time" required />
 														</div>
 													</div>
+													<div class="invalid-feedback d-block" id="repeat-dates-error"></div>
+													<div class="btn-list mt-3">
+														<button class="btn btn-primary" form="term-repeat-dates" type="submit" data-dirty-ignore><x-icon name="plus" /> {{ __('Add dates') }}</button>
+														<button class="btn" type="button" data-bs-target="#repeat-dates-panel" data-bs-toggle="collapse">{{ __('Cancel') }}</button>
+													</div>
 												</div>
-											@else
-												<h3 class="card-title">{{ __('Term dates') }}</h3>
-											@endif
+											</div>
 
 											@php
 												$prefillDates = collect(old('term_dates'));
@@ -170,9 +159,7 @@
 											</div>
 											<div class="mt-2 d-flex flex-wrap gap-2">
 												<button class="btn btn-outline-primary" id="add-term-date" type="button"><x-icon name="plus" /> {{ __('Add date') }}</button>
-												@if ($compact)
-													<button class="btn btn-primary ms-auto" type="submit">{{ __('Save') }}</button>
-												@endif
+												<button class="btn btn-primary ms-auto" type="submit">{{ __('Save') }}</button>
 											</div>
 										</div>
 									</div>
@@ -185,9 +172,7 @@
 		</div>
 	</div>
 
-	@if ($compact)
-		<form id="term-repeat-dates"></form>
-	@endif
+	<form id="term-repeat-dates"></form>
 
 	@if ($can_add_location)
 		<x-modals.add-location />
@@ -242,11 +227,10 @@
 				return row;
 			}
 
-			const compact = form.hasAttribute('data-compact');
 			const labels = JSON.parse(list.dataset.labels);
 
 			function bindRowButtons(row) {
-				row.querySelector('.remove-term-date')?.addEventListener('click', () => compact ? setRemoved(row, true) : row.remove());
+				row.querySelector('.remove-term-date')?.addEventListener('click', () => setRemoved(row, true));
 				row.querySelector('.restore-term-date')?.addEventListener('click', () => setRemoved(row, false));
 				row.querySelector('.duplicate-term-date')?.addEventListener('click', () => duplicateRow(row));
 				row.querySelector('.term-date-toggle')?.addEventListener('click', () => setOpen(row, !row.querySelector('.term-date-body').classList.contains('show')));
@@ -301,7 +285,6 @@
 			}
 
 			function summarise(row) {
-				if (!compact) return;
 				const ensembles = Array.from(row.querySelectorAll('[name$="[ensemble_ids][]"]:checked'), input => input.closest('label').textContent.trim());
 				const isSingle = row.querySelector('.form-selectgroup') === null;
 				const vanDriver = field(row, '[van_driver_id]');
@@ -387,44 +370,42 @@
 				summarise(row);
 			});
 
-			if (compact) {
-				form.addEventListener('input', event => event.target.closest?.('.term-date-row') && summarise(event.target.closest('.term-date-row')));
-				form.addEventListener('change', event => event.target.closest?.('.term-date-row') && summarise(event.target.closest('.term-date-row')));
-				document.getElementById('expand-term-dates').addEventListener('click', () => list.querySelectorAll('.term-date-row').forEach(row => setOpen(row, true)));
-				document.getElementById('collapse-term-dates').addEventListener('click', () => list.querySelectorAll('.term-date-row').forEach(row => setOpen(row, false)));
+			form.addEventListener('input', event => event.target.closest?.('.term-date-row') && summarise(event.target.closest('.term-date-row')));
+			form.addEventListener('change', event => event.target.closest?.('.term-date-row') && summarise(event.target.closest('.term-date-row')));
+			document.getElementById('expand-term-dates').addEventListener('click', () => list.querySelectorAll('.term-date-row').forEach(row => setOpen(row, true)));
+			document.getElementById('collapse-term-dates').addEventListener('click', () => list.querySelectorAll('.term-date-row').forEach(row => setOpen(row, false)));
 
-				const repeatError = document.getElementById('repeat-dates-error');
-				document.getElementById('term-repeat-dates').addEventListener('submit', event => {
-					event.preventDefault();
-					const first = new Date(`${document.getElementById('repeat-first').value}T00:00:00Z`);
-					const last = new Date(`${document.getElementById('repeat-last').value}T00:00:00Z`);
-					const stepDays = 7 * parseInt(document.getElementById('repeat-weeks').value);
-					const dates = [];
-					for (let day = new Date(first); day <= last && dates.length <= 100; day.setUTCDate(day.getUTCDate() + stepDays)) {
-						dates.push(day.toISOString().slice(0, 10));
-					}
-					repeatError.textContent = last < first ? labels.last_before_first : (dates.length > 100 ? labels.too_many : '');
-					if (repeatError.textContent) return;
+			const repeatError = document.getElementById('repeat-dates-error');
+			document.getElementById('term-repeat-dates').addEventListener('submit', event => {
+				event.preventDefault();
+				const first = new Date(`${document.getElementById('repeat-first').value}T00:00:00Z`);
+				const last = new Date(`${document.getElementById('repeat-last').value}T00:00:00Z`);
+				const stepDays = 7 * parseInt(document.getElementById('repeat-weeks').value);
+				const dates = [];
+				for (let day = new Date(first); day <= last && dates.length <= 100; day.setUTCDate(day.getUTCDate() + stepDays)) {
+					dates.push(day.toISOString().slice(0, 10));
+				}
+				repeatError.textContent = last < first ? labels.last_before_first : (dates.length > 100 ? labels.too_many : '');
+				if (repeatError.textContent) return;
 
-					const added = dates.map(date => {
-						const row = buildRow(nextIndex());
-						const next = Array.from(list.children).find(other => (field(other, '[start_datetime][date]').value || '9999') > date);
-						list.insertBefore(row, next ?? null);
-						registerRow(row);
-						field(row, '[start_datetime][date]').value = date;
-						field(row, '[end_datetime][date]').value = date;
-						field(row, '[start_datetime][time]').value = document.getElementById('repeat-start').value;
-						field(row, '[end_datetime][time]').value = document.getElementById('repeat-end').value;
-						setOpen(row, false);
-						summarise(row);
-						return row;
-					});
-					event.target.reset();
-					document.querySelector('#repeat-dates-panel [data-bs-toggle="collapse"]').click();
-					added[0]?.scrollIntoView({ behavior: 'smooth', block: 'center' });
-					list.dispatchEvent(new Event('change', { bubbles: true }));
+				const added = dates.map(date => {
+					const row = buildRow(nextIndex());
+					const next = Array.from(list.children).find(other => (field(other, '[start_datetime][date]').value || '9999') > date);
+					list.insertBefore(row, next ?? null);
+					registerRow(row);
+					field(row, '[start_datetime][date]').value = date;
+					field(row, '[end_datetime][date]').value = date;
+					field(row, '[start_datetime][time]').value = document.getElementById('repeat-start').value;
+					field(row, '[end_datetime][time]').value = document.getElementById('repeat-end').value;
+					setOpen(row, false);
+					summarise(row);
+					return row;
 				});
-			}
+				event.target.reset();
+				document.querySelector('#repeat-dates-panel [data-bs-toggle="collapse"]').click();
+				added[0]?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+				list.dispatchEvent(new Event('change', { bubbles: true }));
+			});
 		});
 	</script>
 </x-layout>

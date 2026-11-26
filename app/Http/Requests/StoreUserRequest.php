@@ -3,11 +3,9 @@
 namespace App\Http\Requests;
 
 use App\Enums\UserRole;
-use App\Features\AddUsersToEnsembles;
 use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
-use Laravel\Pennant\Feature;
 
 class StoreUserRequest extends FormRequest
 {
@@ -19,7 +17,7 @@ class StoreUserRequest extends FormRequest
     /** @return array<string, ValidationRule|array<mixed>|string> */
     public function rules(): array
     {
-        $choose_ensemble = single_ensemble() === null && Feature::active(AddUsersToEnsembles::class);
+        $choose_ensemble = single_ensemble() === null;
 
         return [
             ...($choose_ensemble ? ['ensemble' => ['nullable', 'exists:ensembles,id']] : []),

@@ -19,7 +19,7 @@ test('in single-ensemble mode the term form asks only whether a date is a concer
 
     $response = $this->actingAs(make_user(UserRole::Admin))->get(route('terms.edit', $termDate->term));
 
-    $checkbox = 'name="term_dates[0][ensemble_ids][]" type="checkbox" value="'.$ensemble->id.'" data-initial="1"';
+    $checkbox = 'class="form-check-input" name="term_dates[0][ensemble_ids][]" type="checkbox" value="'.$ensemble->id.'" data-initial="1"';
     $single
         ? $response->assertSee($checkbox, false)->assertDontSee('Concert ensembles')
         : $response->assertDontSee($checkbox, false)->assertSee('Concert ensembles');

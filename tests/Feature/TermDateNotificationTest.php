@@ -179,7 +179,7 @@ test('the upcoming rehearsals page lists sent emails in the history', function (
     $log->recipients()->create(['name' => 'Jane', 'email' => 'jane@example.com', 'status' => EmailStatus::Sent]);
 
     $this->actingAs(make_user(UserRole::Admin))
-        ->get(route('attendance.register.index'))
+        ->get(route('attendance.register.index', ['past' => 1]))
         ->assertOk()
         ->assertSee('Attendance list — a rehearsal')
         ->assertSee('Resend attendance list (1 previous)')
@@ -197,7 +197,7 @@ test('the registers page says send until that type of email has reached someone,
         fn (EmailLog $log) => collect($statuses)->each(fn ($status) => $log->recipients()->create(['name' => 'R', 'email' => 'r@example.com', 'status' => $status])),
     );
 
-    $this->actingAs($admin)->get(route('attendance.register.index'))
+    $this->actingAs($admin)->get(route('attendance.register.index', ['past' => 1]))
         ->assertSee('Send attendance list')
         ->assertSee('Send setup reminder')
         ->assertSee('Send van driver reminder');
@@ -207,7 +207,7 @@ test('the registers page says send until that type of email has reached someone,
     $log(VanDriverReminderMail::class, EmailStatus::Sent, EmailStatus::Failed);
     $log(VanDriverReminderMail::class, EmailStatus::Sent);
 
-    $this->get(route('attendance.register.index'))
+    $this->get(route('attendance.register.index', ['past' => 1]))
         ->assertSee('Send attendance list')
         ->assertSee('Send setup reminder')
         ->assertDontSee('Send van driver reminder')

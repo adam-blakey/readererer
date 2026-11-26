@@ -2,7 +2,6 @@
 
 use App\Enums\EmailStatus;
 use App\Enums\UserRole;
-use App\Features\CompactTermForm;
 use App\Mail\AttendanceListMail;
 use App\Models\EmailLog;
 use App\Models\Ensemble;
@@ -10,7 +9,6 @@ use App\Models\Location;
 use App\Models\SetupGroup;
 use App\Models\Term;
 use App\Models\TermDate;
-use Laravel\Pennant\Feature;
 
 test('a term can be created with term dates', function () {
     $ensemble = Ensemble::factory()->create();
@@ -336,7 +334,7 @@ test('the upcoming rehearsals page collapses all but the latest email into an ac
     ]);
 
     $this->actingAs(make_user(UserRole::Admin))
-        ->get(route('attendance.register.index'))
+        ->get(route('attendance.register.index', ['past' => 1]))
         ->assertOk()
         ->assertSee('Newer attendance list')
         ->assertSee('Older attendance list')
@@ -447,9 +445,7 @@ test('the term form labels each date\'s empty location with the term\'s default 
         ->assertSee('id="modal-add-location"', false);
 });
 
-test('the compact term form collapses saved dates, offers repeating dates and ticks concert ensembles', function () {
-    config(['app.readererer_feature_flags' => [CompactTermForm::class => ['enabled' => true]]]);
-    Feature::flushCache();
+test('the term form collapses saved dates, offers repeating dates and ticks concert ensembles', function () {
     $ensemble = Ensemble::factory()->create(['name' => 'Wind Band']);
     $termDate = make_term_date(null, $ensemble);
 
@@ -460,17 +456,6 @@ test('the compact term form collapses saved dates, offers repeating dates and ti
         ->assertSee('class="card-body collapse term-date-body border-top"', false)
         ->assertSee('class="form-selectgroup-input" name="term_dates[0][ensemble_ids][]" type="checkbox" value="'.$ensemble->id.'" data-initial="1" checked', false)
         ->assertDontSee('id="id" name="id"', false);
-});
-
-test('the term form keeps its full layout while the compact form is off', function () {
-    $termDate = make_term_date(null, Ensemble::factory()->create());
-
-    $this->actingAs(make_user(UserRole::Admin))
-        ->get(route('terms.edit', $termDate->term))
-        ->assertOk()
-        ->assertDontSee('Add repeating dates')
-        ->assertSee('multiple size="3"', false)
-        ->assertSee('id="id" name="id"', false);
 });
 
 test('the new term page is headed as a new term', function () {

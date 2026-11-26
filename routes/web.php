@@ -1,9 +1,5 @@
 <?php
 
-use App\Features\ClaimAccounts;
-use App\Features\ConcertDetails;
-use App\Features\EnsembleLoginCredentials;
-use App\Features\MembermojoImport;
 use App\Http\Controllers\AttendanceController;
 use App\Http\Controllers\AttendanceRegisterController;
 use App\Http\Controllers\ClaimAccountController;
@@ -37,7 +33,6 @@ use App\Models\Ensemble;
 use App\Models\RegisterEntry;
 use App\Models\Term;
 use Illuminate\Support\Facades\Route;
-use Laravel\Pennant\Middleware\EnsureFeaturesAreActive;
 
 Route::get('/health', HealthCheckController::class)
     ->name('health');
@@ -56,15 +51,13 @@ Route::get('/dashboard', [DashboardController::class, 'index'])
     ->name('dashboard')
     ->can('view.dashboard');
 
-Route::middleware(EnsureFeaturesAreActive::using(ClaimAccounts::class))->group(function () {
-    Route::get('/claim-account', [ClaimAccountController::class, 'index'])
-        ->name('claim-account.index')
-        ->can('claim.accounts');
-    Route::post('/claim-account/{user}', [ClaimAccountController::class, 'store'])
-        ->name('claim-account.store')
-        ->middleware('throttle:10,1,claim-account.store')
-        ->can('claim', 'user');
-});
+Route::get('/claim-account', [ClaimAccountController::class, 'index'])
+    ->name('claim-account.index')
+    ->can('claim.accounts');
+Route::post('/claim-account/{user}', [ClaimAccountController::class, 'store'])
+    ->name('claim-account.store')
+    ->middleware('throttle:10,1,claim-account.store')
+    ->can('claim', 'user');
 
 Route::get('/attendance', [AttendanceController::class, 'index'])
     ->name('attendance.index')
@@ -124,7 +117,7 @@ Route::middleware('auth')->group(function () {
     Route::get('/settings/import', [PollererImportController::class, 'create'])->name('settings.import')->can('edit.settings')->middleware(ConfirmPasswordForSensitiveChanges::class);
     Route::post('/settings/import/preview', [PollererImportController::class, 'preview'])->name('settings.import.preview')->can('edit.settings')->middleware(ConfirmPasswordForSensitiveChanges::class);
     Route::post('/settings/import', [PollererImportController::class, 'store'])->name('settings.import.store')->can('edit.settings')->middleware(ConfirmPasswordForSensitiveChanges::class);
-    Route::middleware([EnsureFeaturesAreActive::using(MembermojoImport::class), ConfirmPasswordForSensitiveChanges::class])->group(function () {
+    Route::middleware(ConfirmPasswordForSensitiveChanges::class)->group(function () {
         Route::get('/settings/membermojo', [MembermojoController::class, 'create'])->name('settings.membermojo')->can('edit.settings');
         Route::post('/settings/membermojo/preview', [MembermojoController::class, 'preview'])->name('settings.membermojo.preview')->can('edit.settings');
         Route::post('/settings/membermojo', [MembermojoController::class, 'store'])->name('settings.membermojo.store')->can('edit.settings');
@@ -146,14 +139,12 @@ Route::middleware('auth')->group(function () {
     Route::delete('/ensembles/{ensemble}/members/{user}', [EnsembleController::class, 'removeMember'])->name('ensembles.members.destroy')->can('update', 'ensemble');
     Route::get('/ensembles/{ensemble}/seating-plan', [SeatingPlanController::class, 'show'])->name('ensembles.seating-plan.show')->can('update', 'ensemble');
     Route::put('/ensembles/{ensemble}/seating-plan', [SeatingPlanController::class, 'update'])->name('ensembles.seating-plan.update')->can('update', 'ensemble');
-    Route::put('/ensembles/{ensemble}/login', [EnsembleController::class, 'updateLogin'])->name('ensembles.login.update')->can('update', 'ensemble')->middleware([EnsureFeaturesAreActive::using(EnsembleLoginCredentials::class), ConfirmPasswordForSensitiveChanges::class]);
+    Route::put('/ensembles/{ensemble}/login', [EnsembleController::class, 'updateLogin'])->name('ensembles.login.update')->can('update', 'ensemble')->middleware(ConfirmPasswordForSensitiveChanges::class);
 
-    Route::middleware(EnsureFeaturesAreActive::using(ConcertDetails::class))->group(function () {
-        Route::patch('/dress-codes/{dressCode}/restore', [DressCodeController::class, 'restore'])->name('dresscodes.restore')->withTrashed()->can('restore', 'dressCode');
-        Route::resource('dress-codes', DressCodeController::class)
-            ->names('dresscodes')
-            ->parameter('dress-codes', 'dressCode');
-    });
+    Route::patch('/dress-codes/{dressCode}/restore', [DressCodeController::class, 'restore'])->name('dresscodes.restore')->withTrashed()->can('restore', 'dressCode');
+    Route::resource('dress-codes', DressCodeController::class)
+        ->names('dresscodes')
+        ->parameter('dress-codes', 'dressCode');
 
     Route::patch('/instrument-families/{instrumentFamily}/restore', [InstrumentFamilyController::class, 'restore'])->name('instrumentfamilys.restore')->withTrashed()->can('restore', 'instrumentFamily');
     Route::resource('instrument-families', InstrumentFamilyController::class)

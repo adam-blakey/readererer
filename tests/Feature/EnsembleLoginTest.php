@@ -1,18 +1,10 @@
 <?php
 
 use App\Enums\UserRole;
-use App\Features\EnsembleLoginCredentials;
 use App\Models\Ensemble;
 use App\Models\User;
 use App\Services\PollererImporter;
 use Illuminate\Support\Facades\Hash;
-use Laravel\Pennant\Feature;
-
-function enable_ensemble_login_credentials(): void
-{
-    config(['app.readererer_feature_flags' => [EnsembleLoginCredentials::class => ['enabled' => true]]]);
-    Feature::flushCache();
-}
 
 function new_user_payload(UserRole $role): array
 {
@@ -90,7 +82,6 @@ test('a Pollererer import does not add shared logins beside the imported ones', 
 });
 
 test('an admin can set the shared login from the ensemble page', function () {
-    enable_ensemble_login_credentials();
     $ensemble = Ensemble::factory()->create();
     $login = $ensemble->createSharedLogin();
     $admin = make_user(UserRole::Admin);
@@ -119,7 +110,6 @@ test('an admin can set the shared login from the ensemble page', function () {
 });
 
 test('leaving the password empty keeps the current one', function () {
-    enable_ensemble_login_credentials();
     $ensemble = Ensemble::factory()->create();
     $login = $ensemble->createSharedLogin();
     $password = $login->password;
@@ -133,7 +123,6 @@ test('leaving the password empty keeps the current one', function () {
 });
 
 test('an ensemble without a shared login gets one when its credentials are first saved', function () {
-    enable_ensemble_login_credentials();
     $ensemble = Ensemble::factory()->create();
 
     $this->actingAs(make_user(UserRole::Admin))
@@ -148,7 +137,6 @@ test('an ensemble without a shared login gets one when its credentials are first
 });
 
 test('shared login credentials are validated', function (array $input, string $error) {
-    enable_ensemble_login_credentials();
     make_user(UserRole::Member, ['username' => 'taken']);
     $ensemble = Ensemble::factory()->create();
     $login = $ensemble->createSharedLogin();
@@ -165,7 +153,6 @@ test('shared login credentials are validated', function (array $input, string $e
 ]);
 
 test('only admins can set the shared login', function (UserRole $role) {
-    enable_ensemble_login_credentials();
     $ensemble = Ensemble::factory()->create();
     $login = $ensemble->createSharedLogin();
     $actor = make_user($role);
@@ -180,7 +167,6 @@ test('only admins can set the shared login', function (UserRole $role) {
 })->with([UserRole::Member, UserRole::Moderator]);
 
 test('setting the shared login asks for the admin\'s password', function () {
-    enable_ensemble_login_credentials();
     $ensemble = Ensemble::factory()->create();
     $login = $ensemble->createSharedLogin();
 
@@ -188,19 +174,6 @@ test('setting the shared login asks for the admin\'s password', function () {
         ->withSession(['auth.password_confirmed_at' => 0])
         ->put(route('ensembles.login.update', $ensemble), ['username' => 'band'])
         ->assertRedirect(route('password.confirm'));
-
-    expect($login->fresh()->username)->not->toBe('band');
-});
-
-test('the shared login form is hidden and refused while its flag is off', function () {
-    $ensemble = Ensemble::factory()->create();
-    $login = $ensemble->createSharedLogin();
-    $admin = make_user(UserRole::Admin);
-
-    $this->actingAs($admin)->get(route('ensembles.show', $ensemble))->assertOk()->assertDontSee(__('Save shared login'));
-    $this->actingAs($admin)
-        ->put(route('ensembles.login.update', $ensemble), ['username' => 'band'])
-        ->assertStatus(400);
 
     expect($login->fresh()->username)->not->toBe('band');
 });

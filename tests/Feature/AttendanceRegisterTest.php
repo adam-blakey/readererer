@@ -3,14 +3,12 @@
 use App\Enums\AttendanceStatus;
 use App\Enums\RegisterStatus;
 use App\Enums\UserRole;
-use App\Features\UpcomingDatesFirst;
 use App\Models\Attendance;
 use App\Models\Ensemble;
 use App\Models\RegisterEntry;
 use App\Models\SetupGroup;
 use App\Models\Term;
 use App\Models\TermDate;
-use Laravel\Pennant\Feature;
 
 test('the register index requires moderator or above', function () {
     $url = route('attendance.register.index');
@@ -375,9 +373,7 @@ test('a concert for two ensembles is on the poll and register of each and not of
         ->assertNotFound();
 });
 
-test('with upcoming dates first, the index lists dates that have not ended soonest first and past dates behind a button', function () {
-    config(['app.readererer_feature_flags' => [UpcomingDatesFirst::class => ['enabled' => true]]]);
-    Feature::flushCache();
+test('the index lists dates that have not ended soonest first and past dates behind a button', function () {
     $term = Term::factory()->create();
     $dates = collect(['-2 weeks', '-1 week', '+1 week', '+2 weeks'])->map(fn ($start) => TermDate::forceCreate([
         'term_id' => $term->id,

@@ -1,9 +1,5 @@
 @props(['term_dates', 'show_year' => false, 'ensemble' => null, 'location_symbols' => collect()])
 
-@php
-	$link_dates = Laravel\Pennant\Feature::active(App\Features\ConcertDetails::class);
-@endphp
-
 <tr>
 	<th>{{ __('Members') }}</th>
 	@foreach ($term_dates as $term_date)
@@ -19,9 +15,7 @@
 			}
 		@endphp
 		<th class="text-center poll-date align-text-top {{ $highlight ? 'bg-primary text-bg-primary' : '' }}" data-bs-toggle="tooltip" title="{{ $heading_tooltip }}">
-			@if ($link_dates)
-				<a class="d-block text-reset" href="{{ route('term-dates.show', $term_date) }}">
-			@endif
+			<a class="d-block text-reset" href="{{ route('term-dates.show', $term_date) }}">
 			{{ $term_date->start_datetime->format('M') }}<br />
 			<span class="poll-date-date">{{ $term_date->start_datetime->format('j') }}</span><br />
 			@if ($show_year)
@@ -44,9 +38,7 @@
 			@if ($symbol = $location_symbols[$term_date->inferred_location?->id] ?? null)
 				<div class="mt-1"><strong>{{ $symbol }}</strong></div>
 			@endif
-			@if ($link_dates)
-				</a>
-			@endif
+			</a>
 		</th>
 	@endforeach
 </tr>

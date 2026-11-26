@@ -1,13 +1,9 @@
 <?php
 
 use App\Enums\UserRole;
-use App\Features\CompactTermForm;
 use App\Models\Term;
-use Laravel\Pennant\Feature;
 
 test('repeating dates are added to the term form and a removed date is deleted on save', function () {
-    config(['app.readererer_feature_flags' => [CompactTermForm::class => ['enabled' => true]]]);
-    Feature::flushCache();
 
     $term = Term::factory()->create();
     make_term_date($term);

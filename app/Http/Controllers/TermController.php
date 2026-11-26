@@ -2,7 +2,6 @@
 
 namespace App\Http\Controllers;
 
-use App\Features\ConcertDetails;
 use App\Http\Requests\UpdateTermRequest;
 use App\Models\DressCode;
 use App\Models\Ensemble;
@@ -17,7 +16,6 @@ use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\Rule;
 use Illuminate\View\View;
-use Laravel\Pennant\Feature;
 
 class TermController extends Controller
 {
@@ -196,7 +194,6 @@ class TermController extends Controller
             ], fn (string $key) => match ($key) {
                 'setup_group_id' => config('app.readererer_setup_groups'),
                 'van_driver_id' => config('app.readererer_van_drivers'),
-                'description', 'concert_order', 'dress_code_id' => Feature::active(ConcertDetails::class),
                 default => true,
             }, ARRAY_FILTER_USE_KEY);
 
