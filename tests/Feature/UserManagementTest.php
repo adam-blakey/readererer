@@ -589,7 +589,9 @@ test('a new user can be added to an ensemble with a seat when the flag is on', f
 
     $this->actingAs($admin)->get(route('users.create'))->assertOk()
         ->assertSee('name="ensemble"', false)
-        ->assertSee('data-show-values="'.$ensemble->id.'"', false);
+        ->assertDontSee('name="username"', false)
+        ->assertSee('data-show-when="field-ensemble" data-show-values="'.$ensemble->id.'"', false);
+    expect(substr_count($this->get(route('users.create'))->getContent(), 'data-show-when="field-ensemble"'))->toBe(3);
 
     $this->actingAs($admin)->post(route('users.store'), [
         'first_name' => 'Ada',

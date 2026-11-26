@@ -68,8 +68,7 @@ class UserController extends Controller
         $fields = Arr::except(get_create_fields(new User), User::hiddenFields());
         $fields['first_name']['width'] = 6;
         $fields['last_name']['width'] = 6;
-        unset($fields['password']);
-        unset($fields['image']);
+        unset($fields['username'], $fields['password'], $fields['image']);
         $fields['role']['options'] = array_intersect_key($fields['role']['options'], array_flip(array_column(UserRole::assignableBy(auth()->user()), 'value')));
 
         if (! config('app.readererer_setup_groups')) {
@@ -104,6 +103,7 @@ class UserController extends Controller
                 'default_option' => null,
                 'select_multiple' => false,
                 'width' => 12,
+                'show_when' => $choose_ensemble ? ['field' => 'ensemble', 'values' => $fields['ensemble']['options']->modelKeys()] : null,
             ];
 
             $seating = $choose_ensemble ? $fields['ensemble']['options']->where('seating_plan_enabled', true)->modelKeys() : null;
