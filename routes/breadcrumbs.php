@@ -42,6 +42,15 @@ Breadcrumbs::for('password.edit', function (BreadcrumbTrail $trail) {
     $trail->push(__('Change password'), route('password.edit'));
 });
 
+Breadcrumbs::for('two-factor.edit', function (BreadcrumbTrail $trail) {
+    $trail->parent('home');
+    $trail->push(__('Two-factor authentication'), route('two-factor.edit'));
+});
+
+Breadcrumbs::for('two-factor.challenge', function (BreadcrumbTrail $trail) {
+    $trail->push(__('Two-factor authentication'), route('two-factor.challenge'));
+});
+
 Breadcrumbs::for('dashboard', function (BreadcrumbTrail $trail) {
     $trail->parent('home');
     $trail->push(__('Dashboard'), route('dashboard'));

@@ -4,6 +4,7 @@ use App\Http\Middleware\AddLogContext;
 use App\Http\Middleware\AddSecurityHeaders;
 use App\Http\Middleware\CombineDateTimeInputs;
 use App\Http\Middleware\EnsurePasswordIsChanged;
+use App\Http\Middleware\EnsureTwoFactorIsVerified;
 use App\Http\Middleware\PreventRequestForgery;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
@@ -23,7 +24,7 @@ return Application::configure(basePath: dirname(__DIR__))
     ->withMiddleware(function (Middleware $middleware) {
         $middleware->append(AddSecurityHeaders::class);
         $middleware->web(
-            append: [AddLogContext::class, EnsurePasswordIsChanged::class, CombineDateTimeInputs::class],
+            append: [AddLogContext::class, EnsureTwoFactorIsVerified::class, EnsurePasswordIsChanged::class, CombineDateTimeInputs::class],
             replace: [FrameworkPreventRequestForgery::class => PreventRequestForgery::class],
         );
         $middleware->redirectGuestsTo(fn (Request $request) => login_url($request));

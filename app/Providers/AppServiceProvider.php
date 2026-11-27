@@ -75,6 +75,10 @@ class AppServiceProvider extends ServiceProvider
         Event::listen(Login::class, function (Login $event) {
             User::withoutTimestamps(fn () => $event->user->forceFill(['last_login_at' => now()])->save());
             Log::info('User logged in', ['user_id' => $event->user->getAuthIdentifier(), 'remember' => $event->remember]);
+
+            if ($event->user->hasTwoFactor()) {
+                session()->put('two_factor.pending', true);
+            }
         });
         Event::listen(Failed::class, fn (Failed $event) => Log::warning('Login failed', ['user_id' => $event->user?->getAuthIdentifier()]));
         Event::listen(Lockout::class, fn () => Log::warning('Login locked out after too many attempts'));

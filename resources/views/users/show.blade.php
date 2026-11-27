@@ -44,6 +44,16 @@
                             <x-icon name="key" />
                             {{ __('Set password') }}
                         </x-a>
+                        @if ($user->hasTwoFactor())
+                            <form method="POST" action="{{ route('users.two-factor.destroy', $user) }}" data-confirm="{{ __('Turn off two-factor authentication for :name?', ['name' => $user->name]) }}">
+                                @csrf
+                                @method('DELETE')
+                                <button type="submit" class="btn">
+                                    <x-icon name="shield-off" />
+                                    {{ __('Turn off two-factor') }}
+                                </button>
+                            </form>
+                        @endif
                     @endcan
                     @endif
                     @can('erase', $user)

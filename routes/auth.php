@@ -1,5 +1,6 @@
 <?php
 
+use App\Features\TwoFactorAuthentication;
 use App\Http\Controllers\Auth\AuthenticatedSessionController;
 use App\Http\Controllers\Auth\ConfirmablePasswordController;
 use App\Http\Controllers\Auth\EmailVerificationNotificationController;
@@ -9,8 +10,11 @@ use App\Http\Controllers\Auth\LoginLinkController;
 use App\Http\Controllers\Auth\NewPasswordController;
 use App\Http\Controllers\Auth\PasswordController;
 use App\Http\Controllers\Auth\PasswordResetLinkController;
+use App\Http\Controllers\Auth\TwoFactorController;
 use App\Http\Controllers\Auth\VerifyEmailController;
+use App\Models\User;
 use Illuminate\Support\Facades\Route;
+use Laravel\Pennant\Middleware\EnsureFeaturesAreActive;
 
 Route::middleware('guest')->group(function () {
     Route::get('login', [AuthenticatedSessionController::class, 'create'])
@@ -77,6 +81,26 @@ Route::middleware('auth')->group(function () {
     Route::put('password', [PasswordController::class, 'update'])
         ->middleware('throttle:6,1,password.update')
         ->name('password.update');
+
+    Route::get('two-factor/challenge', [TwoFactorController::class, 'challenge'])
+        ->name('two-factor.challenge');
+
+    Route::post('two-factor/challenge', [TwoFactorController::class, 'verify'])
+        ->middleware('throttle:5,1,two-factor.verify')
+        ->name('two-factor.verify');
+
+    Route::middleware('can:useTwoFactor,'.User::class)->group(function () {
+        Route::get('two-factor', [TwoFactorController::class, 'edit'])
+            ->name('two-factor.edit');
+
+        Route::post('two-factor', [TwoFactorController::class, 'store'])
+            ->middleware(['throttle:6,1,two-factor.store', EnsureFeaturesAreActive::using(TwoFactorAuthentication::class)])
+            ->name('two-factor.store');
+
+        Route::delete('two-factor', [TwoFactorController::class, 'destroy'])
+            ->middleware('throttle:6,1,two-factor.destroy')
+            ->name('two-factor.destroy');
+    });
 
     Route::post('logout', [AuthenticatedSessionController::class, 'destroy'])
         ->name('logout');

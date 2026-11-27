@@ -13,6 +13,7 @@ use Illuminate\Support\Arr;
 use Illuminate\Support\Carbon as SupportCarbon;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
+use PragmaRX\Google2FA\Google2FA;
 use SDamian\Larasort\AutoSortable;
 
 class User extends Authenticatable
@@ -168,6 +169,8 @@ class User extends Authenticatable
     protected $hidden = [
         'password',
         'remember_token',
+        'two_factor_secret',
+        'two_factor_recovery_codes',
     ];
 
     /** @return array<string, string> */
@@ -188,7 +191,36 @@ class User extends Authenticatable
             'has_photo_permission' => 'boolean',
             'is_gift_aiding_subs' => 'boolean',
             'settings' => 'array',
+            'two_factor_secret' => 'encrypted',
+            'two_factor_recovery_codes' => 'encrypted:array',
         ];
+    }
+
+    public function hasTwoFactor(): bool
+    {
+        return $this->two_factor_secret !== null;
+    }
+
+    /** A current code from the authenticator app, or an unused recovery code, which is then used up. */
+    public function verifyTwoFactorCode(string $code): bool
+    {
+        $code = preg_replace('/\s+/', '', $code);
+
+        if (preg_match('/^\d{6}$/', $code)) {
+            return (bool) app(Google2FA::class)->verifyKey($this->two_factor_secret, $code);
+        }
+
+        $recovery_codes = $this->two_factor_recovery_codes ?? [];
+        $index = array_search(Str::lower($code), $recovery_codes, true);
+
+        if ($index === false) {
+            return false;
+        }
+
+        unset($recovery_codes[$index]);
+        $this->forceFill(['two_factor_recovery_codes' => array_values($recovery_codes)])->save();
+
+        return true;
     }
 
     public function setting(string $key, mixed $default = null): mixed

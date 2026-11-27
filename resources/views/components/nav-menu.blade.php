@@ -79,6 +79,9 @@
                             <x-a class="dropdown-item" :route="'users.show'" :user="Auth::user()">{{ __('My profile') }}</x-a>
                         @endcan
                         <x-a class="dropdown-item" :route="'password.edit'">{{ __('Change password') }}</x-a>
+                        @if (Auth::user()->can('useTwoFactor', App\Models\User::class) && (Auth::user()->hasTwoFactor() || Laravel\Pennant\Feature::active(App\Features\TwoFactorAuthentication::class)))
+                            <x-a class="dropdown-item" :route="'two-factor.edit'">{{ __('Two-factor authentication') }}</x-a>
+                        @endif
 						<form action="{{ route('logout') }}" method="POST">
 							@csrf
 							<button class="dropdown-item" type="submit">{{ __('Logout') }}</button>

@@ -8,7 +8,7 @@ use Illuminate\Support\Str;
 const ROUTES_WITHOUT_ABILITIES = [
     'home', 'health', 'manifest', 'emails.show', 'up', 'logout', 'boost.*',
     'login', 'login-link.*', 'google.*',
-    'password.*', 'confirm-password', 'verification.*',
+    'password.*', 'confirm-password', 'verification.*', 'two-factor.challenge', 'two-factor.verify',
     'attendance.poll.view',
 ];
 

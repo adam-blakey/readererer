@@ -89,6 +89,11 @@ class UserPolicy
         return Response::deny();
     }
 
+    public function useTwoFactor(User $user)
+    {
+        return $user->role === UserRole::Ensemble ? Response::deny() : Response::allow();
+    }
+
     public function resetPassword(User $user, User $user_)
     {
         if ($user->role->value >= UserRole::Admin->value && $user->isNot($user_)) {

@@ -339,6 +339,15 @@ class UserController extends Controller
         return to_route('users.show', $user)->with('status', __('The password for :name has been set.', ['name' => $user->name]));
     }
 
+    public function disableTwoFactor(User $user): RedirectResponse
+    {
+        $user->forceFill(['two_factor_secret' => null, 'two_factor_recovery_codes' => null])->save();
+
+        Log::notice('Two-factor authentication turned off by an admin', ['user_id' => $user->id]);
+
+        return to_route('users.show', $user)->with('status', __('Two-factor authentication for :name has been turned off.', ['name' => $user->name]));
+    }
+
     public function attachEnsemble(Request $request, User $user): RedirectResponse
     {
         $validated = $request->validate([
