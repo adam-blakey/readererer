@@ -289,7 +289,7 @@ document root `domains/readererer.blakey.family/public` before step 6.
    minute:
    `cd ~/domains/<domain> && php artisan schedule:run > /dev/null 2>&1`.
    Without it reminders can still be sent by hand from the term page. There
-   are no queued jobs. The scheduler also runs `health:check` every five
+   are no queued jobs. Backups (Settings → Backups) also run from it. The scheduler also runs `health:check` every five
    minutes, which requests the site's own `/health` and shows the result on
    **Settings → Monitoring**; that page warns when no check has run for 15
    minutes, which usually means this cron job has stopped. For a site behind
@@ -318,6 +318,18 @@ document root `domains/readererer.blakey.family/public` before step 6.
      `cd ~/domains/<domain> && flock -n ~/nightwatch-<domain>.lock php artisan nightwatch:agent --silent > /dev/null 2>&1`.
      If the host stops long-running processes, the agent is down for up to a
      minute at a time and entries sent meanwhile are lost.
+7. **Backups.** Turn them on under **Settings → Backups**. Each backup is a
+   zip in `storage/app/readererer/` holding the database (as a SQLite file
+   under `db-dumps/`) and the uploaded images (`public/`). Set
+   `BACKUP_ARCHIVE_PASSWORD` in `.env` to encrypt the zips. A backup on the
+   same server does not survive losing the server: to copy them elsewhere,
+   add a filesystem disk (for example S3, after `composer require
+   league/flysystem-aws-s3-v3`) and list it in `BACKUP_DISKS`, separated by
+   commas. To restore, put the site in maintenance mode, replace
+   `database/database.sqlite` with the zip's database file and
+   `storage/app/public` with its `public/` folder, then bring it back up.
+   `.env` is not in the backup; keep the site's `APP_KEY`, or the Google
+   client secret and Membermojo password must be entered again.
 
 ### Rules (Settings → Rules → Rulesets → `main`)
 

@@ -6,6 +6,7 @@ use App\Http\Requests\UpdateSettingsRequest;
 use App\Settings\GeneralSettings;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
+use Spatie\Backup\BackupDestination\BackupDestination;
 
 class SettingController extends Controller
 {
@@ -16,6 +17,11 @@ class SettingController extends Controller
             'has_uploaded_logo' => filled($settings->logo),
             'has_uploaded_favicon' => filled($settings->favicon),
             'has_google_client_secret' => filled(config('services.google.client_secret')),
+            'latest_backup' => collect(config('backup.backup.destination.disks'))
+                ->map(fn ($disk) => BackupDestination::create($disk, config('backup.backup.name'))->newestBackup())
+                ->filter()
+                ->sortByDesc(fn ($backup) => $backup->date())
+                ->first(),
         ]);
     }
 
@@ -31,6 +37,9 @@ class SettingController extends Controller
         $settings->terminology = array_filter($request->validated('terminology', []), 'filled') ?: null;
         $settings->shown_user_fields = $request->validated('shown_user_fields', []);
         $settings->social_links = array_filter($request->validated('social_links', []), 'filled') ?: null;
+        $settings->backup_time = $request->validated('backup_time');
+        $settings->backup_keep_days = $request->filled('backup_keep_days') ? (int) $request->validated('backup_keep_days') : null;
+        $settings->backup_email = $request->validated('backup_email');
 
         $settings->google_client_id = $request->validated('google_client_id');
         $settings->google_register_domain = strtolower((string) $request->validated('google_register_domain')) ?: null;
@@ -40,7 +49,7 @@ class SettingController extends Controller
             $settings->google_client_secret = $request->validated('google_client_secret');
         }
 
-        foreach (['assume_attending', 'allow_change_to_unknown', 'repeating_headings', 'hide_past_dates', 'depping', 'setup_groups', 'van_drivers', 'single_ensemble', 'log_emails', 'analytics', 'abbreviate_surnames', 'email_previews', 'twenty_four_hour_clock', 'google_login'] as $key) {
+        foreach (['assume_attending', 'allow_change_to_unknown', 'repeating_headings', 'hide_past_dates', 'depping', 'setup_groups', 'van_drivers', 'single_ensemble', 'log_emails', 'analytics', 'abbreviate_surnames', 'email_previews', 'twenty_four_hour_clock', 'google_login', 'backups'] as $key) {
             $settings->{$key} = $request->boolean($key);
         }
 

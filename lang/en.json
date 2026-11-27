@@ -911,5 +911,15 @@
     "The last date must be on or after the first.": "The last date must be on or after the first.",
     "Tick none for a rehearsal": "Tick none for a rehearsal",
     "Term details": "Term details",
-    "New": "New"
+    "New": "New",
+    "Backups": "Backups",
+    "Saves a zip of the database and uploaded images every day.": "Saves a zip of the database and uploaded images every day.",
+    "Latest backup: :date (:size).": "Latest backup: :date (:size).",
+    "No backups yet.": "No backups yet.",
+    "Back up the site every day": "Back up the site every day",
+    "Backup time": "Backup time",
+    "Keep backups for (days)": "Keep backups for (days)",
+    "Older backups are deleted after each new one, but the newest is always kept.": "Older backups are deleted after each new one, but the newest is always kept.",
+    "Email failed backups to": "Email failed backups to",
+    "Leave empty to send no emails.": "Leave empty to send no emails."
 }

@@ -51,6 +51,10 @@ class GeneralSettings extends Settings
         'membermojo_time' => ['services.membermojo.time'],
         'email_previews' => ['app.readererer_email_previews'],
         'twenty_four_hour_clock' => ['app.readererer_twenty_four_hour_clock'],
+        'backups' => ['app.readererer_backups'],
+        'backup_time' => ['app.readererer_backup_time'],
+        'backup_keep_days' => ['backup.cleanup.default_strategy.keep_all_backups_for_days'],
+        'backup_email' => ['backup.notifications.mail.to'],
     ];
 
     public const AFTER_REMINDERS = ['nothing', 'follow_up', 'lock'];
@@ -145,6 +149,14 @@ class GeneralSettings extends Settings
     public ?bool $email_previews;
 
     public ?bool $twenty_four_hour_clock;
+
+    public ?bool $backups;
+
+    public ?string $backup_time;
+
+    public ?int $backup_keep_days;
+
+    public ?string $backup_email;
 
     public static function group(): string
     {
