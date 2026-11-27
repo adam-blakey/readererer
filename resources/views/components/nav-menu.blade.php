@@ -79,6 +79,10 @@
                             <x-a class="dropdown-item" :route="'users.show'" :user="Auth::user()">{{ __('My profile') }}</x-a>
                         @endcan
                         <x-a class="dropdown-item" :route="'password.edit'">{{ __('Change password') }}</x-a>
+                        @feature(\App\Features\InstallApp::class)
+                            <button class="dropdown-item" data-install-app hidden type="button">{{ __('Install app') }}</button>
+                            <span class="dropdown-item-text text-secondary" data-install-app-ios hidden>{{ __('To install, tap Share then Add to Home Screen.') }}</span>
+                        @endfeature
 						<form action="{{ route('logout') }}" method="POST">
 							@csrf
 							<button class="dropdown-item" type="submit">{{ __('Logout') }}</button>

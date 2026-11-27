@@ -911,5 +911,8 @@
     "The last date must be on or after the first.": "The last date must be on or after the first.",
     "Tick none for a rehearsal": "Tick none for a rehearsal",
     "Term details": "Term details",
-    "New": "New"
+    "New": "New",
+    "Install app": "Install app",
+    "Adds an \"Install app\" option to the user menu in browsers that can install the site as an app, and tells iPhone and iPad users how to add it to their home screen.": "Adds an \"Install app\" option to the user menu in browsers that can install the site as an app, and tells iPhone and iPad users how to add it to their home screen.",
+    "To install, tap Share then Add to Home Screen.": "To install, tap Share then Add to Home Screen."
 }
