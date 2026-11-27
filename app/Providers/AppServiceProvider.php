@@ -10,6 +10,7 @@ use App\Models\User;
 use App\Services\EmailSenders\LogEmailSender;
 use App\Services\EmailSenders\SmtpEmailSender;
 use App\Settings\GeneralSettings;
+use App\Support\SqliteBackupDumper;
 use App\Translation\TerminologyLoader;
 use Barryvdh\Debugbar\Facades\Debugbar;
 use Illuminate\Auth\Events\Failed;
@@ -30,6 +31,7 @@ use Laravel\Nightwatch\Core as Nightwatch;
 use Laravel\Nightwatch\Facades\Nightwatch as NightwatchFacade;
 use Laravel\Pennant\Feature;
 use Laravel\Pulse\Facades\Pulse;
+use Spatie\Backup\Tasks\Backup\DbDumperFactory;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -51,6 +53,7 @@ class AppServiceProvider extends ServiceProvider
     public function boot(): void
     {
         GeneralSettings::applyToConfig();
+        DbDumperFactory::extend('sqlite', fn () => new SqliteBackupDumper);
 
         if (config('nightwatch.base_url')) {
             // The agent reads its server only from $_SERVER, which .env no longer fills once config is cached.

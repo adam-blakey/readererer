@@ -162,6 +162,8 @@ return [
     'readererer_abbreviate_surnames' => env('READERERER_ABBREVIATE_SURNAMES', false),
     'readererer_email_previews' => env('READERERER_EMAIL_PREVIEWS', false),
     'readererer_twenty_four_hour_clock' => env('READERERER_TWENTY_FOUR_HOUR_CLOCK', true),
+    'readererer_backups' => env('READERERER_BACKUPS', false),
+    'readererer_backup_time' => env('READERERER_BACKUP_TIME', '03:17'),
 
     'readererer_feature_flags' => [],
     'readererer_social_links' => [],

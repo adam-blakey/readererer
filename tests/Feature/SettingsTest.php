@@ -399,3 +399,22 @@ test('saving social links logs the setting name but not the addresses', function
         fn (array $context) => in_array('social_links', $context['changed'], true) && ! str_contains(json_encode($context), 'riverside')
     ))->once();
 });
+
+test('an admin saves the backup settings and they override the config', function () {
+    $this->actingAs(make_user(UserRole::Admin))
+        ->put(route('settings.update'), settings_payload(['backups' => '1', 'backup_time' => '6:05pm', 'backup_keep_days' => '14', 'backup_email' => 'backups@example.org']))
+        ->assertSessionHasNoErrors();
+
+    GeneralSettings::applyToConfig();
+
+    expect(config('app.readererer_backups'))->toBeTrue()
+        ->and(config('app.readererer_backup_time'))->toBe('18:05')
+        ->and(config('backup.cleanup.default_strategy.keep_all_backups_for_days'))->toBe(14)
+        ->and(config('backup.notifications.mail.to'))->toBe('backups@example.org');
+});
+
+test('backup settings reject invalid values', function () {
+    $this->actingAs(make_user(UserRole::Admin))
+        ->put(route('settings.update'), settings_payload(['backup_time' => '25:00', 'backup_keep_days' => '0', 'backup_email' => 'not an email']))
+        ->assertSessionHasErrors(['backup_time', 'backup_keep_days', 'backup_email']);
+});

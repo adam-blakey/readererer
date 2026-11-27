@@ -1,4 +1,4 @@
-@props(['page_name', 'has_uploaded_logo', 'has_uploaded_favicon', 'has_google_client_secret'])
+@props(['page_name', 'has_uploaded_logo', 'has_uploaded_favicon', 'has_google_client_secret', 'latest_backup'])
 
 @php
 	use App\Enums\Color;
@@ -74,7 +74,7 @@
 			@method('PUT')
 
 			<fieldset class="card-body" @disabled(! $can_edit)>
-				<x-forms.error-summary :fields="['name', 'logo', 'remove_logo', 'favicon', 'remove_favicon', 'primary_color', 'image_max_kilobytes', 'assume_attending', 'allow_change_to_unknown', 'repeating_headings', 'hide_past_dates', 'depping', 'setup_groups', 'van_drivers', 'single_ensemble', 'reminder_hours', 'reminder_minutes', 'concert_reminder_hours', 'concert_reminder_minutes', 'after_reminders', 'log_emails', 'email_previews', 'analytics', 'abbreviate_surnames', 'twenty_four_hour_clock', 'terminology', 'terminology.*', 'social_links', 'social_links.*', 'shown_user_fields', 'shown_user_fields.*', 'google_login', 'google_client_id', 'google_client_secret', 'google_register_domain', 'google_register_role']" />
+				<x-forms.error-summary :fields="['name', 'logo', 'remove_logo', 'favicon', 'remove_favicon', 'primary_color', 'image_max_kilobytes', 'assume_attending', 'allow_change_to_unknown', 'repeating_headings', 'hide_past_dates', 'depping', 'setup_groups', 'van_drivers', 'single_ensemble', 'reminder_hours', 'reminder_minutes', 'concert_reminder_hours', 'concert_reminder_minutes', 'after_reminders', 'log_emails', 'email_previews', 'analytics', 'abbreviate_surnames', 'twenty_four_hour_clock', 'terminology', 'terminology.*', 'social_links', 'social_links.*', 'shown_user_fields', 'shown_user_fields.*', 'google_login', 'google_client_id', 'google_client_secret', 'google_register_domain', 'google_register_role', 'backups', 'backup_time', 'backup_keep_days', 'backup_email']" />
 				@if (session('status'))
 					<div class="alert alert-success" role="alert">{{ session('status') }}</div>
 				@endif
@@ -294,6 +294,46 @@
 								@endforeach
 							</select>
 							@error('google_register_role')
+								<x-forms.input-error :messages="$message" />
+							@enderror
+						</div>
+
+						<h2 class="mt-4 mb-1">{{ __('Backups') }}</h2>
+						<p class="text-secondary">
+							{{ __('Saves a zip of the database and uploaded images every day.') }}
+							@if ($latest_backup)
+								{{ __('Latest backup: :date (:size).', ['date' => $latest_backup->date()->format('j M Y '.time_format()), 'size' => Illuminate\Support\Number::fileSize($latest_backup->sizeInBytes())]) }}
+							@else
+								{{ __('No backups yet.') }}
+							@endif
+						</p>
+						<div class="mb-3">
+							<input name="backups" type="hidden" value="0">
+							<label class="form-check form-switch">
+								<input @class(['form-check-input', 'is-invalid' => $errors->has('backups')]) name="backups" type="checkbox" value="1" @checked(old('backups', config('app.readererer_backups')))>
+								<span class="form-check-label">{{ __('Back up the site every day') }}</span>
+							</label>
+						</div>
+						<div class="mb-3">
+							<label class="form-label" for="backup_time">{{ __('Backup time') }}</label>
+							<x-forms.time-input id="backup_time" :invalid="$errors->has('backup_time')" name="backup_time" :value="old('backup_time', config('app.readererer_backup_time'))" />
+							@error('backup_time')
+								<x-forms.input-error :messages="$message" />
+							@enderror
+						</div>
+						<div class="mb-3">
+							<label class="form-label" for="backup_keep_days">{{ __('Keep backups for (days)') }}</label>
+							<input class="form-control @error('backup_keep_days') is-invalid @enderror" id="backup_keep_days" max="3650" min="1" name="backup_keep_days" type="number" value="{{ old('backup_keep_days', config('backup.cleanup.default_strategy.keep_all_backups_for_days')) }}">
+							<div class="form-hint">{{ __('Older backups are deleted after each new one, but the newest is always kept.') }}</div>
+							@error('backup_keep_days')
+								<x-forms.input-error :messages="$message" />
+							@enderror
+						</div>
+						<div class="mb-3">
+							<label class="form-label" for="backup_email">{{ __('Email failed backups to') }}</label>
+							<input class="form-control @error('backup_email') is-invalid @enderror" id="backup_email" maxlength="255" name="backup_email" type="email" value="{{ old('backup_email', implode(',', (array) config('backup.notifications.mail.to'))) }}">
+							<div class="form-hint">{{ __('Leave empty to send no emails.') }}</div>
+							@error('backup_email')
 								<x-forms.input-error :messages="$message" />
 							@enderror
 						</div>

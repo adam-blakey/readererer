@@ -41,6 +41,10 @@ class UpdateSettingsRequest extends FormRequest
             'abbreviate_surnames' => ['sometimes', 'boolean'],
             'email_previews' => ['sometimes', 'boolean'],
             'twenty_four_hour_clock' => ['sometimes', 'boolean'],
+            'backups' => ['sometimes', 'boolean'],
+            'backup_time' => ['nullable', 'date_format:H:i'],
+            'backup_keep_days' => ['nullable', 'integer', 'min:1', 'max:3650'],
+            'backup_email' => ['nullable', 'email:filter', 'max:255'],
             'reminder_hours' => ['nullable', 'integer', 'min:0', 'max:720'],
             'reminder_minutes' => ['nullable', 'integer', 'min:0', 'max:59'],
             'concert_reminder_hours' => ['nullable', 'integer', 'min:0', 'max:720'],
@@ -59,6 +63,11 @@ class UpdateSettingsRequest extends FormRequest
             'google_register_domain' => ['nullable', 'string', 'max:255', 'regex:/^[a-z0-9-]+(\.[a-z0-9-]+)+$/i', 'required_with:google_register_role'],
             'google_register_role' => ['nullable', Rule::enum(UserRole::class)->except(UserRole::Ensemble), 'required_with:google_register_domain'],
         ];
+    }
+
+    protected function prepareForValidation(): void
+    {
+        $this->merge(['backup_time' => normalise_time($this->input('backup_time'))]);
     }
 
     public function messages(): array
