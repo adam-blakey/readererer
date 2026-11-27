@@ -2,10 +2,14 @@
 
 namespace App\Http\Controllers;
 
+use App\Features\HealthAndSecurityChecks;
 use App\Http\Requests\UpdateSettingsRequest;
 use App\Settings\GeneralSettings;
+use App\Support\SystemChecks;
+use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
+use Laravel\Pennant\Feature;
 
 class SettingController extends Controller
 {
@@ -16,6 +20,7 @@ class SettingController extends Controller
             'has_uploaded_logo' => filled($settings->logo),
             'has_uploaded_favicon' => filled($settings->favicon),
             'has_google_client_secret' => filled(config('services.google.client_secret')),
+            'checks' => Gate::allows('edit.settings') && Feature::active(HealthAndSecurityChecks::class) ? SystemChecks::all() : [],
         ]);
     }
 

@@ -1,4 +1,4 @@
-@props(['page_name', 'has_uploaded_logo', 'has_uploaded_favicon', 'has_google_client_secret'])
+@props(['page_name', 'has_uploaded_logo', 'has_uploaded_favicon', 'has_google_client_secret', 'checks'])
 
 @php
 	use App\Enums\Color;
@@ -61,6 +61,37 @@
 
 <x-layout>
 	<div class="container-xl">
+		@if ($checks)
+			@php($failed = collect($checks)->reject(fn ($check) => $check[1])->count())
+			<div class="card mb-3">
+				<div class="card-header">
+					<h3 class="card-title">{{ __('Health and security checks') }}</h3>
+					<div class="card-actions">
+						@if ($failed)
+							<span class="badge bg-red-lt">{{ trans_choice(':count check failed|:count checks failed', $failed) }}</span>
+						@else
+							<span class="badge bg-green-lt">{{ __('All checks passed') }}</span>
+						@endif
+					</div>
+				</div>
+				<div class="list-group list-group-flush">
+					@foreach ($checks as [$label, $passed, $fix])
+						<div class="list-group-item">
+							<div class="row align-items-center">
+								<div class="col-auto"><span class="status-dot {{ $passed ? 'status-green' : 'status-red' }}"></span><span class="visually-hidden">{{ $passed ? __('Passed') : __('Failed') }}</span></div>
+								<div class="col">
+									<div class="fw-medium">{{ $label }}</div>
+									@unless ($passed)
+										<div class="text-secondary">{{ $fix }}</div>
+									@endunless
+								</div>
+							</div>
+						</div>
+					@endforeach
+				</div>
+			</div>
+		@endif
+
 		<div class="card mb-3">
 			<div class="card-body btn-list">
 				@foreach ($sections as [$route, $icon, $title])
