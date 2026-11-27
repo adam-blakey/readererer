@@ -9,7 +9,7 @@
         "build": "vite build"
     },
     "devDependencies": {
-        "autoprefixer": "^10.6.2",
+        "autoprefixer": "^10.7.0",
         "axios": "^1.21.1",
         "laravel-vite-plugin": "^3.2",
         "playwright": "^1.65.1",
@@ -19,7 +19,7 @@
     "dependencies": {
         "@tabler/core": "^1.7.5",
         "@tabler/icons": "^3.52.0",
-        "autoprefixer": "^10.6.2",
+        "autoprefixer": "^10.7.0",
         "axios": "^1.21.1",
         "laravel-vite-plugin": "^3.2",
         "postcss": "^8.5.33",
