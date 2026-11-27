@@ -5,4 +5,5 @@ import './keyboard-visibility';
 import './image-scaling';
 import './multi-select';
 import './theme';
+import './install-app';
 import "@tabler/core/dist/js/tabler.min.js";
